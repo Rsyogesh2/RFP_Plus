@@ -1,0 +1,58 @@
+/* .functional-score {
+    width: 300px;
+     border: 1px solid #A9A9A9; 
+    padding: 1rem;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+} */
+
+.functional-score h3 {
+    font-size: 1.2rem;
+    color: #005b99;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.score-section {
+    display: flex;
+    justify-content: space-between;
+}
+
+.response-table, .mandatory-table {
+    width: 60%;
+    border-collapse: collapse;
+    margin-right: 0.5rem;
+}
+
+.response-table th, .response-table td, .mandatory-table td {
+    padding: 0.3rem;
+    border: 1px solid #A9A9A9;
+    text-align: center;
+}
+
+.response-table th {
+    background-color: #e0e0e0;
+    color: #005b99;
+    font-weight: bold;
+}
+
+.mandatory-table {
+    width: 30%;
+}
+
+.mandatory-table td {
+    height: 2.5rem;
+    border: 1px solid #A9A9A9;
+    text-align: center;
+    font-weight: bold;
+}
+
+.benchmark-note {
+    font-size: 0.85rem;
+    color: #777;
+    font-style: italic;
+    text-align: center;
+    margin-top: 1rem;
+}

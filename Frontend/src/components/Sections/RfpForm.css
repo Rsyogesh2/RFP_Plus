@@ -1,0 +1,90 @@
+/* src/components/RfpForm/RfpForm.css */
+.rfp-form {
+    padding: 20px;
+    border: 1px solid #ccc;
+    width: 80%;
+    margin: 0% auto;
+    background-color: #f9f9f9;
+  }
+  
+  .input-group {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .input-group label {
+    /* display: block; */
+    font-weight: bold;
+    white-space: nowrap;
+    padding: 10px;
+    margin-top: 5px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    height: 25px;
+    padding: 5px;
+    margin-top: 5px;
+  }
+  .input-group {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+  }
+  .input-field {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+  }
+  #input1no{
+    flex-basis: 45%;
+  }
+  #input1title{
+    flex-basis: 55%;
+  }
+
+  .checkbox-group {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+  }
+  
+  .checkbox-list {
+    flex: 1;
+  }
+  
+  .checkbox-list h3 {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+  }
+  
+  .checkbox-list ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .checkbox-list li {
+    margin-bottom: 5px;
+  }
+  
+
+
+  /* ========== */
+  .btn {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    color: white;
+  }
+  
+  .btn[text="submit"] {
+    background-color: #4CAF50; /* Green */
+  }
+  
+  .btn[text="cancel"] {
+    background-color: #f44336; /* Red */
+  }

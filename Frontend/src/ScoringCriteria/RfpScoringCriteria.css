@@ -1,0 +1,143 @@
+ .rfp-container {
+    display: grid;
+    gap: 1rem;
+    padding: 2rem;
+    font-family: Arial, sans-serif;
+}
+
+.rfp-header {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.total-score {
+    display: grid;
+    grid-template-columns: 1fr 1fr 40%; /* First two sections get equal space, last one gets 35% */
+    gap: 1rem; /* Space between the sections */
+}
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+section {
+    border: 1px solid #A9A9A9; 
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    margin-bottom: 1rem;
+    height:auto;
+}
+.overall-scoring h2 , .commercial-score h2{
+    font-size: 1.2rem;
+    color: #005b99;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+.overall-scoring th , .commercial-score th{
+    font-size: 1.2rem;
+    color: #005b99;
+    text-align: center;
+    margin-bottom: 1rem;
+    background-color: #e0e0e0;
+    color: #005b99;
+    font-weight: bold;
+    border: 1px solid #A9A9A9;
+}
+
+.buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.buttons button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+}
+/* ============ */
+
+.section {
+    border: 1px solid #A9A9A9; /* light gray border */
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f1f1f1;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    color: #005b99; /* blue color for section title */
+    margin-bottom: 0.5rem;
+}
+.section {
+    border: 1px solid #ccc;
+    padding: 1rem;
+}
+
+.score-sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2%;
+    justify-content: space-evenly;
+}
+
+.score-sections .section {
+    flex: 0 1 31%; /* Set each section to take up 30% of the width */
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 0.5rem;
+    text-align: left;
+}
+
+th {
+    color: #005b99; /* blue color for headers */
+    font-weight: normal;
+}
+
+td {
+    border-top: 1px solid #ddddddd3;
+}
+
+.item-input {
+    width: 100%;
+    padding: 0.3rem;
+    border: none;
+    border-bottom: 1px solid #A9A9A9; /* gray bottom border */
+    font-style: italic;
+    color: #666; /* placeholder gray color */
+}
+
+.item-input::placeholder {
+    color: #A9A9A9;
+}
+
+.score-dropdown {
+    width: 100%;
+    padding: 0.3rem;
+    background-color: #f9f9f9;
+    border: 1px solid #A9A9A9;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.benchmark-note {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 0.5rem;
+    font-style: italic;
+    text-align: center;
+}
+

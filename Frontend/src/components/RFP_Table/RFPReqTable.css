@@ -1,0 +1,171 @@
+/* Add your CSS styles here */
+
+.rfp-table {
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 80%;
+    margin:auto;
+    table-layout: fixed;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+   
+  }
+  
+  .title, .labels {
+    font-weight: bold;
+  }
+  
+  .module-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .item-table {
+    width: 100%;
+    border-collapse: collapse; /* Ensures no extra spacing between cells */
+    table-layout: fixed; /* Enforces equal column width */
+}
+
+.item-table th, .item-table td {
+    width: 11% 55% 5% 5% 25%; /* Distributes width evenly for 5 columns */
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ccc;
+    overflow: hidden; /* Prevents content overflow */
+    white-space: nowrap; /* Prevents text wrapping */
+    text-overflow: ellipsis; /* Adds ellipsis for long text */
+}
+.col-m, .col-o {
+  width: 5%;
+  text-align: center !important; /* Center-align the "M" and "O" columns */
+}
+  .item-table thead{
+    background-color: grey;
+  }
+  
+  .addBtn {
+    border: white;
+    text-decoration: wavy;
+    background-color: white;
+  }
+
+  .textArea {
+    border: none;
+  }
+  .labels{
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0px;
+  }
+
+  /* #table2 {
+    width: 80%;
+    background-color: aqua;
+  } */
+
+  /* ==================== */
+  .item-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.item-table thead th {
+    background-color: #555555; /* Dark grey background */
+    color: white;
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+
+/* .item-table tbody td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.item-table tbody td:first-child {
+    text-align: center;
+} */
+
+.item-table button {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    background-color: #007bff; /* Blue color */
+    color: white;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.item-table button.deleteBtn {
+    background-color: #dc3545; /* Red color */
+}
+
+.item-table input[type="checkbox"] {
+    margin: 0;
+    padding: 0;
+}
+
+.item-table input[type="text"] {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.item-table input[type="radio"] {
+    margin: 0;
+}
+
+.addBtn {
+    width: 100%;
+    background-color: #28a745; /* Green color */
+    color: white;
+    padding: 8px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.Modifybtn {
+  color: blue !important;
+text-decoration: underline !important;
+background-color: white !important; /* White background */
+border: none !important;
+cursor: pointer !important;
+font-size: 14px !important; /* Smaller font size */
+padding: 3px !important;
+margin: 0 !important;
+
+}
+
+.level1 .l1 {
+  display: block;
+  margin-left: 5px;
+  margin-bottom: 10px;
+  text-align: left !important;
+  font-weight: bold;
+}
+
+.level2 .l2 {
+  display: block;
+  margin-left: 20px; /* Adjust for indentation */
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-align: left !important;
+}
+
+.level3 .l3 {
+  display: block;
+  margin-left: 35px; /* Adjust for further indentation */
+  margin-bottom: 10px;
+  font-weight: bold;
+  text-align: left !important;
+}
+

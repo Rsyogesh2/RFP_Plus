@@ -1,0 +1,113 @@
+/* Styling for the table container */
+.item-table1 {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    text-align: left;
+    font-size: 13px;
+  }
+  
+  .item-table1 th, .item-table1 td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .item-table1 th {
+    background-color: #f2f2f2;
+    /* font-weight: bold; */
+  }
+  
+  .item-table1 td {
+    vertical-align: middle;
+  }
+  
+  /* Specific column widths */
+  .item-table1 th:first-child,
+  .item-table1 td:first-child {
+    width: 30%; /* Requirement column */
+    text-align: left;
+  }
+  
+  .item-table1 th:nth-child(2),
+  .item-table1 td:nth-child(2) {
+    width: 5%; /* M/O column */
+    font-weight: normal;
+
+  }
+  
+  .item-table1 th:nth-child(3),
+  .item-table1 td:nth-child(3) {
+    width: 15%; /* Comments column */
+    text-align: left;
+    font-weight: normal;
+  }
+  
+  .item-table1 th:nth-child(4),
+  .item-table1 td:nth-child(4),
+  .item-table1 th:nth-child(5),
+  .item-table1 td:nth-child(5),
+  .item-table1 th:nth-child(6),
+  .item-table1 td:nth-child(6),
+  .item-table1 th:nth-child(7),
+  .item-table1 td:nth-child(7) {
+    width: 2%; /* A, P, C, N columns */
+    text-align: center;
+  }
+  
+  .item-table1 th:nth-child(8),
+  .item-table1 td:nth-child(8) {
+    width:45%; /* Remarks column */
+  }
+  .item-table1 td:nth-child(8) textarea{
+    width: 100%;
+  }
+  
+  .item-table1 th:nth-child(9),
+  .item-table1 td:nth-child(9) {
+    width: 3%; /* Attach column */
+    font-size: 16px;
+  }
+  
+ /* Scale the checkbox */
+.item-table1 input[type="checkbox"] {
+  transform: scale(1.2); /* Scale checkboxes for better visibility */
+  /* appearance: none; */
+  /* width: 20px;
+  height: 20px;
+  border: 2px solid #666;
+  border-radius: 3px;
+  background-color: #f0f0f0;
+  cursor: pointer; */
+}
+
+/* Light green background when checkbox is checked */
+.item-table1 input[type="checkbox"]:checked {
+  background-color: #a8e6a3; /* Light green background */
+  border-color: #28a745; /* Darker green border */
+}
+
+/* White checkmark */
+
+
+  
+  .item-table1 input[type="text"],
+  .item-table1 input[type="file"] {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Optional: Style table rows with alternating colors */
+  .item-table1 tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .item-table1 tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+  
+  /* Highlight the header row with a specific color */
+  .item-table1 thead tr {
+    background-color: #e0e0e0;
+  }
+  

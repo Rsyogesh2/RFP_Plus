@@ -1,0 +1,48 @@
+.module-list {
+    width: 300px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+    border-collapse: collapse;
+}
+
+.module-list h2 {
+    text-align: left;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+.checkbox-cell {
+    text-align: center;
+}
+
+.checkbox-cell input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.plus-cell {
+    text-align: center;
+    font-weight: bold;
+    color: #007BFF;
+    cursor: pointer;
+}
+
+.expandable {
+    cursor: pointer;
+}
+
+.sub-item {
+    padding-left: 20px;
+    font-style: italic;
+    color: #555;
+}
