@@ -5,8 +5,9 @@ import { AppContext } from '../../context/AppContext';
 import Button from '../Buttons/Button.js';
 import { handleSave } from '../../services/Apis'
 
-const RFPReqTable = () => {
+const RFPReqTable = ({ l1, userRole }) => {
 
+    const [name, setName] = useState(null); // Initially, no data
     const [itemData, setItemData] = useState(null); // Initially, no data
     const [FItem, setFItem] = useState([{
         name: "",
@@ -29,20 +30,20 @@ const RFPReqTable = () => {
     //     MorO: "",
     //     Comments: ""}]); // Initially, no data
     const [newItem, setNewItem] = useState(null);
-    const { moduleData, userName } = useContext(AppContext); // Access shared state
+    const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
     // console.log(moduleData);
-
 
     useEffect(() => {
         // Define an async function to log array and set item data
         async function fetchArray() {
             // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
             // console.log("result", result.functionalItemDetails); // Log the resolved array
-            console.log("userName"+userName)
+            console.log("userName " + userName)
+            console.log(l1)
             //23/11/2024
             try {
-                const queryParams = new URLSearchParams({ userName });
-                const response = await fetch(`/api/userAssignItems?${queryParams}`)
+                const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
+                const response = await fetch(`/api/userAssignItemsbySub?${queryParams}`)
                 console.log(response);
 
                 // Check if the response is okay (status in the range 200-299)
@@ -52,23 +53,18 @@ const RFPReqTable = () => {
 
                 const data = await response.json(); // Parse the JSON response
                 console.log(data);  // Handle the fetched data as needed
-                
-                 setItemData(data.itemDetails.l1); // Set the resolved data to local state
+
+                setItemData(data.itemDetails.l1); // Set the resolved data to local state
+                setName(data.itemDetails.Name); // Set the resolved data to local state
                 console.log(data.itemDetails.l1);
+                // setSidebarValue(data.itemDetails);
                 setFItem(data.functionalItemDetails);
             } catch (error) {
                 console.error('Error sending checked items:', error); // Log any errors
             }
-            //
-            // setItemData(result.itemDetails.l1); // Set the resolved data to local state
-            // console.log(result.itemDetails.l1);
-            // setFItem(result.functionalItemDetails);
-        }
 
-        // Call logArray when moduleData changes
-        // if (moduleData) {
-            fetchArray();
-        // }
+        } fetchArray();
+
     }, [moduleData]);
 
 
@@ -216,7 +212,7 @@ const RFPReqTable = () => {
             prevItems.map((item) =>
                 item.isEditing ? {
                     ...item, name: e.target.value, modifiedTime: new Date().toLocaleString(), // Store the current time
-                    editedBy: "Current User",
+                    editedBy: name,
                 } : item
             )
         );
@@ -247,8 +243,8 @@ const RFPReqTable = () => {
     };
 
 
-    const renderHierarchy = (levelData, levelType, paddingLeft = 10, TableIndex = null, parentIndex = null, subIndex = null,indexval) => {
-        console.log('Rendering level:', levelType, 'with data', levelData,TableIndex,parentIndex," subIndex "+subIndex,"  indexval "+indexval);
+    const renderHierarchy = (levelData, levelType, paddingLeft = 10, TableIndex = null, parentIndex = null, subIndex = null, indexval) => {
+        // console.log('Rendering level:', levelType, 'with data', levelData,TableIndex,parentIndex," subIndex "+subIndex,"  indexval "+indexval);
 
         if (!levelData || !Array.isArray(levelData)) return console.log("its empty"); // Ensure levelData is defined and an array
 
@@ -349,11 +345,61 @@ const RFPReqTable = () => {
             </tr>
         ));
     };
+    const readHierarchy = (levelData, levelType, paddingLeft = 10, TableIndex = null, parentIndex = null, subIndex = null, indexval) => {
+        // console.log('Rendering level:', levelType, 'with data', levelData,TableIndex,parentIndex," subIndex "+subIndex,"  indexval "+indexval);
 
-    const Tables = (l2, index1, f1, index,indexval) => {
+        if (!levelData || !Array.isArray(levelData)) return console.log("its empty"); // Ensure levelData is defined and an array
+
+        return levelData.map((item, index) => (
+            <tr key={`${item.F2_Code}-${index}`} id={`${item.F2_Code}-${index}`}>
+
+                
+                <td>{item.name}</td>
+                <td style={{ textAlign: 'center' }}>
+                    {
+                        <input
+                            type="radio"
+                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-MorO`}
+                            checked={item.MorO === true}
+                        />
+                    }
+                </td>
+                <td style={{ textAlign: 'center' }}>
+                    {
+                        <input
+                            type="radio"
+                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-MorO`}
+                            checked={item.MorO === false}
+                        />
+                    }
+                </td>
+                <td>
+                    <p>{item.Comments || ''}</p>    
+                </td>
+                <td>
+                    {item.modifiedTime && (
+                        <p style={{
+                            fontSize: '12px', wordWrap: 'break-word',
+                            whiteSpace: 'normal',
+                            overflow: 'hidden',
+                            textOverflow: 'clip'
+                        }}
+                        >
+                            {item.modifiedTime} </p>)}
+                </td>
+                <td>
+                    {item.modifiedTime &&
+                        <p style={{ fontSize: '12px' }}>{item.editedBy}</p>
+                    }
+                </td>
+            </tr>
+        ));
+    };
+
+    const Tables = (l2, index1, f1, index, indexval) => {
         // console.log(items);
         console.log("rendering Table");
-        console.log(indexval)
+        // console.log(indexval)
         // console.log(items);
         // console.log(l2);
 
@@ -367,10 +413,11 @@ const RFPReqTable = () => {
         // console.log(f1items);
         // const f2items = matchingCodes.filter(f1=>!(f1.F2_Code.endsWith("00"))&&f1.F2_Code!==""&&f1.F2_Code.startsWith(f1.F1_Code))
         // console.log(f2items);
+
         return (
             <table className="item-table">
                 <colgroup>
-                    <col style={{ width: "8%" }} />
+                {userRole==="Maker"&&<col style={{ width: "8%" }} />}
                     <col style={{ width: "60%" }} />
                     <col style={{ width: "1%" }} />
                     <col style={{ width: "1%" }} />
@@ -380,7 +427,7 @@ const RFPReqTable = () => {
                 </colgroup>
                 <thead>
                     <tr>
-                        <th className="col-modify">Modify</th>
+                        {userRole==="Maker"&&<th className="col-modify">Modify</th>}
                         <th className="col-requirement">Requirement</th>
                         <th className="col-m">M</th>
                         <th className="col-o">O</th>
@@ -401,11 +448,15 @@ const RFPReqTable = () => {
 
                             return (
                                 <React.Fragment key={item.code}>
-                                    {renderHierarchy([item], 'f1', 10, index1, index,indexval)}
+                                    {userRole === 'Maker' ? renderHierarchy([item], 'f1', 10, index1, index, indexval) :
+                                      readHierarchy([item], 'f1', 10, index1, index, indexval)  }
 
                                     {f2items && f2items.map((level2, subIndex) => (
                                         <React.Fragment key={level2.code}>
-                                            {renderHierarchy([level2], 'f2', 50, index1, index, subIndex,indexval)}
+                                            {userRole === 'Maker' ? renderHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval) :
+                                            readHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval) 
+                
+                                            }
                                         </React.Fragment>
                                     ))}
                                 </React.Fragment>
@@ -414,12 +465,18 @@ const RFPReqTable = () => {
                     ) : (
                         // Render a single default row if f1items is empty
                         <React.Fragment>
-                            {renderHierarchy(
+                            {userRole === 'Maker' ? renderHierarchy(
                                 [newItem],
                                 'f1',
                                 10,
                                 index1
-                            )
+                            ) :
+                            readHierarchy(
+                                [newItem],
+                                'f1',
+                                10,
+                                index1
+                            ) 
                             }
                             {/* {FItem.push(newItem)} */}
                         </React.Fragment>
@@ -428,14 +485,15 @@ const RFPReqTable = () => {
                 </tbody>
             </table>
         );
+
     }
 
     return (
         <div className="rfp-table">
             <div className="header">
                 <div className="title">
-                    <span>RFP No: {123456}  </span>
-                    <span>RFP Title: {"Customer Onboarding"}</span>
+                    <span>RFP No: {sidebarValue && sidebarValue[0]?.rfp_no}</span>
+                    <span>RFP Title: {sidebarValue && sidebarValue[0]?.rfp_title}</span>
                 </div>
             </div>
             <div className="labels">
@@ -443,55 +501,66 @@ const RFPReqTable = () => {
                 <span>A-Available | P-Partly available | C-Customizable | N-Not available</span>
             </div>
             <div className="module-header">
-                {/* <span>1.1. Module L2</span> */}
-                <span></span>
-
                 {itemData && itemData.length > 0 && (
                     <div>
                         {itemData.map((item, index1) => {
                             return (
                                 <div key={index1} className='level1'>
-
-                                    <span className='l1'> {index1 + 1 + ". "}{item.name} </span>
+                                    <span className='l1'>{index1 + 1 + ". "}{item.name}</span>
                                     {item.l2.map((l2, index2) => {
-                                        const indexval = (index1 + 1) + "." + (Number(index2) + 1)
+                                        const indexval = (index1 + 1) + "." + (Number(index2) + 1);
                                         return (
                                             <div key={l2.code} className='level2'>
-
-                                                <span className='l2'> {(index1 + 1) + "." + (Number(index2) + 1)}{" " + l2.name} </span>
+                                                <span className='l2'>{indexval + " " + l2.name}</span>
                                                 {l2.l3 && l2.l3.length > 0 ? (
                                                     <>
                                                         {l2.l3.map((l3, index) => (
                                                             <div key={l3.code} className='level3'>
-                                                                <span className='l3'>{(index1 + 1) + "." + (Number(index2) + 1) + "." + (Number(index) + 1)}{" " + l3.name}</span>
-
-                                                                {/* <Tables l2={l2} index1={index1} f1={"f1"} index={index} /> */}
-                                                                {Tables(l2, index1, "f1", index)}
+                                                                <span className='l3'>{indexval + "." + (Number(index) + 1) + " " + l3.name}</span>
+                                                                {Tables(l2, index1, "f1", index, userRole)}
                                                             </div>
                                                         ))}
                                                     </>
                                                 ) : (
-                                                    Tables(l2, index1, "l3", index2,indexval)
-                                                    // <Tables l2={l2} index1={index1} f1={"l3"} index={index} />
+                                                    Tables(l2, index1, "l3", index2, indexval, userRole)
                                                 )}
                                             </div>
                                         )
-                                    }
-                                    )}
+                                    })}
                                 </div>
                             )
-
                         })}
                     </div>
                 )}
             </div>
 
-            {/* <Button  text="Save as Draft" type="submit" />
-            <Button text="Submit" type="submit" /> */}
-            <button onClick={() => handleSave({ module: itemData, items: FItem })}>Submit</button>
-            {/* <button onClick={() => handleFetch()}>Submit</button> */}
+            {/* Show Submit button only for Authorizer or Reviewer */}
+            {(userRole === "Authorizer" || userRole === "Reviewer") && (
+                <button onClick={() => handleSave({
+                    module: itemData,
+                    items: FItem,
+                    rfp_no: sidebarValue[0].rfp_no,
+                    rfp_title: sidebarValue[0].rfp_title
+                })}>
+                    Submit
+                </button>
+            )}
+
+            {/* Optional Save as Draft button for Maker */}
+            {userRole === "Maker" && (
+                 <button onClick={() => handleSave({
+                    module: itemData,
+                    items: FItem,
+                    rfp_no: sidebarValue[0].rfp_no,
+                    rfp_title: sidebarValue[0].rfp_title
+                })}>
+                    Save as Draft
+                </button>
+            )}
         </div>
     );
 };
+
+
 
 export default RFPReqTable;

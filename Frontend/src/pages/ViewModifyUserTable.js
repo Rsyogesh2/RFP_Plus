@@ -3,7 +3,7 @@ import { AppContext } from "./../context/AppContext";
 import "./ViewModifyUserTable.css";
 
 const ViewModifyUserTable = () => {
-  const { usersList, setUsersList,userName } = useContext(AppContext);
+  const { usersList, setUsersList, userName, userPower } = useContext(AppContext);
   const [editingUserId, setEditingUserId] = useState(null);
   const [formData, setFormData] = useState({});
 
@@ -11,21 +11,27 @@ const ViewModifyUserTable = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const queryParams = new URLSearchParams({ createdBy:userName });
+        // Append the query parameter dynamically
+        const queryParams = new URLSearchParams({ createdBy: userName,userPower });
         const response = await fetch(`/getusers?${queryParams}`); // Adjust endpoint if necessary
-        if (!response.ok) throw new Error("Failed to fetch users");
+  
+        if (!response.ok) {
+          const errorMessage = await response.text();
+          throw new Error(errorMessage || "Failed to fetch users");
+        }
+  
         const data = await response.json();
         setUsersList(data); // Update the context with fetched users
       } catch (err) {
         console.error("Error fetching users:", err.message);
       }
     };
-
+  
     fetchUsers();
-  }, [setUsersList]);
+  }, [setUsersList, userName]);
+  
 
   const handleEdit = (user) => {
-    console.log(user.user_no)
     setEditingUserId(user.user_no);
     setFormData(user);
   };
@@ -42,7 +48,7 @@ const ViewModifyUserTable = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({...formData,createdBy:userName}),
+        body: JSON.stringify({ ...formData, createdBy: userName,userPower }),
       });
       if (!response.ok) throw new Error("Failed to save user");
 
@@ -61,6 +67,35 @@ const ViewModifyUserTable = () => {
     setEditingUserId(null);
     setFormData({});
   };
+
+  const handleDelete = async (userId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+    if (!confirmDelete) return;
+  
+    try {
+      const response = await fetch(`/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ createdBy: userName ,userPower}), // Include createdBy if required in the backend
+      });
+  
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(errorMessage);
+      }
+  
+      // Filter out the deleted user from the current users list
+      const updatedUsers = usersList.filter((user) => user.user_no !== userId);
+      setUsersList(updatedUsers); // Update the context with the new users list
+      alert("User deleted successfully!");
+    } catch (err) {
+      console.error("Error deleting user:", err.message);
+      alert("Failed to delete the user. Please try again.");
+    }
+  };
+  
 
   return (
     <div className="view-modify-table-container">
@@ -129,6 +164,9 @@ const ViewModifyUserTable = () => {
                     <button className="save-btn" onClick={handleSave}>
                       Save
                     </button>
+                    <button className="cancel-btn" onClick={handleCancel}>
+                      Cancel
+                    </button>
                   </td>
                 </tr>
               ) : (
@@ -140,7 +178,8 @@ const ViewModifyUserTable = () => {
                   <td>{user.mobile}</td>
                   <td>{user.active_flag}</td>
                   <td>
-                    <button onClick={() => handleEdit(user)}>Edit</button>
+                    <button className="save-btn" onClick={() => handleEdit(user)}>Edit</button>
+                    <button className="cancel-btn" onClick={() => handleDelete(user.user_no)}>Delete</button>
                   </td>
                 </tr>
               )

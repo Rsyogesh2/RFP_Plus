@@ -83,4 +83,17 @@
   }
   
   
-  
+  /* Sub-label styling */
+.sidebar .sub-label {
+  margin: 0px !important; /* Remove extra margin */
+  padding: 0px  !important; /* Remove extra padding */
+  list-style-type: none !important; /* Optionally remove bullet points */
+}
+
+/* Add spacing between the main item and sub-label */
+.sub-label li {
+  margin-left: 20px !important; /* Indent sub-label */
+  padding: 0 !important; /* Remove extra padding */
+  line-height: 1; /* Adjust line height to avoid excessive height */ 
+  font-size: 0.9rem !important;
+}

@@ -82,7 +82,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 400px;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
@@ -97,6 +97,7 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     max-width: 400px;
     width: 100%;
+    height: 80%;
   }
   
   .popup-content h4 {
@@ -179,33 +180,50 @@
     gap: 10px;
     cursor: pointer;
 }
-.tabs {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #eee;
-}
 
-.tab {
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 1rem;
-  background: #f9f9f9;
-  color: #555;
-  border: none;
-  outline: none;
-  transition: all 0.3s ease;
-}
 
 .tab:hover {
   background: #e6f3ff; /* Light blue on hover */
 }
 
-.tab.active {
-  background: #ffffff;
-  color: #007bff;
+.tabs {
+  display: flex;
+  overflow-x: auto; /* Enables horizontal scrolling */
+  margin-bottom: 10px;
+  padding-bottom: 10px; /* Adds space at the bottom */
+  white-space: nowrap;  /* Prevents text from wrapping to the next line */
+  width: 100%;          /* Ensures the tabs take up the full width of the parent */
+  max-width: 100%;      /* Restricts the width to prevent overflow */
+  box-sizing: border-box; /* Ensures padding and margins are included in width calculation */
+}
+
+.tab {
+  padding: 10px 15px;
+  cursor: pointer;
   font-weight: bold;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;   /* Prevents text from wrapping */
+  margin-right: 10px;    /* Adds space between tabs */
+  text-align: center;
+  flex-shrink: 0;        /* Prevents the tabs from shrinking */
+}
+
+.tab.active {
   border-bottom: 2px solid #007bff;
+  color: #007bff;
+}
+
+.tabs::-webkit-scrollbar {
+  height: 8px; /* Adjust height for the scrollbar */
+}
+
+.tabs::-webkit-scrollbar-thumb {
+  background-color: #ccc;  /* Style for the scrollbar thumb */
+  border-radius: 10px;
+}
+
+.tabs::-webkit-scrollbar-track {
+  background-color: #f1f1f1;  /* Style for the scrollbar track */
 }
 
 .tab-content {

@@ -1,4 +1,5 @@
 import React, { useState ,useContext} from "react";
+import { PopupManager } from './components/popup.js';
 import './App.css';
 import RfpForm from './components/Sections/RfpForm.js';
 import RFPReqTable from './components/RFP_Table/RFPReqTable.js';
@@ -41,6 +42,7 @@ function App() {
 
   return (
     <AppProvider>
+      <PopupManager>
       <Router>
         <div>
           <nav>
@@ -77,7 +79,7 @@ function App() {
           <Route
             path="/home"
             element={
-              <ProtectedRoute allowedRoles={["Global Admin", "Super Admin", "User"]}>
+              <ProtectedRoute allowedRoles={["Global Admin", "Super Admin", "User","Vendor Admin","Vendor User"]}>
                 <HomePage authState={authState.userType} />
               </ProtectedRoute>
             }
@@ -117,6 +119,7 @@ function App() {
           </Routes>
         </div>
       </Router>
+      </PopupManager>
     </AppProvider>
   );
 }

@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState, useContext } from "react";
+import { AppContext } from "./../../context/AppContext";
 import RFPReqTable from '../../components/RFP_Table/RFPReqTable';
+import RFPVendorTable from '../../components/RFP_Table/RFPVendorTable';
 import RfpForm from '../../components/Sections/RfpForm';
 
-const ViewAssignedRFPs = () => {
-
+const ViewAssignedRFPs = (l1) => {
+  const { userPower } = useContext(AppContext);
   // const fetchArray = async() =>{
   //   console.log("fetch")
   //   try {
@@ -30,7 +32,8 @@ const ViewAssignedRFPs = () => {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* <RfpForm /> */}
       <div style={{ width: '100%' }}>
-        <RFPReqTable />
+     {userPower==="User"?<RFPReqTable l1={l1}  userRole="Maker" />:<RFPVendorTable l1={l1} userRole="Autherisor"/>}
+     {/* <RFPReqTable l1={l1} /> */}
         {/* <button onClick={fetchArray} >Fetch value</button> */}
       </div>
     </div>

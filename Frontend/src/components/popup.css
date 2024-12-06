@@ -1,0 +1,61 @@
+/* Overlay Style */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Darkens the background */
+    z-index: 1000; /* Ensure overlay covers everything else */
+  }
+  
+  /* Modal Style */
+  .popup-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Clean shadow */
+    z-index: 1010; /* Ensure modal is above the overlay */
+    max-width: 500px;
+    width: 90%;
+  }
+  
+  /* Remove extra styling if other modals/boxes are rendered */
+  .popup-modal:before,
+  .popup-modal:after {
+    display: none; /* Avoid extra layers */
+  }
+  
+  /* Popup Content */
+  .popup-content {
+    text-align: center;
+  }
+  
+  .popup-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .popup-message {
+    font-size: 1em;
+    margin-bottom: 20px;
+  }
+  
+  .popup-close-button {
+    padding: 10px 20px;
+    background-color: #ff5c5c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .popup-close-button:hover {
+    background-color: #ff3333;
+  }
+  

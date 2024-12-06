@@ -7,6 +7,7 @@ const AssignUsers = () => {
   const [assignedUsers, setAssignedUsers] = useState([]);  // Users value Stored in the table
   const [rfpDetails, setRfpDetails] = useState([]);
   const [rfpNo, setRfpNo] = useState();
+  const [rfptitle, setRfptitle] = useState();
   const [rfpModule, setRfpModule] = useState();
   const [popupVisible, setPopupVisible] = useState(false); // To show/hide the popup
   const [selectedModules, setSelectedModules] = useState([]); // To store selected modules
@@ -14,7 +15,7 @@ const AssignUsers = () => {
   const [currentUserIndex, setCurrentUserIndex] = useState(null);
 
 
-  const { usersList, userName,setUsersList } = useContext(AppContext); // Users load in the table
+  const { usersList, userName,userPower,setUsersList } = useContext(AppContext); // Users load in the table
   console.log(usersList)
   const togglePopup = (idx) => {
     setCurrentUserIndex(idx);
@@ -100,7 +101,7 @@ const AssignUsers = () => {
     async function assignRFP() {
       try {
         const queryParams = new URLSearchParams({ userName });
-        const response = await fetch(`/api/assignUsersRFP?${queryParams}`, {
+        const response = await fetch(`/api/assignUsersRFPNo?${queryParams}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -130,7 +131,7 @@ const AssignUsers = () => {
   };
   const fetchUseRfpNo = async (rfpNo) => {
     try {
-      const queryParams = new URLSearchParams({ rfpNo });
+      const queryParams = new URLSearchParams({ rfpNo,userName });
       const response = await fetch(`/api/assignRFPUserDetails?${queryParams}`, {
         method: "GET",
         headers: {
@@ -138,9 +139,11 @@ const AssignUsers = () => {
         },
       });
       const data = await response.json();
+      // console.log(data.assignedUsers[0].module_name);
+      // console.log(data.modules.l1);
       console.log(data);
-  
       setRfpNo(rfpNo);
+      setRfptitle(data.rfp_title);
       setRfpModule(data.modules);
       setAssignedUsers((prev) =>
         prev.map((user) => {
@@ -170,12 +173,12 @@ const AssignUsers = () => {
           console.log(rfpNo);
           try {
             // Send assigned users data to the backend
-            const response = await fetch("/assignUserModules", {
+            const response = await fetch("/saveassignUserModules", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ assignedUsers, rfpNo, selectedModules,userName }), // Send assignedUsers and RFP number
+              body: JSON.stringify({ assignedUsers, rfpNo, selectedModules,userName, userPower }), // Send assignedUsers and RFP number
             });
 
             if (response.ok) {
@@ -200,7 +203,7 @@ const AssignUsers = () => {
           onChange={(e) => fetchUseRfpNo(e.target.value)}
         >
           <option value="">Select</option>
-          {rfpDetails &&
+          {rfpDetails.length>0 &&
             rfpDetails.map((field) => (
               <option key={field.rfp_no} value={field.rfp_no}>
                 {field.rfp_no}
@@ -209,7 +212,7 @@ const AssignUsers = () => {
         </select>
 
         <div className="reference-details">
-          <p>&lt;{rfpNo}&gt; - &lt;{"title"}&gt;</p>
+          <p>{rfpNo} - {rfptitle}</p>
         </div>
 
         <table>

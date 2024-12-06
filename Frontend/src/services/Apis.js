@@ -23,7 +23,7 @@ const sendCheckedItems = async (checkedItems) => {
 
 export default sendCheckedItems;
 
-export const handleSave = async ({module,items}) => {
+export const handleSave = async ({module,items,rfp_no,rfp_title}) => {
     // console.log(module);
     // console.log(items);
     try {
@@ -32,7 +32,7 @@ export const handleSave = async ({module,items}) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({module,items})
+            body: JSON.stringify({module,items,rfp_no,rfp_title})
         });
         const data = await response.json();
         console.log('Data saved successfully:', data);

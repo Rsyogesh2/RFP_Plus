@@ -3,6 +3,7 @@ import { AppContext } from "./../context/AppContext";
 
 import RfpForm from "../components/Sections/RfpForm";
 import Sidebar from "./Sidebar";
+import VendorQuery from "./VendorQuery";
 import AssignUsers from "./AssignUsers";
 import VendorAdmin from "./VendorAdmin";
 import ViewModifyUserTable from "./ViewModifyUserTable";
@@ -11,16 +12,18 @@ import ModifySuperUser from "./GlobalAdmin/ModifySuperUser";
 import UploadFile from "./GlobalAdmin/UploadFile";
 import Reports from "./GlobalAdmin/Reports";
 import ViewAssignedRFPs from "./User/ViewAssignedRFPs"
-import SubmitedRFPs from "./User/SubmitedRFPs"
+import SubmitedRFPs from "./User/SubmitedRFPs";
+import RfpScoringCriteria from "../ScoringCriteria/RfpScoringCriteria";
+import RFPVendorTable from "../components/RFP_Table/RFPVendorTable"
 import "./HomePage.css";
 
 
 const Header = () => {
   const { userPower } = useContext(AppContext);
-  
+
   return (
     <div className="header">
-      <h1>{}</h1>
+      <h1>{ }</h1>
       <h2>{`${userPower} Module`}</h2>
     </div>
   );
@@ -28,11 +31,11 @@ const Header = () => {
 
 
 const AddUserForm = () => {
-  const { usersList, setUsersList,userName } = useContext(AppContext);
+  const { usersList, setUsersList, userName, userPower } = useContext(AppContext);
   // console.log(userName);
   const [id, setId] = useState(1);
   const [formData, setFormData] = useState({
-    id:usersList.length+1,
+    id: usersList.length + 1,
     userName: "",
     designation: "",
     email: "",
@@ -47,7 +50,7 @@ const AddUserForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await fetch('/addUser', {
         method: 'POST',
@@ -56,28 +59,29 @@ const AddUserForm = () => {
         },
         body: JSON.stringify({
           ...formData,       // Spread the formData fields into the object
-          emailId: userName  // Add the userName (or emailid) field separately
+          emailId: userName,  // Add the userName (or emailid) field separately
+          userPower
         }), // Convert the form data to JSON
       });
-  
+
       if (response.ok) {
-        
-         // Increment the local ID
+
+        // Increment the local ID
         const data = await response.json();
         if (data.success) {
           // Update global state with the new user
-          setUsersList([...usersList, { ...formData}]);
+          setUsersList([...usersList, { ...formData }]);
           alert('User added successfully!');
-          const no =Number(usersList.length)==0?2:usersList.length+1;
+          const no = Number(usersList.length) == 0 ? 2 : usersList.length + 1;
           // Clear the form fields by resetting formData
           setFormData({
-            id:no,
+            id: no,
             userName: "",
             designation: "",
             email: "",
             mobile: "",
             activeFlag: "Active", // Reset to default value
-            
+
           });
           // setId(usersList.length+2);
         } else {
@@ -91,7 +95,7 @@ const AddUserForm = () => {
       alert('An error occurred while adding the user.');
     }
   };
-  
+
 
 
   return (
@@ -179,6 +183,11 @@ const HomePage = ({ userType }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
 
   const renderSection = () => {
+    console.log(activeSection);
+    if (!isNaN(activeSection)) {
+      // Call the ViewAssignedRFPs component with the activeSection as a prop
+      return <ViewAssignedRFPs l1module={activeSection} />;
+    }
     switch (activeSection) {
       case "Add User":
         return <AddUserForm />;
@@ -199,9 +208,23 @@ const HomePage = ({ userType }) => {
       case "Reports":
         return <Reports />;
       case "View Assigned RFPs":
-        return <ViewAssignedRFPs />;
+        return <ViewAssignedRFPs  />;
       case "Submit RFPs":
         return <SubmitedRFPs />;
+      case "Add Vendor User":
+        return <AddUserForm />;
+      case "View / Modify Vendor Users":
+        return <ViewModifyUserTable />
+      case "Assign Vendor Users":
+        return <AssignUsers />;
+      case "Submit Query":
+        return <RfpScoringCriteria />;
+      case "Submit RFP":
+        // return <CreateRFPForm />;
+      case "View Vendor Assigned RFPs":
+          return <RFPVendorTable />;
+      case "Vendor Query":
+        return <VendorQuery />;
       default:
         return <p>Select an option from the sidebar.</p>;
     }

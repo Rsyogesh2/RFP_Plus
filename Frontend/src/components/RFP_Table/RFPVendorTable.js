@@ -1,15 +1,17 @@
-import React, { useState , useEffect} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './RFPVendorTable.css'; // Import the CSS file
 // import {handleFetch,fetchModuleData} from '../../services/Apis'
 import {fetchModuleandFitemData} from '../../services/Apis'
 import { MdOutlineDriveFolderUpload } from "react-icons/md";
+import { AppContext } from '../../context/AppContext';
 
 
-const RFPVendorTable = () => {
+const RFPVendorTable = ({ l1, userRole }) => {
   const [itemData, setItemData] = useState([]);
   const [FItem, setFItem] = useState([]);
   const [data, setdata] = useState([]);
-
+  const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
+   
   async function fetchDetails(){
  
     const res = await fetchModuleandFitemData("RFP123");
@@ -21,16 +23,45 @@ const RFPVendorTable = () => {
     
   }
   useEffect(() => {
+    // async function fetchArray() {
+    //   // const res = await fetchModuleandFitemData("RFP123");
+    //   // console.log(res.fitems);
+    //   // console.log(res.modules);
+    //   setFItem(data.fitems);
+    //   setItemData(data.modules);
+    // }
+    // if (data) {
+    //   fetchArray();
+    // }
     async function fetchArray() {
-      // const res = await fetchModuleandFitemData("RFP123");
-      // console.log(res.fitems);
-      // console.log(res.modules);
-      setFItem(data.fitems);
-      setItemData(data.modules);
-    }
-    if (data) {
-      fetchArray();
-    }
+      // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
+      // console.log("result", result.functionalItemDetails); // Log the resolved array
+      console.log("userName " + userName)
+      console.log(l1)
+      //23/11/2024
+      try {
+          const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
+          const response = await fetch(`/api/userAssignItemsbySub?${queryParams}`)
+          console.log(response);
+
+          // Check if the response is okay (status in the range 200-299)
+          if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const data = await response.json(); // Parse the JSON response
+          console.log(data);  // Handle the fetched data as needed
+
+          setItemData(data.itemDetails.l1); // Set the resolved data to local state
+          // setName(data.itemDetails.Name); // Set the resolved data to local state
+          console.log(data.itemDetails.l1);
+          // setSidebarValue(data.itemDetails);
+          setFItem(data.functionalItemDetails);
+      } catch (error) {
+          console.error('Error sending checked items:', error); // Log any errors
+      }
+
+  } fetchArray();
   }, [data]);  // Only trigger fetch when `data` changes
 
   // Second useEffect to log the updated state values when `FItem` or `itemData` change
@@ -42,7 +73,7 @@ const RFPVendorTable = () => {
   
   const RenderRow = ({ item }, index, f, paddingLeft = 10) => {
     if (!item || item.deleted) return null; // Ensure we skip rendering if item is invalid
-    console.log(index);
+    // console.log(index);
   
     return (
       <tr key={item.F2_Code || index}>

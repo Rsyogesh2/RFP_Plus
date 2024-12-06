@@ -97,6 +97,7 @@ const ModuleList = forwardRef(({title,url},ref) => {
     };
 
     const getCheckedItems = (i) => {
+        console.log(modules)
         const checkedItems = modules.flatMap((module) =>
             module.subItems
                 .filter((subItem) => subItem.selected)
@@ -106,8 +107,9 @@ const ModuleList = forwardRef(({title,url},ref) => {
                 }))
         );
         console.log("Checked Items:", checkedItems);
-        console.log(i)
+        console.log(checkedItems)
         const subItems = checkedItems.map(item => item.subItem);
+        const subItems1 = checkedItems.map(item => console.log(item));
         console.log(subItems);
         
         setAssignModule(subItems);

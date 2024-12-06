@@ -1,0 +1,67 @@
+.vendor-query-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .vendor-query-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .vendor-query-table th,
+  .vendor-query-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .vendor-query-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .vendor-query-table select,
+  .vendor-query-table input {
+    width: 100%;
+    padding: 6px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .vendor-query-table input {
+    height: 36px;
+  }
+  
+  .add-row-button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .add-row-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .save-button-container {
+    margin-top: 20px;
+  }
+  
+  .save-button-container button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .save-button-container button:hover {
+    background-color: #218838;
+  }
+  
