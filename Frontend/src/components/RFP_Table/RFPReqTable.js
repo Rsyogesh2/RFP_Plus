@@ -105,6 +105,7 @@ const RFPReqTable = ({ l1, userRole }) => {
 
 
     const handleAdd = (item) => {
+        console.log(item)
         setFItem((prevItems) => {
             // const updatedItems = JSON.parse(JSON.stringify(prevItems));
             // const newItem = { name: 'New Item', F2_Code: item.F2_Code, isEditing: true };
@@ -128,14 +129,10 @@ const RFPReqTable = ({ l1, userRole }) => {
                 0,
                 ...matchingItems.map(existingItem => Number(existingItem.New_Code) || 0)
             );
-
-            // Determine the increment value
-            // const increment = itemsWithSameF2Code.length + 1;
-            // console.log(itemsWithSameF2Code,increment);
-
+            console.log(matchingItems)
             // Create a new item with auto-incremented F2_Code
             let newItem
-            if (matchingItems[0].F2_Code.endsWith("00")) {
+            if (matchingItems.length>0&&matchingItems[0].F2_Code.endsWith("00")) {
                 if (item.New_Code) {
                     // Filter items with the same Module_Code, F1_Code, and F2_Code
 
@@ -166,6 +163,26 @@ const RFPReqTable = ({ l1, userRole }) => {
                         isEditing: true
                     }
                 };
+            } else if(matchingItems.length==0){
+                if (item.New_Code) {
+                    newItem = {
+                        name: 'New Item',
+                        Module_Code: `${item.Module_Code}`,
+                        F1_Code: `${item.F1_Code}`,
+                        F2_Code: `${item.F2_Code}`,
+                        New_Code: Number(item.New_Code) + 1,
+                        isEditing: true
+                    }
+                }
+                else {
+                    newItem = {
+                        name: 'New Item',
+                        Module_Code: `${item.Module_Code}`,
+                        F1_Code: `${item.F1_Code}`,
+                        F2_Code: `${item.F2_Code}`,
+                        isEditing: true
+                    };
+                }    
             }
             else {
                 if (item.New_Code) {
@@ -405,7 +422,7 @@ const RFPReqTable = ({ l1, userRole }) => {
 
         const unMatchingCodes = l2.l3.map(l3 => l3.code);
         // console.log(unMatchingCodes);
-        let newItem = { F2_Code: '', F1_Code: `${index1} - ${index}`, name: unMatchingCodes[index], Module_Code: l2.code }
+        let newItem = { F2_Code: '1000', F1_Code: `10`, name: unMatchingCodes[index], Module_Code: l2.code }
 
         const matchingCodes = FItem.filter(f => f.Module_Code.startsWith(l2.code));
         // console.log(matchingCodes);
