@@ -11,6 +11,10 @@ const jwt = require('jsonwebtoken'); // Consider using for authentication
 const login = require('./login/login');
 const addUsers = require('./routes/addUsers')
 // const bcrypt = require("bcryptjs");
+const cors = require("cors");
+
+// Allow requests from the frontend
+
 
 
 require('dotenv').config();
@@ -22,7 +26,7 @@ app.use(express.json());
 // 
 
 app.use(bodyParser.json());
-
+app.use(cors());
 app.use('/', login);
 app.use('/', addUsers);
 // Home route

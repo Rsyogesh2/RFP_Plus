@@ -4,72 +4,72 @@ const router = express.Router();
 const db = require('../config/db');
 const bcrypt = require('bcryptjs')
 
+
 router.post('/addSuperUser', async (req, res) => {
+    const { newUser, assignModule } = req.body;
 
-    const {newUser,assignModule} = req.body;
-    //console.log(assignModule)
-  try {
-    const query = `
-      INSERT INTO SuperAdmin_Users (
-        entity_name, entity_sub_name, entity_landline, entity_address, entity_city, 
-        entity_pin_code, entity_country, super_user_name, designation, 
-        super_user_email, super_user_mobile, valid_from, valid_to, active_flag
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    try {
+        // Insert into SuperAdmin_Users table
+        const userQuery = `
+          INSERT INTO SuperAdmin_Users (
+            entity_name, entity_sub_name, entity_landline, entity_address, entity_city, 
+            entity_pin_code, entity_country, super_user_name, designation, 
+            super_user_email, super_user_mobile, valid_from, valid_to, active_flag
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    const values = [
-      newUser.entityName,
-      newUser.entitySubName,
-      newUser.entityLandline,
-      newUser.entityAddress,
-      newUser.entityCity,
-      newUser.entityPinCode,
-      newUser.entityCountry,
-      newUser.superUserName,
-      newUser.designation,
-      newUser.superUserEmail,
-      newUser.superUserMobile,
-      newUser.validFrom,
-      newUser.validTo,
-      newUser.activeFlag,
-    ]
-    //console.log('User adding');
-    await db.query(query, values);
-    //console.log('User added successfully');
-    const assignedQuery = `INSERT INTO Assingned_Rfp_SuperUser (entity_Name, email, modules) VALUES (?, ?, ?)`;
+        const userValues = [
+            newUser.entityName,
+            newUser.entitySubName,
+            newUser.entityLandline,
+            newUser.entityAddress,
+            newUser.entityCity,
+            newUser.entityPinCode,
+            newUser.entityCountry,
+            newUser.superUserName,
+            newUser.designation,
+            newUser.superUserEmail,
+            newUser.superUserMobile,
+            newUser.validFrom,
+            newUser.validTo,
+            newUser.activeFlag,
+        ];
 
-    assignModule.forEach((module) => {
-      db.query(
-        assignedQuery,
-        [newUser.entityName, newUser.superUserEmail, module],
-        (err, result) => {
-          if (err) {
-            console.error("Error inserting data:", err.message);
-          } else {
-            //console.log(`Module ${module} inserted successfully`);
-          }
+        await db.query(userQuery, userValues);
+        console.log('User added successfully');
+
+        // Insert into Assingned_Rfp_SuperUser table for each module
+        const assignedQuery = `
+          INSERT INTO Assingned_Rfp_SuperUser (entity_Name, email, modules) VALUES (?, ?, ?)`;
+
+        const assignedPromises = assignModule.map(module =>
+            db.query(assignedQuery, [newUser.entityName, newUser.superUserEmail, module])
+        );
+        await Promise.all(assignedPromises);
+        console.log('Modules assigned successfully');
+
+        // Create a login entry for the super admin user
+        const defaultPassword = "system@123";
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(defaultPassword, salt);
+
+        const loginQuery = `
+          INSERT INTO Users_Login (Username, Password, Role, Entity_Name) VALUES (?, ?, ?, ?)`;
+
+        await db.query(loginQuery, [newUser.superUserEmail, hashedPassword, "Super Admin", newUser.entityName]);
+        console.log('Login created successfully');
+
+        res.status(200).send({ message: "Super user added successfully" });
+    } catch (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+            console.error('Duplicate entry detected:', err.message);
+            res.status(400).send({ error: "Duplicate entry detected", message: err.message });
+        } else {
+            console.error('Error adding user:', err.message);
+            res.status(500).send({ error: "Internal Server Error", message: err.message });
         }
-      );
-    });
-
-    
-    const password = "system@123";
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-      
-    const query1 = "INSERT INTO Users_Login (Username, Password,Role,Entity_Name) VALUES (?, ?,?, ?)";
-    db.query(query1, [newUser.superUserEmail, hashedPassword,"Super Admin",newUser.entityName], (err, results) => {
-        if (err) throw err;
-        //console.log("User created!");
-    })    
-  } catch (err) {
-    if (err.code === 'ER_DUP_ENTRY') {
-      console.error('Duplicate entry detected:', err.message);
-    } else {
-      console.error('Error adding user:', err.message);
     }
-  } finally {
-  }
 });
+
 router.put('/updateSuperUser/:id', async (req, res) => {
   const userId = req.params.id;
   const { updatedUser, assignModule } = req.body; // Ensure these are properly structured
@@ -179,27 +179,73 @@ router.delete('/deleteSuperUser/:id', async (req, res) => {
 
 
 router.get('/getSuperUsers', async (req, res) => {
-    try {
-      const query = `SELECT 
-        user_id AS id,
-        entity_name AS entityName, 
-        entity_sub_name AS entitySubName, 
-        entity_landline AS entityLandline, 
-        entity_address AS entityAddress, 
-        entity_city AS entityCity, 
-        entity_pin_code AS entityPinCode, 
-        entity_country AS entityCountry, 
-        super_user_name AS superUserName, 
-        designation, 
-        super_user_email AS superUserEmail, 
-        super_user_mobile AS superUserMobile, 
-        valid_from AS validFrom, 
-        valid_to AS validTo, 
-        active_flag AS activeFlag 
-        FROM SuperAdmin_Users`;
-  
-      const [rows] = await db.query(query); // Assuming you're using a promise-based MySQL client like `mysql2`
+     try {
+    //   const query = `SELECT 
+    //     user_id AS id,
+    //     entity_name AS entityName, 
+    //     entity_sub_name AS entitySubName, 
+    //     entity_landline AS entityLandline, 
+    //     entity_address AS entityAddress, 
+    //     entity_city AS entityCity, 
+    //     entity_pin_code AS entityPinCode, 
+    //     entity_country AS entityCountry, 
+    //     super_user_name AS superUserName, 
+    //     designation, 
+    //     super_user_email AS superUserEmail, 
+    //     super_user_mobile AS superUserMobile, 
+    //     valid_from AS validFrom, 
+    //     valid_to AS validTo, 
+    //     active_flag AS activeFlag,  
+    //     FROM SuperAdmin_Users`;
+    //     const [modules] = await db.query("select * from Assingned_Rfp_SuperUser");  
+
+    //   const [rows] = await db.query(query); // Assuming you're using a promise-based MySQL client like `mysql2`
+
+    const query = `
+    SELECT 
+        SA.user_id AS id,
+        SA.entity_name AS entityName, 
+        SA.entity_sub_name AS entitySubName, 
+        SA.entity_landline AS entityLandline, 
+        SA.entity_address AS entityAddress, 
+        SA.entity_city AS entityCity, 
+        SA.entity_pin_code AS entityPinCode, 
+        SA.entity_country AS entityCountry, 
+        SA.super_user_name AS superUserName, 
+        SA.designation, 
+        SA.super_user_email AS superUserEmail, 
+        SA.super_user_mobile AS superUserMobile, 
+        SA.valid_from AS validFrom, 
+        SA.valid_to AS validTo, 
+        SA.active_flag AS activeFlag,  
+        GROUP_CONCAT(ARSU.modules) AS modules
+    FROM 
+        SuperAdmin_Users AS SA
+    LEFT JOIN 
+        Assingned_Rfp_SuperUser AS ARSU
+    ON 
+        SA.super_user_email = ARSU.email
+    GROUP BY 
+        SA.user_id, 
+        SA.entity_name, 
+        SA.entity_sub_name, 
+        SA.entity_landline, 
+        SA.entity_address, 
+        SA.entity_city, 
+        SA.entity_pin_code, 
+        SA.entity_country, 
+        SA.super_user_name, 
+        SA.designation, 
+        SA.super_user_email, 
+        SA.super_user_mobile, 
+        SA.valid_from, 
+        SA.valid_to, 
+        SA.active_flag;
+`;
+        const [rows] = await db.query(query);
+
       //console.log(rows)
+      // rows.modules=modules
       res.status(200).json(rows);
     } catch (err) {
       console.error('Error fetching users:', err.message);

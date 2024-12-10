@@ -416,13 +416,19 @@ const RFPReqTable = ({ l1, userRole }) => {
     const Tables = (l2, index1, f1, index, indexval) => {
         // console.log(items);
         console.log("rendering Table");
-        // console.log(indexval)
-        // console.log(items);
-        // console.log(l2);
-
+        // Ensure FItem is an array
         const unMatchingCodes = l2.l3.map(l3 => l3.code);
-        // console.log(unMatchingCodes);
-        let newItem = { F2_Code: '1000', F1_Code: `10`, name: unMatchingCodes[index], Module_Code: l2.code }
+
+        // Create an array of newItem for all unMatchingCodes
+        const newItems = unMatchingCodes.map((code, index) => ({
+            F2_Code: '1000',
+            F1_Code: `10`,
+            name: code,
+            Module_Code: l2.code
+        }));
+
+        console.log(newItems);
+
 
         const matchingCodes = FItem.filter(f => f.Module_Code.startsWith(l2.code));
         // console.log(matchingCodes);
@@ -483,13 +489,13 @@ const RFPReqTable = ({ l1, userRole }) => {
                         // Render a single default row if f1items is empty
                         <React.Fragment>
                             {userRole === 'Maker' ? renderHierarchy(
-                                [newItem],
+                                [newItems[index]],
                                 'f1',
                                 10,
                                 index1
                             ) :
                             readHierarchy(
-                                [newItem],
+                                [newItem[index]],
                                 'f1',
                                 10,
                                 index1

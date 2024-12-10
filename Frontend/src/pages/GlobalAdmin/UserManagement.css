@@ -151,3 +151,9 @@
     background-color: #45a049;
   }
   
+
+  .modules__form-group {
+    font-size: 14px;
+    text-wrap: wrap;
+    width: 100%;
+  }

@@ -70,59 +70,78 @@ router.get('/modules', async (req, res) => {
 });
 router.get('/assignModule', async (req, res) => {
   const userName = req.query.userName; // Extract 'userName' from query parameters
-  ////console.log("Received userName:", userName);
 
   try {
-    const assignedQuery = `SELECT modules as name FROM Assingned_Rfp_SuperUser WHERE email='${userName}'`;
-    const [modulesResult] = await db.query(assignedQuery);
+    // Query to fetch assigned modules for the user
+    const assignedQuery = `SELECT modules AS name FROM Assingned_Rfp_SuperUser WHERE email = ?`;
+    const [modulesResult] = await db.query(assignedQuery, [userName]);
 
-    // //console.log("Assingned_Rfp_SuperUser Modules Result:", modulesResult); // Debugging the structure of modulesResult
-
-    // Extracting modules values
-    const modulesArray = modulesResult.map((row) => row.name);
-    ////console.log("Assingned_Rfp_SuperUser Modules Array:", modulesArray); // Confirm extracted array
-
-    if (modulesArray.length === 0) {
+    if (modulesResult.length === 0) {
       return res.status(404).json({ message: "No modules assigned to the user." });
     }
 
-    // Building the IN clause safely
+    // Extract the module names into an array
+    const modulesArray = modulesResult.map((row) => row.name);
+
+    // Query to fetch the module groups and their descriptions
     const formattedModules = modulesArray.map((val) => `'${val}'`).join(", ");
-    const query = `
-          SELECT DISTINCT Module_Group AS name
-          FROM RFP_L1_modules
-          WHERE L1_Module_Description IN (${formattedModules});
-        `;
+    const groupQuery = `
+      SELECT DISTINCT Module_Group, L1_Module_Description
+      FROM RFP_L1_modules
+      WHERE L1_Module_Description IN (${formattedModules});
+    `;
+    const [groupedResult] = await db.query(groupQuery);
 
-    ////console.log("Generated Query:", query); // Debugging the final query
+    // Transform the result into the desired structure
+    const groupedData = groupedResult.reduce((acc, row) => {
+      const group = acc.find((g) => g.Module_Group_name === row.Module_Group);
 
-    // Executing the query
-    const [rows] = await db.query(query);
-    // //console.log("Query Result:", rows);
-    rows[0].subItems = modulesResult
-    // //console.log("Query Result:",  rows);
-    res.status(200).json(rows);
+      if (group) {
+        group.names.push(row.L1_Module_Description);
+      } else {
+        acc.push({
+          Module_Group_name: row.Module_Group,
+          names: [row.L1_Module_Description],
+        });
+      }
+      return acc;
+    }, []);
+
+    // Final response formatting
+    const response = groupedData.map((group) => ({
+      name: group.Module_Group_name,
+      expanded: false, // Default state
+      subItems: group.names.map((name) => ({ name, selected: false })), // Sub-items
+    }));
+
+    res.status(200).json(response);
   } catch (error) {
-    //console.error(error);
-    res.status(500).json({ error: 'Database query failed' });
+    console.error("Error fetching data:", error.message);
+    res.status(500).json({ error: "Database query failed" });
   }
 });
 
 
-router.post('/rfpCreation', async (req, res) => {
-  const { rfpDetails, module, userName } = req.body;
-  ////console.log(rfpDetails)
-  ////console.log("assignModule");
-  ////console.log(module);
-  const modulecreation = JSON.stringify(module);
+
+
+router.post("/rfpCreation", async(req, res) => {
+  const { rfpDetails, modules, products, userName } = req.body;
+
+  // Process modules and products
+  console.log("RFP Details:", rfpDetails);
+  console.log("Modules:", modules);
+  console.log("Products:", products);
+  console.log("User Name:", userName);
+  const modulecreation = JSON.stringify(modules);
+  const productscreation = JSON.stringify(products);
   ////console.log(modulecreation)
   try {
 
     const query = `
-        INSERT INTO RFP_Creation (rfp_no,rfp_title,userName, email,modules) 
-        VALUES (?, ?,?, ?,?)`;
-    const values = [rfpDetails.rfpNo, rfpDetails.rfpTitle, userName, userName, modulecreation];
-
+        INSERT INTO RFP_Creation (rfp_no,rfp_title,userName, email,modules,products) 
+        VALUES (?, ?,?, ?,?,?)`;
+    const values = [rfpDetails.rfpNo, rfpDetails.rfpTitle, userName, userName, modulecreation,productscreation];
+    console.log(values)
     await db.query(query, values);
     res.status(200).json({ success: true });
   } catch (err) {
@@ -161,7 +180,7 @@ router.get('/assignUsersRFPNo', async (req, res) => {
     const [userPower] = await db.query(`SELECT Role FROM Users_Login WHERE Username='${userName}'`);
     //console.log("Received userPower:", userPower);
     if(userPower[0].Role=="Super Admin"){
-       assignedQuery = `SELECT rfp_no,modules FROM RFP_Creation WHERE email='${userName}'`;
+       assignedQuery = `SELECT rfp_no,modules,rfp_title FROM RFP_Creation WHERE email='${userName}'`;
    
     }else if(userPower[0].Role=="Vendor Admin"){
        assignedQuery = `SELECT rfp_reference_no as rfp_no,entity_name FROM vendor_admin_users WHERE email='${userName}'`;

@@ -218,6 +218,10 @@ const ModifySuperUser = () => {
                 onChange={handleInputChange}
               />
             </div>
+            <div className="modules__form-group modify-super-user__form-group">
+              <label>Modules:</label>
+              <span>{selectedUser.modules}</span>
+            </div>
             <div className="modify-super-user__form-group">
               <label>Valid From:</label>
               <input
