@@ -145,6 +145,8 @@ const AssignUsers = () => {
       setRfpNo(rfpNo);
       setRfptitle(data.rfp_title);
       setRfpModule(data.modules);
+      console.log(data.assignedUsers.length)
+      if(data.assignedUsers.length>0){
       setAssignedUsers((prev) =>
         prev.map((user) => {
           const matchingUser = data.assignedUsers.find(
@@ -154,7 +156,7 @@ const AssignUsers = () => {
           // If a match is found, merge the user object with the matching data
           return matchingUser ? { ...user, ...matchingUser } : user;
         })
-      );
+      )}
       // setAssignedUsers(data.assignedUsers);
     } catch (error) {
       console.error("Error fetching RFP details:", error.response?.data || error.message);

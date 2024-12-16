@@ -14,7 +14,6 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      // console.log(data)
       setSidebarValue(data);
     } catch (error) {
       console.error("Failed to fetch sidebar data:", error);
@@ -54,29 +53,26 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
 
   const generateUserSidebar = (sidebarValue) => {
     if (!Array.isArray(sidebarValue) || sidebarValue.length === 0) {
-      return [{ label: "No Data Available", section: null, subItems: [] }];
+      return [{ label: "No Data Available", section: null }];
     }
-
-    // Group each RFP and its modules
-    return sidebarValue.map((userData, userIndex) => {
+  
+    // Map over all entries in sidebarValue
+    return sidebarValue.flatMap((userData, userIndex) => {
       if (!userData.rfp_no || !Array.isArray(userData.module_name)) {
-        return { label: `No Data Available for User ${userIndex + 1}`, subItems: [] };
+        return [{ label: `No Data Available for User ${userIndex + 1}`, section: null }];
       }
-
-      return {
-        label: `RFP No: ${userData.rfp_no}`, // Main title
-        section: userData.rfp_no,
-        subItems: [
-          ...userData.module_name.map((item, index) => ({
-            sublabel: item?.moduleName || `Module ${index + 1}`,
-            section: item?.code || `Section ${index + 1}`,
-          })),
-          { sublabel: "Vendor Query", section: "Vendor Query" }, // Add Vendor Query at the end
-        ],
-      };
+  
+      return [
+        { label: `RFP No: ${userData.rfp_no}`, section: userData.rfp_no },
+        ...userData.module_name.map((item, index) => ({
+          label: item?.moduleName || `Module ${index + 1}`,
+          section: item?.code || `Section ${index + 1}`,
+        })),
+        { label: "Vendor Query", section: "Vendor Query" },
+      ];
     });
   };
-
+  
 
   const menuItems = useMemo(() => {
     if (userPower === "User" || userPower === "Vendor User") {
@@ -97,24 +93,11 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
   // }, [isSidebarOpen, toggleSidebar]);
 
   const handleSectionClick = (section) => {
-    console.log("setActiveSection" +section)
     if (activeSection !== section) {
-      console.log("setActiveSection")
       setActiveSection(section);
     }
   };
-  // const groupedMenuItems = menuItems.reduce((acc, item) => {
-  //   if (item.label) {
-  //     // Start a new group for main titles
-  //     acc.push({ label: item.label, subItems: [] });
-  //   } else if (item.sublabel && acc.length > 0) {
-  //     // Add subtitle to the most recent group
-  //     acc[acc.length - 1].subItems.push(item.sublabel);
-  //   }
-  //   return acc;
-  // }, []);
-  // console.log(menuItems);
-  // console.log(groupedMenuItems);
+
   return (
     <div ref={sidebarRef} className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
       <button className="toggle-btn" onClick={toggleSidebar}>
@@ -126,15 +109,13 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
           <ul>
             {menuItems.length > 0 ? (
               menuItems.map((item, index) => (
-                <li key={index}>
-                  <div className="sidebar-mainlabel" id={`sidebar-mainlabel-${index}`}>{item.label}</div>
-                  {item.subItems?.length > 0 && (
-                    <ul className="nested-sub-label">
-                      {item.subItems.map((subItem, subIndex) => (
-                        <li key={subIndex} className="sidebar-sublabel" onClick={() => handleSectionClick(subItem.section)}>
-                          {subItem.sublabel}
-                        </li>
-                      ))}
+                <li key={index} onClick={() => handleSectionClick(item.section)}>
+                  {item.label}
+                  {item.sublabel && (
+                    <ul className="sub-label">
+                      <li style={{margin:"50px"}} onClick={(e) => e.stopPropagation()}>
+                        {item.sublabel}
+                      </li>
                     </ul>
                   )}
                 </li>
@@ -150,3 +131,4 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
 };
 
 export default Sidebar;
+

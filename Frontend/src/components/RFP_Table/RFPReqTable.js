@@ -19,27 +19,20 @@ const RFPReqTable = ({ l1, userRole }) => {
         Comments: "",
         deleted: false
 
-    }]); // Initially, no data
-    // const [newFItem, setnewFItem] = useState( [{name: "",
-    //     Module_Code: "",
-    //     F1_Code: "10",
-    //     F2_Code: "1000",
-    //     F1:"true",
-    //     F2:"false",
-    //     isEditing: false,
-    //     MorO: "",
-    //     Comments: ""}]); // Initially, no data
+    }]); 
     const [newItem, setNewItem] = useState(null);
-    const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
+    const { moduleData, setModuleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
     // console.log(moduleData);
 
     useEffect(() => {
         // Define an async function to log array and set item data
+        // if(l1.l1module!==""){
         async function fetchArray() {
             // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
             // console.log("result", result.functionalItemDetails); // Log the resolved array
             console.log("userName " + userName)
             console.log(l1)
+           
             //23/11/2024
             try {
                 const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
@@ -54,9 +47,13 @@ const RFPReqTable = ({ l1, userRole }) => {
                 const data = await response.json(); // Parse the JSON response
                 console.log(data);  // Handle the fetched data as needed
 
-                setItemData(data.itemDetails.l1); // Set the resolved data to local state
+                // setItemData(data.itemDetails.l1); // Set the resolved data to local state
                 setName(data.itemDetails.Name); // Set the resolved data to local state
-                console.log(data.itemDetails.l1);
+                setModuleData(data);
+                filterModule(l1.l1module);
+                // console.log(data.itemDetails.l1);
+                // setItemData(moduleData.itemDetails.l1); 
+                // setFItem(moduleData.functionalItemDetails);
                 // setSidebarValue(data.itemDetails);
                 setFItem(data.functionalItemDetails);
             } catch (error) {
@@ -64,9 +61,14 @@ const RFPReqTable = ({ l1, userRole }) => {
             }
 
         } fetchArray();
+    // }
+    }, [l1]);
 
-    }, [moduleData]);
+    const filterModule = (code) => {
 
+        const data = moduleData.itemDetails.l1.filter(m=>m.code===code);
+        setItemData(data); 
+    }
 
     const findIndexByObject = (obj) => {
         return FItem.findIndex(
@@ -414,33 +416,27 @@ const RFPReqTable = ({ l1, userRole }) => {
     };
 
     const Tables = (l2, index1, f1, index, indexval) => {
-        // console.log(items);
         console.log("rendering Table");
-        // Ensure FItem is an array
-        const unMatchingCodes = l2.l3.map(l3 => l3.code);
-
-        // Create an array of newItem for all unMatchingCodes
-        const newItems = unMatchingCodes.map((code, index) => ({
+    
+        // Validate l2.l3
+        const unMatchingCodes = l2?.l3?.map(l3 => l3.code) || [];
+    
+        const newItems = unMatchingCodes.map(code => ({
             F2_Code: '1000',
             F1_Code: `10`,
             name: code,
             Module_Code: l2.code
         }));
-
+    
         console.log(newItems);
-
-
-        const matchingCodes = FItem.filter(f => f.Module_Code.startsWith(l2.code));
-        // console.log(matchingCodes);
-        const f1items = matchingCodes.filter(f1 => f1.F2_Code.endsWith("00"));
-        // console.log(f1items);
-        // const f2items = matchingCodes.filter(f1=>!(f1.F2_Code.endsWith("00"))&&f1.F2_Code!==""&&f1.F2_Code.startsWith(f1.F1_Code))
-        // console.log(f2items);
-
+    
+        const matchingCodes = FItem?.filter(f => f?.Module_Code?.startsWith(l2.code)) || [];
+        const f1items = matchingCodes.filter(f1 => f1?.F2_Code?.endsWith("00"));
+    
         return (
             <table className="item-table">
                 <colgroup>
-                {userRole==="Maker"&&<col style={{ width: "8%" }} />}
+                    {userRole === "Maker" && <col style={{ width: "8%" }} />}
                     <col style={{ width: "60%" }} />
                     <col style={{ width: "1%" }} />
                     <col style={{ width: "1%" }} />
@@ -450,7 +446,7 @@ const RFPReqTable = ({ l1, userRole }) => {
                 </colgroup>
                 <thead>
                     <tr>
-                        {userRole==="Maker"&&<th className="col-modify">Modify</th>}
+                        {userRole === "Maker" && <th className="col-modify">Modify</th>}
                         <th className="col-requirement">Requirement</th>
                         <th className="col-m">M</th>
                         <th className="col-o">O</th>
@@ -460,56 +456,48 @@ const RFPReqTable = ({ l1, userRole }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {/* {items[l]&&items[l].map((item, index) => ( */}
                     {f1items && f1items.length > 0 ? (
                         f1items.map((item, index) => {
                             const f2items = matchingCodes.filter(f1 =>
+                                f1?.F2_Code &&
                                 !f1.F2_Code.endsWith("00") &&
                                 f1.F2_Code.startsWith(item.F1_Code)
-                                // && !f1.New_Code
                             );
-
+    
                             return (
-                                <React.Fragment key={item.code}>
-                                    {userRole === 'Maker' ? renderHierarchy([item], 'f1', 10, index1, index, indexval) :
-                                      readHierarchy([item], 'f1', 10, index1, index, indexval)  }
-
-                                    {f2items && f2items.map((level2, subIndex) => (
-                                        <React.Fragment key={level2.code}>
-                                            {userRole === 'Maker' ? renderHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval) :
-                                            readHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval) 
-                
-                                            }
+                                <React.Fragment key={item.code || index}>
+                                    {userRole === 'Maker'
+                                        ? renderHierarchy([item], 'f1', 10, index1, index, indexval)
+                                        : readHierarchy([item], 'f1', 10, index1, index, indexval)}
+    
+                                    {f2items.map((level2, subIndex) => (
+                                        <React.Fragment key={level2.code || subIndex}>
+                                            {userRole === 'Maker'
+                                                ? renderHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)
+                                                : readHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)}
                                         </React.Fragment>
                                     ))}
                                 </React.Fragment>
                             );
                         })
                     ) : (
-                        // Render a single default row if f1items is empty
                         <React.Fragment>
-                            {userRole === 'Maker' ? renderHierarchy(
-                                [newItems[index]],
-                                'f1',
-                                10,
-                                index1
-                            ) :
-                            readHierarchy(
-                                [newItem[index]],
-                                'f1',
-                                10,
-                                index1
-                            ) 
-                            }
-                            {/* {FItem.push(newItem)} */}
+                            {newItems[index] ? (
+                                userRole === 'Maker'
+                                    ? renderHierarchy([newItems[index]], 'f1', 10, index1)
+                                    : readHierarchy([newItems[index]], 'f1', 10, index1)
+                            ) : (
+                                <tr>
+                                    <td colSpan="7">No data available</td>
+                                </tr>
+                            )}
                         </React.Fragment>
                     )}
-
                 </tbody>
             </table>
         );
-
-    }
+    };
+    
 
     return (
         <div className="rfp-table">

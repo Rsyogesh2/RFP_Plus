@@ -58,7 +58,7 @@ router.post('/addSuperUser', async (req, res) => {
         await db.query(loginQuery, [newUser.superUserEmail, hashedPassword, "Super Admin", newUser.entityName]);
         console.log('Login created successfully');
 
-        res.status(200).send({ message: "Super user added successfully" });
+        res.status(200).send({ message: "Super Admin added successfully" });
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') {
             console.error('Duplicate entry detected:', err.message);
@@ -264,7 +264,7 @@ router.post('/addUser', async (req, res) => {
     
     try { 
       let entity;
-      // Query to get entity and super user details based on creatorName
+      // Query to get entity and Super Admin details based on creatorName
       if(userPower=="Vendor Admin"){
         entity = `SELECT entity_name, admin_name FROM Vendor_Admin_Users WHERE email = ?`;
       } else if(userPower=="Super Admin"){
@@ -522,17 +522,13 @@ router.get('/getModule', async (req, res) => {
 });
 
 router.post("/saveassignUserModules", async (req, res) => {
-  const { assignedUsers, rfpNo, selectedModules, userName,userPower } = req.body;
-  console.log(assignedUsers);
-  console.log(userName);
-  console.log(rfpNo);
+  const { assignedUsers, rfpNo, selectedModules, userName, userPower } = req.body;
 
   if (!assignedUsers || assignedUsers.length === 0 || !rfpNo) {
     return res.status(400).json({ message: "Invalid data provided" });
   }
 
   try {
-    // Loop through assigned users and insert or update based on existing records
     for (const user of assignedUsers) {
       const checkQuery = `
         SELECT COUNT(*) AS count 
@@ -541,74 +537,64 @@ router.post("/saveassignUserModules", async (req, res) => {
 
       const [result] = await db.query(checkQuery, [rfpNo, user.user_name]);
       const recordExists = result[0].count > 0;
-      console.log(user.selectedModules);
-      console.log(`Record exists: ${recordExists} for user: ${user.user_name} and rfp_no: ${rfpNo}`);
+      console.log("User power level:", userPower);
 
-      // const query = recordExists
-      //   ? `
-      //     UPDATE User_Modules_Assignment 
-      //     SET 
-      //       is_active = ?, 
-      //       date_from = ?, 
-      //       date_to = ?, 
-      //       is_maker = ?, 
-      //       is_authorizer = ?, 
-      //       is_reviewer = ?, 
-      //       module_name = ? 
-      //     WHERE rfp_no = ? AND user_name = ?`
-      //   : `
-      //     INSERT INTO User_Modules_Assignment 
-      //     (user_name, createdby, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer, module_name, rfp_no) 
-      //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-       
       let query;
-    // Step 2: Fetch Assigned Users
-    if(userPower=="Super User"){
-       query = `
-      INSERT INTO User_Modules_Assignment 
-      (user_name, createdby, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer, module_name, rfp_no) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE 
-        is_active = VALUES(is_active),
-        date_from = VALUES(date_from),
-        date_to = VALUES(date_to),
-        is_maker = VALUES(is_maker),
-        is_authorizer = VALUES(is_authorizer),
-        is_reviewer = VALUES(is_reviewer),
-        module_name = VALUES(module_name)
-    `;   
-  } else if(userPower=="Vendor Admin"){
-     query = `
-      INSERT INTO VendorUser_Modules_Assignment 
-      (user_name, createdby, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer, module_name, rfp_no) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE 
-        is_active = VALUES(is_active),
-        date_from = VALUES(date_from),
-        date_to = VALUES(date_to),
-        is_maker = VALUES(is_maker),
-        is_authorizer = VALUES(is_authorizer),
-        is_reviewer = VALUES(is_reviewer),
-        module_name = VALUES(module_name)
-    `;   
-  }
-      // console.log("Executing query:", query);
+      if (userPower === "Super Admin") {
+        query = `
+          INSERT INTO User_Modules_Assignment 
+          (user_name, createdby, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer, module_name, rfp_no) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON DUPLICATE KEY UPDATE 
+            is_active = VALUES(is_active),
+            date_from = VALUES(date_from),
+            date_to = VALUES(date_to),
+            is_maker = VALUES(is_maker),
+            is_authorizer = VALUES(is_authorizer),
+            is_reviewer = VALUES(is_reviewer),
+            module_name = VALUES(module_name)
+        `;
+      } else if (userPower === "Vendor Admin") {
+        query = `
+          INSERT INTO VendorUser_Modules_Assignment 
+          (user_name, createdby, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer, module_name, rfp_no) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ON DUPLICATE KEY UPDATE 
+            is_active = VALUES(is_active),
+            date_from = VALUES(date_from),
+            date_to = VALUES(date_to),
+            is_maker = VALUES(is_maker),
+            is_authorizer = VALUES(is_authorizer),
+            is_reviewer = VALUES(is_reviewer),
+            module_name = VALUES(module_name)
+        `;
+      }
+
+      const module_name = JSON.stringify(
+        user.selectedModules.map((module) => ({
+          ...module,
+          l2module: module.l2module.map((l2) => ({
+            ...l2,
+            l3: l2.l3 || [],
+          })),
+        }))
+      );
 
       const values = [
-        user.user_name,
-        userName,
-        user.active ? 1 : 0, // Store as 1 or 0
+        user.user_name || '',
+        userName || '',
+        user.active ? 1 : 0,
         user.fromDate || null,
         user.toDate || null,
-        user.maker ? 1 : 0, // Store as 1 or 0
-        user.authorizer ? 1 : 0, // Store as 1 or 0
+        user.maker ? 1 : 0,
+        user.authorizer ? 1 : 0,
         user.reviewer ? 1 : 0,
-        JSON.stringify(user.selectedModules || []), // Default to an empty array
-        rfpNo,
-    ];
-    
+        module_name || '[]',
+        rfpNo || '',
+      ];
 
-      // console.log("With values:", values);
+      console.log("Executing query:", query);
+      console.log("With values:", values);
 
       await db.query(query, values);
     }
@@ -619,6 +605,7 @@ router.post("/saveassignUserModules", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to assign users" });
   }
 });
+
 
 
 
