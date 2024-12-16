@@ -11,7 +11,6 @@ const jwt = require('jsonwebtoken'); // Consider using for authentication
 const login = require('./login/login');
 const addUsers = require('./routes/addUsers')
 // const bcrypt = require("bcryptjs");
-const cors = require("cors");
 
 // Allow requests from the frontend
 
@@ -26,7 +25,15 @@ app.use(express.json());
 // 
 
 app.use(bodyParser.json());
-app.use(cors());
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'https://rfp-plus-frontend.onrender.com', // Allow only the frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true // Allow credentials (cookies, authorization headers)
+}));
+
 app.use('/', login);
 app.use('/', addUsers);
 // Home route
