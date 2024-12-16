@@ -27,7 +27,19 @@ function App() {
     return <Navigate to="/home" />;
   };
   
+  useEffect(() => {
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
+    fetch(`${API_URL}/api/hello`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => console.log('Response from backend:', data))
+      .catch((error) => console.error('Error during fetch:', error));
+  }, []);
   const handleLogout = () => {
     setAuthState({ isAuthenticated: false, userType: null });
   };

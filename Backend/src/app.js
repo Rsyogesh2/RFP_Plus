@@ -38,6 +38,10 @@ app.get('/api/hello', (req, res) => {
 });
 // Mount the API routes under `/api`
 app.use('/api', dataRoutes);
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+
 // Catch-all to serve React frontend for any route
 // app.get('*', (req, res) => {
 //     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
@@ -135,10 +139,6 @@ app.use('/api', dataRoutes);
 //       res.status(401).json({ error: error.message });
 //     }
 //   });
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
 
 // async function createGlobalUser(){
 //     const password = "system@123";
