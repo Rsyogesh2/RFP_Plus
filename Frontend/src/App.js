@@ -29,7 +29,7 @@ function App() {
   
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
+    console.log(API_URL);
     fetch(`${API_URL}/api/hello`)
       .then((response) => {
         if (!response.ok) {
