@@ -14,7 +14,7 @@ const ViewModifyUserTable = () => {
       try {
         // Append the query parameter dynamically
         const queryParams = new URLSearchParams({ createdBy: userName,userPower });
-        const response = await fetch(`${API_URL}}/getusers?${queryParams}`); // Adjust endpoint if necessary
+        const response = await fetch(`${API_URL}/getusers?${queryParams}`); // Adjust endpoint if necessary
   
         if (!response.ok) {
           const errorMessage = await response.text();
