@@ -128,7 +128,12 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
             {menuItems.length > 0 ? (
               menuItems.map((item, index) => (
                 <li key={index}>
-                  <div className="sidebar-mainlabel" id={`sidebar-mainlabel-${index}`}>{item.label}</div>
+                  <div className="sidebar-mainlabel" id={`sidebar-mainlabel-${index}`}
+                   onClick={() => {
+                    if (userPower === "User" || userPower === "Vendor User") {
+                      handleSectionClick(item.section)}
+                    }
+                    }>{item.label}</div>
                   {item.subItems?.length > 0 && (
                     <ul className="nested-sub-label">
                       {item.subItems.map((subItem, subIndex) => (
