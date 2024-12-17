@@ -58,22 +58,9 @@ function App() {
         <div>
           <nav>
             <ul>
-            {/* {!authState.isAuthenticated && (
-              <>
-                <li>
-                  <Link to="/login?role=Global Admin">Global Admin Login</Link>
-                </li>
-                <li>
-                  <Link to="/login?role=Super Admin">Super User Admin Login</Link>
-                </li>
-                <li>
-                  <Link to="/login?role=User">User Login</Link>
-                </li>
-              </>
-            )} */}
             {authState.isAuthenticated && (
               <li>
-                <button onClick={handleLogout}>Logout</button>
+                <button className="logout-btn" onClick={handleLogout}>Logout</button>
               </li>
             )}
           </ul>

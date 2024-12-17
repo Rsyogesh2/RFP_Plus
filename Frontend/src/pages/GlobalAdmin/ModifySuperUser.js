@@ -16,6 +16,7 @@ const ModifySuperUser = () => {
           throw new Error('Failed to retrieve user data');
         }
         const data = await response.json();
+        console.log(data);
         setUsers(data);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -80,6 +81,19 @@ const ModifySuperUser = () => {
       console.error('Error deleting user:', error);
     }
   };
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+  };
+  
+  // Ensure formatted dates are passed
+  const formattedUser = {
+    ...selectedUser,
+    validFrom: formatDate(selectedUser.validFrom),
+    validTo: formatDate(selectedUser.validTo),
+  };
+  
 
   return (
     <div className="modify-super-user">
@@ -229,14 +243,14 @@ const ModifySuperUser = () => {
               <input
                 type="date"
                 name="validFrom"
-                value={selectedUser.validFrom}
+                value={formattedUser.validFrom}
                 onChange={handleInputChange}
               />
               <label>To:</label>
               <input
                 type="date"
                 name="validTo"
-                value={selectedUser.validTo}
+                value={formattedUser.validFrom}
                 onChange={handleInputChange}
               />
             </div>

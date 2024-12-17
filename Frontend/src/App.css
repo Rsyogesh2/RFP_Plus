@@ -45,3 +45,20 @@
 .btn[text="cancel"] {
   background-color: #f44336; /* Red */
 }
+
+.logout-btn {
+  position: absolute;
+  top: 10px; /* Distance from the top */
+  right: 20px; /* Distance from the right */
+  background-color: #4CAF50; /* Green color for consistency */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #45a049; /* Slightly darker green on hover */
+}
