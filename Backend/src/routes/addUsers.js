@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs')
 
 router.post('/addSuperUser', async (req, res) => {
     const { newUser, assignModule } = req.body;
-
+    console.log(assignModule)
     try {
         // Insert into SuperAdmin_Users table
         const userQuery = `
@@ -41,8 +41,10 @@ router.post('/addSuperUser', async (req, res) => {
         const assignedQuery = `
           INSERT INTO Assingned_Rfp_SuperUser (entity_Name, email, modules) VALUES (?, ?, ?)`;
 
-        const assignedPromises = assignModule.map(module =>
+        const assignedPromises = assignModule.map(module =>{
             db.query(assignedQuery, [newUser.entityName, newUser.superUserEmail, module])
+            console.log(module)
+        }
         );
         await Promise.all(assignedPromises);
         console.log('Modules assigned successfully');
