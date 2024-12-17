@@ -4,6 +4,8 @@ import './AssignUsers.css'
 
 
 const AssignUsers = () => {
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
   const [assignedUsers, setAssignedUsers] = useState([]);  // Users value Stored in the table
   const [rfpDetails, setRfpDetails] = useState([]);
   const [rfpNo, setRfpNo] = useState();
@@ -101,7 +103,7 @@ const AssignUsers = () => {
     async function assignRFP() {
       try {
         const queryParams = new URLSearchParams({ userName });
-        const response = await fetch(`/api/assignUsersRFPNo?${queryParams}`, {
+        const response = await fetch(`${API_URL}/api/assignUsersRFPNo?${queryParams}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -132,7 +134,7 @@ const AssignUsers = () => {
   const fetchUseRfpNo = async (rfpNo) => {
     try {
       const queryParams = new URLSearchParams({ rfpNo,userName });
-      const response = await fetch(`/api/assignRFPUserDetails?${queryParams}`, {
+      const response = await fetch(`${API_URL}/api/assignRFPUserDetails?${queryParams}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -175,7 +177,7 @@ const AssignUsers = () => {
           console.log(rfpNo);
           try {
             // Send assigned users data to the backend
-            const response = await fetch("/saveassignUserModules", {
+            const response = await fetch(`${API_URL}/saveassignUserModules`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

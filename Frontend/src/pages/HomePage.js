@@ -50,9 +50,10 @@ const AddUserForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
     try {
-      const response = await fetch('/addUser', {
+      const response = await fetch(`${API_URL}/addUser`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

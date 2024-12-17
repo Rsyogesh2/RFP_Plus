@@ -5,11 +5,12 @@ import React, { useEffect, useRef, useState, useContext, useCallback, useMemo } 
 const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar }) => {
   const sidebarRef = useRef(null);
   const { userPower, userName, sidebarValue, setSidebarValue } = useContext(AppContext);
-
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
   const fetchSidebarData = useCallback(async () => {
     try {
       const queryParams = new URLSearchParams({ userName, userPower });
-      const response = await fetch(`/api/userItemsinSidebar?${queryParams}`);
+      const response = await fetch(`${API_URL}/api/userItemsinSidebar?${queryParams}`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }

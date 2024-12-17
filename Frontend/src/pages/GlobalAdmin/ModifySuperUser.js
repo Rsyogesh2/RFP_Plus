@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 // import './ModifySuperUser.css';
 
 const ModifySuperUser = () => {
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -9,7 +11,7 @@ const ModifySuperUser = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('/getSuperUsers'); // Adjust API path if necessary
+        const response = await fetch(`${API_URL}/getSuperUsers`); // Adjust API path if necessary
         if (!response.ok) {
           throw new Error('Failed to retrieve user data');
         }
@@ -33,7 +35,7 @@ const ModifySuperUser = () => {
 
   const handleUpdate = async () => {
     try {
-      const response = await fetch(`/updateSuperUser/${selectedUser.id}`, {
+      const response = await fetch(`${API_URL}/updateSuperUser/${selectedUser.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +66,7 @@ const ModifySuperUser = () => {
 
   const handleDelete = async (userId) => {
     try {
-      const response = await fetch(`/deleteSuperUser/${userId}`, {
+      const response = await fetch(`${API_URL}/deleteSuperUser/${userId}`, {
         method: 'DELETE',
       });
 

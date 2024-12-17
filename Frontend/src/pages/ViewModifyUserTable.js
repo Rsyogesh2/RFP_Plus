@@ -6,14 +6,15 @@ const ViewModifyUserTable = () => {
   const { usersList, setUsersList, userName, userPower } = useContext(AppContext);
   const [editingUserId, setEditingUserId] = useState(null);
   const [formData, setFormData] = useState({});
-
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
   // Fetch users on component load
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         // Append the query parameter dynamically
         const queryParams = new URLSearchParams({ createdBy: userName,userPower });
-        const response = await fetch(`/getusers?${queryParams}`); // Adjust endpoint if necessary
+        const response = await fetch(`${API_URL}}/getusers?${queryParams}`); // Adjust endpoint if necessary
   
         if (!response.ok) {
           const errorMessage = await response.text();
@@ -43,7 +44,7 @@ const ViewModifyUserTable = () => {
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`/users/${editingUserId}`, {
+      const response = await fetch(`${API_URL}/users/${editingUserId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -73,7 +74,7 @@ const ViewModifyUserTable = () => {
     if (!confirmDelete) return;
   
     try {
-      const response = await fetch(`/users/${userId}`, {
+      const response = await fetch(`${API_URL}/users/${userId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

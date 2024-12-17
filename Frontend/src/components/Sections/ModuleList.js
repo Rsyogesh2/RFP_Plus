@@ -5,6 +5,8 @@ import {AppContext} from '../../context/AppContext';
 import './ModuleList.css';
 
 const ModuleList = forwardRef(({title,url},ref) => {
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
     const [modules, setModules] = useState([]);
     const [items, setItems] = useState([]);
     const { setModuleData,setAssignModule,userName } = useContext(AppContext);
@@ -17,7 +19,7 @@ const ModuleList = forwardRef(({title,url},ref) => {
     const fetchModulesandProducts = async () => {
         try {
             const queryParams = new URLSearchParams({ userName });
-            const response = await fetch(`/api${url}?${queryParams}`, {
+            const response = await fetch(`${API_URL}/api${url}?${queryParams}`, {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
@@ -58,7 +60,7 @@ const ModuleList = forwardRef(({title,url},ref) => {
                 updatedModules[index].expanded = true;
                 setModules(updatedModules);
             }else{
-                const response = await fetch(`/api/${url}/${moduleName}/subItems`); // Adjust the endpoint
+                const response = await fetch(`${API_URL}/api/${url}/${moduleName}/subItems`); // Adjust the endpoint
                 const subItems = await response.json();
                 const updatedModules = [...modules];
                 console.log(updatedModules);
@@ -127,7 +129,7 @@ const ModuleList = forwardRef(({title,url},ref) => {
       }));
     // const fetchItemsDetails = async (checkedItems) => {
     //     try {
-    //         const response = await fetch(`/api/products/${checkedItems}/itemDetails`); // Adjust the endpoint
+    //         const response = await fetch(`${API_URL}/api/products/${checkedItems}/itemDetails`); // Adjust the endpoint
     //         const subItems = await response.json();
     //         console.log(subItems)
     //         // const updatedModules = [...modules];

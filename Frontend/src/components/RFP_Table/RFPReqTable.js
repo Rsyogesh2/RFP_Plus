@@ -6,7 +6,8 @@ import Button from '../Buttons/Button.js';
 import { handleSave } from '../../services/Apis'
 
 const RFPReqTable = ({ l1, userRole }) => {
-
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
     const [name, setName] = useState(null); // Initially, no data
     const [itemData, setItemData] = useState(null); // Initially, no data
     const [FItem, setFItem] = useState([{
@@ -36,7 +37,7 @@ const RFPReqTable = ({ l1, userRole }) => {
             //23/11/2024
             try {
                 const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
-                const response = await fetch(`/api/userAssignItemsbySub?${queryParams}`)
+                const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
                 console.log(response);
 
                 // Check if the response is okay (status in the range 200-299)

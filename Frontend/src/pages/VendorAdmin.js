@@ -4,6 +4,8 @@ import './VendorAdmin.css';
 
 const VendorAdmin = () => {
   // State for form inputs
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
   const [rfpNo, setRfpNo] = useState();
   const [formData, setFormData] = useState({
     rfpReferenceNo: "",
@@ -27,7 +29,7 @@ const VendorAdmin = () => {
   async function assignRFP() {
     try {
       const queryParams = new URLSearchParams({ userName });
-      const response = await fetch(`/api/assignRFPNoonly?${queryParams}`, {
+      const response = await fetch(`${API_URL}/api/assignRFPNoonly?${queryParams}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +55,7 @@ const VendorAdmin = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("/api/vendor-admin", {
+      const response = await fetch(`${API_URL}/api/vendor-admin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -80,10 +80,12 @@ const AddUser = ({ handleGetCheckedItems }) => {
 
   const handleAddUser = async (subItems) => {
     console.log('New User Data', newUser);
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
     try {
       console.log(subItems)
 
-      const response = await fetch('/addSuperUser', {
+      const response = await fetch(`${API_URL}/addSuperUser`, {
         method: 'POST', // Use POST method
         headers: {
           'Content-Type': 'application/json', // Specify the content type

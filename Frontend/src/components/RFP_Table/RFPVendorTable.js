@@ -7,6 +7,8 @@ import { AppContext } from '../../context/AppContext';
 
 
 const RFPVendorTable = ({ l1, userRole }) => {
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
   const [itemData, setItemData] = useState([]);
   const [FItem, setFItem] = useState([]);
   const [data, setdata] = useState([]);
@@ -41,7 +43,7 @@ const RFPVendorTable = ({ l1, userRole }) => {
       //23/11/2024
       try {
           const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
-          const response = await fetch(`/api/userAssignItemsbySub?${queryParams}`)
+          const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
           console.log(response);
 
           // Check if the response is okay (status in the range 200-299)

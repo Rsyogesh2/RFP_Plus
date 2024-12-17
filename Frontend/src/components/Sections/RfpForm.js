@@ -8,6 +8,8 @@ import ModuleList from './ModuleList.js';
 import { AppContext } from '../../context/AppContext';
 
 const RfpForm = ({ user }) => {
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
   const childRef = useRef();
   const productRef = useRef();
 
@@ -36,7 +38,7 @@ const RfpForm = ({ user }) => {
     };
   
     // Send POST request
-    const response = await fetch("/api/rfpCreation", {
+    const response = await fetch(`${API_URL}/api/rfpCreation`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
