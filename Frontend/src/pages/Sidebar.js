@@ -130,7 +130,7 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
                 <li key={index}>
                   <div className="sidebar-mainlabel" id={`sidebar-mainlabel-${index}`}
                    onClick={() => {
-                    if (userPower === "User" || userPower === "Vendor User") {
+                    if (userPower !== "User" && userPower !== "Vendor User") {
                       handleSectionClick(item.section)}
                     }
                     }>{item.label}</div>
