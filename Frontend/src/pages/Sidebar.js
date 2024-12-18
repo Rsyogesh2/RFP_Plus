@@ -54,39 +54,77 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
     ],
   };
 
-  const generateUserSidebar = (sidebarValue) => {
+  // const generateUserSidebar = (sidebarValue) => {
+  //   if (!Array.isArray(sidebarValue) || sidebarValue.length === 0) {
+  //     return [{ label: "No Data Available", section: null, subItems: [] }];
+  //   }
+
+  //   // Group each RFP and its modules
+  //   return sidebarValue.map((userData, userIndex) => {
+  //     if (!userData.rfp_no || !Array.isArray(userData.module_name)) {
+  //       return { label: `No Data Available for User ${userIndex + 1}`, subItems: [] };
+  //     }
+
+  //     return {
+  //       label: `RFP No: ${userData.rfp_no}`, // Main title
+  //       section: userData.rfp_no,
+  //       subItems: [
+  //         ...userData.module_name.map((item, index) => ({
+  //           sublabel: item?.moduleName || `Module ${index + 1}`,
+  //           section: item?.code || `Section ${index + 1}`,
+  //         })),
+  //         { sublabel: "Vendor Query", section: "Vendor Query" }, // Add Vendor Query at the end
+  //       ],
+  //     };
+  //   });
+  // };
+
+
+  // const menuItems = useMemo(() => {
+  //   if (userPower === "User" || userPower === "Vendor User") {
+  //     return generateUserSidebar(sidebarValue || []);
+  //   }
+  //   return sidebarConfig[userPower] || [];
+  // }, [userPower, sidebarValue, sidebarConfig]);
+
+  const generateUserSidebar = (sidebarValue, userPower) => {
     if (!Array.isArray(sidebarValue) || sidebarValue.length === 0) {
       return [{ label: "No Data Available", section: null, subItems: [] }];
     }
-
+  
     // Group each RFP and its modules
     return sidebarValue.map((userData, userIndex) => {
       if (!userData.rfp_no || !Array.isArray(userData.module_name)) {
         return { label: `No Data Available for User ${userIndex + 1}`, subItems: [] };
       }
-
+  
+      const subItems = [
+        ...userData.module_name.map((item, index) => ({
+          sublabel: item?.moduleName || `Module ${index + 1}`,
+          section: item?.code || `Section ${index + 1}`,
+        })),
+      ];
+  
+      // Add "Vendor Query" if userPower is "Vendor User"
+      if (userPower === "Vendor User") {
+        subItems.push({ sublabel: "Vendor Query", section: "Vendor Query" });
+      }
+  
       return {
         label: `RFP No: ${userData.rfp_no}`, // Main title
         section: userData.rfp_no,
-        subItems: [
-          ...userData.module_name.map((item, index) => ({
-            sublabel: item?.moduleName || `Module ${index + 1}`,
-            section: item?.code || `Section ${index + 1}`,
-          })),
-          { sublabel: "Vendor Query", section: "Vendor Query" }, // Add Vendor Query at the end
-        ],
+        subItems,
       };
     });
   };
-
-
+  
   const menuItems = useMemo(() => {
     if (userPower === "User" || userPower === "Vendor User") {
-      return generateUserSidebar(sidebarValue || []);
+      return generateUserSidebar(sidebarValue || [], userPower);
     }
     return sidebarConfig[userPower] || [];
   }, [userPower, sidebarValue, sidebarConfig]);
-
+  
   const handleClickOutside = (event) => {
     if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
       if (isSidebarOpen) toggleSidebar();
