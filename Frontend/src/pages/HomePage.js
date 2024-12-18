@@ -13,6 +13,7 @@ import UploadFile from "./GlobalAdmin/UploadFile";
 import Reports from "./GlobalAdmin/Reports";
 import ViewAssignedRFPs from "./User/ViewAssignedRFPs"
 import SubmitedRFPs from "./User/SubmitedRFPs";
+import FinalEvaluation from "./FinalEvaluation";
 import RfpScoringCriteria from "../ScoringCriteria/RfpScoringCriteria";
 import RFPVendorTable from "../components/RFP_Table/RFPVendorTable"
 import "./HomePage.css";
@@ -226,6 +227,8 @@ const HomePage = ({ userType }) => {
           return <RFPVendorTable />;
       case "Vendor Query":
         return <VendorQuery />;
+      case "Final Evaluation":
+        return <FinalEvaluation />
       default:
         return <p>Select an option from the sidebar.</p>;
     }

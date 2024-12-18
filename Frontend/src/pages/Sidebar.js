@@ -37,6 +37,7 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       { label: "Assign Users", section: "Assign Users" },
       { label: "Vendor Admin", section: "Vendor Admin" },
       { label: "Reports", section: "Reports" },
+      { label: "Final Evaluation", section: "Final Evaluation" },
     ],
     "Global Admin": [
       { label: "Add Super User", section: "Add Super User" },
