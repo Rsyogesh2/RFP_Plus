@@ -7,6 +7,11 @@ const VendorQuery = () => {
   const [rows, setRows] = useState([
     { rfpRefNo: "", rfpClause: "General", existingDetails: "", clarification: "" },
   ]);
+  const [value, setValue] = useState();
+
+  const onChange = (newValue) => {
+    setValue(newValue);
+  };
   const {  userName ,sidebarValue,moduleData} = useContext(AppContext); // Access shared state
       console.log(moduleData.itemDetails.l1)
   // Sample options for RFP Ref No. (L2, L3 level modules)
@@ -24,7 +29,7 @@ const flattenHierarchy = (moduleData) => {
   }));
 };
 
-const options = flattenHierarchy(data);
+const options = flattenHierarchy(moduleData);
 console.log(options); // Outputs structured dropdown options
   const fetchUseRfpNo = async (rfpNo) => {
     try {
