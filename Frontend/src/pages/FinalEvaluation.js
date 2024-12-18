@@ -1,29 +1,21 @@
 import React, { useState } from "react";
-import './FinalEvaluation.css';
+import "./FinalEvaluation.css";
 
 const FinalEvaluation = () => {
-  const [formData, setFormData] = useState({
-    vendor: "",
-    totalCost: "",
-    avgSubscription: "",
-    fiveYearTCO: "",
-    licenseCost: "",
-    rateCard: "",
-    installations: "",
-    siteReference: "",
-    others1: "",
-    others2: "",
-    others3: "",
+  const [collapsedSections, setCollapsedSections] = useState({
+    commercialPattern: true,
+    installations: true,
+    siteReference: true,
+    others1: true,
+    others2: true,
+    others3: true,
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form Data Submitted:", formData);
+  const toggleSection = (section) => {
+    setCollapsedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
   };
 
   return (
@@ -32,121 +24,126 @@ const FinalEvaluation = () => {
       <h3>Submitted</h3>
       <h4>Final Evaluation</h4>
 
-      <form onSubmit={handleSubmit}>
-        {/* Vendor Selection */}
-        <div className="form-group">
-          <label>Select Vendor:</label>
-          <select
-            name="vendor"
-            value={formData.vendor}
-            onChange={handleChange}
-            className="input-field"
+      <form>
+        {/* Commercial Pattern */}
+        <div className="section">
+          <div
+            className="section-header"
+            onClick={() => toggleSection("commercialPattern")}
           >
-            <option value="">Select</option>
-            <option value="vendor1">Vendor 1</option>
-            <option value="vendor2">Vendor 2</option>
-          </select>
-          <button type="button">Go</button>
+            Commercial Pattern {collapsedSections.commercialPattern ? "▲" : "▼"}
+          </div>
+          {collapsedSections.commercialPattern && (
+            <div className="section-content">
+              <label>Total cost - onetime cost:</label>
+              <input type="number" placeholder="Amount" />
+              <label>Average monthly subscription:</label>
+              <input type="number" placeholder="Amount" />
+              <label>5 year TCO:</label>
+              <input type="number" placeholder="Amount" />
+              <label>License cost:</label>
+              <input type="number" placeholder="Amount" />
+              <label>Rate card (per person per day):</label>
+              <input type="number" placeholder="Amount" />
+            </div>
+          )}
         </div>
 
-        {/* Commercial Pattern */}
-        <fieldset>
-          <legend>Commercial Pattern</legend>
-          <div className="form-group">
-            <label>Total cost - onetime cost:</label>
-            <input
-              type="number"
-              name="totalCost"
-              value={formData.totalCost}
-              onChange={handleChange}
-              placeholder="Amount"
-            />
-          </div>
-          <div className="form-group">
-            <label>Average monthly subscription:</label>
-            <input
-              type="number"
-              name="avgSubscription"
-              value={formData.avgSubscription}
-              onChange={handleChange}
-              placeholder="Amount"
-            />
-          </div>
-          <div className="form-group">
-            <label>5 year TCO:</label>
-            <input
-              type="number"
-              name="fiveYearTCO"
-              value={formData.fiveYearTCO}
-              onChange={handleChange}
-              placeholder="Amount"
-            />
-          </div>
-          <div className="form-group">
-            <label>License cost:</label>
-            <input
-              type="number"
-              name="licenseCost"
-              value={formData.licenseCost}
-              onChange={handleChange}
-              placeholder="Amount"
-            />
-          </div>
-          <div className="form-group">
-            <label>Rate card (per person per day):</label>
-            <input
-              type="number"
-              name="rateCard"
-              value={formData.rateCard}
-              onChange={handleChange}
-              placeholder="Amount"
-            />
-          </div>
-        </fieldset>
-
-        {/* Implementation Model */}
-        <div className="form-group">
-          <label>No of installations by vendor:</label>
-          <select
-            name="installations"
-            value={formData.installations}
-            onChange={handleChange}
+        {/* No of Installations */}
+        <div className="section">
+          <div
+            className="section-header"
+            onClick={() => toggleSection("installations")}
           >
-            <option value="">Select</option>
-            <option value="10">10+</option>
-            <option value="20">20+</option>
-          </select>
+            No of Installations by Vendor{" "}
+            {collapsedSections.installations ? "▲" : "▼"}
+          </div>
+          {collapsedSections.installations && (
+            <div className="section-content">
+              <select>
+                <option value="">Select</option>
+                <option value="10+">10+</option>
+                <option value="20+">20+</option>
+              </select>
+            </div>
+          )}
         </div>
 
         {/* Site Reference */}
-        <div className="form-group">
-          <label>Site reference:</label>
-          <select
-            name="siteReference"
-            value={formData.siteReference}
-            onChange={handleChange}
+        <div className="section">
+          <div
+            className="section-header"
+            onClick={() => toggleSection("siteReference")}
           >
-            <option value="">Select</option>
-            <option value="site1">Site 1</option>
-            <option value="site2">Site 2</option>
-          </select>
+            Site Reference {collapsedSections.siteReference ? "▲" : "▼"}
+          </div>
+          {collapsedSections.siteReference && (
+            <div className="section-content">
+              <select>
+                <option value="">Select</option>
+                <option value="site1">Site 1</option>
+                <option value="site2">Site 2</option>
+              </select>
+            </div>
+          )}
         </div>
 
-        {/* Other Options */}
-        {["others1", "others2", "others3"].map((field, index) => (
-          <div className="form-group" key={index}>
-            <label>Others {index + 1}:</label>
-            <select
-              name={field}
-              value={formData[field]}
-              onChange={handleChange}
-            >
-              <option value="">Select</option>
-              <option value="option1">Option 1</option>
-              <option value="option2">Option 2</option>
-            </select>
+        {/* Others 1 */}
+        <div className="section">
+          <div
+            className="section-header"
+            onClick={() => toggleSection("others1")}
+          >
+            Others 1 {collapsedSections.others1 ? "▲" : "▼"}
           </div>
-        ))}
+          {collapsedSections.others1 && (
+            <div className="section-content">
+              <select>
+                <option value="">Select</option>
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Others 2 */}
+        <div className="section">
+          <div
+            className="section-header"
+            onClick={() => toggleSection("others2")}
+          >
+            Others 2 {collapsedSections.others2 ? "▲" : "▼"}
+          </div>
+          {collapsedSections.others2 && (
+            <div className="section-content">
+              <select>
+                <option value="">Select</option>
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Others 3 */}
+        <div className="section">
+          <div
+            className="section-header"
+            onClick={() => toggleSection("others3")}
+          >
+            Others 3 {collapsedSections.others3 ? "▲" : "▼"}
+          </div>
+          {collapsedSections.others3 && (
+            <div className="section-content">
+              <select>
+                <option value="">Select</option>
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+              </select>
+            </div>
+          )}
+        </div>
 
         {/* Buttons */}
         <div className="form-buttons">
