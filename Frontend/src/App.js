@@ -58,10 +58,8 @@ function App() {
         <div>
           <nav>
             <ul>
-            {authState.isAuthenticated && (
-              <li>
+            {authState.isAuthenticated && (              
                 <button className="logout-btn" onClick={handleLogout}>Logout</button>
-              </li>
             )}
           </ul>
         </nav>

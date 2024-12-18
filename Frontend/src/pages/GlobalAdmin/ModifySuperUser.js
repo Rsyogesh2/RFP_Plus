@@ -88,11 +88,11 @@ const ModifySuperUser = () => {
   };
   
   // Ensure formatted dates are passed
-  const formattedUser = {
-    ...selectedUser,
-    validFrom: formatDate(selectedUser.validFrom),
-    validTo: formatDate(selectedUser.validTo),
-  };
+  // const formattedUser = {
+  //   ...selectedUser,
+  //   validFrom: formatDate(selectedUser.validFrom),
+  //   validTo: formatDate(selectedUser.validTo),
+  // };
   
 
   return (
@@ -243,14 +243,14 @@ const ModifySuperUser = () => {
               <input
                 type="date"
                 name="validFrom"
-                value={formattedUser.validFrom}
+                value={formatDate(selectedUser.validFrom)}
                 onChange={handleInputChange}
               />
               <label>To:</label>
               <input
                 type="date"
                 name="validTo"
-                value={formattedUser.validFrom}
+                value={formatDate(selectedUser.validFrom)}
                 onChange={handleInputChange}
               />
             </div>
