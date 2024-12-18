@@ -92,14 +92,14 @@ console.log(options); // Outputs structured dropdown options
             <tr key={index}>
               <td>{index + 1}</td>
               <td>
-              <TreeSelect
+              {/* <TreeSelect
                   treeData={options}
                   value={value}
                   onChange={onChange}
                   placeholder="Please select"
                   treeDefaultExpandAll
                   style={{ width: "100%" }}
-                />
+                /> */}
                 {/* <select
                   value={row.rfpRefNo}
                   onChange={(e) => handleInputChange(index, "rfpRefNo", e.target.value)
