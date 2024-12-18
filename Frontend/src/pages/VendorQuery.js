@@ -6,15 +6,14 @@ const VendorQuery = () => {
   const [rows, setRows] = useState([
     { rfpRefNo: "", rfpClause: "General", existingDetails: "", clarification: "" },
   ]);
-  const {  userName ,sidebarValue} = useContext(AppContext); // Access shared state
-  
+  const {  userName ,sidebarValue,moduleData} = useContext(AppContext); // Access shared state
+      console.log(moduleData.itemDetails.l1)
   // Sample options for RFP Ref No. (L2, L3 level modules)
-  const rfpRefOptions = [
-    { value: "General", label: "General" },
-    { value: "L2_Module_1", label: "L2 - Module 1" },
-    { value: "L3_Module_1", label: "L3 - Module 1" },
-    // Add more options as needed
-  ];
+  const rfpRefOptions = moduleData.itemDetails.l1.map(module => ({
+    value: module.name,
+    label: module.name
+  }));
+  
 
   const fetchUseRfpNo = async (rfpNo) => {
     try {
