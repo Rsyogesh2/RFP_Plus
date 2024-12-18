@@ -65,7 +65,11 @@ export default FinalEvaluation;
 
 const CollapsibleSection = ({ title, items }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-
+  const handleTextChange = (index, value) => {
+    // const newData = [...data];
+    // newData[index].text = value;
+    // setData(newData);
+  };
   const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
   return (
@@ -80,7 +84,23 @@ const CollapsibleSection = ({ title, items }) => {
         <div className="section-content">
           <ul>
             {items.map((item, index) => (
-              <li key={index}>{item}</li>
+              <div>
+                 <input
+                    type="text"
+                    placeholder={items[index]}
+                    value={item.text}
+                    onChange={(e) => handleTextChange(index, e.target.value)}
+                    className="item-input"
+                />
+                 <input
+                    type="text"
+                    placeholder="Amount"
+                    value={item.text}
+                    onChange={(e) => handleTextChange(index, e.target.value)}
+                    className="item-input"
+                />
+              </div>
+             
             ))}
           </ul>
         </div>
