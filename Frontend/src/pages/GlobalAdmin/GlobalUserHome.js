@@ -85,7 +85,7 @@ const AddUser = ({ handleGetCheckedItems }) => {
     try {
       console.log(subItems)
 
-      const response = await fetch(`${API_URL}/addSuperUser`, {
+      const response = await fetch(`${API_URL}/addOrUpdateSuperUser`, {
         method: 'POST', // Use POST method
         headers: {
           'Content-Type': 'application/json', // Specify the content type

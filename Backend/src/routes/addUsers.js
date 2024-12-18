@@ -5,72 +5,192 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs')
 
 
-router.post('/addSuperUser', async (req, res) => {
-    const { newUser, assignModule } = req.body;
-    console.log(assignModule)
-    try {
-        // Insert into SuperAdmin_Users table
-        const userQuery = `
-          INSERT INTO SuperAdmin_Users (
-            entity_name, entity_sub_name, entity_landline, entity_address, entity_city, 
-            entity_pin_code, entity_country, super_user_name, designation, 
-            super_user_email, super_user_mobile, valid_from, valid_to, active_flag
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+// router.post('/addSuperUser', async (req, res) => {
+//     const { newUser, assignModule } = req.body;
+//     console.log(assignModule)
+//     try {
+//         // Insert into SuperAdmin_Users table
+//         const userQuery = `
+//           INSERT INTO SuperAdmin_Users (
+//             entity_name, entity_sub_name, entity_landline, entity_address, entity_city, 
+//             entity_pin_code, entity_country, super_user_name, designation, 
+//             super_user_email, super_user_mobile, valid_from, valid_to, active_flag
+//           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-        const userValues = [
-            newUser.entityName,
-            newUser.entitySubName,
-            newUser.entityLandline,
-            newUser.entityAddress,
-            newUser.entityCity,
-            newUser.entityPinCode,
-            newUser.entityCountry,
-            newUser.superUserName,
-            newUser.designation,
-            newUser.superUserEmail,
-            newUser.superUserMobile,
-            newUser.validFrom,
-            newUser.validTo,
-            newUser.activeFlag,
-        ];
+//         const userValues = [
+//             newUser.entityName,
+//             newUser.entitySubName,
+//             newUser.entityLandline,
+//             newUser.entityAddress,
+//             newUser.entityCity,
+//             newUser.entityPinCode,
+//             newUser.entityCountry,
+//             newUser.superUserName,
+//             newUser.designation,
+//             newUser.superUserEmail,
+//             newUser.superUserMobile,
+//             newUser.validFrom,
+//             newUser.validTo,
+//             newUser.activeFlag,
+//         ];
 
-        await db.query(userQuery, userValues);
-        console.log('User added successfully');
+//         await db.query(userQuery, userValues);
+//         console.log('User added successfully');
 
-        // Insert into Assingned_Rfp_SuperUser table for each module
-        const assignedQuery = `
-          INSERT INTO Assingned_Rfp_SuperUser (entity_Name, email, modules) VALUES (?, ?, ?)`;
+//         // Insert into Assingned_Rfp_SuperUser table for each module
+//         const assignedQuery = `
+//           INSERT INTO Assingned_Rfp_SuperUser (entity_Name, email, modules) VALUES (?, ?, ?)`;
 
-        const assignedPromises = assignModule.map(module =>{
-            db.query(assignedQuery, [newUser.entityName, newUser.superUserEmail, module])
-            console.log(module)
-        }
-        );
-        await Promise.all(assignedPromises);
-        console.log('Modules assigned successfully');
+//         const assignedPromises = assignModule.map(module =>{
+//             db.query(assignedQuery, [newUser.entityName, newUser.superUserEmail, module])
+//             console.log(module)
+//         }
+//         );
+//         await Promise.all(assignedPromises);
+//         console.log('Modules assigned successfully');
 
-        // Create a login entry for the super admin user
-        const defaultPassword = "system@123";
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(defaultPassword, salt);
+//         // Create a login entry for the super admin user
+//         const defaultPassword = "system@123";
+//         const salt = await bcrypt.genSalt(10);
+//         const hashedPassword = await bcrypt.hash(defaultPassword, salt);
 
-        const loginQuery = `
-          INSERT INTO Users_Login (Username, Password, Role, Entity_Name) VALUES (?, ?, ?, ?)`;
+//         const loginQuery = `
+//           INSERT INTO Users_Login (Username, Password, Role, Entity_Name) VALUES (?, ?, ?, ?)`;
 
-        await db.query(loginQuery, [newUser.superUserEmail, hashedPassword, "Super Admin", newUser.entityName]);
-        console.log('Login created successfully');
+//         await db.query(loginQuery, [newUser.superUserEmail, hashedPassword, "Super Admin", newUser.entityName]);
+//         console.log('Login created successfully');
 
-        res.status(200).send({ message: "Super Admin added successfully" });
-    } catch (err) {
-        if (err.code === 'ER_DUP_ENTRY') {
-            console.error('Duplicate entry detected:', err.message);
-            res.status(400).send({ error: "Duplicate entry detected", message: err.message });
-        } else {
-            console.error('Error adding user:', err.message);
-            res.status(500).send({ error: "Internal Server Error", message: err.message });
-        }
+//         res.status(200).send({ message: "Super Admin added successfully" });
+//     } catch (err) {
+//         if (err.code === 'ER_DUP_ENTRY') {
+//             console.error('Duplicate entry detected:', err.message);
+//             res.status(400).send({ error: "Duplicate entry detected", message: err.message });
+//         } else {
+//             console.error('Error adding user:', err.message);
+//             res.status(500).send({ error: "Internal Server Error", message: err.message });
+//         }
+//     }
+// });
+
+router.post('/addOrUpdateSuperUser', async (req, res) => {
+  const { newUser, assignModule } = req.body;
+
+  try {
+    // Check if user already exists based on email and entity name
+    const checkUserQuery = `
+      SELECT * FROM SuperAdmin_Users 
+      WHERE super_user_email = ? AND entity_name = ?`;
+
+    const [existingUser] = await db.query(checkUserQuery, [newUser.superUserEmail, newUser.entityName]);
+
+    if (existingUser.length > 0) {
+      // Update existing user
+      const updateUserQuery = `
+        UPDATE SuperAdmin_Users
+        SET 
+          entity_sub_name = ?, entity_landline = ?, entity_address = ?, entity_city = ?, 
+          entity_pin_code = ?, entity_country = ?, super_user_name = ?, designation = ?, 
+          super_user_mobile = ?, valid_from = ?, valid_to = ?, active_flag = ?
+        WHERE super_user_email = ? AND entity_name = ?`;
+
+      const updateUserValues = [
+        newUser.entitySubName,
+        newUser.entityLandline,
+        newUser.entityAddress,
+        newUser.entityCity,
+        newUser.entityPinCode,
+        newUser.entityCountry,
+        newUser.superUserName,
+        newUser.designation,
+        newUser.superUserMobile,
+        newUser.validFrom,
+        newUser.validTo,
+        newUser.activeFlag,
+        newUser.superUserEmail,
+        newUser.entityName,
+      ];
+
+      await db.query(updateUserQuery, updateUserValues);
+      console.log('User updated successfully');
+    } else {
+      // Add new user
+      const addUserQuery = `
+        INSERT INTO SuperAdmin_Users (
+          entity_name, entity_sub_name, entity_landline, entity_address, entity_city, 
+          entity_pin_code, entity_country, super_user_name, designation, 
+          super_user_email, super_user_mobile, valid_from, valid_to, active_flag
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      const addUserValues = [
+        newUser.entityName,
+        newUser.entitySubName,
+        newUser.entityLandline,
+        newUser.entityAddress,
+        newUser.entityCity,
+        newUser.entityPinCode,
+        newUser.entityCountry,
+        newUser.superUserName,
+        newUser.designation,
+        newUser.superUserEmail,
+        newUser.superUserMobile,
+        newUser.validFrom,
+        newUser.validTo,
+        newUser.activeFlag,
+      ];
+
+      await db.query(addUserQuery, addUserValues);
+      console.log('User added successfully');
     }
+
+    // Clear existing modules for the user and reinsert new ones
+    const deleteModulesQuery = `
+      DELETE FROM Assingned_Rfp_SuperUser 
+      WHERE entity_Name = ? AND email = ?`;
+
+    await db.query(deleteModulesQuery, [newUser.entityName, newUser.superUserEmail]);
+
+    const assignModuleQuery = `
+      INSERT INTO Assingned_Rfp_SuperUser (entity_Name, email, modules) 
+      VALUES (?, ?, ?)`;
+
+    const assignModulePromises = assignModule.map(module => 
+      db.query(assignModuleQuery, [newUser.entityName, newUser.superUserEmail, module])
+    );
+    await Promise.all(assignModulePromises);
+    console.log('Modules assigned successfully');
+
+    // Update or create login entry
+    const defaultPassword = "system@123";
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(defaultPassword, salt);
+
+    const loginQuery = `
+      INSERT INTO Users_Login (Username, Password, Role, Entity_Name)
+      VALUES (?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE Password = ?, Role = ?`;
+
+    await db.query(loginQuery, [
+      newUser.superUserEmail,
+      hashedPassword,
+      "Super Admin",
+      newUser.entityName,
+      hashedPassword,
+      "Super Admin",
+    ]);
+    console.log('Login entry updated or created successfully');
+
+    res.status(200).send({ message: "Super Admin added or updated successfully" });
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      console.error('Duplicate entry detected:', err.message);
+      res.status(400).send({ error: "Duplicate entry detected", message: err.message });
+    } else {
+      console.error('Error processing request:', err.message);
+      res.status(500).send({ error: "Internal Server Error", message: err.message });
+    }
+  }
 });
+
 
 router.put('/updateSuperUser/:id', async (req, res) => {
   const userId = req.params.id;

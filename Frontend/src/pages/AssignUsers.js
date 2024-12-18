@@ -228,7 +228,7 @@ const AssignUsers = () => {
               <th>To</th>
               <th>Maker</th>
               <th>Authorizer</th>
-              <th>Reviewer</th>
+              <th>Viewer</th>
               <th>Modules</th>
             </tr>
           </thead>

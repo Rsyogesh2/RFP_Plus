@@ -132,7 +132,7 @@ const ModifySuperUser = () => {
         </tbody>
       </table>
 
-      {selectedUser && (
+      {/* {selectedUser && (
         <div className="modify-super-user__form-container">
           <h3 className="modify-super-user__form-header">Modify User</h3>
           <form className="modify-super-user__form">
@@ -274,7 +274,7 @@ const ModifySuperUser = () => {
             </button>
           </form>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
