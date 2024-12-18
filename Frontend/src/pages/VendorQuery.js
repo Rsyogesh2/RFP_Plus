@@ -22,14 +22,14 @@ const VendorQuery = () => {
   
 // Recursive function to flatten names into hierarchy
 const flattenHierarchy = (moduleData) => {
-  return moduleData.itemDetails.l1.map((item) => ({
+  return moduleData.map((item) => ({
     label: item.name,
     value: item.code,
     children: item.l2 ? flattenHierarchy(item.l2.map((l2) => l2)) : undefined,
   }));
 };
 
-const options = flattenHierarchy(moduleData);
+const options = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
 console.log(options); // Outputs structured dropdown options
   const fetchUseRfpNo = async (rfpNo) => {
     try {
