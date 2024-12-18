@@ -1,6 +1,7 @@
 import React, { useState , useContext} from "react";
 import { AppContext } from '../context/AppContext';
 import "./VendorQuery.css"; // Import CSS file
+import { TreeSelect } from "antd";
 
 const VendorQuery = () => {
   const [rows, setRows] = useState([
@@ -9,12 +10,22 @@ const VendorQuery = () => {
   const {  userName ,sidebarValue,moduleData} = useContext(AppContext); // Access shared state
       console.log(moduleData.itemDetails.l1)
   // Sample options for RFP Ref No. (L2, L3 level modules)
-  const rfpRefOptions = moduleData.itemDetails.l1.map(module => ({
-    value: module.name,
-    label: module.name
-  }));
+  // const rfpRefOptions = moduleData.itemDetails.l1.map(module => ({
+  //   value: module.name,
+  //   label: module.name
+  // }));
   
+// Recursive function to flatten names into hierarchy
+const flattenHierarchy = (moduleData) => {
+  return moduleData.itemDetails.l1.map((item) => ({
+    label: item.name,
+    value: item.code,
+    children: item.l2 ? flattenHierarchy(item.l2.map((l2) => l2)) : undefined,
+  }));
+};
 
+const options = flattenHierarchy(data);
+console.log(options); // Outputs structured dropdown options
   const fetchUseRfpNo = async (rfpNo) => {
     try {
       const queryParams = new URLSearchParams({ rfpNo,userName });
@@ -76,7 +87,15 @@ const VendorQuery = () => {
             <tr key={index}>
               <td>{index + 1}</td>
               <td>
-                <select
+              <TreeSelect
+                  treeData={options}
+                  value={value}
+                  onChange={onChange}
+                  placeholder="Please select"
+                  treeDefaultExpandAll
+                  style={{ width: "100%" }}
+                />
+                {/* <select
                   value={row.rfpRefNo}
                   onChange={(e) => handleInputChange(index, "rfpRefNo", e.target.value)
                     
@@ -89,7 +108,7 @@ const VendorQuery = () => {
                       {option.label}
                     </option>
                   ))}
-                </select>
+                </select> */}
               </td>
               <td>{row.rfpClause}</td>
               <td>

@@ -46,7 +46,7 @@ const Login = ({ onLogin }) => {
 
       if (rolesResponse.ok) {
         setRoles(rolesResult.roles);
-        alert("Please select your role to proceed.");
+        // alert("Please select your role to proceed.");
       } else {
         alert(rolesResult.message || "Failed to fetch roles.");
       }
