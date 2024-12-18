@@ -84,7 +84,7 @@ const CollapsibleSection = ({ title, items }) => {
         <div className="section-content">
           <ul>
             {items.map((item, index) => (
-              <div>
+              <div style={{display:"flex"}}>
                  <input
                     type="text"
                     placeholder={items[index]}
