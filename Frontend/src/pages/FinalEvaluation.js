@@ -1,5 +1,5 @@
 import React from "react";
-
+import './FinalEvaluation';
 const FinalEvaluation = () => {
   const othersTitles = {
     others1: "Custom Field 1",
