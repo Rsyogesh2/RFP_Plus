@@ -1,165 +1,90 @@
-import React, { useState } from "react";
-import "./FinalEvaluation.css";
+import React from "react";
 
 const FinalEvaluation = () => {
-  const [collapsedSections, setCollapsedSections] = useState({
-    commercialPattern: true,
-    installations: true,
-    siteReference: true,
-    others1: true,
-    others2: true,
-    others3: true,
-  });
-
-  const toggleSection = (section) => {
-    setCollapsedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
+  const othersTitles = {
+    others1: "Custom Field 1",
+    others2: "Custom Field 2",
+    others3: "Custom Field 3",
   };
 
   return (
-    <div className="rfp-form-container">
-      <h2>&lt; RFP no &gt; - &lt; RFP title &gt;</h2>
-      <h3>Submitted</h3>
-      <h4>Final Evaluation</h4>
+    <div className="rfp-page">
+      <h2>Score Sections</h2>
 
-      <form>
-        {/* Commercial Pattern */}
-        <div className="section">
-          <div
-            className="section-header"
-            onClick={() => toggleSection("commercialPattern")}
-          >
-            Commercial Pattern {collapsedSections.commercialPattern ? "▲" : "▼"}
-          </div>
-          {collapsedSections.commercialPattern && (
-            <div className="section-content">
-              <label>Total cost - onetime cost:</label>
-              <input type="number" placeholder="Amount" />
-              <label>Average monthly subscription:</label>
-              <input type="number" placeholder="Amount" />
-              <label>5 year TCO:</label>
-              <input type="number" placeholder="Amount" />
-              <label>License cost:</label>
-              <input type="number" placeholder="Amount" />
-              <label>Rate card (per person per day):</label>
-              <input type="number" placeholder="Amount" />
-            </div>
-          )}
-        </div>
+      {/* Implementation Score */}
+      <CollapsibleSection
+        title="Implementation Score"
+        items={[
+          "Implementation & Hosting - Direct",
+          "Implementation: Partner, Hosting: Direct",
+          "Implement: Direct, Hosting: Partner",
+          "Implementation & Hosting - Partner",
+          "Others",
+        ]}
+      />
 
-        {/* No of Installations */}
-        <div className="section">
-          <div
-            className="section-header"
-            onClick={() => toggleSection("installations")}
-          >
-            No of Installations by Vendor{" "}
-            {collapsedSections.installations ? "▲" : "▼"}
-          </div>
-          {collapsedSections.installations && (
-            <div className="section-content">
-              <select>
-                <option value="">Select</option>
-                <option value="10+">10+</option>
-                <option value="20+">20+</option>
-              </select>
-            </div>
-          )}
-        </div>
+      {/* No of Sites Score */}
+      <CollapsibleSection
+        title="No of Sites Score"
+        items={[
+          "10+ installations",
+          "6-10 installations",
+          "3-5 installations",
+          "1-2 installations",
+          "Others module installations",
+        ]}
+      />
 
-        {/* Site Reference */}
-        <div className="section">
-          <div
-            className="section-header"
-            onClick={() => toggleSection("siteReference")}
-          >
-            Site Reference {collapsedSections.siteReference ? "▲" : "▼"}
-          </div>
-          {collapsedSections.siteReference && (
-            <div className="section-content">
-              <select>
-                <option value="">Select</option>
-                <option value="site1">Site 1</option>
-                <option value="site2">Site 2</option>
-              </select>
-            </div>
-          )}
-        </div>
+      {/* Site Reference */}
+      <CollapsibleSection
+        title="Site Reference"
+        items={["Worst", "Bad", "Better", "Good", "Very good"]}
+      />
 
-        {/* Others 1 */}
-        <div className="section">
-          <div
-            className="section-header"
-            onClick={() => toggleSection("others1")}
-          >
-            Others 1 {collapsedSections.others1 ? "▲" : "▼"}
-          </div>
-          {collapsedSections.others1 && (
-            <div className="section-content">
-              <select>
-                <option value="">Select</option>
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-              </select>
-            </div>
-          )}
-        </div>
+      {/* Others Sections */}
+      <CollapsibleSection
+        title={othersTitles.others1}
+        items={["To be defined", "To be defined", "To be defined", "To be defined", "To be defined"]}
+      />
 
-        {/* Others 2 */}
-        <div className="section">
-          <div
-            className="section-header"
-            onClick={() => toggleSection("others2")}
-          >
-            Others 2 {collapsedSections.others2 ? "▲" : "▼"}
-          </div>
-          {collapsedSections.others2 && (
-            <div className="section-content">
-              <select>
-                <option value="">Select</option>
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-              </select>
-            </div>
-          )}
-        </div>
+      <CollapsibleSection
+        title={othersTitles.others2}
+        items={["To be defined", "To be defined", "To be defined", "To be defined", "To be defined"]}
+      />
 
-        {/* Others 3 */}
-        <div className="section">
-          <div
-            className="section-header"
-            onClick={() => toggleSection("others3")}
-          >
-            Others 3 {collapsedSections.others3 ? "▲" : "▼"}
-          </div>
-          {collapsedSections.others3 && (
-            <div className="section-content">
-              <select>
-                <option value="">Select</option>
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-              </select>
-            </div>
-          )}
-        </div>
-
-        {/* Buttons */}
-        <div className="form-buttons">
-          <button type="button" className="btn btn-draft">
-            Save as Draft
-          </button>
-          <button type="submit" className="btn btn-submit">
-            Submit
-          </button>
-          <button type="button" className="btn btn-cancel">
-            Cancel
-          </button>
-        </div>
-      </form>
+      <CollapsibleSection
+        title={othersTitles.others3}
+        items={["To be defined", "To be defined", "To be defined", "To be defined", "To be defined"]}
+      />
     </div>
   );
 };
 
 export default FinalEvaluation;
+
+
+const CollapsibleSection = ({ title, items }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleCollapse = () => setIsCollapsed(!isCollapsed);
+
+  return (
+    <div className="collapsible-section">
+      {/* Header */}
+      <div className="section-header" onClick={toggleCollapse}>
+        {title} {isCollapsed ? "▲" : "▼"}
+      </div>
+
+      {/* Content */}
+      {isCollapsed && (
+        <div className="section-content">
+          <ul>
+            {items.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
