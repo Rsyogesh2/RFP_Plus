@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GlobalUserHome from './GlobalUserHome';
-// import './ModifySuperUser.css';
+import './UserManagement.css';
 
 const ModifySuperUser = () => {
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
