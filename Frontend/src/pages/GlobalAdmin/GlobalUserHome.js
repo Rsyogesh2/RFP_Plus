@@ -10,7 +10,7 @@ import { AppContext } from '../../context/AppContext';
 import { showPopup } from '../../components/popup';
 
 
-const GlobalUserHome = () => {
+const GlobalUserHome = ({ selectedUser }) => {
   const childRef = useRef();
 
   const handleGetCheckedItems = async () => {
@@ -34,7 +34,11 @@ const GlobalUserHome = () => {
       </div>
       <div className="column column-small">
         {/* <VendorAdmin /> */}
-        <AddUser handleGetCheckedItems={handleGetCheckedItems} />
+        {/* <AddUser handleGetCheckedItems={handleGetCheckedItems} /> */}
+        <AddUser
+          handleGetCheckedItems={handleGetCheckedItems}
+          selectedUser={selectedUser}
+        />
       </div>
     </div>
   )
@@ -43,23 +47,40 @@ const GlobalUserHome = () => {
 export default GlobalUserHome
 
 
-const AddUser = ({ handleGetCheckedItems }) => {
+const AddUser = ({ handleGetCheckedItems, selectedUser  }) => {
+  // const [newUser, setNewUser] = useState({
+  //   entityName: '',
+  //   entitySubName: '',
+  //   entityLandline: '',
+  //   entityAddress: '',
+  //   entityCity: '',
+  //   entityPinCode: '',
+  //   entityCountry: '',
+  //   superUserName: '',
+  //   designation: '',
+  //   superUserEmail: '',
+  //   superUserMobile: '',
+  //   validFrom: '',
+  //   validTo: '',
+  //   activeFlag: 'Active',
+  // });
   const [newUser, setNewUser] = useState({
-    entityName: '',
-    entitySubName: '',
-    entityLandline: '',
-    entityAddress: '',
-    entityCity: '',
-    entityPinCode: '',
-    entityCountry: '',
-    superUserName: '',
-    designation: '',
-    superUserEmail: '',
-    superUserMobile: '',
-    validFrom: '',
-    validTo: '',
-    activeFlag: 'Active',
+    entityName: selectedUser?.entityName || '',
+    entitySubName: selectedUser?.entitySubName || '',
+    entityLandline: selectedUser?.entityLandline || '',
+    entityAddress: selectedUser?.entityAddress || '',
+    entityCity: selectedUser?.entityCity || '',
+    entityPinCode: selectedUser?.entityPinCode || '',
+    entityCountry: selectedUser?.entityCountry || '',
+    superUserName: selectedUser?.superUserName || '',
+    designation: selectedUser?.designation || '',
+    superUserEmail: selectedUser?.superUserEmail || '',
+    superUserMobile: selectedUser?.superUserMobile || '',
+    validFrom: selectedUser?.validFrom || '',
+    validTo: selectedUser?.validTo || '',
+    activeFlag: selectedUser?.activeFlag || 'Active',
   });
+
   const { assignModule } = useContext(AppContext);
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -81,7 +102,7 @@ const AddUser = ({ handleGetCheckedItems }) => {
   const handleAddUser = async (subItems) => {
     console.log('New User Data', newUser);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    
+
     try {
       console.log(subItems)
 
@@ -104,8 +125,8 @@ const AddUser = ({ handleGetCheckedItems }) => {
 
   return (
     <div className="add-user-container">
-      <h3>Add New User</h3>
-      <form>
+       <h3>{selectedUser ? 'Modify User' : 'Add New User'}</h3>
+       <form>
         <div className="form-group">
           <label>Entity Name:</label>
           <input
@@ -231,8 +252,8 @@ const AddUser = ({ handleGetCheckedItems }) => {
             <option value="Inactive">Inactive</option>
           </select>
         </div>
-        <button type="button" onClick={handleSubmit} >
-          Submit
+        <button type="button" onClick={handleSubmit}>
+          {selectedUser ? 'Update User' : 'Add User'}
         </button>
       </form>
 

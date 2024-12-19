@@ -131,6 +131,13 @@ const ModifySuperUser = () => {
           ))}
         </tbody>
       </table>
+      {selectedUser ? (
+        <GlobalUserHome selectedUser={selectedUser} />
+      ) : (
+        <div className="no-selection">
+          <p>Please select a user to modify.</p>
+        </div>
+      )}
 
       {/* {selectedUser && (
         <div className="modify-super-user__form-container">
