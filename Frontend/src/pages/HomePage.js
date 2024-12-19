@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "./../context/AppContext";
 
 import RfpForm from "../components/Sections/RfpForm";
@@ -187,6 +187,8 @@ const HomePage = ({ userType }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { usersList, setUsersList, userName, userPower } = useContext(AppContext);
+   
 
   useEffect(() => {
     const loadData = async () => {
@@ -195,7 +197,7 @@ const HomePage = ({ userType }) => {
         // const [superUsersData, vendorsData] = await Promise.all([
         //   fetchSuperUsers(),
         //   fetchVendors(),
-        fetchUsers();
+        fetchUsers({setUsersList,userName,userPower});
         // ]);
         // setSuperUsers(superUsersData);
         // setVendors(vendorsData);
