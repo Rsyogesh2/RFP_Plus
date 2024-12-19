@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useContext } from "react";
-import { AppContext } from "../context/AppContext";
+import { AppContext } from "./../context/AppContext";
 import "./ViewModifyUserTable.css";
 
 const { setUsersList, userName, userPower } = useContext(AppContext);

@@ -18,7 +18,7 @@ import RfpScoringCriteria from "../ScoringCriteria/RfpScoringCriteria";
 import RFPVendorTable from "../components/RFP_Table/RFPVendorTable"
 import "./HomePage.css";
 import {fetchUsers} from '../services/loadApis';
-import {fetchUsers} from '../services/loadApis';
+// import {fetchUsers} from '../services/loadApis';
 
 
 const Header = () => {
