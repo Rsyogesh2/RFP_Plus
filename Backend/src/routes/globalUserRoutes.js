@@ -4,7 +4,7 @@ const db = require('../config/db');
 
 router.post('/upload', async (req, res) => {
     const { data } = req.body;
-  
+    console.log(data);
     if (!data || !Array.isArray(data)) {
       return res.status(400).json({ error: 'Invalid data format' });
     }
@@ -17,11 +17,11 @@ router.post('/upload', async (req, res) => {
         if (!L1_Code || !L1_Description) continue; // Skip rows without valid data
   
         // Check if L1_Code exists in the table
-        const [existing] = await connection.query(
+        const [existing] = await db.query(
           'SELECT * FROM rfp_l1_modules WHERE L1_Code = ?',
           [L1_Code]
         );
-  
+        console.log('existing :', existing);
         if (existing.length > 0) {
           // Update existing row
           await db.query(
