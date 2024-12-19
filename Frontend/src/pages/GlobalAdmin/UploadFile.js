@@ -15,7 +15,7 @@ const UploadFile = () => {
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const l1titleGroup = XLSX.utils.sheet_to_json(sheet, {
         header: ['title'],
-        range: 'B5', // Adjust range if needed
+        range: 'C5', // Adjust range if needed
       });
       console.log(l1titleGroup)
 
