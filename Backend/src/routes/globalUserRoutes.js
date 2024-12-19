@@ -44,7 +44,7 @@ router.post('/upload', async (req, res) => {
           console.log(`Inserting new L1_Code: ${L1_Code}`);
           await db.query(
             'INSERT INTO rfp_l1_modules (Module_ID, Module_Group, L1_Code, L1_Module_Description) VALUES (?, ?, ?, ?)',
-            [5, 'Loan Services', L1_Code, L1_Description]
+            [5, data.title[0], L1_Code, L1_Description]
           );
         }
       }
