@@ -25,10 +25,21 @@ const ModifySuperUser = () => {
     };
     fetchUsers();
   }, []);
+  useEffect(() => {
+    if (selectedUser) {
+      // Perform any necessary actions with the selected user
+      console.log('Selected user updated:', selectedUser);
+    }
+  }, [selectedUser]);
+  
 
   const handleSelectUser = (user) => {
-    setSelectedUser(user);
+    setSelectedUser(null); // Clear selectedUser first
+    setTimeout(() => {
+      setSelectedUser(user); // Set the new user after clearing
+    }, 0); // Slight delay to force re-render
   };
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -82,11 +93,7 @@ const ModifySuperUser = () => {
       console.error('Error deleting user:', error);
     }
   };
-  const formatDate = (date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    return d.toISOString().split('T')[0]; // Format to YYYY-MM-DD
-  };
+ 
   
   // Ensure formatted dates are passed
   // const formattedUser = {
@@ -139,150 +146,6 @@ const ModifySuperUser = () => {
           <p>Please select a user to modify.</p>
         </div>
       )}
-
-      {/* {selectedUser && (
-        <div className="modify-super-user__form-container">
-          <h3 className="modify-super-user__form-header">Modify User</h3>
-          <form className="modify-super-user__form">
-            <div className="modify-super-user__form-group">
-              <label>Entity Name:</label>
-              <input
-                type="text"
-                name="entityName"
-                value={selectedUser.entityName}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Entity Sub Name:</label>
-              <input
-                type="text"
-                name="entitySubName"
-                value={selectedUser.entitySubName}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Entity Landline:</label>
-              <input
-                type="text"
-                name="entityLandline"
-                value={selectedUser.entityLandline}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Entity Address:</label>
-              <textarea
-                name="entityAddress"
-                value={selectedUser.entityAddress}
-                onChange={handleInputChange}
-              ></textarea>
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Entity City:</label>
-              <input
-                type="text"
-                name="entityCity"
-                value={selectedUser.entityCity}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Entity Pin Code:</label>
-              <input
-                type="text"
-                name="entityPinCode"
-                value={selectedUser.entityPinCode}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Entity Country:</label>
-              <input
-                type="text"
-                name="entityCountry"
-                value={selectedUser.entityCountry}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Super User Name:</label>
-              <input
-                type="text"
-                name="superUserName"
-                value={selectedUser.superUserName}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Designation:</label>
-              <input
-                type="text"
-                name="designation"
-                value={selectedUser.designation}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Super User Email ID:</label>
-              <input
-                type="email"
-                name="superUserEmail"
-                value={selectedUser.superUserEmail}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Super User Mobile No:</label>
-              <input
-                type="text"
-                name="superUserMobile"
-                value={selectedUser.superUserMobile}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modules__form-group modify-super-user__form-group">
-              <label>Modules:</label>
-              <span>{selectedUser.modules}</span>
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Valid From:</label>
-              <input
-                type="date"
-                name="validFrom"
-                value={formatDate(selectedUser.validFrom)}
-                onChange={handleInputChange}
-              />
-              <label>To:</label>
-              <input
-                type="date"
-                name="validTo"
-                value={formatDate(selectedUser.validFrom)}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="modify-super-user__form-group">
-              <label>Active Flag:</label>
-              <select
-                name="activeFlag"
-                value={selectedUser.activeFlag}
-                onChange={handleInputChange}
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-            <button
-              type="button"
-              className="modify-super-user__submit-button"
-              onClick={handleUpdate}
-            >
-              Update
-            </button>
-          </form>
-        </div>
-      )} */}
     </div>
   );
 };

@@ -122,6 +122,11 @@ const AddUser = ({ handleGetCheckedItems, selectedUser  }) => {
     }
     // Add logic to send new user data to the backend
   };
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+  };
 
   return (
     <div className="add-user-container">
@@ -230,14 +235,14 @@ const AddUser = ({ handleGetCheckedItems, selectedUser  }) => {
           <input
             type="date"
             name="validFrom"
-            value={newUser.validFrom}
+            value={formatDate(newUser.validFrom)}
             onChange={handleInputChange}
           />
           <label>To:</label>
           <input
             type="date"
             name="validTo"
-            value={newUser.validTo}
+            value={formatDate(newUser.validTo)}
             onChange={handleInputChange}
           />
         </div>
