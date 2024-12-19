@@ -9,8 +9,36 @@ const FinalEvaluation = () => {
 
   return (
     <div className="rfp-page">
-      <h2>Score Sections</h2>
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <h3>
+          <span>{"< RFP no > - < RFP title >"}</span>
+          <br />
+          <span>Submitted</span>
+          <br />
+          <span>Final Evaluation</span>
+        </h3>
+      </div>
 
+      <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+        <label htmlFor="vendor-select" style={{ marginRight: "10px" }}>
+          Select Vendor:
+        </label>
+        <select id="vendor-select" style={{ flex: 1, marginRight: "10px" }}>
+          <option value="">Select</option>
+          <option value="Vendor1">Vendor 1</option>
+          <option value="Vendor2">Vendor 2</option>
+        </select>
+        <button style={{ padding: "5px 10px" }}>Go</button>
+      </div>
+      <CollapsibleSection
+        title="Commercial Pattern"
+        items={[
+            "Total cost – onetime cost",
+            "Average monthly subscription",
+            "5 year TCO",
+            "License cost",
+            "Rate card (per person per day)"
+          ]} />
       {/* Implementation Score */}
       <CollapsibleSection
         title="Implementation Score"
@@ -84,23 +112,25 @@ const CollapsibleSection = ({ title, items }) => {
         <div className="section-content">
           <ul>
             {items.map((item, index) => (
-              <div style={{display:"flex"}}>
-                 <input
-                    type="text"
-                    placeholder={items[index]}
-                    value={item.text}
-                    onChange={(e) => handleTextChange(index, e.target.value)}
-                    className="item-input"
-                />
-                 <input
-                    type="text"
-                    placeholder="Amount"
-                    value={item.text}
-                    onChange={(e) => handleTextChange(index, e.target.value)}
-                    className="item-input"
-                />
-              </div>
-             
+              <div style={{ display: "flex", gap: "8px", width: "100%" }}>
+              <input
+                type="text"
+                placeholder={items[index]}
+                value={item.text}
+                onChange={(e) => handleTextChange(index, e.target.value)}
+                className="item-input"
+                style={{ flex: 3 }} // 75% of the space
+              />
+              <input
+                type="text"
+                placeholder="Amount"
+                value={item.text}
+                onChange={(e) => handleTextChange(index, e.target.value)}
+                className="item-input"
+                style={{ flex: 1 }} // 25% of the space
+              />
+            </div>
+            
             ))}
           </ul>
         </div>
