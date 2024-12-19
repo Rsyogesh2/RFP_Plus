@@ -11,24 +11,39 @@ const UploadFile = () => {
     reader.onload = (event) => {
       const data = new Uint8Array(event.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
-        header: "A",
-        range: 5, // Start reading from row 6 (0-indexed as 5)
+  
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  
+      // Parse L1 data (B6, C6 onward)
+      const l1Data = XLSX.utils.sheet_to_json(sheet, {
+        header: ['L1_Code', 'L1_Description'],
+        range: 'B6:C100', // Adjust range if needed
       });
   
-      // Map the data to extract columns B and C
-      const formattedData = sheetData.map((row) => ({
-        L1_Code: row.B,
-        L1_Description: row.C,
-      })).filter(row => row.L1_Code && row.L1_Description); // Filter out empty rows
+      // Parse L2 data (E5, F5 onward)
+      const l2Data = XLSX.utils.sheet_to_json(sheet, {
+        header: ['L2_Code', 'L2_Description'],
+        range: 'E5:F100', // Adjust range if needed
+      });
+  
+      // Parse L3 data (H5, I5 onward)
+      const l3Data = XLSX.utils.sheet_to_json(sheet, {
+        header: ['L3_Code', 'L3_Description'],
+        range: 'H5:I100', // Adjust range if needed
+      });
+  
+      // Set parsed data
+      const formattedData = {
+        L1: l1Data.filter((row) => row.L1_Code && row.L1_Description),
+        L2: l2Data.filter((row) => row.L2_Code && row.L2_Description),
+        L3: l3Data.filter((row) => row.L3_Code && row.L3_Description),
+      };
   
       setFileData(formattedData);
     };
     reader.readAsArrayBuffer(file);
   };
   
-
   const handleSubmit = async () => {
     if (fileData) {
       try {
