@@ -183,7 +183,34 @@ const HomePage = ({ userType }) => {
   //   const [activeSection, setActiveSection] = useState("Add User");
   const [activeSection, setActiveSection] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        // const [superUsersData, vendorsData] = await Promise.all([
+        //   fetchSuperUsers(),
+        //   fetchVendors(),
+        fetchUsers();
+        // ]);
+        // setSuperUsers(superUsersData);
+        // setVendors(vendorsData);
+      } catch (err) {
+        setError(err.message || "Failed to load data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+  
   const renderSection = () => {
     console.log(activeSection);
     if (!isNaN(activeSection)) {

@@ -119,7 +119,7 @@ const CollapsibleSection = ({ title, items }) => {
                 value={item.text}
                 onChange={(e) => handleTextChange(index, e.target.value)}
                 className="item-input"
-                style={{ flex: 3 }} // 75% of the space
+                style={{ flex: 4 }} // 80% of the space
               />
               <input
                 type="text"
@@ -127,7 +127,7 @@ const CollapsibleSection = ({ title, items }) => {
                 value={item.text}
                 onChange={(e) => handleTextChange(index, e.target.value)}
                 className="item-input"
-                style={{ flex: 1 }} // 25% of the space
+                style={{ flex: 1 }} // 20% of the space
               />
             </div>
             

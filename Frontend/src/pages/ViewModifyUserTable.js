@@ -9,27 +9,27 @@ const ViewModifyUserTable = () => {
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     
   // Fetch users on component load
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        // Append the query parameter dynamically
-        const queryParams = new URLSearchParams({ createdBy: userName,userPower });
-        const response = await fetch(`${API_URL}/getusers?${queryParams}`); // Adjust endpoint if necessary
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       // Append the query parameter dynamically
+  //       const queryParams = new URLSearchParams({ createdBy: userName,userPower });
+  //       const response = await fetch(`${API_URL}/getusers?${queryParams}`); // Adjust endpoint if necessary
   
-        if (!response.ok) {
-          const errorMessage = await response.text();
-          throw new Error(errorMessage || "Failed to fetch users");
-        }
+  //       if (!response.ok) {
+  //         const errorMessage = await response.text();
+  //         throw new Error(errorMessage || "Failed to fetch users");
+  //       }
   
-        const data = await response.json();
-        setUsersList(data); // Update the context with fetched users
-      } catch (err) {
-        console.error("Error fetching users:", err.message);
-      }
-    };
+  //       const data = await response.json();
+  //       setUsersList(data); // Update the context with fetched users
+  //     } catch (err) {
+  //       console.error("Error fetching users:", err.message);
+  //     }
+  //   };
   
-    fetchUsers();
-  }, [setUsersList, userName]);
+  //   fetchUsers();
+  // }, [setUsersList, userName]);
   
 
   const handleEdit = (user) => {
