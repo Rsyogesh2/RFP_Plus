@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const path = require('path');
 const db = require('./config/db');
 const dataRoutes = require('./routes/dataRoutes');
+const globalUserRoutes = require('./routes/globalUserRoutes');
 
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt'); // Consider using for password hashing
@@ -45,6 +46,8 @@ app.get('/api/hello', (req, res) => {
 });
 // Mount the API routes under `/api`
 app.use('/api', dataRoutes);
+
+app.use('/', globalUserRoutes);
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
