@@ -75,7 +75,7 @@ router.post('/upload', async (req, res) => {
           const Module_ID = generateModuleID();
           console.log(`Inserting new L2_Code: ${L2_Code}`);
           await db.query(
-            'INSERT INTO rfp_l2_modules ( L2_Code, L2_Description) VALUES (?, ?, ?)',
+            'INSERT INTO rfp_l2_modules ( L2_Code, L2_Description) VALUES ( ?, ?)',
             [ L2_Code, L2_Description]
           );
         }
@@ -107,7 +107,7 @@ router.post('/upload', async (req, res) => {
           const Module_ID = generateModuleID();
           console.log(`Inserting new L3_Code: ${L3_Code}`);
           await db.query(
-            'INSERT INTO rfp_l3_modules ( L3_Code, L3_Description) VALUES (?, ?, ?)',
+            'INSERT INTO rfp_l3_modules ( L3_Code, L3_Description) VALUES ( ?, ?)',
             [ L3_Code, L3_Description]
           );
         }
