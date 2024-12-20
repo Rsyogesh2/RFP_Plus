@@ -9,6 +9,7 @@ const RFPReqTable = ({ l1 }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     
     const [name, setName] = useState(null); // Initially, no data
+    const [userRole, setUserRole] = useState("Maker"); // Initially, no data
     const [itemData, setItemData] = useState(null); // Initially, no data
     const [FItem, setFItem] = useState([{
         name: "",
@@ -22,7 +23,7 @@ const RFPReqTable = ({ l1 }) => {
 
     }]); 
     const [newItem, setNewItem] = useState(null);
-    const { moduleData, setModuleData, userName, userPower, sidebarValue,userRole } = useContext(AppContext); // Access shared state
+    const { moduleData, setModuleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
     // console.log(moduleData);
 
     useEffect(() => {
@@ -111,31 +112,22 @@ const RFPReqTable = ({ l1 }) => {
 
 
     const handleAdd = (item) => {
+        console.log("ADD Items")
         console.log(item)
         setFItem((prevItems) => {
-            // const updatedItems = JSON.parse(JSON.stringify(prevItems));
-            // const newItem = { name: 'New Item', F2_Code: item.F2_Code, isEditing: true };
-            // updatedItems[item] = [];
-            // // updatedItems[0].l2[l1].l3.push(newItem);
-            //     updatedItems[item].splice(item + 1, 0, newItem);
-
-            // const itemsWithSameF2Code = prevItems.filter(
-            //     (prevItem) => prevItem.F2_Code === item.F2_Code && prevItem.Module_Code === item.Module_Code
-            //      && (!item.New_Code || prevItem.New_Code === item.New_Code)
-            // );
             const matchingItems = prevItems.filter(
                 existingItem =>
                     existingItem.Module_Code === item.Module_Code &&
                     existingItem.F1_Code === item.F1_Code &&
                     existingItem.F2_Code === item.F2_Code
             );
-
+            console.log("matchingItems :"+matchingItems)
             // Find the maximum New_Code in the matching items
             const maxNewCode = Math.max(
                 0,
                 ...matchingItems.map(existingItem => Number(existingItem.New_Code) || 0)
             );
-            console.log(matchingItems)
+            // console.log(matchingItems)
             // Create a new item with auto-incremented F2_Code
             let newItem
             if (matchingItems.length>0&&matchingItems[0].F2_Code.endsWith("00")) {
