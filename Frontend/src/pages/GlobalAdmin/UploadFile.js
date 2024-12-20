@@ -49,6 +49,10 @@ const UploadFile = () => {
   //=========
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
   const handleFileChange = (event) => {
+    console.log("Event");
+    console.log(event.target.files);
+    console.log(event.target.files[0]);
+   
     setSelectedFile(event.target.files[0]);
     setSelectedFiles(event.target.files);
   };
@@ -269,7 +273,7 @@ const UploadFile = () => {
       <button className="action-btn" onClick={handleUploadModule} disabled={selectedFiles.length === 0}>
         {isUploading ? "Uploading..." : "Upload Modules"}
       </button>
-      <button className="action-btn" onClick={handleUploadFunctional} disabled={isUploading}>
+      <button className="action-btn" onClick={handleUploadFunctional} disabled={selectedFiles.length === 0}>
         {isUploading ? "Uploading..." : "Upload Functional Items"}
       </button>
 
