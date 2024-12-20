@@ -8,6 +8,45 @@ const UploadFile = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
+  //=========
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [dragOver, setDragOver] = useState(false);
+
+  const handleFileSelect = (event) => {
+    const files = Array.from(event.target.files);
+    setSelectedFiles(files);
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    setDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setDragOver(false);
+    const files = Array.from(event.dataTransfer.files);
+    setSelectedFiles(files);
+  };
+
+  const handleUpload = () => {
+    if (selectedFiles.length === 0) {
+      alert("Please select a file to upload.");
+      return;
+    }
+    // Mock upload function
+    alert("Files uploaded successfully!");
+    setSelectedFiles([]);
+  };
+
+  const removeFile = (index) => {
+    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
+  };
+  //=========
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const handleFileUpload = (e) => {
@@ -166,12 +205,12 @@ const UploadFile = () => {
           accept=".xlsx, .xls"
           onChange={handleFileUpload}
         />
-        <button
+        {/* <button
           className="file-btn"
           onClick={() => document.getElementById("moduleFile").click()}
         >
           Browse Files
-        </button>
+        </button> */}
       </div>
       <button className="action-btn" onClick={handleSubmitModule} disabled={isUploading}>
         {isUploading ? "Uploading..." : "Upload Modules"}
@@ -188,12 +227,12 @@ const UploadFile = () => {
           accept=".xlsx, .xls"
           onChange={handleFileChange}
         />
-        <button
+        {/* <button
           className="file-btn"
           onClick={() => document.getElementById("functionalFile").click()}
         >
           Browse Files
-        </button>
+        </button> */}
       </div>
       <button className="action-btn" onClick={processExcelFile} disabled={isUploading}>
         {isUploading ? "Uploading..." : "Upload Functional Items"}
@@ -204,6 +243,47 @@ const UploadFile = () => {
           {uploadStatus}
         </div>
       )}
+
+      {/* Drag and Drop Zone */}
+      <div
+        className={`drop-zone ${dragOver ? "drag-over" : ""}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <p>Drag and drop files here, or click to select files</p>
+        <input
+          type="file"
+          multiple
+          onChange={handleFileSelect}
+          className="file-input"
+        />
+      </div>
+
+      {/* Selected Files Preview */}
+      {selectedFiles.length > 0 && (
+        <div className="file-preview">
+          <h3>Selected Files</h3>
+          <ul>
+            {selectedFiles.map((file, index) => (
+              <li key={index}>
+                {file.name}{" "}
+                <button onClick={() => removeFile(index)}>Remove</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Upload Button */}
+      <button
+        className="upload-btn"
+        onClick={handleUpload}
+        disabled={selectedFiles.length === 0}
+      >
+        Upload Files
+      </button>
+
     </div>
   );
 };
