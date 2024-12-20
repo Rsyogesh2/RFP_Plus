@@ -51,7 +51,7 @@ const UploadFile = () => {
   const handleFileChange = (event) => {
     console.log("Event");
     console.log(event.target.files);
-    console.log(event.target.files[0]);
+    console.log(event.target.files[0].File.name);
    try{
     setSelectedFile(event.target.files[0]);
     setSelectedFiles(event.target.files);
@@ -260,7 +260,7 @@ const UploadFile = () => {
           <h3>Selected Files</h3>
           <ul>
               <li >
-                {/* {selectedFile}{" "} */}
+                {selectedFile.File.name}{" "}
                 <button onClick={() => removeFile()}>Remove</button>
               </li>
           </ul>
