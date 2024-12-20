@@ -19,6 +19,11 @@ const UploadFile = () => {
       const workbook = XLSX.read(data, { type: "array" });
 
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const l1title = XLSX.utils.sheet_to_json(sheet, {
+        header: ["title"],
+        range: "C5",
+      });
+
       const l1Data = XLSX.utils.sheet_to_json(sheet, {
         header: ["L1_Code", "L1_Description"],
         range: "B6:C100",
@@ -35,6 +40,7 @@ const UploadFile = () => {
       });
 
       const formattedData = {
+        title:l1title,
         L1: l1Data.filter((row) => row.L1_Code && row.L1_Description),
         L2: l2Data.filter((row) => row.L2_Code && row.L2_Description),
         L3: l3Data.filter((row) => row.L3_Code && row.L3_Description),
