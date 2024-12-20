@@ -61,7 +61,10 @@ const RFPReqTable = ({ l1 }) => {
                 console.error('Error sending checked items:', error); // Log any errors
             }
 
-        } fetchArray();
+        }
+        if(l1.l1module!==""){
+         fetchArray();
+        }
     // }
     }, [l1]);
 
