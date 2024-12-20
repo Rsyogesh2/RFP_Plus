@@ -12,10 +12,10 @@ const UploadFile = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [dragOver, setDragOver] = useState(false);
 
-  const handleFileSelect = (event) => {
-    const files = Array.from(event.target.files);
-    setSelectedFiles(files);
-  };
+  // const handleFileSelect = (event) => {
+  //   const files = Array.from(event.target.files);
+  //   setSelectedFiles(files);
+  // };
 
   const handleDragOver = (event) => {
     event.preventDefault();
@@ -48,10 +48,19 @@ const UploadFile = () => {
   };
   //=========
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+  const handleUploadModule = (e) => {
+    // handleFileSelect(e)
+    // const file = e.target.files[0];
+    if (!selectedFile) {
+      alert("Please select an Excel file to upload.");
+      return;
+    }
 
-  const handleFileUpload = (e) => {
-    handleFileSelect(e)
-    const file = e.target.files[0];
+    try {
+      setIsUploading(true);
     const reader = new FileReader();
 
     reader.onload = (event) => {
@@ -89,14 +98,16 @@ const UploadFile = () => {
       setFileData(formattedData);
     };
 
-    reader.readAsArrayBuffer(file);
+    reader.readAsArrayBuffer(selectedFile);
+  } catch (error) {
+    console.error("Error processing file:", error);
+    alert("An error occurred while processing the file.");
+  } finally {
+    setIsUploading(false);
+  }
   };
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
-  };
-
-  const processExcelFile = async () => {
+  const handleUploadFunctional = async () => {
     if (!selectedFile) {
       alert("Please select an Excel file to upload.");
       return;
@@ -137,7 +148,7 @@ const UploadFile = () => {
           allSheetsData.push(...formattedData);
         }
         console.log(allSheetsData);
-        await uploadToBackend(allSheetsData);
+        await uploadToBackendFunctional(allSheetsData);
       };
 
       fileReader.readAsArrayBuffer(selectedFile);
@@ -149,7 +160,7 @@ const UploadFile = () => {
     }
   };
 
-  const uploadToBackend = async (data) => {
+  const uploadToBackendFunctional = async (data) => {
     try {
       setUploadStatus("Uploading data to the server...");
       const response = await fetch(`${API_URL}/upload-functional-items`, {
@@ -168,7 +179,7 @@ const UploadFile = () => {
     }
   };
 
-  const handleSubmitModule = async () => {
+  const uploadToBackendModule = async () => {
     if (fileData) {
       try {
         setIsUploading(true);
@@ -196,55 +207,7 @@ const UploadFile = () => {
       <h2>Upload Module Data</h2>
 
       {/* Module File Upload */}
-      <div className="file-input-wrapper">
-        <label htmlFor="moduleFile" className="label-file">
-          Choose File for Modules
-        </label>
-        <input
-          id="moduleFile"
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={handleFileUpload}
-        />
-        {/* <button
-          className="file-btn"
-          onClick={() => document.getElementById("moduleFile").click()}
-        >
-          Browse Files
-        </button> */}
-      </div>
-      <button className="action-btn" onClick={handleSubmitModule} disabled={isUploading}>
-        {isUploading ? "Uploading..." : "Upload Modules"}
-      </button>
-
-      {/* Functional Items File Upload */}
-      <div className="file-input-wrapper">
-        <label htmlFor="functionalFile" className="label-file">
-          Choose File for Functional Items
-        </label>
-        <input
-          id="functionalFile"
-          type="file"
-          accept=".xlsx, .xls"
-          onChange={handleFileChange}
-        />
-        {/* <button
-          className="file-btn"
-          onClick={() => document.getElementById("functionalFile").click()}
-        >
-          Browse Files
-        </button> */}
-      </div>
-      <button className="action-btn" onClick={processExcelFile} disabled={isUploading}>
-        {isUploading ? "Uploading..." : "Upload Functional Items"}
-      </button>
-
-      {uploadStatus && (
-        <div className={`status-message ${uploadStatus.startsWith("Error") ? "error" : ""}`}>
-          {uploadStatus}
-        </div>
-      )}
-
+      
       {/* Drag and Drop Zone */}
       <div
         className={`drop-zone ${dragOver ? "drag-over" : ""}`}
@@ -263,7 +226,7 @@ const UploadFile = () => {
           id="moduleFile"
           type="file"
           accept=".xlsx, .xls"
-          onChange={handleFileUpload}
+          onChange={handleUploadModule}
         />
       </div>
 
@@ -283,16 +246,25 @@ const UploadFile = () => {
       )}
 
       {/* Upload Button */}
-      <button
+      {/* <button
         className="upload-btn"
         onClick={handleUpload}
         disabled={selectedFiles.length === 0}
       >
         Upload Files
-      </button>
-      <button className="action-btn" onClick={handleSubmitModule} disabled={isUploading ||selectedFiles.length === 0}>
+      </button> */}
+      <button className="action-btn" onClick={uploadToBackendModule} disabled={isUploading ||selectedFiles.length === 0}>
         {isUploading ? "Uploading..." : "Upload Modules"}
       </button>
+      <button className="action-btn" onClick={handleUploadFunctional} disabled={isUploading}>
+        {isUploading ? "Uploading..." : "Upload Functional Items"}
+      </button>
+
+      {uploadStatus && (
+        <div className={`status-message ${uploadStatus.startsWith("Error") ? "error" : ""}`}>
+          {uploadStatus}
+        </div>
+      )}
 
     </div>
   );
