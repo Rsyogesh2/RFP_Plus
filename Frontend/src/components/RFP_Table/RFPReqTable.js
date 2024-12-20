@@ -63,7 +63,7 @@ const RFPReqTable = ({ l1, userRole }) => {
 
         } fetchArray();
     // }
-    }, [l1]);
+    }, []);
 
     const filterModule = (code) => {
 
