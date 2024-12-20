@@ -50,8 +50,9 @@ const UploadFile = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
+    setSelectedFiles(event.target.files);
   };
-  const handleUploadModule = (e) => {
+  const handleUploadModule = async(e) => {
     // handleFileSelect(e)
     // const file = e.target.files[0];
     if (!selectedFile) {
@@ -63,7 +64,7 @@ const UploadFile = () => {
       setIsUploading(true);
     const reader = new FileReader();
 
-    reader.onload = (event) => {
+    reader.onload = async(event) => {
       const data = new Uint8Array(event.target.result);
       const workbook = XLSX.read(data, { type: "array" });
 
@@ -96,6 +97,8 @@ const UploadFile = () => {
       };
 
       setFileData(formattedData);
+      await uploadToBackendModule();
+      alert("File uploaded successfully!");
     };
 
     reader.readAsArrayBuffer(selectedFile);
@@ -112,45 +115,56 @@ const UploadFile = () => {
       alert("Please select an Excel file to upload.");
       return;
     }
-
+  
+    const validTypes = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
+    if (!validTypes.includes(selectedFile.type)) {
+      alert("Invalid file type. Please upload an Excel file.");
+      return;
+    }
+  
     try {
       setIsUploading(true);
       const fileReader = new FileReader();
-
+  
       fileReader.onload = async (event) => {
         const arrayBuffer = event.target.result;
-
+  
         const workbook = XLSX.read(arrayBuffer, { type: "array" });
         const allSheetsData = [];
         const sheetNames = workbook.SheetNames;
-
-        for (let i = 1; i < sheetNames.length; i++) {
+  
+        for (let i = 0; i < sheetNames.length; i++) {
           const sheetName = sheetNames[i];
           const sheet = workbook.Sheets[sheetName];
-
+  
+          // Define the range starting from B5
           const jsonData = XLSX.utils.sheet_to_json(sheet, {
-            header: "A",
-            defval: "",
+            header: ["L1", "L2", "L3", "F1", "F2", "Product", "Description", "Geo", "Conditions"],
+            range: "B5", // Starts reading from cell B5
+            defval: "", // Default value for empty cells
           });
-
+  
+          // Ensure data formatting matches your requirements
           const formattedData = jsonData.map((row) => ({
-            L1: row["A"] || "00",
-            L2: row["B"] || "00",
-            L3: row["C"] || "00",
-            F1: row["D"] || "00",
-            F2: row["E"] || "00",
-            Product: row["F"] || "",
-            Description: row["G"] || "",
-            Geo: row["H"] || "",
-            Conditions: row["I"] || "",
+            L1: row["L1"] || "00",
+            L2: row["L2"] || "00",
+            L3: row["L3"] || "00",
+            F1: row["F1"] || "00",
+            F2: row["F2"] || "00",
+            Product: row["Product"] || "",
+            Description: row["Description"] || "",
+            Geo: row["Geo"] || "",
+            Conditions: row["Conditions"] || "",
           }));
-
+  
           allSheetsData.push(...formattedData);
         }
-        console.log(allSheetsData);
+  
+        console.log(allSheetsData.slice(0, 10)); // Log first 10 rows only
         await uploadToBackendFunctional(allSheetsData);
+        alert("File uploaded successfully!");
       };
-
+  
       fileReader.readAsArrayBuffer(selectedFile);
     } catch (error) {
       console.error("Error processing file:", error);
@@ -159,6 +173,7 @@ const UploadFile = () => {
       setIsUploading(false);
     }
   };
+  
 
   const uploadToBackendFunctional = async (data) => {
     try {
@@ -226,7 +241,7 @@ const UploadFile = () => {
           id="moduleFile"
           type="file"
           accept=".xlsx, .xls"
-          onChange={handleUploadModule}
+          onChange={handleFileChange}
         />
       </div>
 
@@ -253,7 +268,7 @@ const UploadFile = () => {
       >
         Upload Files
       </button> */}
-      <button className="action-btn" onClick={uploadToBackendModule} disabled={isUploading ||selectedFiles.length === 0}>
+      <button className="action-btn" onClick={handleUploadModule} disabled={selectedFiles.length === 0}>
         {isUploading ? "Uploading..." : "Upload Modules"}
       </button>
       <button className="action-btn" onClick={handleUploadFunctional} disabled={isUploading}>
