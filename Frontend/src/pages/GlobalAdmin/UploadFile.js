@@ -3,131 +3,207 @@ import * as XLSX from "xlsx";
 import "./UploadFile.css";
 
 const UploadFile = () => {
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [isDragging, setIsDragging] = useState(false);
+  const [fileData, setFileData] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  const handleDragOver = (event) => {
-    event.preventDefault();
-    setIsDragging(true);
-  };
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    setIsDragging(false);
-    const file = event.dataTransfer.files[0];
-    handleFileUpload(file);
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    handleFileUpload(file);
-  };
-
-  const handleFileUpload = (file) => {
-    if (!file || !file.name.match(/\.(xls|xlsx)$/)) {
-      alert("Only Excel files are allowed!");
-      return;
-    }
-
-    const newFile = {
-      name: file.name,
-      size: (file.size / (1024 * 1024)).toFixed(2) + " MB",
-      progress: 0,
-      status: "Pending",
-    };
-    setUploadedFiles((prev) => [...prev, newFile]);
-    processFile(file, newFile);
-  };
-
-  const processFile = (file, fileEntry) => {
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
     const reader = new FileReader();
 
-    reader.onload = () => {
-      try {
-        const arrayBuffer = reader.result;
-        const workbook = XLSX.read(arrayBuffer, { type: "array" });
-        XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+    reader.onload = (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
 
-        // Simulate file upload progress
-        const interval = setInterval(() => {
-          setUploadedFiles((prev) =>
-            prev.map((f) =>
-              f.name === fileEntry.name
-                ? { ...f, progress: Math.min(f.progress + 10, 100), status: f.progress >= 90 ? "Completed" : "Uploading" }
-                : f
-            )
-          );
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const l1title = XLSX.utils.sheet_to_json(sheet, {
+        header: ["title"],
+        range: "C5",
+      });
 
-          if (fileEntry.progress >= 100) clearInterval(interval);
-        }, 300);
-      } catch (error) {
-        setUploadedFiles((prev) =>
-          prev.map((f) =>
-            f.name === fileEntry.name
-              ? { ...f, progress: 0, status: "Error" }
-              : f
-          )
-        );
-      }
+      const l1Data = XLSX.utils.sheet_to_json(sheet, {
+        header: ["L1_Code", "L1_Description"],
+        range: "B6:C100",
+      });
+
+      const l2Data = XLSX.utils.sheet_to_json(sheet, {
+        header: ["L2_Code", "L2_Description"],
+        range: "E5:F100",
+      });
+
+      const l3Data = XLSX.utils.sheet_to_json(sheet, {
+        header: ["L3_Code", "L3_Description"],
+        range: "H5:I100",
+      });
+
+      const formattedData = {
+        title: l1title,
+        L1: l1Data.filter((row) => row.L1_Code && row.L1_Description),
+        L2: l2Data.filter((row) => row.L2_Code && row.L2_Description),
+        L3: l3Data.filter((row) => row.L3_Code && row.L3_Description),
+      };
+
+      setFileData(formattedData);
     };
 
     reader.readAsArrayBuffer(file);
   };
 
-  const removeFile = (fileName) => {
-    setUploadedFiles((prev) => prev.filter((file) => file.name !== fileName));
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const processExcelFile = async () => {
+    if (!selectedFile) {
+      alert("Please select an Excel file to upload.");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const fileReader = new FileReader();
+
+      fileReader.onload = async (event) => {
+        const arrayBuffer = event.target.result;
+
+        const workbook = XLSX.read(arrayBuffer, { type: "array" });
+        const allSheetsData = [];
+        const sheetNames = workbook.SheetNames;
+
+        for (let i = 1; i < sheetNames.length; i++) {
+          const sheetName = sheetNames[i];
+          const sheet = workbook.Sheets[sheetName];
+
+          const jsonData = XLSX.utils.sheet_to_json(sheet, {
+            header: "A",
+            defval: "",
+          });
+
+          const formattedData = jsonData.map((row) => ({
+            L1: row["A"] || "00",
+            L2: row["B"] || "00",
+            L3: row["C"] || "00",
+            F1: row["D"] || "00",
+            F2: row["E"] || "00",
+            Product: row["F"] || "",
+            Description: row["G"] || "",
+            Geo: row["H"] || "",
+            Conditions: row["I"] || "",
+          }));
+
+          allSheetsData.push(...formattedData);
+        }
+        console.log(allSheetsData);
+        await uploadToBackend(allSheetsData);
+      };
+
+      fileReader.readAsArrayBuffer(selectedFile);
+    } catch (error) {
+      console.error("Error processing file:", error);
+      alert("An error occurred while processing the file.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const uploadToBackend = async (data) => {
+    try {
+      setUploadStatus("Uploading data to the server...");
+      const response = await fetch(`${API_URL}/upload-functional-items`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data }),
+      });
+
+      const result = await response.json();
+      setUploadStatus(`Upload successful: ${result.message}`);
+    } catch (error) {
+      console.error("Error uploading data:", error);
+      setUploadStatus(`Upload failed: ${error.message}`);
+    }
+  };
+
+  const handleSubmitModule = async () => {
+    if (fileData) {
+      try {
+        setIsUploading(true);
+        const response = await fetch(`${API_URL}/upload`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ data: fileData }),
+        });
+
+        const result = await response.json();
+        alert(`Upload successful: ${result.message}`);
+      } catch (error) {
+        console.error("Error uploading data:", error);
+        alert("Upload failed!");
+      } finally {
+        setIsUploading(false);
+      }
+    }
   };
 
   return (
-    <div className="upload-container">
-      <h2>Upload Files</h2>
-      <div
-        className={`upload-dropzone ${isDragging ? "dragging" : ""}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <p>Drag & Drop files here OR</p>
+    <div className="container">
+      <h2>Upload Module Data</h2>
+
+      {/* Module File Upload */}
+      <div className="file-input-wrapper">
+        <label htmlFor="moduleFile" className="label-file">
+          Choose File for Modules
+        </label>
         <input
+          id="moduleFile"
           type="file"
-          accept=".xls,.xlsx"
-          onChange={handleFileChange}
-          style={{ display: "none" }}
-          id="fileInput"
+          accept=".xlsx, .xls"
+          onChange={handleFileUpload}
         />
-        <button onClick={() => document.getElementById("fileInput").click()}>
+        <button
+          className="file-btn"
+          onClick={() => document.getElementById("moduleFile").click()}
+        >
           Browse Files
         </button>
       </div>
+      <button className="action-btn" onClick={handleSubmitModule} disabled={isUploading}>
+        {isUploading ? "Uploading..." : "Upload Modules"}
+      </button>
 
-      <div className="uploaded-files">
-        <h3>Uploaded Files</h3>
-        {uploadedFiles.map((file) => (
-          <div key={file.name} className="file-entry">
-            <div className="file-info">
-              <span>{file.name}</span>
-              <span>{file.size}</span>
-            </div>
-            <div className="file-progress">
-              <div
-                className={`progress-bar ${file.status === "Error" ? "error" : ""}`}
-                style={{ width: `${file.progress}%` }}
-              ></div>
-              <span className="status">{file.status}</span>
-            </div>
-            <button
-              className="remove-btn"
-              onClick={() => removeFile(file.name)}
-            >
-              ✕
-            </button>
-          </div>
-        ))}
+      {/* Functional Items File Upload */}
+      <div className="file-input-wrapper">
+        <label htmlFor="functionalFile" className="label-file">
+          Choose File for Functional Items
+        </label>
+        <input
+          id="functionalFile"
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={handleFileChange}
+        />
+        <button
+          className="file-btn"
+          onClick={() => document.getElementById("functionalFile").click()}
+        >
+          Browse Files
+        </button>
       </div>
+      <button className="action-btn" onClick={processExcelFile} disabled={isUploading}>
+        {isUploading ? "Uploading..." : "Upload Functional Items"}
+      </button>
+
+      {uploadStatus && (
+        <div className={`status-message ${uploadStatus.startsWith("Error") ? "error" : ""}`}>
+          {uploadStatus}
+        </div>
+      )}
     </div>
   );
 };
