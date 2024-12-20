@@ -251,7 +251,7 @@ const UploadFile = () => {
           <h3>Selected Files</h3>
           <ul>
               <li >
-                {setSelectedFile}{" "}
+                {selectedFile}{" "}
                 <button onClick={() => removeFile(index)}>Remove</button>
               </li>
           </ul>
