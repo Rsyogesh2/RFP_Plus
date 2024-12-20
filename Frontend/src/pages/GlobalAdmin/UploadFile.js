@@ -4,100 +4,113 @@ import "./UploadFile.css";
 
 const UploadFile = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragging(false);
+    const file = event.dataTransfer.files[0];
+    handleFileUpload(file);
+  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const newFile = {
-        name: file.name,
-        progress: 0,
-        status: "Pending",
-        errorMessage: "",
-      };
-      setUploadedFiles((prev) => [...prev, newFile]);
-      processFile(file, newFile);
-    }
+    handleFileUpload(file);
   };
 
-  const processFile = async (file, fileEntry) => {
-    setIsUploading(true);
+  const handleFileUpload = (file) => {
+    if (!file || !file.name.match(/\.(xls|xlsx)$/)) {
+      alert("Only Excel files are allowed!");
+      return;
+    }
+
+    const newFile = {
+      name: file.name,
+      size: (file.size / (1024 * 1024)).toFixed(2) + " MB",
+      progress: 0,
+      status: "Pending",
+    };
+    setUploadedFiles((prev) => [...prev, newFile]);
+    processFile(file, newFile);
+  };
+
+  const processFile = (file, fileEntry) => {
     const reader = new FileReader();
 
-    reader.onload = async (event) => {
+    reader.onload = () => {
       try {
-        const arrayBuffer = event.target.result;
+        const arrayBuffer = reader.result;
         const workbook = XLSX.read(arrayBuffer, { type: "array" });
-        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
 
-        // Simulate progress
-        for (let i = 0; i <= 100; i += 10) {
+        // Simulate file upload progress
+        const interval = setInterval(() => {
           setUploadedFiles((prev) =>
             prev.map((f) =>
-              f.name === file.name ? { ...f, progress: i, status: "Uploading" } : f
+              f.name === fileEntry.name
+                ? { ...f, progress: Math.min(f.progress + 10, 100), status: f.progress >= 90 ? "Completed" : "Uploading" }
+                : f
             )
           );
-          await new Promise((res) => setTimeout(res, 50));
-        }
 
-        await uploadToBackend(jsonData, file.name);
-        setUploadedFiles((prev) =>
-          prev.map((f) =>
-            f.name === file.name ? { ...f, progress: 100, status: "Completed" } : f
-          )
-        );
+          if (fileEntry.progress >= 100) clearInterval(interval);
+        }, 300);
       } catch (error) {
-        console.error("Error processing file:", error);
         setUploadedFiles((prev) =>
           prev.map((f) =>
-            f.name === file.name
-              ? { ...f, progress: 0, status: "Error", errorMessage: error.message }
+            f.name === fileEntry.name
+              ? { ...f, progress: 0, status: "Error" }
               : f
           )
         );
-      } finally {
-        setIsUploading(false);
       }
     };
 
     reader.readAsArrayBuffer(file);
   };
 
-  const uploadToBackend = async (data, fileName) => {
-    try {
-      const response = await fetch(`${API_URL}/upload`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data }),
-      });
-
-      if (!response.ok) throw new Error(`Failed to upload file: ${fileName}`);
-    } catch (error) {
-      throw new Error(error.message);
-    }
+  const removeFile = (fileName) => {
+    setUploadedFiles((prev) => prev.filter((file) => file.name !== fileName));
   };
 
   return (
     <div className="upload-container">
       <h2>Upload Files</h2>
-      <div className="upload-area">
+      <div
+        className={`upload-dropzone ${isDragging ? "dragging" : ""}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <p>Drag & Drop files here OR</p>
         <input
           type="file"
-          accept=".xlsx, .xls"
+          accept=".xls,.xlsx"
           onChange={handleFileChange}
-          disabled={isUploading}
+          style={{ display: "none" }}
+          id="fileInput"
         />
-        <button onClick={() => document.querySelector('input[type="file"]').click()}>
+        <button onClick={() => document.getElementById("fileInput").click()}>
           Browse Files
         </button>
       </div>
+
       <div className="uploaded-files">
+        <h3>Uploaded Files</h3>
         {uploadedFiles.map((file) => (
           <div key={file.name} className="file-entry">
             <div className="file-info">
               <span>{file.name}</span>
-              {file.status === "Error" && <span className="error">{file.errorMessage}</span>}
+              <span>{file.size}</span>
             </div>
             <div className="file-progress">
               <div
@@ -106,16 +119,12 @@ const UploadFile = () => {
               ></div>
               <span className="status">{file.status}</span>
             </div>
-            {file.status !== "Completed" && (
-              <button
-                className="cancel-btn"
-                onClick={() =>
-                  setUploadedFiles((prev) => prev.filter((f) => f.name !== file.name))
-                }
-              >
-                Cancel
-              </button>
-            )}
+            <button
+              className="remove-btn"
+              onClick={() => removeFile(file.name)}
+            >
+              ✕
+            </button>
           </div>
         ))}
       </div>
