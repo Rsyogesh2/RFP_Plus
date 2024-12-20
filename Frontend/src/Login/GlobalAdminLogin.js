@@ -7,7 +7,7 @@ const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState("");
-  const { setUserPower, setUserName } = useContext(AppContext);
+  const { setUserPower, setUserName,setUserRole } = useContext(AppContext);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -47,7 +47,7 @@ const Login = ({ onLogin }) => {
       if (rolesResponse.ok) {
         setRoles(rolesResult.roles);
         if(rolesResult.roles==="User"||rolesResult.roles==="Vendor User"){
-          // setUserRole()
+          setUserRole(rolesResult.results1)
         }
       } else {
         alert(rolesResult.message || "Failed to fetch roles.");
