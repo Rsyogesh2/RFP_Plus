@@ -3,121 +3,54 @@ import * as XLSX from "xlsx";
 import "./UploadFile.css";
 
 const UploadFile = () => {
-  const [fileData, setFileData] = useState(null);
   const [uploadStatus, setUploadStatus] = useState("");
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedModuleFile, setSelectedModuleFile] = useState(null);
+  const [selectedFunctionalFile, setSelectedFunctionalFile] = useState(null);
 
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+  // Helper to process Excel files
+  const processExcelFile = (file, sheetRangeMapping) => {
     const reader = new FileReader();
 
-    reader.onload = (event) => {
-      const data = new Uint8Array(event.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
+    return new Promise((resolve, reject) => {
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
 
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const l1title = XLSX.utils.sheet_to_json(sheet, {
-        header: ["title"],
-        range: "C5",
-      });
-
-      const l1Data = XLSX.utils.sheet_to_json(sheet, {
-        header: ["L1_Code", "L1_Description"],
-        range: "B6:C100",
-      });
-
-      const l2Data = XLSX.utils.sheet_to_json(sheet, {
-        header: ["L2_Code", "L2_Description"],
-        range: "E5:F100",
-      });
-
-      const l3Data = XLSX.utils.sheet_to_json(sheet, {
-        header: ["L3_Code", "L3_Description"],
-        range: "H5:I100",
-      });
-
-      const formattedData = {
-        title:l1title,
-        L1: l1Data.filter((row) => row.L1_Code && row.L1_Description),
-        L2: l2Data.filter((row) => row.L2_Code && row.L2_Description),
-        L3: l3Data.filter((row) => row.L3_Code && row.L3_Description),
-      };
-
-      setFileData(formattedData);
-    };
-
-    reader.readAsArrayBuffer(file);
-  };
-
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
-  };
-
-  const processExcelFile = async () => {
-    if (!selectedFile) {
-      alert("Please select an Excel file to upload.");
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      const fileReader = new FileReader();
-
-      fileReader.onload = async (event) => {
-        const arrayBuffer = event.target.result;
-
-        const workbook = XLSX.read(arrayBuffer, { type: "array" });
-        const allSheetsData = [];
-        const sheetNames = workbook.SheetNames;
-
-        for (let i = 1; i < sheetNames.length; i++) {
-          const sheetName = sheetNames[i];
-          const sheet = workbook.Sheets[sheetName];
-
-          const jsonData = XLSX.utils.sheet_to_json(sheet, {
-            header: "A",
-            defval: "",
-          });
-
-          const formattedData = jsonData.map((row) => ({
-            L1: row["A"] || "00",
-            L2: row["B"] || "00",
-            L3: row["C"] || "00",
-            F1: row["D"] || "00",
-            F2: row["E"] || "00",
-            Product: row["F"] || "",
-            Description: row["G"] || "",
-            Geo: row["H"] || "",
-            Conditions: row["I"] || "",
-          }));
-
-          allSheetsData.push(...formattedData);
+          const processedData = {};
+          for (const [key, range] of Object.entries(sheetRangeMapping)) {
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(sheet, {
+              header: key.includes("title") ? ["title"] : ["Code", "Description"],
+              range,
+            });
+            processedData[key] = jsonData.filter(
+              (row) => row.Code && row.Description
+            );
+          }
+          resolve(processedData);
+        } catch (error) {
+          reject(error);
         }
-        console.log(allSheetsData)
-        await uploadToBackend(allSheetsData);
       };
 
-      fileReader.readAsArrayBuffer(selectedFile);
-    } catch (error) {
-      console.error("Error processing file:", error);
-      alert("An error occurred while processing the file.");
-    } finally {
-      setIsUploading(false);
-    }
+      reader.readAsArrayBuffer(file);
+    });
   };
 
-  const uploadToBackend = async (data) => {
+  // Upload to Backend
+  const uploadToBackend = async (endpoint, data) => {
     try {
       setUploadStatus("Uploading data to the server...");
-      const response = await fetch(`${API_URL}/upload-functional-items`, {
+      const response = await fetch(`${API_URL}/${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data }),
+        body: JSON.stringify(data),
       });
 
       const result = await response.json();
@@ -128,77 +61,103 @@ const UploadFile = () => {
     }
   };
 
-  const handleSubmitModule = async () => {
-    if (fileData) {
-      try {
-        setIsUploading(true);
-        const response = await fetch(`${API_URL}/upload`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ data: fileData }),
-        });
+  // Handle File Selection
+  const handleFileSelection = (e, setFile) => {
+    setFile(e.target.files[0]);
+  };
 
-        const result = await response.json();
-        alert(`Upload successful: ${result.message}`);
-      } catch (error) {
-        console.error("Error uploading data:", error);
-        alert("Upload failed!");
-      } finally {
-        setIsUploading(false);
-      }
+  // Handle Module Upload
+  const handleModuleUpload = async () => {
+    if (!selectedModuleFile) {
+      alert("Please select a Module file to upload.");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const moduleData = await processExcelFile(selectedModuleFile, {
+        title: "C5",
+        L1: "B6:C100",
+        L2: "E5:F100",
+        L3: "H5:I100",
+      });
+
+      await uploadToBackend("upload-modules", moduleData);
+    } catch (error) {
+      console.error("Error processing module file:", error);
+      setUploadStatus("Failed to process Module file.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle Functional Items Upload
+  const handleFunctionalUpload = async () => {
+    if (!selectedFunctionalFile) {
+      alert("Please select a Functional Items file to upload.");
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const functionalData = await processExcelFile(selectedFunctionalFile, {
+        L1: "A2:A100",
+        L2: "B2:B100",
+        L3: "C2:C100",
+        F1: "D2:D100",
+        F2: "E2:E100",
+      });
+
+      await uploadToBackend("upload-functional-items", functionalData);
+    } catch (error) {
+      console.error("Error processing functional items file:", error);
+      setUploadStatus("Failed to process Functional Items file.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
   return (
     <div className="container">
-      <h2>Upload Module Data</h2>
+      <h2>Upload Module and Functional Data</h2>
 
       {/* Module File Upload */}
       <div className="file-input-wrapper">
-        <label htmlFor="moduleFile" className="label-file">
-          Choose File for Modules
-        </label>
+        <label htmlFor="moduleFile">Choose File for Modules</label>
         <input
           id="moduleFile"
           type="file"
           accept=".xlsx, .xls"
-          onChange={handleFileUpload}
+          onChange={(e) => handleFileSelection(e, setSelectedModuleFile)}
         />
         <button
-          className="file-btn"
-          onClick={() => document.getElementById("moduleFile").click()}
+          className="action-btn"
+          onClick={handleModuleUpload}
+          disabled={isUploading}
         >
-          Browse Files
+          {isUploading ? "Uploading..." : "Upload Modules"}
         </button>
       </div>
-      <button className="action-btn" onClick={handleSubmitModule} disabled={isUploading}>
-        {isUploading ? "Uploading..." : "Upload Modules"}
-      </button>
 
       {/* Functional Items File Upload */}
       <div className="file-input-wrapper">
-        <label htmlFor="functionalFile" className="label-file">
-          Choose File for Functional Items
-        </label>
+        <label htmlFor="functionalFile">Choose File for Functional Items</label>
         <input
           id="functionalFile"
           type="file"
           accept=".xlsx, .xls"
-          onChange={handleFileChange}
+          onChange={(e) => handleFileSelection(e, setSelectedFunctionalFile)}
         />
         <button
-          className="file-btn"
-          onClick={() => document.getElementById("functionalFile").click()}
+          className="action-btn"
+          onClick={handleFunctionalUpload}
+          disabled={isUploading}
         >
-          Browse Files
+          {isUploading ? "Uploading..." : "Upload Functional Items"}
         </button>
       </div>
-      <button className="action-btn" onClick={processExcelFile} disabled={isUploading}>
-        {isUploading ? "Uploading..." : "Upload Functional Items"}
-      </button>
 
+      {/* Status Message */}
       {uploadStatus && (
         <div className={`status-message ${uploadStatus.startsWith("Error") ? "error" : ""}`}>
           {uploadStatus}

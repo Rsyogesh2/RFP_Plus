@@ -1,0 +1,154 @@
+/* UploadFile.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f9fc;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  h2 {
+    font-size: 24px;
+    color: #333333;
+    margin-bottom: 20px;
+  }
+  
+  input[type="file"] {
+    display: none;
+  }
+  
+  .label-file {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 10px 5px;
+  }
+  
+  .label-file:hover {
+    background-color: #0056b3;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 10px 5px;
+  }
+  
+  button:hover {
+    background-color: #218838;
+  }
+  
+  button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  p {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #555555;
+  }
+  
+  .upload-status {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #ff5722;
+  }
+
+
+  /* ======================= */
+  .file-input-wrapper {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #555555;
+  }
+  
+  input[type="file"] {
+    display: none;
+  }
+  
+  .file-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
+    margin-right: 10px;
+  }
+  
+  .file-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .action-btn {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 5px;
+  }
+  
+  .action-btn:hover {
+    background-color: #218838;
+  }
+  
+  .status-message {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #333333;
+    text-align: left;
+    padding: 10px;
+    background-color: #f0f8ff;
+    border: 1px solid #d1e7fd;
+    border-radius: 4px;
+  }
+  
+  .status-message.error {
+    background-color: #ffe4e1;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+  
+  
