@@ -96,7 +96,7 @@ const UploadFile = () => {
 
           allSheetsData.push(...formattedData);
         }
-
+        console.log(allSheetsData)
         await uploadToBackend(allSheetsData);
       };
 
