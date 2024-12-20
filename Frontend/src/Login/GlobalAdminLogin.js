@@ -46,6 +46,9 @@ const Login = ({ onLogin }) => {
 
       if (rolesResponse.ok) {
         setRoles(rolesResult.roles);
+        if(rolesResult.roles==="User"||rolesResult.roles==="Vendor User"){
+          // setUserRole()
+        }
       } else {
         alert(rolesResult.message || "Failed to fetch roles.");
       }

@@ -32,7 +32,7 @@ const ViewAssignedRFPs = (l1) => {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* <RfpForm /> */}
       <div style={{ width: '100%' }}>
-     {userPower==="User"?<RFPReqTable l1={l1}  userRole="Maker" />:<RFPVendorTable l1={l1} userRole="Autherisor"/>}
+     {userPower==="User"?<RFPReqTable l1={l1} />:<RFPVendorTable l1={l1} />}
      {/* <RFPReqTable l1={l1} /> */}
         {/* <button onClick={fetchArray} >Fetch value</button> */}
       </div>

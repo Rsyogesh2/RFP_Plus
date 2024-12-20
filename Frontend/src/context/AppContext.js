@@ -9,6 +9,7 @@ export const AppProvider = ({ children }) => {
     const [userPower, setUserPower] = useState([]);
     const [assignModule, setAssignModule] = useState([]);
     const [userName, setUserName] = useState();
+    const [userRole, setUserRole] = useState();
     const [sidebarValue, setSidebarValue] = useState(
        { rfp_no: "", module_name: [] }, // Default value to avoid undefined errors
     );

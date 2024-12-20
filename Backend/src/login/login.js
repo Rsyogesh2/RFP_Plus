@@ -71,14 +71,31 @@ router.post("/api/login", async (req, res) => {
       // Fetch roles for the user
       const query = `SELECT Role FROM Users_Login WHERE Username = ?`;
       const [results] = await db.execute(query, [username]);
-  
+      const query1 = `SELECT uma.user_name AS userName, 
+       uma.rfp_no AS rfpNo, 
+       uma.entity_name AS entityName, 
+       uma.is_active AS isActive, 
+       uma.date_from AS dateFrom, 
+       uma.date_to AS dateTo, 
+       uma.is_maker AS isMaker, 
+       uma.is_authorizer AS isAuthorizer, 
+       uma.is_reviewer AS isReviewer, 
+       uma.module_name AS moduleName, 
+       uma.createdby AS createdBy
+        FROM user_modules_assignment AS uma
+        INNER JOIN Users_Table AS ut 
+            ON uma.createdby = ut.createdby AND uma.user_name = ut.user_name
+        WHERE ut.email = ?;
+        `;
+        const [results1] = await db.execute(query1, [username]);
+        console.log(results1)
       if (results.length === 0) {
         return res.status(404).json({ message: "No roles found for this user." });
       }
   
       // Extract roles and send as an array
       const roles = results.map((row) => row.Role);
-      res.json({ roles });
+      res.json({ roles,results1 });
     } catch (error) {
       console.error("Error fetching roles:", error);
       res.status(500).json({ message: "Internal server error" });

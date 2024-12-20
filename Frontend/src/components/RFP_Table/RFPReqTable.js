@@ -5,7 +5,7 @@ import { AppContext } from '../../context/AppContext';
 import Button from '../Buttons/Button.js';
 import { handleSave } from '../../services/Apis'
 
-const RFPReqTable = ({ l1, userRole }) => {
+const RFPReqTable = ({ l1 }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     
     const [name, setName] = useState(null); // Initially, no data
@@ -22,7 +22,7 @@ const RFPReqTable = ({ l1, userRole }) => {
 
     }]); 
     const [newItem, setNewItem] = useState(null);
-    const { moduleData, setModuleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
+    const { moduleData, setModuleData, userName, userPower, sidebarValue,userRole } = useContext(AppContext); // Access shared state
     // console.log(moduleData);
 
     useEffect(() => {
