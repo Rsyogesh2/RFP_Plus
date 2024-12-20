@@ -155,13 +155,21 @@ const UploadFile = () => {
   };
 
   return (
-    <div>
+    <div className="container">
       <h2>Upload Module Data</h2>
-      <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+      <label htmlFor="moduleFile" className="label-file">
+        Choose File for Modules
+      </label>
+      <input id="moduleFile" type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
       <button onClick={handleSubmitModule}>Upload Modules</button>
-      <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
+
+      <label htmlFor="functionalFile" className="label-file">
+        Choose File for Functional Items
+      </label>
+      <input id="functionalFile" type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
       <button onClick={processExcelFile}>Upload Functional Items</button>
-      {uploadStatus && <p>{uploadStatus}</p>}
+
+      {uploadStatus && <p className="upload-status">{uploadStatus}</p>}
     </div>
   );
 };
