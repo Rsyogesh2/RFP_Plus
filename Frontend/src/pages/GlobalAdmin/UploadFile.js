@@ -82,7 +82,7 @@ const UploadFile = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data:fileData}),
+        body: JSON.stringify({ data}),
       });
 
       setUploadStatus("Upload successful: " + response.data.message);
