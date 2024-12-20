@@ -43,8 +43,8 @@ const UploadFile = () => {
     setSelectedFiles([]);
   };
 
-  const removeFile = (index) => {
-    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
+  const removeFile = () => {
+    setSelectedFiles(selectedFiles.filter((_, i) => i !== 0));
   };
   //=========
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
@@ -252,7 +252,7 @@ const UploadFile = () => {
           <ul>
               <li >
                 {selectedFile}{" "}
-                <button onClick={() => removeFile(index)}>Remove</button>
+                <button onClick={() => removeFile()}>Remove</button>
               </li>
           </ul>
         </div>
