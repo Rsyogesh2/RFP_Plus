@@ -122,4 +122,62 @@ router.post('/upload', async (req, res) => {
   }
 });
 
+router.post('/upload-functional-items', async (req, res) => {
+  const { data } = req.body;
+
+  console.log('Received data:', data);
+
+  // Validate data format
+  if (!data || !Array.isArray(data)) {
+    return res.status(400).json({ error: 'Invalid data format' });
+  }
+
+  try {
+    for (const row of data) {
+      let { L1, L2, L3, F1, F2, Product, Description, Geo, Conditions } = row;
+
+      // Ensure numeric columns default to "00" if empty
+      L1 = L1 || "00";
+      L2 = L2 || "00";
+      L3 = L3 || "00";
+      F1 = F1 || "00";
+      F2 = F2 || "00";
+
+      // Combine to form Module_Code
+      const Module_Code = `${L1}${L2}${L3}`;
+
+      // Insert or update the row in the database
+      const [existing] = await db.query(
+        'SELECT * FROM rfp_functionalitems WHERE Module_Code = ? AND F1_Code = ? AND F2_Code = ?',
+        [Module_Code, F1, F2]
+      );
+
+      if (existing.length > 0) {
+        // Update existing row
+        console.log(`Updating existing Module_Code: ${Module_Code}`);
+        await db.query(
+          `UPDATE rfp_functionalitems
+           SET Product = ?, Description = ?, Geo = ?, Conditions = ?
+           WHERE Module_Code = ? AND F1_Code = ? AND F2_Code = ?`,
+          [Product, Description, Geo, Conditions, Module_Code, F1, F2]
+        );
+      } else {
+        // Insert new row
+        console.log(`Inserting new Module_Code: ${Module_Code}`);
+        await db.query(
+          `INSERT INTO rfp_functionalitems
+           (Module_Code, F1_Code, F2_Code, Product, Description, Geo, Conditions)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [Module_Code, F1, F2, Product, Description, Geo, Conditions]
+        );
+      }
+    }
+
+    res.json({ message: 'Functional items processed successfully' });
+  } catch (error) {
+    console.error('Error processing functional items:', error.message);
+    res.status(500).json({ error: 'Database error', details: error.message });
+  }
+});
+
 module.exports = router;
