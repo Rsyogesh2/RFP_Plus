@@ -78,4 +78,75 @@ body {
     font-size: 16px;
     color: #ff5722;
   }
+
+  .file-input-wrapper {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #555555;
+  }
+  
+  input[type="file"] {
+    display: none;
+  }
+  
+  .file-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
+    margin-right: 10px;
+  }
+  
+  .file-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .action-btn {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 5px;
+  }
+  
+  .action-btn:hover {
+    background-color: #218838;
+  }
+  
+  .status-message {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #333333;
+    text-align: left;
+    padding: 10px;
+    background-color: #f0f8ff;
+    border: 1px solid #d1e7fd;
+    border-radius: 4px;
+  }
+  
+  .status-message.error {
+    background-color: #ffe4e1;
+    border-color: #f5c6cb;
+    color: #721c24;
+  }
+  
   

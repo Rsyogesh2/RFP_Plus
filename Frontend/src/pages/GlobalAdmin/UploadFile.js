@@ -95,82 +95,83 @@ const UploadFile = () => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
+
     reader.onload = (event) => {
       const data = new Uint8Array(event.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-  
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const l1titleGroup = XLSX.utils.sheet_to_json(sheet, {
-        header: ['title'],
-        range: 'C5', // Adjust range if needed
-      });
-      console.log(l1titleGroup)
+      const workbook = XLSX.read(data, { type: "array" });
 
-      // Parse L1 data (B6, C6 onward)
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const l1Data = XLSX.utils.sheet_to_json(sheet, {
-        header: ['L1_Code', 'L1_Description'],
-        range: 'B6:C100', // Adjust range if needed
+        header: ["L1_Code", "L1_Description"],
+        range: "B6:C100",
       });
-  
-      // Parse L2 data (E5, F5 onward)
+
       const l2Data = XLSX.utils.sheet_to_json(sheet, {
-        header: ['L2_Code', 'L2_Description'],
-        range: 'E5:F100', // Adjust range if needed
+        header: ["L2_Code", "L2_Description"],
+        range: "E5:F100",
       });
-  
-      // Parse L3 data (H5, I5 onward)
+
       const l3Data = XLSX.utils.sheet_to_json(sheet, {
-        header: ['L3_Code', 'L3_Description'],
-        range: 'H5:I100', // Adjust range if needed
+        header: ["L3_Code", "L3_Description"],
+        range: "H5:I100",
       });
-  
-      // Set parsed data
+
       const formattedData = {
-        title:l1titleGroup,
         L1: l1Data.filter((row) => row.L1_Code && row.L1_Description),
         L2: l2Data.filter((row) => row.L2_Code && row.L2_Description),
         L3: l3Data.filter((row) => row.L3_Code && row.L3_Description),
       };
-  
+
       setFileData(formattedData);
     };
+
     reader.readAsArrayBuffer(file);
   };
 
   const handleSubmitModule = async () => {
     if (fileData) {
+      setIsUploading(true);
+      setUploadStatus("");
       try {
-        await fetch(`${API_URL}/upload`, {
+        const response = await fetch(`${API_URL}/upload`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ data:fileData}),
+          body: JSON.stringify({ data: fileData }),
         });
-        alert('Data uploaded successfully');
+
+        const result = await response.json();
+        setUploadStatus(`Upload successful: ${result.message}`);
       } catch (error) {
-        console.error('Error uploading data:', error);
+        setUploadStatus(`Error: ${error.message}`);
+      } finally {
+        setIsUploading(false);
       }
     }
   };
-
   return (
     <div className="container">
-      <h2>Upload Module Data</h2>
-      <label htmlFor="moduleFile" className="label-file">
-        Choose File for Modules
-      </label>
+    <h2>Upload Module Data</h2>
+
+    <div className="file-input-wrapper">
+      <label htmlFor="moduleFile">Choose File for Modules</label>
       <input id="moduleFile" type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-      <button onClick={handleSubmitModule}>Upload Modules</button>
-
-      <label htmlFor="functionalFile" className="label-file">
-        Choose File for Functional Items
-      </label>
-      <input id="functionalFile" type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
-      <button onClick={processExcelFile}>Upload Functional Items</button>
-
-      {uploadStatus && <p className="upload-status">{uploadStatus}</p>}
+      <button className="file-btn" onClick={() => document.getElementById("moduleFile").click()}>
+        Browse Files
+      </button>
     </div>
+
+    <button className="action-btn" onClick={handleSubmitModule} disabled={isUploading}>
+      {isUploading ? "Uploading..." : "Upload Modules"}
+    </button>
+
+    {uploadStatus && (
+      <div className={`status-message ${uploadStatus.startsWith("Error") ? "error" : ""}`}>
+        {uploadStatus}
+      </div>
+    )}
+  </div>
   );
 };
 
