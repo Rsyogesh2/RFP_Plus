@@ -48,10 +48,10 @@ const RFPReqTable = ({ l1 }) => {
                 const data = await response.json(); // Parse the JSON response
                 console.log(data);  // Handle the fetched data as needed
 
-                 setItemData(data.itemDetails.l1); // Set the resolved data to local state
+                //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
                 setName(data.itemDetails.Name); // Set the resolved data to local state
                 setModuleData(data);
-                // filterModule(l1.l1module);
+                filterModule(l1.l1module);
                 // console.log(data.itemDetails.l1);
                 // setItemData(moduleData.itemDetails.l1); 
                 // setFItem(moduleData.functionalItemDetails);
