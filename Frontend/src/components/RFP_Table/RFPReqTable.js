@@ -50,8 +50,8 @@ const RFPReqTable = ({ l1 }) => {
 
             //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
             setName(data.itemDetails.Name); // Set the resolved data to local state
-            setModuleData(data);
-            filterModule(l1.l1module);
+            // setModuleData(data);
+            filterModule(data);
             // console.log(data.itemDetails.l1);
             // setItemData(moduleData.itemDetails.l1); 
             // setFItem(moduleData.functionalItemDetails);
@@ -66,10 +66,10 @@ const RFPReqTable = ({ l1 }) => {
      fetchArray();
     }
 
-    const filterModule = (code) => {
+    const filterModule = (data) => {
 
-        const data = moduleData.itemDetails.l1.filter(m=>m.code===code);
-        setItemData(data); 
+        const data1 = data.itemDetails.l1.filter(m=>m.code===l1.l1module);
+        setItemData(data1); 
     }
 
     const findIndexByObject = (obj) => {
