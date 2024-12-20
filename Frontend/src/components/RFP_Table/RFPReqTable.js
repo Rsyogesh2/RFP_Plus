@@ -50,7 +50,7 @@ const RFPReqTable = ({ l1 }) => {
 
             //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
             setName(data.itemDetails.Name); // Set the resolved data to local state
-            setModuleData(data);
+            // setModuleData(data);
             filterModule(l1.l1module);
             // console.log(data.itemDetails.l1);
             // setItemData(moduleData.itemDetails.l1); 
