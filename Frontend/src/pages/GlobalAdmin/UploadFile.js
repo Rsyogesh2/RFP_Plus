@@ -250,12 +250,10 @@ const UploadFile = () => {
         <div className="file-preview">
           <h3>Selected Files</h3>
           <ul>
-            {selectedFiles.map((file, index) => (
-              <li key={index}>
-                {file.name}{" "}
+              <li >
+                {setSelectedFile}{" "}
                 <button onClick={() => removeFile(index)}>Remove</button>
               </li>
-            ))}
           </ul>
         </div>
       )}
