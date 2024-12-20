@@ -50,6 +50,7 @@ const UploadFile = () => {
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const handleFileUpload = (e) => {
+    handleFileSelect(e)
     const file = e.target.files[0];
     const reader = new FileReader();
 
@@ -252,11 +253,17 @@ const UploadFile = () => {
         onDrop={handleDrop}
       >
         <p>Drag and drop files here, or click to select files</p>
-        <input
+        {/* <input
           type="file"
           multiple
           onChange={handleFileSelect}
           className="file-input"
+        /> */}
+        <input
+          id="moduleFile"
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={handleFileUpload}
         />
       </div>
 
@@ -282,6 +289,9 @@ const UploadFile = () => {
         disabled={selectedFiles.length === 0}
       >
         Upload Files
+      </button>
+      <button className="action-btn" onClick={handleSubmitModule} disabled={isUploading ||selectedFiles.length === 0}>
+        {isUploading ? "Uploading..." : "Upload Modules"}
       </button>
 
     </div>
