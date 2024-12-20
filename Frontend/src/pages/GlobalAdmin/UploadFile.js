@@ -77,7 +77,7 @@ const UploadFile = () => {
       // const response = await axios.post("http://localhost:5000/api/upload-functional-items", {
       //   data,
       // });
-      await fetch(`${API_URL}/upload-functional-items`, {
+      const response = await fetch(`${API_URL}/upload-functional-items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
