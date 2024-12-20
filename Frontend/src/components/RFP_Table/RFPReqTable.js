@@ -112,114 +112,45 @@ const RFPReqTable = ({ l1 }) => {
 
 
     const handleAdd = (item) => {
-        console.log("ADD Items")
-        console.log(item)
+        console.log("ADD Items:", item);
+    
         setFItem((prevItems) => {
-            const matchingItems = prevItems.filter(
-                existingItem =>
+            // Initialize the new item's base properties
+            let newCode;
+    
+            if (!item.New_Code) {
+                // Case 1: Item doesn't have New_Code, assign New_Code: 10
+                newCode = 10;
+            } else {
+                // Case 2: Item already has New_Code, increment and ensure uniqueness
+                newCode = Number(item.New_Code) + 1;
+                while (prevItems.some((existingItem) =>
                     existingItem.Module_Code === item.Module_Code &&
                     existingItem.F1_Code === item.F1_Code &&
-                    existingItem.F2_Code === item.F2_Code
-            );
-            console.log("matchingItems :"+matchingItems)
-            // Find the maximum New_Code in the matching items
-            const maxNewCode = Math.max(
-                0,
-                ...matchingItems.map(existingItem => Number(existingItem.New_Code) || 0)
-            );
-            // console.log(matchingItems)
-            // Create a new item with auto-incremented F2_Code
-            let newItem
-            if (matchingItems.length>0&&matchingItems[0].F2_Code.endsWith("00")) {
-                if (item.New_Code) {
-                    // Filter items with the same Module_Code, F1_Code, and F2_Code
-
-                    // Create the new item with incremented New_Code
-                    setNewItem([{
-                        Module_Code: `${item.Module_Code}`,
-                        F1_Code: `${item.F1_Code}`,
-                        F2_Code: `${item.F2_Code}`,
-                        New_Code: maxNewCode + 1
-                    }]);
-
-                    newItem = {
-                        name: 'New Item',
-                        Module_Code: `${item.Module_Code}`,
-                        F1_Code: `${item.F1_Code}`,
-                        F2_Code: `${item.F2_Code}`,
-                        New_Code: maxNewCode + 1,
-                        isEditing: true
-                    };
-                }
-                else {
-                    newItem = {
-                        name: 'New Item',
-                        Module_Code: `${item.Module_Code}`,
-                        F1_Code: `${item.F1_Code}`,
-                        F2_Code: `${item.F2_Code}`,
-                        New_Code: 10,
-                        isEditing: true
-                    }
-                };
-            } else if(matchingItems.length==0){
-                if (item.New_Code) {
-                    newItem = {
-                        name: 'New Item',
-                        Module_Code: `${item.Module_Code}`,
-                        F1_Code: `${item.F1_Code}`,
-                        F2_Code: `${item.F2_Code}`,
-                        New_Code: Number(item.New_Code) + 1,
-                        isEditing: true
-                    }
-                }
-                else {
-                    newItem = {
-                        name: 'New Item',
-                        Module_Code: `${item.Module_Code}`,
-                        F1_Code: `${item.F1_Code}`,
-                        F2_Code: `${item.F2_Code}`,
-                        isEditing: true
-                    };
-                }    
-            }
-            else {
-                if (item.New_Code) {
-                    newItem = {
-                        name: 'New Item',
-                        Module_Code: `${item.Module_Code}`,
-                        F1_Code: `${item.F1_Code}`,
-                        F2_Code: `${item.F2_Code}`,
-                        New_Code: Number(item.New_Code) + 1,
-                        isEditing: true
-                    }
-                }
-                else {
-                    newItem = {
-                        name: 'New Item',
-                        Module_Code: `${item.Module_Code}`,
-                        F1_Code: `${item.F1_Code}`,
-                        F2_Code: `${item.F2_Code}`,
-                        isEditing: true
-                    };
+                    existingItem.F2_Code === item.F2_Code &&
+                    existingItem.New_Code === newCode
+                )) {
+                    newCode += 1; // Increment until unique
                 }
             }
-            const itemIndex = prevItems.findIndex(
-                (prevItem) => prevItem.F2_Code === item.F2_Code && prevItem.Module_Code === item.Module_Code
-            );
-            console.log(newItem)
-            // Return the updated items list with the new item added
-            // return [...prevItems, newItem];
-            const updatedItems = [
-                ...prevItems.slice(0, itemIndex + 1),
-                newItem,
-                ...prevItems.slice(itemIndex + 1)
-            ];
-            console.log(FItem);
+    
+            // Create the new item
+            const newItem = {
+                ...item,
+                New_Code: newCode,
+                isEditing: true, // Additional flag for new items
+            };
+    
+            console.log("New Item:", newItem);
+    
+            // Insert the new item at the end of the array
+            const updatedItems = [...prevItems, newItem];
+    
+            console.log("Updated Items:", updatedItems);
             return updatedItems;
-        }
-        )
-
+        });
     };
+    
 
     const handleNameChange = (e) => {
         // Assuming `setItems` is a state setter function for an array of items
