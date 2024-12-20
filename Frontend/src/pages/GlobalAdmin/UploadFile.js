@@ -52,9 +52,14 @@ const UploadFile = () => {
     console.log("Event");
     console.log(event.target.files);
     console.log(event.target.files[0]);
-   
+   try{
     setSelectedFile(event.target.files[0]);
     setSelectedFiles(event.target.files);
+    console.log("Event Done");
+   } catch(e){
+    console.log(e);
+   }
+   
   };
   const handleUploadModule = async(e) => {
     // handleFileSelect(e)
@@ -255,7 +260,7 @@ const UploadFile = () => {
           <h3>Selected Files</h3>
           <ul>
               <li >
-                {selectedFile}{" "}
+                {/* {selectedFile}{" "} */}
                 <button onClick={() => removeFile()}>Remove</button>
               </li>
           </ul>
