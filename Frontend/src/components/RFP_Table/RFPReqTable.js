@@ -23,48 +23,50 @@ const RFPReqTable = ({ l1 }) => {
 
     }]); 
     const [newItem, setNewItem] = useState(null);
+    const [valueL1, setValueL1] = useState(null);
     const { moduleData, setModuleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
     // console.log(moduleData);
 
     useEffect(() => {
-    }, []);
-    async function fetchArray() {
-        // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
-        // console.log("result", result.functionalItemDetails); // Log the resolved array
-        console.log("userName " + userName)
-        console.log(l1)
-       
-        //23/11/2024
-        try {
-            const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
-            const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
-            console.log(response);
-
-            // Check if the response is okay (status in the range 200-299)
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+        async function fetchArray() {
+            // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
+            // console.log("result", result.functionalItemDetails); // Log the resolved array
+            console.log("userName " + userName)
+            console.log(l1)
+            setValueL1(l1.l1module);
+            //23/11/2024
+            try {
+                const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
+                const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
+                console.log(response);
+    
+                // Check if the response is okay (status in the range 200-299)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+    
+                const data = await response.json(); // Parse the JSON response
+                console.log(data);  // Handle the fetched data as needed
+    
+                //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
+                setName(data.itemDetails.Name); // Set the resolved data to local state
+                // setModuleData(data);
+                filterModule(data);
+                // console.log(data.itemDetails.l1);
+                // setItemData(moduleData.itemDetails.l1); 
+                // setFItem(moduleData.functionalItemDetails);
+                // setSidebarValue(data.itemDetails);
+                setFItem(data.functionalItemDetails);
+            } catch (error) {
+                console.error('Error sending checked items:', error); // Log any errors
             }
-
-            const data = await response.json(); // Parse the JSON response
-            console.log(data);  // Handle the fetched data as needed
-
-            //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
-            setName(data.itemDetails.Name); // Set the resolved data to local state
-            // setModuleData(data);
-            filterModule(data);
-            // console.log(data.itemDetails.l1);
-            // setItemData(moduleData.itemDetails.l1); 
-            // setFItem(moduleData.functionalItemDetails);
-            // setSidebarValue(data.itemDetails);
-            setFItem(data.functionalItemDetails);
-        } catch (error) {
-            console.error('Error sending checked items:', error); // Log any errors
+    
         }
-
-    }
-    if(l1.l1module!==""){
-     fetchArray();
-    }
+        if(l1.l1module!=="" && valueL1!==l1.l1module){
+         fetchArray();
+        }
+    }, [l1]);
+    
 
     const filterModule = (data) => {
 
