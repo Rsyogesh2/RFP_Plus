@@ -145,11 +145,12 @@ router.post('/upload-functional-items', async (req, res) => {
 
       // Combine to form Module_Code
       const Module_Code = `${L1}${L2}${L3}`;
+      const f2Code = `${F1}${F2}`;
 
       // Insert or update the row in the database
       const [existing] = await db.query(
         'SELECT * FROM rfp_functionalitems WHERE Module_Code = ? AND F1_Code = ? AND F2_Code = ?',
-        [Module_Code, F1, F2]
+        [Module_Code, F1, f2Code]
       );
 
       if (existing.length > 0) {
@@ -159,7 +160,7 @@ router.post('/upload-functional-items', async (req, res) => {
           `UPDATE rfp_functionalitems
            SET Product = ?, Description = ?, Geo = ?, Conditions = ?
            WHERE Module_Code = ? AND F1_Code = ? AND F2_Code = ?`,
-          [Product, Description, Geo, Conditions, Module_Code, F1, F2]
+          [Product, Description, Geo, Conditions, Module_Code, F1, f2Code]
         );
       } else {
         // Insert new row
@@ -168,7 +169,7 @@ router.post('/upload-functional-items', async (req, res) => {
           `INSERT INTO rfp_functionalitems
            (Module_Code, F1_Code, F2_Code, Product, Description, Geo, Conditions)
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [Module_Code, F1, F2, Product, Description, Geo, Conditions]
+          [Module_Code, F1, f2Code, Product, Description, Geo, Conditions]
         );
       }
     }
