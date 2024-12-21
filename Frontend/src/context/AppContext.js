@@ -6,7 +6,7 @@ export const AppContext = createContext();
 export const AppProvider = ({ children }) => {
     const [moduleData, setModuleData] = useState(null);
     const [usersList, setUsersList] = useState([]);
-    const [userPower, setUserPower] = useState([]);
+    const [userPower, setUserPower] = useState();
     const [assignModule, setAssignModule] = useState([]);
     const [userName, setUserName] = useState();
     const [userRole, setUserRole] = useState();

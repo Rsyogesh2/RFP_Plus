@@ -73,10 +73,9 @@ const Login = ({ onLogin }) => {
   const handleRoleSelect = (e) => {
     console.log(e.target.value);
     let val = e.target.value.split(" - ");
-    setUserRole(val[1]);
     setSelectedRole(val[0]);
     setUserPower(val[0]); // Set the selected role in context
-    
+    setUserRole(val[1]);
   };
 
   const handleNavigateToHome = () => {
