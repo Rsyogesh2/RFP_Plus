@@ -70,6 +70,7 @@ router.post("/api/login", async (req, res) => {
   
       // Fetch roles for the user
       const query = `SELECT Role FROM Users_Login WHERE Username = ?`;
+      
       const [results] = await db.execute(query, [username]);
       const query1 = `SELECT uma.user_name AS userName, 
        uma.rfp_no AS rfpNo, 
@@ -92,7 +93,31 @@ router.post("/api/login", async (req, res) => {
       if (results.length === 0) {
         return res.status(404).json({ message: "No roles found for this user." });
       }
-  
+      if(results[0].Role=="Super Admin"){
+        console.log("super Admin")
+      const querysuperAdmin = `SELECT valid_from, valid_to FROM superadmin_users WHERE super_user_email=?`;
+      const [superAdminValidity] = await db.execute(querysuperAdmin, [username]);
+      console.log(superAdminValidity)
+      if (superAdminValidity && superAdminValidity.length > 0) {
+          const { valid_from, valid_to } = superAdminValidity[0]; // Destructure the fetched data
+      
+          // Parse the database dates to JavaScript Date objects
+          const validFromDate = new Date(valid_from);
+          const validToDate = new Date(valid_to);
+          const today = new Date(); // Today's date
+      
+          // Check if today's date is within the range
+          const isValid = today >= validFromDate && today <= validToDate;
+      
+          console.log("Is valid:", isValid);
+          const roles = results.map((row) => row.Role);
+          
+          return res.json({ roles }); // Return true or false
+      } else {
+          console.log("No validity data found");
+          return res.status(404).json({ message: "No validity for this user." });
+      }
+      }
       // Extract roles and send as an array
       const roles = results.map((row) => row.Role);
       res.json({ roles,results1 });
