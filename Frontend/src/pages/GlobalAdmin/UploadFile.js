@@ -152,14 +152,18 @@ const UploadFile = () => {
         for (let i = 1; i < sheetNames.length; i++) {
           const sheetName = sheetNames[i];
           const sheet = workbook.Sheets[sheetName];
-  
+          console.log(sheet);
           // Extract data starting from B5
           const jsonData = XLSX.utils.sheet_to_json(sheet, {
             header: ["L1", "L2", "L3", "F1", "F2", "Product", "Description", "Geo", "Conditions"],
-            range: 4, // Start reading from the fifth row (B5, zero-based index)
+            range: "B5:J100", // Start reading from the fifth row (B5, zero-based index)
             defval: "", // Default value for empty cells
           });
-  
+          // const l1Data = XLSX.utils.sheet_to_json(sheet, {
+          //   header: ["L1_Code", "L1_Description"],
+          //   range: "B6:C100",
+          // });
+          console.log(jsonData);
           // Format the data for each sheet
           const formattedData = jsonData.map((row) => ({
             SheetName: sheetName, // Include sheet name to track source
