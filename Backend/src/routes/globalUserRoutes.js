@@ -37,9 +37,9 @@ router.post('/upload', async (req, res) => {
         if (existing.length > 0) {
           console.log(`Updating existing L1_Code: ${L1_Code}`);
           await db.query(
-            'UPDATE rfp_l1_modules SET L1_Module_Description = ? AND SET Module_Group =? WHERE L1_Code = ?',
+            'UPDATE rfp_l1_modules SET L1_Module_Description = ?, Module_Group = ? WHERE L1_Code = ?',
             [L1_Description, data.title[0].title, L1_Code]
-          );
+          );          
         } else {
           const Module_ID = generateModuleID();
           console.log(`Inserting new L1_Code: ${L1_Code}`);

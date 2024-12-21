@@ -150,6 +150,7 @@ const UploadFile = () => {
   
         for (let i = 1; i < sheetNames.length; i++) {
           const sheetName = sheetNames[i];
+          console.log(sheetName);
           const sheet = workbook.Sheets[sheetName];
   
           // Define the range starting from B5
@@ -158,7 +159,7 @@ const UploadFile = () => {
             range: "B5", // Starts reading from cell B5
             defval: "", // Default value for empty cells
           });
-  
+          console.log(jsonData);
           // Ensure data formatting matches your requirements
           const formattedData = jsonData.map((row) => ({
             L1: row["L1"] || "00",
