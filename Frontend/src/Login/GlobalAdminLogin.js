@@ -45,7 +45,7 @@ const Login = ({ onLogin }) => {
       console.log("Roles response:", rolesResult);
 
       if (rolesResponse.ok) {
-        if(rolesResult.roles==="User"||rolesResult.roles==="Vendor User"){
+        if(rolesResult.roles[0]==="User"||rolesResult.roles[0]==="Vendor User"){
           
           let rolesPer =[];
           for(let rfps of rolesResult.results1){
