@@ -54,7 +54,8 @@ const UploadFile = () => {
     console.log(event.target.files[0].File.name);
    try{
     setSelectedFile(event.target.files[0]);
-    setSelectedFiles(event.target.files);
+    const files = Array.from(event.target.files);
+     setSelectedFiles(files);
     console.log("Event Done");
    } catch(e){
     console.log(e);
