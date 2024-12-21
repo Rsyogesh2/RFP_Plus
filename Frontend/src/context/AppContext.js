@@ -17,7 +17,8 @@ export const AppProvider = ({ children }) => {
     return (
         <AppContext.Provider value={{ moduleData, setModuleData, usersList,
          setUsersList,userPower,setUserPower,assignModule,setAssignModule,
-         userName, setUserName,sidebarValue, setSidebarValue}}>
+         userName, setUserName,sidebarValue, setSidebarValue, setUserRole,
+        userRole}}>
             {children}
         </AppContext.Provider>
     );
