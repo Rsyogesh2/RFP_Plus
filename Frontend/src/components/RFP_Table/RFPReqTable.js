@@ -126,16 +126,28 @@ const RFPReqTable = ({ l1 }) => {
             }
     
             // Create the new item
-            const newItem = {
-                ...item,
+            const newItem = {       
+                name: 'New Item',
+                Module_Code: item.Module_Code,
+                F1_Code: item.F1_Code,
+                F2_Code: item.F2_Code,
                 New_Code: newCode,
                 isEditing: true, // Additional flag for new items
             };
     
             console.log("New Item:", newItem);
-    
+            const itemIndex = prevItems.findIndex(
+                (prevItem) => prevItem.F2_Code === item.F2_Code &&
+                 prevItem.Module_Code === item.Module_Code 
+                //  &&  prevItem.New_Code === item.New_Code
+            );
+            const updatedItems = [
+                ...prevItems.slice(0, itemIndex + 1),
+                newItem,
+                ...prevItems.slice(itemIndex + 1)
+            ];
             // Insert the new item at the end of the array
-            const updatedItems = [...prevItems, newItem];
+            // const updatedItems = [...prevItems, newItem];
     
             console.log("Updated Items:", updatedItems);
             return updatedItems;
