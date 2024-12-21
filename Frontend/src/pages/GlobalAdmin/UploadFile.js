@@ -145,23 +145,24 @@ const UploadFile = () => {
         const arrayBuffer = event.target.result;
   
         const workbook = XLSX.read(arrayBuffer, { type: "array" });
-        const allSheetsData = [];
         const sheetNames = workbook.SheetNames;
+        const allSheetsData = [];
   
+        // Iterate through sheets from the 2nd to the last
         for (let i = 1; i < sheetNames.length; i++) {
           const sheetName = sheetNames[i];
-          console.log(sheetName);
           const sheet = workbook.Sheets[sheetName];
   
-          // Define the range starting from B5
+          // Extract data starting from B5
           const jsonData = XLSX.utils.sheet_to_json(sheet, {
             header: ["L1", "L2", "L3", "F1", "F2", "Product", "Description", "Geo", "Conditions"],
-            range: "B5", // Starts reading from cell B5
+            range: 4, // Start reading from the fifth row (B5, zero-based index)
             defval: "", // Default value for empty cells
           });
-          console.log(jsonData);
-          // Ensure data formatting matches your requirements
+  
+          // Format the data for each sheet
           const formattedData = jsonData.map((row) => ({
+            SheetName: sheetName, // Include sheet name to track source
             L1: row["L1"] || "00",
             L2: row["L2"] || "00",
             L3: row["L3"] || "00",
@@ -173,10 +174,12 @@ const UploadFile = () => {
             Conditions: row["Conditions"] || "",
           }));
   
+          // Combine data from all sheets
           allSheetsData.push(...formattedData);
         }
   
-        console.log(allSheetsData.slice(0, 10)); // Log first 10 rows only
+        console.log(allSheetsData.slice(0, 10)); // Log first 10 rows for debugging
+        console.log(allSheetsData); // Log first 10 rows for debugging
         await uploadToBackendFunctional(allSheetsData);
         alert("File uploaded successfully!");
       };
@@ -189,6 +192,7 @@ const UploadFile = () => {
       setIsUploading(false);
     }
   };
+  
   
 
   const uploadToBackendFunctional = async (data) => {
