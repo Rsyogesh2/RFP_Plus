@@ -33,7 +33,7 @@ const RFPReqTable = ({ l1 }) => {
             // console.log("result", result.functionalItemDetails); // Log the resolved array
             console.log("userName " + userName)
             console.log(l1)
-            setValueL1(l1.l1module);
+            
             //23/11/2024
             try {
                 const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
@@ -64,6 +64,7 @@ const RFPReqTable = ({ l1 }) => {
         }
         if(l1.l1module!=="" && valueL1!==l1.l1module){
          fetchArray();
+         setValueL1(l1.l1module);
         }
     }, [l1]);
     
