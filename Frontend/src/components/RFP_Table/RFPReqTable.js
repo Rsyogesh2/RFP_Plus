@@ -9,7 +9,7 @@ const RFPReqTable = ({ l1 }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     
     const [name, setName] = useState(null); // Initially, no data
-    const [userRole, setUserRole] = useState("Maker"); // Initially, no data
+    // const [userRole, setUserRole] = useState("Maker"); // Initially, no data
     const [itemData, setItemData] = useState(null); // Initially, no data
     const [FItem, setFItem] = useState([{
         name: "",
@@ -24,7 +24,7 @@ const RFPReqTable = ({ l1 }) => {
     }]); 
     const [newItem, setNewItem] = useState(null);
     const [valueL1, setValueL1] = useState(null);
-    const { moduleData, setModuleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
+    const { moduleData, setModuleData, userName, userPower, sidebarValue,userRole } = useContext(AppContext); // Access shared state
     // console.log(moduleData);
 
     useEffect(() => {
@@ -57,6 +57,7 @@ const RFPReqTable = ({ l1 }) => {
                 // setFItem(moduleData.functionalItemDetails);
                 // setSidebarValue(data.itemDetails);
                 setFItem(data.functionalItemDetails);
+                console.log(userRole);
             } catch (error) {
                 console.error('Error sending checked items:', error); // Log any errors
             }

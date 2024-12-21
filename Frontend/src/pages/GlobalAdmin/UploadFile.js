@@ -148,7 +148,7 @@ const UploadFile = () => {
         const allSheetsData = [];
         const sheetNames = workbook.SheetNames;
   
-        for (let i = 0; i < sheetNames.length; i++) {
+        for (let i = 1; i < sheetNames.length; i++) {
           const sheetName = sheetNames[i];
           const sheet = workbook.Sheets[sheetName];
   
