@@ -45,10 +45,23 @@ const Login = ({ onLogin }) => {
       console.log("Roles response:", rolesResult);
 
       if (rolesResponse.ok) {
-        setRoles(rolesResult.roles);
         if(rolesResult.roles==="User"||rolesResult.roles==="Vendor User"){
-          setUserRole(rolesResult.results1)
+          
+          let rolesPer =[];
+          for(let rfps of rolesResult.results1){
+            if(rfps.isMaker==1){
+              rolesPer.push(`${rolesResult.roles} - Maker`)
+            } else if(rfps.isAuthorizer==1){
+              rolesPer.push(`${rolesResult.roles} - Authorizer`)
+            }
+            
+          }
+          setRoles(rolesPer);
+        } else {
+          setRoles(rolesResult.roles);
         }
+        
+        
       } else {
         alert(rolesResult.message || "Failed to fetch roles.");
       }
@@ -58,8 +71,11 @@ const Login = ({ onLogin }) => {
   };
 
   const handleRoleSelect = (e) => {
-    setSelectedRole(e.target.value);
-    setUserPower(e.target.value); // Set the selected role in context
+    console.log(e.target.value);
+    let val = e.target.value.split(" - ");
+    setSelectedRole(val[0]);
+    setUserPower(val[0]); // Set the selected role in context
+    setUserRole(val[1]);
   };
 
   const handleNavigateToHome = () => {
