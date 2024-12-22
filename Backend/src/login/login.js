@@ -100,7 +100,7 @@ router.post("/api/login", async (req, res) => {
       console.log(superAdminValidity)
       if (superAdminValidity && superAdminValidity.length > 0) {
           const { valid_from, valid_to } = superAdminValidity[0]; // Destructure the fetched data
-      
+          console.log("superAdminValidity")
           // Parse the database dates to JavaScript Date objects
           const validFromDate = new Date(valid_from);
           const validToDate = new Date(valid_to);
@@ -110,9 +110,15 @@ router.post("/api/login", async (req, res) => {
           const isValid = today >= validFromDate && today <= validToDate;
       
           console.log("Is valid:", isValid);
-          const roles = results.map((row) => row.Role);
+          if(!isValid){
+            console.log("No validity data found");
+          return res.status(404).json({ message: "No validity for this user." });
+          } else{
+            const roles = results.map((row) => row.Role);
           
-          return res.json({ roles }); // Return true or false
+            return res.json({ roles }); // Return true or false
+          }
+         
       } else {
           console.log("No validity data found");
           return res.status(404).json({ message: "No validity for this user." });
