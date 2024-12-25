@@ -217,7 +217,7 @@ const HomePage = ({ userType }) => {
   
   const renderSection = () => {
     console.log(activeSection);
-    if (!isNaN(activeSection)) {
+    if (!isNaN(activeSection) && activeSection!==99) {
       // Call the ViewAssignedRFPs component with the activeSection as a prop
       return <ViewAssignedRFPs l1module={activeSection} />;
     }
@@ -260,7 +260,7 @@ const HomePage = ({ userType }) => {
         return <VendorQuery />;
       case "Final Evaluation":
         return <FinalEvaluation />
-      case "Scoring Criteria":
+      case 99:
         return <RfpScoringCriteria />;
       default:
         return <p>Select an option from the sidebar.</p>;

@@ -56,7 +56,12 @@ const Login = ({ onLogin }) => {
             }
             
           }
-          setRoles(rolesPer);
+          
+          if(rolesPer.length===0){
+            setRoles(rolesResult.roles);
+          } else{
+            setRoles(rolesPer);
+          }
         } else {
           setRoles(rolesResult.roles);
         }
