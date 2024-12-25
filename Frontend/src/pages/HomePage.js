@@ -253,13 +253,15 @@ const HomePage = ({ userType }) => {
       case "Submit Query":
         return <RfpScoringCriteria />;
       case "Submit RFP":
-        // return <CreateRFPForm />;
+        return <CreateRFPForm />;
       case "View Vendor Assigned RFPs":
           return <RFPVendorTable />;
       case "Vendor Query":
         return <VendorQuery />;
       case "Final Evaluation":
         return <FinalEvaluation />
+      case "Scoring Criteria":
+        return <RfpScoringCriteria />;
       default:
         return <p>Select an option from the sidebar.</p>;
     }
