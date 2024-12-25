@@ -86,6 +86,12 @@ const RFPReqTable = ({ l1 }) => {
         );
     };
     const handleEditToggle = (item, e) => {
+        setFItem((prevItems) =>
+            prevItems.map((obj) => ({
+                ...obj,
+                isEditing: false, // Ensure isEditing is set to false
+            }))
+        );
         console.log(item);
         const index = findIndexByObject(item);
         const newData = [...FItem];
@@ -95,6 +101,13 @@ const RFPReqTable = ({ l1 }) => {
     };
 
     const handleDelete = (item) => {
+        setFItem((prevItems) =>
+            prevItems.map((obj) => ({
+                ...obj,
+                isEditing: false, // Ensure isEditing is set to false
+            }))
+        );
+
         console.log(item.F2_Code);
         const index = findIndexByObject(item);
         const newData = [...FItem];
@@ -260,7 +273,7 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-MorO`}
+                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
                             checked={item.MorO === true}
                             onChange={() => handleMorOChange(true, item, TableIndex, parentIndex, subIndex, index)}
                         />
@@ -270,7 +283,7 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-MorO`}
+                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
                             checked={item.MorO === false}
                             onChange={() => handleMorOChange(false, item, TableIndex, parentIndex, subIndex, index)}
                         />
