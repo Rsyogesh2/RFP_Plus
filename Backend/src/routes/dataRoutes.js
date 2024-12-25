@@ -286,7 +286,9 @@ router.get('/assignRFPUserDetails', async (req, res) => {
     console.log(assignedUsers);
     let parsedUsers;
     if (assignedUsers != undefined) {
-      parsedUsers = assignedUsers.map(user => ({
+      parsedUsers = assignedUsers.map(user => {
+        // user.modulename.l1.l2.push("Scoring Criteria");
+         return {
         ...user,
         selectedModules: (() => {
           try {
@@ -295,10 +297,11 @@ router.get('/assignRFPUserDetails', async (req, res) => {
             return []; // Default to empty array if JSON parse fails
           }
         })(),
-      }));
+      }});
     }
-
-
+console.log(parsedUsers);
+// parsedUsers.modulename.l1.push({"others":{name:"Others",code:99,l2:{name:"Scoring Criteria",code:9999}}});
+        
     // Consolidate Response
     res.status(200).json({
       modules: data,
