@@ -332,7 +332,7 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-MorO`}
+                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
                             checked={item.MorO === true}
                         />
                     }
@@ -341,7 +341,7 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-MorO`}
+                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
                             checked={item.MorO === false}
                         />
                     }
