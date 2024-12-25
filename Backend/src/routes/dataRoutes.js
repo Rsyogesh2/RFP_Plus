@@ -299,8 +299,10 @@ router.get('/assignRFPUserDetails', async (req, res) => {
         })(),
       }});
     }
-console.log(parsedUsers);
-// parsedUsers.modulename.l1.push({"others":{name:"Others",code:99,l2:{name:"Scoring Criteria",code:9999}}});
+  console.log("parsedUsers");
+  console.log(data);
+
+  data.modulename.l1.push({"others":{name:"Others",code:99,l2:{name:"Scoring Criteria",code:9999}}});
         
     // Consolidate Response
     res.status(200).json({
