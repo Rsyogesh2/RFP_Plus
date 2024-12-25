@@ -24,6 +24,7 @@ const RFPReqTable = ({ l1 }) => {
     }]); 
     const [newItem, setNewItem] = useState(null);
     const [valueL1, setValueL1] = useState(null);
+    const [isEdit, setIsEdit] = useState(false);
     const { moduleData, setModuleData, userName, userPower, sidebarValue,userRole } = useContext(AppContext); // Access shared state
     // console.log(moduleData);
 
@@ -104,9 +105,15 @@ const RFPReqTable = ({ l1 }) => {
 
     const handleAdd = (item) => {
        // Simulate an Enter key event
-        const enterKeyEvent = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13 });
-        document.dispatchEvent(enterKeyEvent); // Dispatch the event globally (or on a specific element)
- 
+        // const enterKeyEvent = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13 });
+        // document.dispatchEvent(enterKeyEvent); // Dispatch the event globally (or on a specific element)
+        setFItem((prevItems) =>
+            prevItems.map((obj) => ({
+                ...obj,
+                isEditing: false, // Ensure isEditing is set to false
+            }))
+        );
+
         console.log("ADD Items:", item);
     
         setFItem((prevItems) => {
