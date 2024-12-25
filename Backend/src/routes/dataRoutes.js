@@ -302,8 +302,8 @@ router.get('/assignRFPUserDetails', async (req, res) => {
   console.log("parsedUsers");
   console.log(data);
 
-  data.modulename.l1.push({"others":{name:"Others",code:99,l2:{name:"Scoring Criteria",code:9999}}});
-        
+  data.l1.push({name:"Others",code:99,l2:[{name:"Scoring Criteria",code:9999}]});
+  // { name: 'Vendor specifications', code: 97, l2: [Array] }
     // Consolidate Response
     res.status(200).json({
       modules: data,
