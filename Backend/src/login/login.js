@@ -110,15 +110,17 @@ router.post("/api/login", async (req, res) => {
           const isValid = today >= validFromDate && today <= validToDate;
       
           console.log("Is valid:", isValid);
-          if(!isValid){
-            console.log("No validity data found");
-          return res.status(404).json({ message: "No validity for this user." });
-          } else{
-            const roles = results.map((row) => row.Role);
+          // if(!isValid){
+          //   console.log("No validity data found");
+          // return res.status(404).json({ message: "No validity for this user." });
+          // } else{
+          //   const roles = results.map((row) => row.Role);
           
-            return res.json({ roles }); // Return true or false
-          }
-         
+          //   return res.json({ roles }); // Return true or false
+          // }
+          const roles = results.map((row) => row.Role);
+          
+          return res.json({ roles })
       } else {
           console.log("No validity data found");
           return res.status(404).json({ message: "No validity for this user." });

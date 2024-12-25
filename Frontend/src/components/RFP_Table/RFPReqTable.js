@@ -103,6 +103,10 @@ const RFPReqTable = ({ l1 }) => {
 
 
     const handleAdd = (item) => {
+       // Simulate an Enter key event
+        const enterKeyEvent = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13 });
+        document.dispatchEvent(enterKeyEvent); // Dispatch the event globally (or on a specific element)
+ 
         console.log("ADD Items:", item);
     
         setFItem((prevItems) => {
@@ -354,8 +358,8 @@ const RFPReqTable = ({ l1 }) => {
         const newItems = unMatchingCodes.map(code => ({
             F2_Code: '1000',
             F1_Code: `10`,
-            name: code,
-            Module_Code: l2.code
+            name: "Add here...",
+            Module_Code: code
         }));
     
         console.log(newItems);
