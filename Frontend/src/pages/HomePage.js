@@ -187,7 +187,7 @@ const HomePage = ({ userType }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { usersList, setUsersList, userName, userPower } = useContext(AppContext);
+  const { usersList, setUsersList, userName, userPower, setModuleData } = useContext(AppContext);
    
 
   useEffect(() => {
@@ -211,6 +211,34 @@ const HomePage = ({ userType }) => {
     loadData();
   }, []);
 
+   useEffect(() => {
+          async function fetchArray() {
+              // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
+              // console.log("result", result.functionalItemDetails); // Log the resolved array
+              console.log("userName " + userName)
+              console.log(l1)
+              
+              //23/11/2024
+              try {
+                  const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
+                  const response = await fetch(`${API_URL}/api/loadContents?${queryParams}`)
+                  console.log(response);
+      
+                  // Check if the response is okay (status in the range 200-299)
+                  if (!response.ok) {
+                      throw new Error(`HTTP error! Status: ${response.status}`);
+                  }
+      
+                  const data = await response.json(); // Parse the JSON response
+                  console.log(data);  // Handle the fetched data as needed
+                  setModuleData(data);
+              } catch (error) {
+                  console.error('Error sending checked items:', error); // Log any errors
+              }
+      
+          }
+           fetchArray();
+      }, []);
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 

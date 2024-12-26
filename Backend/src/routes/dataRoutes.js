@@ -1287,4 +1287,148 @@ router.get('/getSavedFItems', async (req, res) => {
 //   }
 // });
 
+
+
+router.get('/loadContents', async (req, res) => {
+  try {
+    console.log("loadContents")
+    const { userName, userPower } = req.query;// Destructure checkedItems from request body
+    var fItems = [];
+    //console.log(l1);
+    // //console.log(userName);
+    // //console.log(userPower);
+    // Test the first query
+    let userDetails;
+    let result;
+    if (userPower == "User") {
+      [userDetails] = await db.query(
+        `SELECT user_name, entity_Name, createdby FROM Users_table WHERE email = ?`,
+        [userName]
+      );
+
+      // Ensure userDetails is not undefined
+      if (!userDetails) {
+        throw new Error("User not found.");
+      }
+
+      // Test the second query
+      [result] = await db.query(
+        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
+   module_name, rfp_no 
+   FROM User_Modules_Assignment 
+   WHERE user_name = ? AND createdby = ?`,
+        [userDetails[0].user_name, userDetails[0].createdby]
+      );
+      //console.log("User Modules Assignment:", result);
+
+    } else if (userPower == "Vendor User") {
+      [userDetails] = await db.query(
+        `SELECT user_name, entity_Name, createdby FROM Vendor_Users_table WHERE email = ?`,
+        [userName]
+      );
+
+      // Ensure userDetails is not undefined
+      if (!userDetails) {
+        throw new Error("User not found.");
+      }
+
+      // Test the second query
+      [result] = await db.query(
+        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
+   module_name, rfp_no 
+   FROM VendorUser_Modules_Assignment 
+   WHERE user_name = ? AND createdby = ? `,
+        [userDetails[0].user_name, userDetails[0].createdby]
+      );
+      //console.log("Vendor User Modules Assignment:", result);
+
+    }
+
+    // //console.log("User Details:", userDetails);
+
+
+    console.log(result)
+    console.log("result")
+    // const { module_name } = result[0];
+    const { rfp_no } = result[0];
+    // //console.log(rfp_no)
+    //console.log(module_name)
+    //console.log(l1)
+    //console.log("result1:  "+result1);
+
+    // Initialize an object to hold the nested structure
+    const data = { l1: [], rfp_no,Name: userDetails[0].user_name };
+    let combined=[];
+    for (const res of result) { // Iterate through all entries in `result`
+      // const { rfp_no } = res;
+      for (const l1 of res.module_name) { // Process each `l1` (module_name)
+        const l2Codes = l1.l2module || [];
+
+        if (l2Codes.length > 0) {
+          const l2CodesArray = l2Codes.map(l2 => l2.code);
+          const placeholders1 = l2CodesArray.map(() => `L3_Code LIKE CONCAT(?, '%')`).join(" OR ");
+          const queryString1 = `SELECT L3_Description AS name, L3_Code FROM RFP_L3_Modules WHERE ${placeholders1}`;
+
+          const [l3Result] = await db.query(queryString1, l2CodesArray);
+          const l3CodesArray = l3Result.map(l3 => l3.L3_Code);
+
+          // Populate `l3` for each `l2`
+          for (const l2 of l2Codes) {
+            l2.l3 = l3Result
+              .filter(row => row.L3_Code.startsWith(l2.code))
+              .map(row => ({ name: row.name, code: row.L3_Code }));
+          }
+
+          const unmatchedL2Codes = l2CodesArray
+            .filter(l2Code => !l3CodesArray.some(l3Code => l3Code.startsWith(l2Code)))
+            .map(code => code + "00");
+
+          const combinedArray = unmatchedL2Codes.concat(l3CodesArray);
+
+          let queryString2;
+          if (userPower === "User") {
+            queryString2 = `
+          SELECT Description AS name, Module_Code, F1_Code, F2_Code 
+          FROM RFP_FunctionalItems 
+          WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')})
+        `;
+          } else if (userPower === "Vendor User") {
+            queryString2 = `
+          SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS MorO, Comments, deleted 
+          FROM rfp_functionalitem_draft 
+          WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')})
+        `;
+          }
+
+          const [f1Result] = await db.query(queryString2, combinedArray);
+
+          const updatedF1Result = f1Result.map(item => ({
+            ...item,
+            MorO: item.MorO ?? true, // Set default if `Mandatory` is null
+            deleted: item.deleted ?? false, // Set default if `deleted` is null
+          }));
+
+          fItems.push(...updatedF1Result);
+        }
+
+        // Push the processed `l2` with `l3` to `l1`
+        data.l1.push({ name: l1.moduleName, code: l1.code, l2: l2Codes });
+      }
+      // combined.push({data,rfp_no})
+    }
+    // console.log(combined)
+    // Finalize response
+    if (data.l1.length > 0) {
+      res.json({ success: true, itemDetails: data, functionalItemDetails: fItems });
+    } else {
+      res.status(404).json({ error: "No sub-items found for these modules" });
+    }
+
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).send('Internal Server Error'); // Handle errors
+  }
+});
+
+
 module.exports = router;
