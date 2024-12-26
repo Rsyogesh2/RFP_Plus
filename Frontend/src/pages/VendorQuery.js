@@ -35,7 +35,7 @@ const VendorQuery = () => {
                   // setName(data.itemDetails.Name); // Set the resolved data to local state
                   // setModuleData(data);
                   // filterModule(data);
-                  console.log(data.itemDetails.l1);
+                  console.log(data);
                   setModuleData(data);
                   // setItemData(moduleData.itemDetails.l1); 
                   // setFItem(moduleData.functionalItemDetails);
