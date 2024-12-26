@@ -69,8 +69,11 @@ const flattenHierarchy = (moduleData) => {
     children: item.l2 ? flattenHierarchy(item.l2.map((l2) => l2)) : undefined,
   }));
 };
-
-const options = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
+try {
+  const options = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
+} catch (error) {
+  console.log('option Error :'+error)
+}
 // console.log(options); // Outputs structured dropdown options
   const fetchUseRfpNo = async (rfpNo) => {
     try {
