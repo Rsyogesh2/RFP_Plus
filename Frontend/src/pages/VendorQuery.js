@@ -5,7 +5,7 @@ import { TreeSelect } from "antd";
 
 const VendorQuery = () => {
   const [rows, setRows] = useState([
-    { rfpRefNo: "", treeValue: "", rfpClause: "General", existingDetails: "", clarification: "" },
+    { rfpRefNo: "", treeValue: "", existingDetails: "", clarification: "" },
   ]);
   const [value, setValue] = useState();
   
@@ -13,92 +13,17 @@ const VendorQuery = () => {
   const { userName, userPower, sidebarValue, moduleData, setModuleData } = useContext(AppContext); // Access shared state
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-  // useEffect(() => {
-  //   async function fetchArray() {
-  //     // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
-  //     // console.log("result", result.functionalItemDetails); // Log the resolved array
-  //     console.log("userName " + userName)
-
-  //     const l1 = "vendor Query"
-  //     //23/11/2024
-  //     try {
-  //       const queryParams = new URLSearchParams({ userName, userPower });
-  //       const response = await fetch(`${API_URL}/api/loadContents?${queryParams}`)
-  //       console.log(response);
-
-  //       // Check if the response is okay (status in the range 200-299)
-  //       if (!response.ok) {
-  //         throw new Error(`HTTP error! Status: ${response.status}`);
-  //       }
-
-  //       const data = await response.json(); // Parse the JSON response
-  //       console.log(data);  // Handle the fetched data as needed
-
-  //       //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
-  //       // setName(data.itemDetails.Name); // Set the resolved data to local state
-  //       // setModuleData(data);
-  //       // filterModule(data);
-  //       setModuleData(data);
-  //       // setItemData(moduleData.itemDetails.l1); 
-  //       // setFItem(moduleData.functionalItemDetails);
-  //       // setSidebarValue(data.itemDetails);
-  //       // setFItem(data.functionalItemDetails);
-  //       // console.log(userRole);
-  //     } catch (error) {
-  //       console.error('Error sending checked items:', error); // Log any errors
-  //     }
-
-  //   }
-  //   fetchArray();
-
-  // }, []);
-
-  // const options = [
-  //   {
-  //     label: "HRMS - Employee management",
-  //     value: 75,
-  //     children: [
-  //       { label: "Employee Management", value: "7511" },
-  //       { label: "Appraisals", value: "7514" },
-  //     ],
-  //   },
-  //   {
-  //     label: "HRMS - Payroll processing",
-  //     value: 76,
-  //     children: [
-  //       {
-  //         label: "Payroll Module",
-  //         value: "7611",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     label: "Technical specifications",
-  //     value: 95,
-  //     children: [
-  //       {
-  //         label: "System Requirements",
-  //         value: "9511",
-  //       },
-  //     ],
-  //   },
-  // ];
 
   const onChange = (newValue) => {
     console.log("Selected Value:", newValue);
     setValue(newValue);
   };
-  const handleTreeSelectChange = (index, newValue) => {
-    const updatedRows = [...rows];
-    updatedRows[index].treeValue = newValue;
-    setRows(updatedRows);
-  };
-
-  // Sample options for RFP Ref No. (L2, L3 level modules)
-  // const rfpRefOptions = moduleData.itemDetails.l1.map(module => ({
-  //   value: module.name,
-  //   label: module.name
-  // }));
+  // const handleTreeSelectChange = (index, newValue) => {
+  //   console.log(index,newValue);
+  //   const updatedRows = [...rows];
+  //   updatedRows[index].treeValue = newValue;
+  //   setRows(updatedRows);
+  // };
 
   // Recursive function to flatten names into hierarchy
   const flattenHierarchy = (moduleData) => {
@@ -111,45 +36,59 @@ const VendorQuery = () => {
   const options = moduleData.itemDetails.l1.length > 0 ? flattenHierarchy(moduleData.itemDetails.l1) : "";
   console.log(options);
   // console.log(options); // Outputs structured dropdown options
-  const fetchUseRfpNo = async (rfpNo) => {
-    try {
-      const queryParams = new URLSearchParams({ rfpNo, userName });
-      const response = await fetch(`/api/assignRFPUserDetails?${queryParams}`);
-      const data = await response.json();
-      console.log(data.modules);
-      // setAssignedUsers(data.assignedUsers);
-    } catch (error) {
-      console.error("Error fetching RFP details:", error.response?.data || error.message);
-    }
-  };
 
   const addRow = () => {
     setRows([
       ...rows,
-      { rfpRefNo: "", rfpClause: "General", existingDetails: "", clarification: "" },
+      { rfpRefNo: "",  existingDetails: "", clarification: "" },
     ]);
   };
 
   const handleInputChange = (index, field, value) => {
     const updatedRows = [...rows];
-    updatedRows[index][field] = value;
-
-    if (field === "rfpRefNo") {
-      updatedRows[index].rfpClause =
-        value === "General"
-          ? "General"
-          : value.includes("L2")
-            ? "L2 Reference"
-            : "L3 Reference";
+    
+    if(field==="RFP_Reference"){
+      updatedRows[index][field] = value.target.value;
+    } else {
+      updatedRows[index][field] = value;
     }
-
+    updatedRows[index].treeValue = value;
     setRows(updatedRows);
   };
 
-  const saveAsDraft = () => {
-    console.log("Saved Data:", rows);
-    alert("Data saved as draft!");
+  const saveAsDraft = async () => {
+    console.log("Total Rows :"+rows);
+    const payload = {
+      rfpNo: sidebarValue[0].rfp_no,
+      rfpTitle: "<RFP Title>",
+      vendorName: "Vendor Name",
+      bankName: "Bank Name",
+      createdBy: userName,
+      stage: "Autherisor",
+      rows,
+    };
+  
+    try {
+      const response = await fetch(`${API_URL}/vendorQuery-save-draft`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+      } else {
+        alert(data.message || "Failed to save draft");
+      }
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      alert("An error occurred while saving the draft.");
+    }
   };
+  
 
   return (
     <div className="vendor-query-container">
@@ -161,7 +100,7 @@ const VendorQuery = () => {
         <thead>
           <tr>
             <th>S.No</th>
-            <th>RFP Ref No</th>
+            <th>RFP Reference</th>
             <th>Existing Details</th>
             <th>Clarification Needed</th>
           </tr>
@@ -175,43 +114,12 @@ const VendorQuery = () => {
                  <TreeSelect
                  treeData={options}
                  value={row.treeValue} // Row-specific value
-                 onChange={(newValue) => handleTreeSelectChange(index, newValue)} // Row-specific handler
+                 onChange={(e) => handleInputChange(index, "RFP_Reference", e)} // Row-specific handler
                  placeholder="Please select"
                  treeDefaultExpandAll
                  style={{ width: "100%" }}
                />
                 )}
-
-                {/* <select>
-                {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                ))}
-                </select> */}
-
-                {/* <TreeSelect
-                  treeData={options}
-                  value={value}
-                  onChange={onChange}
-                  placeholder="Please select"
-                  treeDefaultExpandAll
-                  style={{ width: "100%" }}
-                /> */}
-                {/* <select
-                  value={row.rfpRefNo}
-                  onChange={(e) => handleInputChange(index, "rfpRefNo", e.target.value)
-                    
-                  }
-                  onClick={(e) =>fetchUseRfpNo(sidebarValue[0].rfp_no)}
-                >
-                  <option value="">Select</option>
-                  {rfpRefOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select> */}
               </td>
 
               <td>

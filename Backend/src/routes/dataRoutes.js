@@ -1429,6 +1429,36 @@ router.get('/loadContents', async (req, res) => {
     res.status(500).send('Internal Server Error'); // Handle errors
   }
 });
+//vendorQuery Saving
+router.post('/vendorQuery-save-draft', async (req, res) => {
+  console.log("vendorQuery-save-draft");
+    const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows } = req.body;
 
+    try {
+        const query = `
+            INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                rfp_title = VALUES(rfp_title),
+                stage = VALUES(stage),
+                rows_data = VALUES(rows_data),
+                updated_at = CURRENT_TIMESTAMP;
+        `;
+        await db.execute(query, [
+            rfpNo,
+            rfpTitle,
+            vendorName,
+            bankName,
+            createdBy,
+            stage,
+            JSON.stringify(rows),
+        ]);
+
+        res.status(200).send({ message: 'Draft saved or updated successfully!' });
+    } catch (error) {
+        console.error('Error saving draft:', error);
+        res.status(500).send({ message: 'Failed to save or update draft' });
+    }
+});
 
 module.exports = router;
