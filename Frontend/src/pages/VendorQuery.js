@@ -10,7 +10,7 @@ const VendorQuery = () => {
   const [value, setValue] = useState();
   const {  userName ,userPower,sidebarValue,moduleData,setModuleData} = useContext(AppContext); // Access shared state
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-  let option;
+  
    useEffect(() => {
           async function fetchArray() {
               // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
@@ -20,8 +20,8 @@ const VendorQuery = () => {
               const l1 ="vendor Query"
               //23/11/2024
               try {
-                  const queryParams = new URLSearchParams({ userName,l1, userPower });
-                  const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
+                  const queryParams = new URLSearchParams({ userName, userPower });
+                  const response = await fetch(`${API_URL}/api/loadContents?${queryParams}`)
                   console.log(response);
       
                   // Check if the response is okay (status in the range 200-299)
@@ -36,7 +36,6 @@ const VendorQuery = () => {
                   // setName(data.itemDetails.Name); // Set the resolved data to local state
                   // setModuleData(data);
                   // filterModule(data);
-                  console.log(data);
                   setModuleData(data);
                   // setItemData(moduleData.itemDetails.l1); 
                   // setFItem(moduleData.functionalItemDetails);
@@ -69,11 +68,8 @@ const flattenHierarchy = (moduleData) => {
     children: item.l2 ? flattenHierarchy(item.l2.map((l2) => l2)) : undefined,
   }));
 };
-try {
-   options = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
-} catch (error) {
-  console.log('option Error :'+error)
-}
+  const options = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
+  console.log(options);
 // console.log(options); // Outputs structured dropdown options
   const fetchUseRfpNo = async (rfpNo) => {
     try {
