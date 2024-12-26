@@ -5,7 +5,7 @@ import { TreeSelect } from "antd";
 
 const VendorQuery = () => {
   const [rows, setRows] = useState([
-    { rfpRefNo: "", treeValue: "", existingDetails: "", clarification: "" },
+    { RFP_Reference: "", treeValue: "", existingDetails: "", clarification: "" },
   ]);
   const [value, setValue] = useState();
   
@@ -40,7 +40,7 @@ const VendorQuery = () => {
   const addRow = () => {
     setRows([
       ...rows,
-      { rfpRefNo: "",  existingDetails: "", clarification: "" },
+      { RFP_Reference: "",  existingDetails: "", clarification: "" },
     ]);
   };
 
