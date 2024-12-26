@@ -10,7 +10,7 @@ const VendorQuery = () => {
   const [value, setValue] = useState();
   const {  userName ,userPower,sidebarValue,moduleData,setModuleData} = useContext(AppContext); // Access shared state
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    
+  let option;
    useEffect(() => {
           async function fetchArray() {
               // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
@@ -70,7 +70,7 @@ const flattenHierarchy = (moduleData) => {
   }));
 };
 try {
-  const options = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
+   options = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
 } catch (error) {
   console.log('option Error :'+error)
 }
