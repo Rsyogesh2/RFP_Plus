@@ -5,9 +5,11 @@ import { TreeSelect } from "antd";
 
 const VendorQuery = () => {
   const [rows, setRows] = useState([
-    { rfpRefNo: "", rfpClause: "General", existingDetails: "", clarification: "" },
+    { rfpRefNo: "", treeValue: "", rfpClause: "General", existingDetails: "", clarification: "" },
   ]);
   const [value, setValue] = useState();
+  
+  
   const { userName, userPower, sidebarValue, moduleData, setModuleData } = useContext(AppContext); // Access shared state
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -86,6 +88,12 @@ const VendorQuery = () => {
     console.log("Selected Value:", newValue);
     setValue(newValue);
   };
+  const handleTreeSelectChange = (index, newValue) => {
+    const updatedRows = [...rows];
+    updatedRows[index].treeValue = newValue;
+    setRows(updatedRows);
+  };
+
   // Sample options for RFP Ref No. (L2, L3 level modules)
   // const rfpRefOptions = moduleData.itemDetails.l1.map(module => ({
   //   value: module.name,
@@ -164,14 +172,14 @@ const VendorQuery = () => {
               <td>{index + 1}</td>
               <td>
                 {options.length > 0 && (
-                  <TreeSelect
-                    treeData={options}
-                    value={value}
-                    onChange={onChange}
-                    placeholder="Please select"
-                    treeDefaultExpandAll
-                    style={{ width: "100%" }}
-                  />
+                 <TreeSelect
+                 treeData={options}
+                 value={row.treeValue} // Row-specific value
+                 onChange={(newValue) => handleTreeSelectChange(index, newValue)} // Row-specific handler
+                 placeholder="Please select"
+                 treeDefaultExpandAll
+                 style={{ width: "100%" }}
+               />
                 )}
 
                 {/* <select>
