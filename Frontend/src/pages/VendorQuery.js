@@ -8,7 +8,7 @@ const VendorQuery = () => {
     { rfpRefNo: "", rfpClause: "General", existingDetails: "", clarification: "" },
   ]);
   const [value, setValue] = useState();
-  const {  userName ,userPower,sidebarValue,moduleData} = useContext(AppContext); // Access shared state
+  const {  userName ,userPower,sidebarValue,moduleData,setModuleData} = useContext(AppContext); // Access shared state
  
    useEffect(() => {
           async function fetchArray() {
@@ -36,6 +36,7 @@ const VendorQuery = () => {
                   // setModuleData(data);
                   // filterModule(data);
                   console.log(data.itemDetails.l1);
+                  setModuleData(data.itemDetails.l1);
                   // setItemData(moduleData.itemDetails.l1); 
                   // setFItem(moduleData.functionalItemDetails);
                   // setSidebarValue(data.itemDetails);
