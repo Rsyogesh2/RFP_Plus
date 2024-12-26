@@ -8,7 +8,7 @@ const VendorQuery = () => {
     { rfpRefNo: "", rfpClause: "General", existingDetails: "", clarification: "" },
   ]);
   const [value, setValue] = useState();
-  const {  userName ,userPower,sidebarValue,moduleData,setModuleData} = useContext(AppContext); // Access shared state
+  const {  userName ,userPower,sidebarValue,moduleData,setModuleData, API_URL} = useContext(AppContext); // Access shared state
  
    useEffect(() => {
           async function fetchArray() {
