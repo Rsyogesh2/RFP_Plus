@@ -1,4 +1,4 @@
-import React, { useState , useContext,useEffect} from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { AppContext } from '../context/AppContext';
 import "./VendorQuery.css"; // Import CSS file
 import { TreeSelect } from "antd";
@@ -8,104 +8,104 @@ const VendorQuery = () => {
     { rfpRefNo: "", rfpClause: "General", existingDetails: "", clarification: "" },
   ]);
   const [value, setValue] = useState();
-  const {  userName ,userPower,sidebarValue,moduleData,setModuleData} = useContext(AppContext); // Access shared state
+  const { userName, userPower, sidebarValue, moduleData, setModuleData } = useContext(AppContext); // Access shared state
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-  
-   useEffect(() => {
-          async function fetchArray() {
-              // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
-              // console.log("result", result.functionalItemDetails); // Log the resolved array
-              console.log("userName " + userName)
-              
-              const l1 ="vendor Query"
-              //23/11/2024
-              try {
-                  const queryParams = new URLSearchParams({ userName, userPower });
-                  const response = await fetch(`${API_URL}/api/loadContents?${queryParams}`)
-                  console.log(response);
-      
-                  // Check if the response is okay (status in the range 200-299)
-                  if (!response.ok) {
-                      throw new Error(`HTTP error! Status: ${response.status}`);
-                  }
-      
-                  const data = await response.json(); // Parse the JSON response
-                  console.log(data);  // Handle the fetched data as needed
-      
-                  //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
-                  // setName(data.itemDetails.Name); // Set the resolved data to local state
-                  // setModuleData(data);
-                  // filterModule(data);
-                  setModuleData(data);
-                  // setItemData(moduleData.itemDetails.l1); 
-                  // setFItem(moduleData.functionalItemDetails);
-                  // setSidebarValue(data.itemDetails);
-                  // setFItem(data.functionalItemDetails);
-                  // console.log(userRole);
-              } catch (error) {
-                  console.error('Error sending checked items:', error); // Log any errors
-              }
-      
-          }
-          fetchArray();
-          
-      }, []);
 
-      const options = [
+  useEffect(() => {
+    async function fetchArray() {
+      // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
+      // console.log("result", result.functionalItemDetails); // Log the resolved array
+      console.log("userName " + userName)
+
+      const l1 = "vendor Query"
+      //23/11/2024
+      try {
+        const queryParams = new URLSearchParams({ userName, userPower });
+        const response = await fetch(`${API_URL}/api/loadContents?${queryParams}`)
+        console.log(response);
+
+        // Check if the response is okay (status in the range 200-299)
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json(); // Parse the JSON response
+        console.log(data);  // Handle the fetched data as needed
+
+        //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
+        // setName(data.itemDetails.Name); // Set the resolved data to local state
+        // setModuleData(data);
+        // filterModule(data);
+        setModuleData(data);
+        // setItemData(moduleData.itemDetails.l1); 
+        // setFItem(moduleData.functionalItemDetails);
+        // setSidebarValue(data.itemDetails);
+        // setFItem(data.functionalItemDetails);
+        // console.log(userRole);
+      } catch (error) {
+        console.error('Error sending checked items:', error); // Log any errors
+      }
+
+    }
+    fetchArray();
+
+  }, []);
+
+  const options = [
+    {
+      label: "HRMS - Employee management",
+      value: 75,
+      children: [
+        { label: "Employee Management", value: "7511" },
+        { label: "Appraisals", value: "7514" },
+      ],
+    },
+    {
+      label: "HRMS - Payroll processing",
+      value: 76,
+      children: [
         {
-          label: "HRMS - Employee management",
-          value: 75,
-          children: [
-            { label: "Employee Management", value: "7511" },
-            { label: "Appraisals", value: "7514" },
-          ],
+          label: "Payroll Module",
+          value: "7611",
         },
+      ],
+    },
+    {
+      label: "Technical specifications",
+      value: 95,
+      children: [
         {
-          label: "HRMS - Payroll processing",
-          value: 76,
-          children: [
-            {
-              label: "Payroll Module",
-              value: "7611",
-            },
-          ],
+          label: "System Requirements",
+          value: "9511",
         },
-        {
-          label: "Technical specifications",
-          value: 95,
-          children: [
-            {
-              label: "System Requirements",
-              value: "9511",
-            },
-          ],
-        },
-      ];
-    
-      const onChange = (newValue) => {
-        console.log("Selected Value:", newValue);
-        setValue(newValue);
-      };
+      ],
+    },
+  ];
+
+  const onChange = (newValue) => {
+    console.log("Selected Value:", newValue);
+    setValue(newValue);
+  };
   // Sample options for RFP Ref No. (L2, L3 level modules)
   // const rfpRefOptions = moduleData.itemDetails.l1.map(module => ({
   //   value: module.name,
   //   label: module.name
   // }));
-  
-// Recursive function to flatten names into hierarchy
-const flattenHierarchy = (moduleData) => {
-  return moduleData.map((item) => ({
-    label: item.name,
-    value: item.code,
-    children: item.l2 ? flattenHierarchy(item.l2.map((l2) => l2)) : undefined,
-  }));
-};
-   const optionsdel = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
+
+  // Recursive function to flatten names into hierarchy
+  const flattenHierarchy = (moduleData) => {
+    return moduleData.map((item) => ({
+      label: item.name,
+      value: item.code,
+      children: item.l2 ? flattenHierarchy(item.l2.map((l2) => l2)) : undefined,
+    }));
+  };
+  const optionsdel = moduleData.itemDetails.l1.length > 0 ? flattenHierarchy(moduleData.itemDetails.l1) : "";
   console.log(optionsdel);
-// console.log(options); // Outputs structured dropdown options
+  // console.log(options); // Outputs structured dropdown options
   const fetchUseRfpNo = async (rfpNo) => {
     try {
-      const queryParams = new URLSearchParams({ rfpNo,userName });
+      const queryParams = new URLSearchParams({ rfpNo, userName });
       const response = await fetch(`/api/assignRFPUserDetails?${queryParams}`);
       const data = await response.json();
       console.log(data.modules);
@@ -131,8 +131,8 @@ const flattenHierarchy = (moduleData) => {
         value === "General"
           ? "General"
           : value.includes("L2")
-          ? "L2 Reference"
-          : "L3 Reference";
+            ? "L2 Reference"
+            : "L3 Reference";
     }
 
     setRows(updatedRows);
@@ -163,14 +163,17 @@ const flattenHierarchy = (moduleData) => {
             <tr key={index}>
               <td>{index + 1}</td>
               <td>
-              <TreeSelect
-                treeData={options} // Hierarchical data
-                value={value} // Currently selected value
-                onChange={onChange} // Handler for changes
-                placeholder="Please select" // Placeholder text
-                treeDefaultExpandAll // Expand all nodes by default
-                style={{ width: "100%" }} // Full width of container
-              />
+                {options.length > 0 && (
+                  <TreeSelect
+                    treeData={options}
+                    value={value}
+                    onChange={onChange}
+                    placeholder="Please select"
+                    treeDefaultExpandAll
+                    style={{ width: "100%" }}
+                  />
+                )}
+
                 {/* <select>
                 {options.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -178,8 +181,8 @@ const flattenHierarchy = (moduleData) => {
                     </option>
                 ))}
                 </select> */}
-              
-              {/* <TreeSelect
+
+                {/* <TreeSelect
                   treeData={options}
                   value={value}
                   onChange={onChange}
@@ -202,7 +205,7 @@ const flattenHierarchy = (moduleData) => {
                   ))}
                 </select> */}
               </td>
-            
+
               <td>
                 <input
                   type="text"
@@ -237,5 +240,5 @@ const flattenHierarchy = (moduleData) => {
 
 export default VendorQuery;
 
- 
+
 
