@@ -213,14 +213,15 @@ const HomePage = ({ userType }) => {
 
    useEffect(() => {
           async function fetchArray() {
-              // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
-              // console.log("result", result.functionalItemDetails); // Log the resolved array
-              console.log("userName " + userName)
+             console.log("userName " + userName)
               
               //23/11/2024
               try {
                   const queryParams = new URLSearchParams({ userName, userPower });
-                  const response = await fetch(`${API_URL}/api/loadContents?${queryParams}`)
+                  const url = `${API_URL}/api/loadContents?${queryParams}`;
+                  console.log("Fetching URL:", url);
+                  const response = await fetch(url);
+                  
                   console.log(response);
       
                   // Check if the response is okay (status in the range 200-299)
