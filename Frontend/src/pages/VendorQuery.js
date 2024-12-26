@@ -51,36 +51,36 @@ const VendorQuery = () => {
 
   }, []);
 
-  const options = [
-    {
-      label: "HRMS - Employee management",
-      value: 75,
-      children: [
-        { label: "Employee Management", value: "7511" },
-        { label: "Appraisals", value: "7514" },
-      ],
-    },
-    {
-      label: "HRMS - Payroll processing",
-      value: 76,
-      children: [
-        {
-          label: "Payroll Module",
-          value: "7611",
-        },
-      ],
-    },
-    {
-      label: "Technical specifications",
-      value: 95,
-      children: [
-        {
-          label: "System Requirements",
-          value: "9511",
-        },
-      ],
-    },
-  ];
+  // const options = [
+  //   {
+  //     label: "HRMS - Employee management",
+  //     value: 75,
+  //     children: [
+  //       { label: "Employee Management", value: "7511" },
+  //       { label: "Appraisals", value: "7514" },
+  //     ],
+  //   },
+  //   {
+  //     label: "HRMS - Payroll processing",
+  //     value: 76,
+  //     children: [
+  //       {
+  //         label: "Payroll Module",
+  //         value: "7611",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     label: "Technical specifications",
+  //     value: 95,
+  //     children: [
+  //       {
+  //         label: "System Requirements",
+  //         value: "9511",
+  //       },
+  //     ],
+  //   },
+  // ];
 
   const onChange = (newValue) => {
     console.log("Selected Value:", newValue);
@@ -100,8 +100,8 @@ const VendorQuery = () => {
       children: item.l2 ? flattenHierarchy(item.l2.map((l2) => l2)) : undefined,
     }));
   };
-  const optionsdel = moduleData.itemDetails.l1.length > 0 ? flattenHierarchy(moduleData.itemDetails.l1) : "";
-  console.log(optionsdel);
+  const options = moduleData.itemDetails.l1.length > 0 ? flattenHierarchy(moduleData.itemDetails.l1) : "";
+  console.log(options);
   // console.log(options); // Outputs structured dropdown options
   const fetchUseRfpNo = async (rfpNo) => {
     try {
