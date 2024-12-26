@@ -187,7 +187,7 @@ const HomePage = ({ userType }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { usersList, setUsersList, userName, userPower, setModuleData } = useContext(AppContext);
+  const { usersList, setUsersList, userName, userPower, setModuleData,API_URL } = useContext(AppContext);
    
 
   useEffect(() => {
@@ -216,11 +216,10 @@ const HomePage = ({ userType }) => {
               // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
               // console.log("result", result.functionalItemDetails); // Log the resolved array
               console.log("userName " + userName)
-              console.log(l1)
               
               //23/11/2024
               try {
-                  const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
+                  const queryParams = new URLSearchParams({ userName, userPower });
                   const response = await fetch(`${API_URL}/api/loadContents?${queryParams}`)
                   console.log(response);
       
