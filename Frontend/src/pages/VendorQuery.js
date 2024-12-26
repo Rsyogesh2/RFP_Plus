@@ -8,8 +8,9 @@ const VendorQuery = () => {
     { rfpRefNo: "", rfpClause: "General", existingDetails: "", clarification: "" },
   ]);
   const [value, setValue] = useState();
-  const {  userName ,userPower,sidebarValue,moduleData,setModuleData, API_URL} = useContext(AppContext); // Access shared state
- 
+  const {  userName ,userPower,sidebarValue,moduleData,setModuleData} = useContext(AppContext); // Access shared state
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
    useEffect(() => {
           async function fetchArray() {
               // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise

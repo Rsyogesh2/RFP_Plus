@@ -187,8 +187,9 @@ const HomePage = ({ userType }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { usersList, setUsersList, userName, userPower, setModuleData,API_URL } = useContext(AppContext);
-   
+  const { usersList, setUsersList, userName, userPower, setModuleData } = useContext(AppContext);
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
 
   useEffect(() => {
     const loadData = async () => {
