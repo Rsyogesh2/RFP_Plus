@@ -154,7 +154,6 @@ const flattenHierarchy = (moduleData) => {
           <tr>
             <th>S.No</th>
             <th>RFP Ref No</th>
-            <th>RFP Reference Clause</th>
             <th>Existing Details</th>
             <th>Clarification Needed</th>
           </tr>
@@ -203,7 +202,7 @@ const flattenHierarchy = (moduleData) => {
                   ))}
                 </select> */}
               </td>
-              <td>{row.rfpClause}</td>
+            
               <td>
                 <input
                   type="text"
