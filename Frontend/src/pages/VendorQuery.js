@@ -69,8 +69,8 @@ const flattenHierarchy = (moduleData) => {
   }));
 };
 
-const options = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
-console.log(options); // Outputs structured dropdown options
+// const options = moduleData.itemDetails.l1.length>0?flattenHierarchy(moduleData.itemDetails.l1):"";
+// console.log(options); // Outputs structured dropdown options
   const fetchUseRfpNo = async (rfpNo) => {
     try {
       const queryParams = new URLSearchParams({ rfpNo,userName });
