@@ -16,10 +16,10 @@ const VendorQuery = () => {
               // console.log("result", result.functionalItemDetails); // Log the resolved array
               console.log("userName " + userName)
               
-              
+              const l1 ="vendor Query"
               //23/11/2024
               try {
-                  const queryParams = new URLSearchParams({ userName, userPower });
+                  const queryParams = new URLSearchParams({ userName,l1, userPower });
                   const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
                   console.log(response);
       
