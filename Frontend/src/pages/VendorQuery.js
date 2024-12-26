@@ -8,12 +8,51 @@ const VendorQuery = () => {
     { rfpRefNo: "", rfpClause: "General", existingDetails: "", clarification: "" },
   ]);
   const [value, setValue] = useState();
+  const {  userName ,userPower,sidebarValue,moduleData} = useContext(AppContext); // Access shared state
+ 
+   useEffect(() => {
+          async function fetchArray() {
+              // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
+              // console.log("result", result.functionalItemDetails); // Log the resolved array
+              console.log("userName " + userName)
+              
+              
+              //23/11/2024
+              try {
+                  const queryParams = new URLSearchParams({ userName, userPower });
+                  const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
+                  console.log(response);
+      
+                  // Check if the response is okay (status in the range 200-299)
+                  if (!response.ok) {
+                      throw new Error(`HTTP error! Status: ${response.status}`);
+                  }
+      
+                  const data = await response.json(); // Parse the JSON response
+                  console.log(data);  // Handle the fetched data as needed
+      
+                  //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
+                  // setName(data.itemDetails.Name); // Set the resolved data to local state
+                  // setModuleData(data);
+                  // filterModule(data);
+                  console.log(data.itemDetails.l1);
+                  // setItemData(moduleData.itemDetails.l1); 
+                  // setFItem(moduleData.functionalItemDetails);
+                  // setSidebarValue(data.itemDetails);
+                  // setFItem(data.functionalItemDetails);
+                  // console.log(userRole);
+              } catch (error) {
+                  console.error('Error sending checked items:', error); // Log any errors
+              }
+      
+          }
+          fetchArray();
+          
+      }, []);
 
   const onChange = (newValue) => {
     setValue(newValue);
   };
-  const {  userName ,sidebarValue,moduleData} = useContext(AppContext); // Access shared state
-      console.log(moduleData.itemDetails.l1)
   // Sample options for RFP Ref No. (L2, L3 level modules)
   // const rfpRefOptions = moduleData.itemDetails.l1.map(module => ({
   //   value: module.name,
