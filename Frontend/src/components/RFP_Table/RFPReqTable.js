@@ -37,27 +37,27 @@ const RFPReqTable = ({ l1 }) => {
             
             //23/11/2024
             try {
-                const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
-                const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
-                console.log(response);
+                // const queryParams = new URLSearchParams({ userName, l1: l1.l1module, userPower });
+                // const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
+                // console.log(response);
     
-                // Check if the response is okay (status in the range 200-299)
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+                // // Check if the response is okay (status in the range 200-299)
+                // if (!response.ok) {
+                //     throw new Error(`HTTP error! Status: ${response.status}`);
+                // }
     
-                const data = await response.json(); // Parse the JSON response
-                console.log(data);  // Handle the fetched data as needed
+                // const data = await response.json(); // Parse the JSON response
+                // console.log(data);  // Handle the fetched data as needed
     
                 //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
-                setName(data.itemDetails.Name); // Set the resolved data to local state
+                setName(moduleData.itemDetails.Name); // Set the resolved data to local state
                 // setModuleData(data);
-                filterModule(data);
+                filterModule(moduleData);
                 // console.log(data.itemDetails.l1);
                 // setItemData(moduleData.itemDetails.l1); 
                 // setFItem(moduleData.functionalItemDetails);
                 // setSidebarValue(data.itemDetails);
-                setFItem(data.functionalItemDetails);
+                setFItem(moduleData.functionalItemDetails);
                 console.log(userRole);
             } catch (error) {
                 console.error('Error sending checked items:', error); // Log any errors

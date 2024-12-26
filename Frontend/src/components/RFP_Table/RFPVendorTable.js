@@ -53,18 +53,24 @@ const RFPVendorTable = ({ l1, userRole }) => {
 
           const data = await response.json(); // Parse the JSON response
           console.log(data);  // Handle the fetched data as needed
-
+          
           setItemData(data.itemDetails.l1); // Set the resolved data to local state
           // setName(data.itemDetails.Name); // Set the resolved data to local state
           console.log(data.itemDetails.l1);
           // setSidebarValue(data.itemDetails);
           setFItem(data.functionalItemDetails);
+          filterModule(data);
       } catch (error) {
           console.error('Error sending checked items:', error); // Log any errors
       }
 
   } fetchArray();
   }, [data]);  // Only trigger fetch when `data` changes
+  const filterModule = (data) => {
+
+    const data1 = data.itemDetails.l1.filter(m=>m.code===l1.l1module);
+    setItemData(data1); 
+}
 
   // Second useEffect to log the updated state values when `FItem` or `itemData` change
   useEffect(() => {

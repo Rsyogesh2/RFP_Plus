@@ -13,45 +13,45 @@ const VendorQuery = () => {
   const { userName, userPower, sidebarValue, moduleData, setModuleData } = useContext(AppContext); // Access shared state
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-  useEffect(() => {
-    async function fetchArray() {
-      // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
-      // console.log("result", result.functionalItemDetails); // Log the resolved array
-      console.log("userName " + userName)
+  // useEffect(() => {
+  //   async function fetchArray() {
+  //     // const result = await moduleData; // Wait for moduleData to resolve if it's a Promise
+  //     // console.log("result", result.functionalItemDetails); // Log the resolved array
+  //     console.log("userName " + userName)
 
-      const l1 = "vendor Query"
-      //23/11/2024
-      try {
-        const queryParams = new URLSearchParams({ userName, userPower });
-        const response = await fetch(`${API_URL}/api/loadContents?${queryParams}`)
-        console.log(response);
+  //     const l1 = "vendor Query"
+  //     //23/11/2024
+  //     try {
+  //       const queryParams = new URLSearchParams({ userName, userPower });
+  //       const response = await fetch(`${API_URL}/api/loadContents?${queryParams}`)
+  //       console.log(response);
 
-        // Check if the response is okay (status in the range 200-299)
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+  //       // Check if the response is okay (status in the range 200-299)
+  //       if (!response.ok) {
+  //         throw new Error(`HTTP error! Status: ${response.status}`);
+  //       }
 
-        const data = await response.json(); // Parse the JSON response
-        console.log(data);  // Handle the fetched data as needed
+  //       const data = await response.json(); // Parse the JSON response
+  //       console.log(data);  // Handle the fetched data as needed
 
-        //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
-        // setName(data.itemDetails.Name); // Set the resolved data to local state
-        // setModuleData(data);
-        // filterModule(data);
-        setModuleData(data);
-        // setItemData(moduleData.itemDetails.l1); 
-        // setFItem(moduleData.functionalItemDetails);
-        // setSidebarValue(data.itemDetails);
-        // setFItem(data.functionalItemDetails);
-        // console.log(userRole);
-      } catch (error) {
-        console.error('Error sending checked items:', error); // Log any errors
-      }
+  //       //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
+  //       // setName(data.itemDetails.Name); // Set the resolved data to local state
+  //       // setModuleData(data);
+  //       // filterModule(data);
+  //       setModuleData(data);
+  //       // setItemData(moduleData.itemDetails.l1); 
+  //       // setFItem(moduleData.functionalItemDetails);
+  //       // setSidebarValue(data.itemDetails);
+  //       // setFItem(data.functionalItemDetails);
+  //       // console.log(userRole);
+  //     } catch (error) {
+  //       console.error('Error sending checked items:', error); // Log any errors
+  //     }
 
-    }
-    fetchArray();
+  //   }
+  //   fetchArray();
 
-  }, []);
+  // }, []);
 
   // const options = [
   //   {
