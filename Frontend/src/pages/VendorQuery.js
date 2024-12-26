@@ -36,7 +36,7 @@ const VendorQuery = () => {
                   // setModuleData(data);
                   // filterModule(data);
                   console.log(data.itemDetails.l1);
-                  setModuleData(data.itemDetails.l1);
+                  setModuleData(data);
                   // setItemData(moduleData.itemDetails.l1); 
                   // setFItem(moduleData.functionalItemDetails);
                   // setSidebarValue(data.itemDetails);
