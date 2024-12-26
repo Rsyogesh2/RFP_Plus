@@ -506,164 +506,62 @@ router.post('/insertFItem', async (req, res) => {
   await connection.beginTransaction();
 
   try {
-
-    // const [value] = ` SELECT rfp_no,rfp_title,entity_name,modules from Saved_RFP_Requirement where rfp_no=${rfp_no}`
-    // function updateDatabase(existingData, newData) {
-    //   // Helper function to merge l2 arrays
-    //   function mergeL2(existingL2, newL2) {
-    //     const mergedL2 = [...existingL2];
-    //     const map = new Map(existingL2.map(obj => [obj.id, obj])); // Assuming objects in l2 have unique `id`
-
-    //     newL2.forEach(newObj => {
-    //       if (map.has(newObj.id)) {
-    //         // Overwrite if the object exists
-    //         const index = mergedL2.findIndex(obj => obj.code === newObj.code);
-    //         mergedL2[index] = newObj;
-    //       } else {
-    //         // Add if the object doesn't exist
-    //         mergedL2.push(newObj);
-    //       }
-    //     });
-
-    //     return mergedL2;
-    //   }
-
-    //   // Update the main data
-    //   newData.forEach(newObj => {
-    //     const existingObj = existingData.find(obj => obj.code === newObj.code);
-
-    //     if (existingObj) {
-    //       // Merge l2 if code matches
-    //       existingObj.l2 = mergeL2(existingObj.l2, newObj.l2);
-    //     } else {
-    //       // Add new object if code doesn't match
-    //       existingData.push(newObj);
-    //     }
-    //   });
-
-    //   return existingData;
-    // }
-
-    // // Example usage:
-    // // const existingData = [
-    // //   {
-    // //     name: 'HRMS - Employee management',
-    // //     code: 75,
-    // //     l2: [
-    // //       { id: 1, value: 'Admin' },
-    // //       { id: 2, value: 'HR' }
-    // //     ]
-    // //   }
-    // // ];
-
-    // // const newData = [
-    // //   {
-    // //     name: 'HRMS - Employee management',
-    // //     code: 75,
-    // //     l2: [
-    // //       { id: 2, value: 'Human Resources' }, // Overwrite this object
-    // //       { id: 3, value: 'Finance' } // Add this new object
-    // //     ]
-    // //   },
-    // //   {
-    // //     name: 'Payroll Management',
-    // //     code: 80,
-    // //     l2: [
-    // //       { id: 1, value: 'Payroll Admin' }
-    // //     ]
-    // //   }
-    // // ];
-    // //console.log(value[0].rfp_no)
-    // if (value[0].rfp_no=="") {
-    //   const updatedData = updateDatabase(value[0].modules, module);
-    //   //console.log(updatedData);
-
-    //   // Ensure updatedData is converted to JSON string
-    //   const updatedModulesJSON = JSON.stringify(updatedData);
-
-    //   const insertQuery1 = `
-    //     INSERT INTO Saved_RFP_Requirement 
-    //     (RFP_Title, RFP_No, entity_name, modules)
-    //     VALUES (?, ?, ?, ?)
-    //     ON DUPLICATE KEY UPDATE 
-    //     modules = VALUES(modules);
-    //   `;
-
-    //   const values = [
-    //     value[0].RFP_Title,  // Assuming you have RFP_Title in `value[0]`
-    //     value[0].rfp_no,
-    //     value[0].entity_name, // Assuming you have entity_name in `value[0]`
-    //     updatedModulesJSON
-    //   ];
-
-    //   // Pass the query and values to your database driver (e.g., MySQL, Sequelize, etc.)
-    //   db.query(insertQuery1, values)
-    // } else {
-    //   const insertQuery1 = `
-    //   INSERT INTO Saved_RFP_Requirement 
-    //   (rfp_title, rfp_no, entity_name, modules)
-    //   VALUES (?, ?, ?, ?)
-    //   ON DUPLICATE KEY UPDATE 
-    //   modules = VALUES(modules);
-    // `;
-
-    // const values = [
-    //   rfp_title,  // Assuming you have RFP_Title in `value[0]`
-    //   rfp_no,
-    //   entity_name||'', // Assuming you have entity_name in `value[0]`
-    //   JSON.stringify(module)
-    // ];
-
-    // // Pass the query and values to your database driver (e.g., MySQL, Sequelize, etc.)
-    // db.query(insertQuery1, values)
-
-    // }
-
-
-
-
-    // Truncate the tables
-    // await connection.query("TRUNCATE TABLE RFP_Saved_L1_Modules");
-    // await connection.query("TRUNCATE TABLE RFP_Saved_L2_Modules");
-    // await connection.query("TRUNCATE TABLE RFP_Saved_L3_Modules");
-    // await connection.query("TRUNCATE TABLE RFP_FunctionalItem_Draft");
-
     //Insert into L1, L2, and L3 tables
     for (const l1Item of module) {
       const { name, code, l2 } = l1Item;
-
+    
       // Insert or Update into L1 table
       await connection.query(
         `INSERT INTO RFP_Saved_L1_Modules (L1_Code, L1_Module_Description, RFP_No)
          VALUES (?, ?, ?)
          ON DUPLICATE KEY UPDATE
+         L1_Code = VALUES(L1_Code),
          L1_Module_Description = VALUES(L1_Module_Description), RFP_No = VALUES(RFP_No)`,
         [code, name, rfp_no]
       );
-
-      // Insert or Update into L2 and L3 tables
-      for (const l2Item of l2) {
-        await connection.query(
-          `INSERT INTO RFP_Saved_L2_Modules (L2_Code, L2_Module_Description, RFP_No)
-           VALUES (?, ?, ?)
-           ON DUPLICATE KEY UPDATE
-           L2_Module_Description = VALUES(L2_Module_Description), RFP_No = VALUES(RFP_No)`,
-          [l2Item.code, l2Item.name, rfp_no]
-        );
-
-        if (l2Item.l3 && Array.isArray(l2Item.l3)) {
-          for (const l3Item of l2Item.l3) {
-            await connection.query(
-              `INSERT INTO RFP_Saved_L3_Modules (L3_Code, L3_Module_Description, RFP_No)
-               VALUES (?, ?, ?)
-               ON DUPLICATE KEY UPDATE
-               L3_Module_Description = VALUES(L3_Module_Description), RFP_No = VALUES(RFP_No)`,
-              [l3Item.code, l3Item.name, rfp_no]
-            );
+    
+      if (l2 && l2.length > 0) {
+        const l2Values = [];
+        const l3Values = [];
+    
+        for (const l2Item of l2) {
+          l2Values.push([l2Item.code, l2Item.name, rfp_no]);
+    
+          if (l2Item.l3 && Array.isArray(l2Item.l3)) {
+            for (const l3Item of l2Item.l3) {
+              l3Values.push([l3Item.code, l3Item.name, rfp_no]);
+            }
           }
+        }
+    
+        // Batch Insert or Update into L2 table
+        if (l2Values.length > 0) {
+          const l2Placeholders = l2Values.map(() => "(?, ?, ?)").join(", ");
+          await connection.query(
+            `INSERT INTO RFP_Saved_L2_Modules (L2_Code, L2_Module_Description, RFP_No)
+             VALUES ${l2Placeholders}
+             ON DUPLICATE KEY UPDATE 
+             L2_Code = VALUES(L2_Code),
+             L2_Module_Description = VALUES(L2_Module_Description), RFP_No = VALUES(RFP_No)`,
+            l2Values.flat()
+          );
+        }
+    
+        // Batch Insert or Update into L3 table
+        if (l3Values.length > 0) {
+          const l3Placeholders = l3Values.map(() => "(?, ?, ?)").join(", ");
+          await connection.query(
+            `INSERT INTO RFP_Saved_L3_Modules (L3_Code, L3_Module_Description, RFP_No)
+             VALUES ${l3Placeholders}
+             ON DUPLICATE KEY UPDATE
+             L3_Code = VALUES(L3_Code)
+             L3_Module_Description = VALUES(L3_Module_Description), RFP_No = VALUES(RFP_No)`,
+            l3Values.flat()
+          );
         }
       }
     }
+    
 
 
     const insertQuery = `
