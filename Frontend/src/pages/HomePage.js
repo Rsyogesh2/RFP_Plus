@@ -215,11 +215,15 @@ const HomePage = ({ userType }) => {
    useEffect(() => {
           async function fetchArray() {
              console.log("userName " + userName)
-              
               //23/11/2024
               try {
                   const queryParams = new URLSearchParams({ userName, userPower });
-                  const url = `${API_URL}/api/loadContents?${queryParams}`;
+                  let url
+                  if(userPower=="User"){
+                     url = `${API_URL}/api/loadContents-initial?${queryParams}`;
+                  } else if(userPower=="Vendor User"){
+                     url = `${API_URL}/api/getSavedData?${queryParams}`;
+                  } 
                   console.log("Fetching URL:", url);
                   const response = await fetch(url);
                   

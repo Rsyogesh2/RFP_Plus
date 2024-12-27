@@ -496,7 +496,7 @@ const saveItems = async (items) => {
 };
 
 router.post('/insertFItem', async (req, res) => {
-  const { module, items, rfp_no, rfp_title } = req.body;
+  const { module, items, rfp_no, rfp_title, stage } = req.body;
   //console.log(module);
   //console.log(items);
   //console.log(rfp_title,rfp_no);
@@ -512,12 +512,12 @@ router.post('/insertFItem', async (req, res) => {
     
       // Insert or Update into L1 table
       await connection.query(
-        `INSERT INTO RFP_Saved_L1_Modules (L1_Code, L1_Module_Description, RFP_No)
-         VALUES (?, ?, ?)
+        `INSERT INTO RFP_Saved_L1_Modules (L1_Code, L1_Module_Description, RFP_No,stage)
+         VALUES (?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE
          L1_Code = VALUES(L1_Code),
-         L1_Module_Description = VALUES(L1_Module_Description), RFP_No = VALUES(RFP_No)`,
-        [code, name, rfp_no]
+         L1_Module_Description = VALUES(L1_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
+        [code, name, rfp_no,stage]
       );
     
       if (l2 && l2.length > 0) {
@@ -525,37 +525,37 @@ router.post('/insertFItem', async (req, res) => {
         const l3Values = [];
     
         for (const l2Item of l2) {
-          l2Values.push([l2Item.code, l2Item.name, rfp_no]);
+          l2Values.push([l2Item.code, l2Item.name, rfp_no,stage]);
     
           if (l2Item.l3 && Array.isArray(l2Item.l3)) {
             for (const l3Item of l2Item.l3) {
-              l3Values.push([l3Item.code, l3Item.name, rfp_no]);
+              l3Values.push([l3Item.code, l3Item.name, rfp_no,stage]);
             }
           }
         }
     
         // Batch Insert or Update into L2 table
         if (l2Values.length > 0) {
-          const l2Placeholders = l2Values.map(() => "(?, ?, ?)").join(", ");
+          const l2Placeholders = l2Values.map(() => "(?, ?, ?, ?)").join(", ");
           await connection.query(
-            `INSERT INTO RFP_Saved_L2_Modules (L2_Code, L2_Module_Description, RFP_No)
+            `INSERT INTO RFP_Saved_L2_Modules (L2_Code, L2_Module_Description, RFP_No,stage)
              VALUES ${l2Placeholders}
              ON DUPLICATE KEY UPDATE 
              L2_Code = VALUES(L2_Code),
-             L2_Module_Description = VALUES(L2_Module_Description), RFP_No = VALUES(RFP_No)`,
+             L2_Module_Description = VALUES(L2_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
             l2Values.flat()
           );
         }
     
         // Batch Insert or Update into L3 table
         if (l3Values.length > 0) {
-          const l3Placeholders = l3Values.map(() => "(?, ?, ?)").join(", ");
+          const l3Placeholders = l3Values.map(() => "(?, ?, ?, ?)").join(", ");
           await connection.query(
-            `INSERT INTO RFP_Saved_L3_Modules (L3_Code, L3_Module_Description, RFP_No)
+            `INSERT INTO RFP_Saved_L3_Modules (L3_Code, L3_Module_Description, RFP_No, stage)
              VALUES ${l3Placeholders}
              ON DUPLICATE KEY UPDATE
              L3_Code = VALUES(L3_Code)
-             L3_Module_Description = VALUES(L3_Module_Description), RFP_No = VALUES(RFP_No)`,
+             L3_Module_Description = VALUES(L3_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
             l3Values.flat()
           );
         }
@@ -565,15 +565,16 @@ router.post('/insertFItem', async (req, res) => {
 
 
     const insertQuery = `
-    INSERT INTO RFP_FunctionalItem_Draft (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO RFP_FunctionalItem_Draft (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted,stage)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
     ON DUPLICATE KEY UPDATE 
       RFP_Title = VALUES(RFP_Title),
       Requirement = VALUES(Requirement),
       New_Code = VALUES(New_Code),
       Mandatory = VALUES(Mandatory),
       Comments = VALUES(Comments),
-      deleted = VALUES(deleted)
+      deleted = VALUES(deleted),
+      stage = VALUES(stage)
   `;
 
     for (const item of items) {
@@ -587,7 +588,8 @@ router.post('/insertFItem', async (req, res) => {
         item.New_Code,
         item.MorO,
         item.Comments,
-        item.deleted
+        item.deleted,
+        item.stage
       ];
 
       await connection.query(insertQuery, values);
@@ -607,7 +609,8 @@ router.post('/insertFItem', async (req, res) => {
 });
 
 
-router.get('/fetchCombinedData', async (req, res) => {
+// Saved RFP Details with Items and modules
+router.get('/getSavedData', async (req, res) => {
   // const { rfpNo } = req.query;
   // console.log(rfpNo);
   if (!rfpNo) {
@@ -620,7 +623,8 @@ router.get('/fetchCombinedData', async (req, res) => {
 
     // Step 2: Fetch related FItem data
     const dropQuery = `
-            SELECT RFP_Title, RFP_No, Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted 
+            SELECT RFP_Title, RFP_No, Requirement AS name, Module_Code, F1_Code, F2_Code,
+             New_Code, Mandatory, Comments, deleted,stage
             FROM RFP_FunctionalItem_Draft 
             WHERE RFP_No =?`;
     const [fetchedArray] = await db.query(dropQuery, [rfpNo]);
@@ -1187,9 +1191,9 @@ router.get('/getSavedFItems', async (req, res) => {
 
 
 
-router.get('/loadContents', async (req, res) => {
+router.get('/loadContents-initial', async (req, res) => {
   try {
-    console.log("loadContents")
+    console.log("loadContents-initial")
     const { userName, userPower } = req.query;// Destructure checkedItems from request body
     var fItems = [];
     //console.log(l1);

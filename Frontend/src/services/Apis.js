@@ -23,7 +23,7 @@ const sendCheckedItems = async (checkedItems) => {
 
 export default sendCheckedItems;
 
-export const handleSave = async ({module,items,rfp_no,rfp_title}) => {
+export const handleSave = async ({module,items,rfp_no,rfp_title,stage}) => {
     // console.log(module);
     // console.log(items);
     try {
@@ -32,7 +32,7 @@ export const handleSave = async ({module,items,rfp_no,rfp_title}) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({module,items,rfp_no,rfp_title})
+            body: JSON.stringify({module,items,rfp_no,rfp_title,stage})
         });
         const data = await response.json();
         console.log('Data saved successfully:', data);
@@ -76,7 +76,7 @@ export const fetchModuleandFitemData = async (rfpNo) => {
     try {
         // Construct the URL with query parameters
        
-        const response = await fetch(`/api/fetchCombinedData?rfpNo=${encodeURIComponent(rfpNo)}`);
+        const response = await fetch(`/api/getSavedData?rfpNo=${encodeURIComponent(rfpNo)}`);
         // Check if the response is okay
         if (!response.ok) {
             throw new Error('Failed to retrieve module data');

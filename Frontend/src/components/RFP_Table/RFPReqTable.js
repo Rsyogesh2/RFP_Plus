@@ -505,7 +505,8 @@ const RFPReqTable = ({ l1 }) => {
                     module: itemData,
                     items: FItem,
                     rfp_no: sidebarValue[0].rfp_no,
-                    rfp_title: sidebarValue[0].rfp_title
+                    rfp_title: sidebarValue[0].rfp_title,
+                    stage:"Reviewer"
                 })}>
                     Submit
                 </button>
@@ -517,7 +518,8 @@ const RFPReqTable = ({ l1 }) => {
                     module: itemData,
                     items: FItem,
                     rfp_no: sidebarValue[0].rfp_no,
-                    rfp_title: sidebarValue[0].rfp_title
+                    rfp_title: sidebarValue[0].rfp_title,
+                    stage:"Authorizer"
                 })}>
                     Save as Draft
                 </button>
