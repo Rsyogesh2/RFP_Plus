@@ -645,7 +645,8 @@ router.get('/getModule', async (req, res) => {
 
 router.post("/saveassignUserModules", async (req, res) => {
   const { assignedUsers, rfpNo, selectedModules, userName, userPower } = req.body;
-
+  console.log("saveassignUserModules")
+  console.log(assignedUsers);
   if (!assignedUsers || assignedUsers.length === 0 || !rfpNo) {
     return res.status(400).json({ message: "Invalid data provided" });
   }
@@ -693,7 +694,7 @@ router.post("/saveassignUserModules", async (req, res) => {
       }
 
       const module_name = JSON.stringify(
-        user.selectedModules.map((module) => ({
+        user.selectedModules?.map((module) => ({
           ...module,
           l2module: module.l2module.map((l2) => ({
             ...l2,
@@ -727,9 +728,6 @@ router.post("/saveassignUserModules", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to assign users" });
   }
 });
-
-
-
 
 router.get("/getAssignedUsers", async (req, res) => {
   const { rfpNo } = req.query;
@@ -809,7 +807,6 @@ router.post('/api/vendor-admin', async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to save vendor admin data" });
   }
 });
-
 
 
 module.exports = router;

@@ -22,11 +22,13 @@ import {fetchUsers} from '../services/loadApis';
 
 
 const Header = () => {
-  const { userPower } = useContext(AppContext);
-
+  const { userPower,sidebarValue } = useContext(AppContext);
+  // console.log(sidebarValue[0].entity_name)
   return (
     <div className="header">
-      <h1>{ }</h1>
+     <h1>
+    {sidebarValue.length > 0 ? sidebarValue[0].entity_name : ""}
+    </h1>
       <h2>{`${userPower} Module`}</h2>
     </div>
   );
@@ -187,7 +189,7 @@ const HomePage = ({ userType }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { usersList, setUsersList, userName, userPower, setModuleData } = useContext(AppContext);
+  const { usersList, setUsersList, userName, userPower, setModuleData, userRole } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     
 
@@ -217,12 +219,17 @@ const HomePage = ({ userType }) => {
              console.log("userName " + userName)
               //23/11/2024
               try {
-                  const queryParams = new URLSearchParams({ userName, userPower });
+                  const queryParams = new URLSearchParams({ userName, userPower, userRole });
                   let url
                   if(userPower=="User"){
-                     url = `${API_URL}/api/loadContents-initial?${queryParams}`;
+                    if(userRole=="Maker"){
+                      url = `${API_URL}/api/loadContents-initial?${queryParams}`;
+                    } else{
+                      url = `${API_URL}/api/loadContents-saved?${queryParams}`;
+                    }
+                     
                   } else if(userPower=="Vendor User"){
-                     url = `${API_URL}/api/getSavedData?${queryParams}`;
+                     url = `${API_URL}/api/loadContents-saved?${queryParams}`;
                   } 
                   console.log("Fetching URL:", url);
                   const response = await fetch(url);
@@ -250,7 +257,7 @@ const HomePage = ({ userType }) => {
   
   const renderSection = () => {
     console.log(activeSection);
-    if (!isNaN(activeSection) && activeSection!==99) {
+    if (!isNaN(activeSection) && activeSection!==99&& activeSection!=="" ) {
       // Call the ViewAssignedRFPs component with the activeSection as a prop
       return <ViewAssignedRFPs l1module={activeSection} />;
     }
@@ -296,7 +303,7 @@ const HomePage = ({ userType }) => {
       case 99:
         return <RfpScoringCriteria />;
       default:
-        return <p>Select an option from the sidebar.</p>;
+        return <p>Welcome</p>;
     }
   };
   return (

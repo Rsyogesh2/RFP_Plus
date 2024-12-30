@@ -89,7 +89,7 @@ router.post("/api/login", async (req, res) => {
         WHERE ut.email = ?;
         `;
         const [results1] = await db.execute(query1, [username]);
-        console.log(results1)
+        // console.log(results1)
       if (results.length === 0) {
         return res.status(404).json({ message: "No roles found for this user." });
       }

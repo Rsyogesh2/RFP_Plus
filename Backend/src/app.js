@@ -29,7 +29,8 @@ app.use(bodyParser.json());
 const cors = require('cors');
 
 app.use(cors({
-  origin: 'https://rfp-plus-frontend.onrender.com', // Allow only the frontend URL
+  // origin: 'https://rfp-plus-frontend.onrender.com', // Allow only the frontend URL
+  orgin:"http://localhost:5000",
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow credentials (cookies, authorization headers)

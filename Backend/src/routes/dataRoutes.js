@@ -288,22 +288,23 @@ router.get('/assignRFPUserDetails', async (req, res) => {
     if (assignedUsers != undefined) {
       parsedUsers = assignedUsers.map(user => {
         // user.modulename.l1.l2.push("Scoring Criteria");
-         return {
-        ...user,
-        selectedModules: (() => {
-          try {
-            return JSON.parse(user.module_name || []);
-          } catch {
-            return []; // Default to empty array if JSON parse fails
-          }
-        })(),
-      }});
+        return {
+          ...user,
+          selectedModules: (() => {
+            try {
+              return JSON.parse(user.module_name || []);
+            } catch {
+              return []; // Default to empty array if JSON parse fails
+            }
+          })(),
+        }
+      });
     }
-  console.log("parsedUsers");
-  console.log(data);
+    console.log("parsedUsers");
+    console.log(data);
 
-  data.l1.push({name:"Others",code:99,l2:[{name:"Scoring Criteria",code:9999}]});
-  // { name: 'Vendor specifications', code: 97, l2: [Array] }
+    data.l1.push({ name: "Others", code: 99, l2: [{ name: "Scoring Criteria", code: 9999 }] });
+    // { name: 'Vendor specifications', code: 97, l2: [Array] }
     // Consolidate Response
     res.status(200).json({
       modules: data,
@@ -509,7 +510,7 @@ router.post('/insertFItem', async (req, res) => {
     //Insert into L1, L2, and L3 tables
     for (const l1Item of module) {
       const { name, code, l2 } = l1Item;
-    
+
       // Insert or Update into L1 table
       await connection.query(
         `INSERT INTO RFP_Saved_L1_Modules (L1_Code, L1_Module_Description, RFP_No,stage)
@@ -517,23 +518,23 @@ router.post('/insertFItem', async (req, res) => {
          ON DUPLICATE KEY UPDATE
          L1_Code = VALUES(L1_Code),
          L1_Module_Description = VALUES(L1_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
-        [code, name, rfp_no,stage]
+        [code, name, rfp_no, stage]
       );
-    
+
       if (l2 && l2.length > 0) {
         const l2Values = [];
         const l3Values = [];
-    
+
         for (const l2Item of l2) {
-          l2Values.push([l2Item.code, l2Item.name, rfp_no,stage]);
-    
+          l2Values.push([l2Item.code, l2Item.name, rfp_no, stage]);
+
           if (l2Item.l3 && Array.isArray(l2Item.l3)) {
             for (const l3Item of l2Item.l3) {
-              l3Values.push([l3Item.code, l3Item.name, rfp_no,stage]);
+              l3Values.push([l3Item.code, l3Item.name, rfp_no, stage]);
             }
           }
         }
-    
+
         // Batch Insert or Update into L2 table
         if (l2Values.length > 0) {
           const l2Placeholders = l2Values.map(() => "(?, ?, ?, ?)").join(", ");
@@ -546,7 +547,7 @@ router.post('/insertFItem', async (req, res) => {
             l2Values.flat()
           );
         }
-    
+
         // Batch Insert or Update into L3 table
         if (l3Values.length > 0) {
           const l3Placeholders = l3Values.map(() => "(?, ?, ?, ?)").join(", ");
@@ -561,7 +562,7 @@ router.post('/insertFItem', async (req, res) => {
         }
       }
     }
-    
+
 
 
     const insertQuery = `
@@ -619,6 +620,7 @@ router.get('/getSavedData', async (req, res) => {
 
   try {
     // Step 1: Fetch all L1 modules with the specified RFP_No
+    // const [res] = await db.query('SELECT module_name,rfp_no FROM user_modules_assignment WHERE user_name = ? and createdby=?'  , [rfpNo]);
     const [l1Rows] = await db.query('SELECT * FROM RFP_Saved_L1_Modules WHERE RFP_No = ?', [rfpNo]);
 
     // Step 2: Fetch related FItem data
@@ -766,91 +768,7 @@ router.get('/getSavedData', async (req, res) => {
 // });
 
 
-router.get('/userItemsinSidebar', async (req, res) => {
-  console.log("userItemsinSidebar");
-  try {
-    //console.log("in sidebar")
-    const userName = req.query.userName;// Destructure checkedItems from request body
-    const userPower = req.query.userPower;// Destructure checkedItems from request body
-    var fItems = [];
-    var data = [];
-    //console.log(userName);
-    // Test the first query
-    if (userPower == "User") {
-      const [userDetails] = await db.query(
-        `SELECT user_name, entity_Name, createdby FROM Users_table WHERE email = ?`,
-        [userName]
-      );
-      console.log("User Details:", userDetails);
 
-      // Ensure userDetails is not undefined
-      if (!userDetails) {
-        throw new Error("User not found.");
-      }
-
-      // Test the second query
-      const [result] = await db.query(
-        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
-     module_name, rfp_no 
-     FROM User_Modules_Assignment 
-     WHERE user_name = ? AND createdby = ? `,
-        [userDetails[0].user_name, userDetails[0].createdby]
-      );
-      //console.log("User Modules Assignment:", result);
-      for (i = 0; i < result.length; i++) {
-        const { module_name } = result[i];
-        const { rfp_no } = result[i];
-        const [rfp_title] = await db.query(
-          `select rfp_title from RFP_Creation where rfp_no=?`, [rfp_no]);
-        //console.log(rfp_title)                  
-
-        data.push({ module_name, rfp_no, rfp_title: rfp_title[0].rfp_title })
-        //console.log(data)
-      }
-    } else if (userPower == "Vendor User") {
-      const [userDetails] = await db.query(
-        `SELECT user_name, entity_Name, createdby FROM Vendor_Users_table WHERE email = ?`,
-        [userName]
-      );
-      //console.log("User Details:", userDetails);
-
-      // Ensure userDetails is not undefined
-      if (!userDetails) {
-        throw new Error("User not found.");
-      }
-
-      // Test the second query
-      const [result] = await db.query(
-        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
-     module_name, rfp_no 
-     FROM VendorUser_Modules_Assignment 
-     WHERE user_name = ? AND createdby = ? `,
-        [userDetails[0].user_name, userDetails[0].createdby]
-      );
-      //console.log("User Modules Assignment:", result);
-      for (i = 0; i < result.length; i++) {
-        const { module_name } = result[i];
-        const { rfp_no } = result[i];
-        const [rfp_title] = await db.query(
-          `select rfp_title from RFP_Creation where rfp_no=?`, [rfp_no]);
-        //console.log(rfp_title)                  
-
-        data.push({ module_name, rfp_no, rfp_title: rfp_title[0].rfp_title })
-        //console.log(data)
-      }
-
-    }
-
-    // console.log(data);
-    // console.log("data");
-    // //console.log(module_name)
-    res.status(200).send(data);
-  } catch (error) {
-    console.error(error); // Log the error for debugging
-    res.status(500).send('Internal Server Error'); // Handle errors
-
-  }
-});
 
 router.get('/userAssignItemsbySub', async (req, res) => {
   try {
@@ -920,8 +838,8 @@ router.get('/userAssignItemsbySub', async (req, res) => {
     //console.log("result1:  "+result1);
 
     // Initialize an object to hold the nested structure
-    const data = { l1: [], rfp_no,Name: userDetails[0].user_name };
-    let combined=[];
+    const data = { l1: [], rfp_no, Name: userDetails[0].user_name };
+    let combined = [];
     for (const res of result) { // Iterate through all entries in `result`
       // const { rfp_no } = res;
       for (const l1 of res.module_name) { // Process each `l1` (module_name)
@@ -1194,8 +1112,17 @@ router.get('/getSavedFItems', async (req, res) => {
 router.get('/loadContents-initial', async (req, res) => {
   try {
     console.log("loadContents-initial")
-    const { userName, userPower } = req.query;// Destructure checkedItems from request body
+    const { userName, userPower, userRole } = req.query;// Destructure checkedItems from request body
     var fItems = [];
+    let qustring;
+    if (userRole == "Maker") {
+      qustring = "is_maker=1"
+    } else if (userRole == "Authorizer") {
+      qustring = "is_authorizer=1"
+    } else if (userRole == "Viewer") {
+      qustring = "is_reviewer=1"
+    }
+    console.log(qustring)
     //console.log(l1);
     // //console.log(userName);
     // //console.log(userPower);
@@ -1218,11 +1145,11 @@ router.get('/loadContents-initial', async (req, res) => {
         `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
    module_name, rfp_no 
    FROM User_Modules_Assignment 
-   WHERE user_name = ? AND createdby = ?`,
+   WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring}`,
         [userDetails[0].user_name, userDetails[0].createdby]
       );
       //console.log("User Modules Assignment:", result);
-
+      // console.log(result)
     } else if (userPower == "Vendor User") {
       [userDetails] = await db.query(
         `SELECT user_name, entity_Name, createdby FROM Vendor_Users_table WHERE email = ?`,
@@ -1239,7 +1166,7 @@ router.get('/loadContents-initial', async (req, res) => {
         `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
    module_name, rfp_no 
    FROM VendorUser_Modules_Assignment 
-   WHERE user_name = ? AND createdby = ? `,
+   WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring}`,
         [userDetails[0].user_name, userDetails[0].createdby]
       );
       //console.log("Vendor User Modules Assignment:", result);
@@ -1259,8 +1186,8 @@ router.get('/loadContents-initial', async (req, res) => {
     //console.log("result1:  "+result1);
 
     // Initialize an object to hold the nested structure
-    const data = { l1: [], rfp_no,Name: userDetails[0].user_name };
-    let combined=[];
+    const data = { l1: [], rfp_no, Name: userDetails[0].user_name };
+    let combined = [];
     for (const res of result) { // Iterate through all entries in `result`
       // const { rfp_no } = res;
       for (const l1 of res.module_name) { // Process each `l1` (module_name)
@@ -1331,13 +1258,256 @@ router.get('/loadContents-initial', async (req, res) => {
     res.status(500).send('Internal Server Error'); // Handle errors
   }
 });
+router.get('/loadContents-saved', async (req, res) => {
+  try {
+    console.log("loadContents-saved")
+    const { userName, userPower, userRole } = req.query;// Destructure checkedItems from request body
+    var fItems = [];
+    //console.log(l1);
+    // //console.log(userName);
+    // //console.log(userPower);
+    // Test the first query
+    let userDetails;
+    let result;
+    if (userPower == "User") {
+      [userDetails] = await db.query(
+        `SELECT user_name, entity_Name, createdby FROM Users_table WHERE email = ?`,
+        [userName]
+      );
+
+      // Ensure userDetails is not undefined
+      if (!userDetails) {
+        throw new Error("User not found.");
+      }
+
+      // Test the second query
+      [result] = await db.query(
+        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
+   module_name, rfp_no 
+   FROM User_Modules_Assignment 
+   WHERE user_name = ? AND createdby = ?`,
+        [userDetails[0].user_name, userDetails[0].createdby]
+      );
+      //console.log("User Modules Assignment:", result);
+
+    } else if (userPower == "Vendor User") {
+      [userDetails] = await db.query(
+        `SELECT user_name, entity_Name, createdby FROM Vendor_Users_table WHERE email = ?`,
+        [userName]
+      );
+
+      // Ensure userDetails is not undefined
+      if (!userDetails) {
+        throw new Error("User not found.");
+      }
+
+      // Test the second query
+      [result] = await db.query(
+        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
+   module_name, rfp_no 
+   FROM VendorUser_Modules_Assignment 
+   WHERE user_name = ? AND createdby = ? `,
+        [userDetails[0].user_name, userDetails[0].createdby]
+      );
+      //console.log("Vendor User Modules Assignment:", result);
+
+    }
+
+    // //console.log("User Details:", userDetails);
+
+
+    // console.log(result)
+    console.log("result")
+    // const { module_name } = result[0];
+    const { rfp_no } = result[0];
+    // //console.log(rfp_no)
+    //console.log(module_name)
+    //console.log(l1)
+    //console.log("result1:  "+result1);
+
+    // Initialize an object to hold the nested structure
+    const data = { l1: [], rfp_no, Name: userDetails[0].user_name };
+    let combined = [];
+    for (const res of result) { // Iterate through all entries in `result`
+      // const { rfp_no } = res;
+      for (const l1 of res.module_name) { // Process each `l1` (module_name)
+        const l2Codes = l1.l2module || [];
+
+        if (l2Codes.length > 0) {
+          const l2CodesArray = l2Codes.map(l2 => l2.code);
+          const placeholders1 = l2CodesArray.map(() => `L3_Code LIKE CONCAT(?, '%')`).join(" OR ");
+          const queryString1 = `SELECT L3_Module_Description AS name, L3_Code, Stage, Level FROM RFP_Saved_L3_Modules WHERE ${placeholders1}`;
+
+          const [l3Result] = await db.query(queryString1, l2CodesArray);
+          const l3CodesArray = l3Result.map(l3 => l3.L3_Code);
+
+          // Populate `l3` for each `l2`
+          for (const l2 of l2Codes) {
+            l2.l3 = l3Result
+              .filter(row => row.L3_Code.startsWith(l2.code))
+              .map(row => ({ name: row.name, code: row.L3_Code }));
+          }
+
+          const unmatchedL2Codes = l2CodesArray
+            .filter(l2Code => !l3CodesArray.some(l3Code => l3Code.startsWith(l2Code)))
+            .map(code => code + "00");
+
+          const combinedArray = unmatchedL2Codes.concat(l3CodesArray);
+
+          let queryString2;
+          if (userPower === "User") {
+            queryString2 = `
+          SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS MorO, 
+         Comments, deleted, Stage, Level
+          FROM rfp_functionalitem_draft 
+          WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+                AND Stage = ? 
+                AND Level = "Bank"
+        `;
+          } else if (userPower === "Vendor User") {
+            queryString2 = `
+         SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS MorO, 
+         Comments, deleted, Stage, Level
+          FROM rfp_functionalitem_draft 
+          WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+                AND Stage = ? 
+                AND Level ="Vendor"
+        `;
+          }
+
+          const parameters = [...combinedArray, userRole]; // Include combinedArray and userRole as parameters
+
+          const [f1Result] = await db.query(queryString2, parameters);
+          const updatedF1Result = f1Result.map(item => ({
+            ...item,
+            // MorO: item.MorO ?? true, // Set default if `Mandatory` is null
+            // deleted: item.deleted ?? false, // Set default if `deleted` is null
+          }));
+
+          fItems.push(...updatedF1Result);
+        }
+
+        // Push the processed `l2` with `l3` to `l1`
+        data.l1.push({ name: l1.moduleName, code: l1.code, l2: l2Codes });
+      }
+      // combined.push({data,rfp_no})
+    }
+    // console.log(combined)
+    // Finalize response
+    if (data.l1.length > 0) {
+      res.json({ success: true, itemDetails: data, functionalItemDetails: fItems });
+    } else {
+      res.status(404).json({ error: "No sub-items found for these modules" });
+    }
+
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).send('Internal Server Error'); // Handle errors
+  }
+});
+// sidebar Loads when Login
+router.get('/userItemsinSidebar', async (req, res) => {
+  console.log("userItemsinSidebar");
+  try {
+    //console.log("in sidebar")
+    const userName = req.query.userName;// Destructure checkedItems from request body
+    const userPower = req.query.userPower;// Destructure checkedItems from request body
+    const userRole = req.query.userRole;// Destructure checkedItems from request body
+    // console.log("userRole :"+userRole);
+    let qustring;
+    if (userRole == "Maker") {
+      qustring = "is_maker=1"
+    } else if (userRole == "Authorizer") {
+      qustring = "is_authorizer=1"
+    } else if (userRole == "Viewer") {
+      qustring = "is_reviewer=1"
+    }
+    var data = [];
+    //console.log(userName);
+    // Test the first query
+    if (userPower == "User") {
+      const [userDetails] = await db.query(
+        `SELECT user_name, entity_Name, createdby FROM Users_table WHERE email = ?`,
+        [userName]
+      );
+      console.log("User Details:", userDetails);
+
+      // Ensure userDetails is not undefined
+      if (!userDetails) {
+        throw new Error("User not found.");
+      }
+
+      // Test the second query
+      const [result] = await db.query(
+        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
+     module_name, rfp_no 
+     FROM User_Modules_Assignment 
+     WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring} `,
+        [userDetails[0].user_name, userDetails[0].createdby]
+      );
+      //console.log("User Modules Assignment:", result);
+      for (i = 0; i < result.length; i++) {
+        const { module_name } = result[i];
+        const { rfp_no } = result[i];
+        const [rfp_title] = await db.query(
+          `select rfp_title from RFP_Creation where rfp_no=?`, [rfp_no]);
+        //console.log(rfp_title)                  
+
+        data.push({ module_name, rfp_no, rfp_title: rfp_title[0].rfp_title,entity_name:userDetails[0].entity_Name })
+        //console.log(data)
+      }
+    } else if (userPower == "Vendor User") {
+      const [userDetails] = await db.query(
+        `SELECT user_name, entity_Name, createdby FROM Vendor_Users_table WHERE email = ?`,
+        [userName]
+      );
+      //console.log("User Details:", userDetails);
+
+      // Ensure userDetails is not undefined
+      if (!userDetails) {
+        throw new Error("User not found.");
+      }
+
+      // Test the second query
+      const [result] = await db.query(
+        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
+     module_name, rfp_no 
+     FROM VendorUser_Modules_Assignment 
+     WHERE user_name = ? AND createdby = ? and is_active='1' `,
+        [userDetails[0].user_name, userDetails[0].createdby]
+      );
+      //console.log("User Modules Assignment:", result);
+      for (i = 0; i < result.length; i++) {
+        const { module_name } = result[i];
+        const { rfp_no } = result[i];
+        const [rfp_title] = await db.query(
+          `select rfp_title from RFP_Creation where rfp_no=?`, [rfp_no]);
+        //console.log(rfp_title)                  
+
+        data.push({ module_name, rfp_no, rfp_title: rfp_title[0].rfp_title,entity_name:userDetails[0].entity_Name })
+        //console.log(data)
+      }
+
+    }
+
+    // console.log(data);
+    // console.log("data");
+    // //console.log(module_name)
+    res.status(200).send(data);
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).send('Internal Server Error'); // Handle errors
+
+  }
+});
+
 //vendorQuery Saving
 router.post('/vendorQuery-save-draft', async (req, res) => {
   console.log("vendorQuery-save-draft");
-    const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows } = req.body;
+  const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows } = req.body;
 
-    try {
-        const query = `
+  try {
+    const query = `
             INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
@@ -1346,21 +1516,21 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
                 rows_data = VALUES(rows_data),
                 updated_at = CURRENT_TIMESTAMP;
         `;
-        await db.execute(query, [
-            rfpNo,
-            rfpTitle,
-            vendorName,
-            bankName,
-            createdBy,
-            stage,
-            JSON.stringify(rows),
-        ]);
+    await db.execute(query, [
+      rfpNo,
+      rfpTitle,
+      vendorName,
+      bankName,
+      createdBy,
+      stage,
+      JSON.stringify(rows),
+    ]);
 
-        res.status(200).send({ message: 'Draft saved or updated successfully!' });
-    } catch (error) {
-        console.error('Error saving draft:', error);
-        res.status(500).send({ message: 'Failed to save or update draft' });
-    }
+    res.status(200).send({ message: 'Draft saved or updated successfully!' });
+  } catch (error) {
+    console.error('Error saving draft:', error);
+    res.status(500).send({ message: 'Failed to save or update draft' });
+  }
 });
 
 module.exports = router;

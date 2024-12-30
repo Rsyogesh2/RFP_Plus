@@ -53,6 +53,8 @@ const Login = ({ onLogin }) => {
               rolesPer.push(`${rolesResult.roles} - Maker`)
             } else if(rfps.isAuthorizer==1){
               rolesPer.push(`${rolesResult.roles} - Authorizer`)
+            } else {
+              rolesPer.push(`${rolesResult.roles} - Viewer`)
             }
             
           }

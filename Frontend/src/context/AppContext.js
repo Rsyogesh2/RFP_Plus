@@ -10,6 +10,7 @@ export const AppProvider = ({ children }) => {
     const [assignModule, setAssignModule] = useState([]);
     const [userName, setUserName] = useState();
     const [userRole, setUserRole] = useState();
+    const [globalFItems, setGlobalFItems] = useState();
     const [sidebarValue, setSidebarValue] = useState(
        { rfp_no: "", module_name: [] }, // Default value to avoid undefined errors
     );
@@ -18,7 +19,7 @@ export const AppProvider = ({ children }) => {
         <AppContext.Provider value={{ moduleData, setModuleData, usersList,
          setUsersList,userPower,setUserPower,assignModule,setAssignModule,
          userName, setUserName,sidebarValue, setSidebarValue, setUserRole,
-        userRole}}>
+        userRole,globalFItems, setGlobalFItems}}>
             {children}
         </AppContext.Provider>
     );

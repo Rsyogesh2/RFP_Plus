@@ -160,11 +160,13 @@ const RFPReqTable = ({ l1 }) => {
             };
     
             console.log("New Item:", newItem);
-            const itemIndex = prevItems.findIndex(
-                (prevItem) => prevItem.F2_Code === item.F2_Code &&
-                 prevItem.Module_Code === item.Module_Code 
-                //  &&  prevItem.New_Code === item.New_Code
-            );
+
+            const itemIndex = prevItems.findIndex((prevItem) => 
+                prevItem.F2_Code === item.F2_Code &&
+                prevItem.Module_Code === item.Module_Code &&
+                (!prevItem.New_Code || !item.New_Code || prevItem.New_Code === item.New_Code)
+              );              
+              console.log(itemIndex);
             const updatedItems = [
                 ...prevItems.slice(0, itemIndex + 1),
                 newItem,
@@ -220,9 +222,10 @@ const RFPReqTable = ({ l1 }) => {
         // console.log('Rendering level:', levelType, 'with data', levelData,TableIndex,parentIndex," subIndex "+subIndex,"  indexval "+indexval);
 
         if (!levelData || !Array.isArray(levelData)) return console.log("its empty"); // Ensure levelData is defined and an array
-
+        // console.log("levelData");
+        // console.log(levelData);
         return levelData.map((item, index) => (
-            <tr key={`${item.F2_Code}-${index}`} id={`${item.F2_Code}-${index}`}>
+            <tr key={`${item.Module_Code}-${item.F2_Code}-${index}`} id={`${item.Module_Code}-${item.F2_Code}-${index}`}>
 
                 {/* Checkbox for l2 and l3 levels */}
 
@@ -243,7 +246,7 @@ const RFPReqTable = ({ l1 }) => {
                 </td>
 
                 {/* Display name, bold for l1 level */}
-                <td style={{ fontWeight: 'normal', paddingLeft: `${paddingLeft}px` }}>
+                <td style={{ fontWeight: 'bold', paddingLeft: `${paddingLeft}px` }}>
                     {!item.deleted && item.isEditing ? (
                         <input
                             type="text"
@@ -258,7 +261,7 @@ const RFPReqTable = ({ l1 }) => {
                     ) : (
                         <span
                             style={{
-                                fontWeight: levelType === 'f1' ? 500 : 'normal',
+                                fontWeight: levelType === 'f1' ? 550 : 'normal',
                                 textDecoration: item.deleted ? 'line-through' : 'none'
                             }}
                         >
@@ -371,18 +374,29 @@ const RFPReqTable = ({ l1 }) => {
 
     const Tables = (l2, index1, f1, index, indexval) => {
         console.log("rendering Table");
+        console.log(l2);
     
         // Validate l2.l3
-        const unMatchingCodes = l2?.l3?.map(l3 => l3.code) || [];
+        // const unMatchingCodes = l2?.l3?.map(l3 => l3.code) || [];
     
-        const newItems = unMatchingCodes.map(code => ({
+        // const newItems = unMatchingCodes.map(code => ({
+        //     F2_Code: '1000',
+        //     F1_Code: `10`,
+        //     name: "Add here...",
+        //     Module_Code: code
+        // }));
+
+        const newItems = {
             F2_Code: '1000',
             F1_Code: `10`,
             name: "Add here...",
-            Module_Code: code
-        }));
-    
+            Module_Code: l2.code
+        };
+
+        // console.log(index);
         console.log(newItems);
+        // console.log(newItems[index]);
+
     
         const matchingCodes = FItem?.filter(f => f?.Module_Code?.startsWith(l2.code)) || [];
         const f1items = matchingCodes.filter(f1 => f1?.F2_Code?.endsWith("00"));
@@ -436,10 +450,10 @@ const RFPReqTable = ({ l1 }) => {
                         })
                     ) : (
                         <React.Fragment>
-                            {newItems[index] ? (
+                            {newItems ? (
                                 userRole === 'Maker'
-                                    ? renderHierarchy([newItems[index]], 'f1', 10, index1)
-                                    : readHierarchy([newItems[index]], 'f1', 10, index1)
+                                    ? renderHierarchy([newItems], 'f1', 10, index1)
+                                    : readHierarchy([newItems], 'f1', 10, index1)
                             ) : (
                                 <tr>
                                     <td colSpan="7">No data available</td>
@@ -463,7 +477,6 @@ const RFPReqTable = ({ l1 }) => {
             </div>
             <div className="labels">
                 <span>M-Mandatory | O-Optional </span>
-                <span>A-Available | P-Partly available | C-Customizable | N-Not available</span>
             </div>
             <div className="module-header">
                 {itemData && itemData.length > 0 && (
@@ -482,7 +495,7 @@ const RFPReqTable = ({ l1 }) => {
                                                         {l2.l3.map((l3, index) => (
                                                             <div key={l3.code} className='level3'>
                                                                 <span className='l3'>{indexval + "." + (Number(index) + 1) + " " + l3.name}</span>
-                                                                {Tables(l2, index1, "f1", index, userRole)}
+                                                                {Tables(l3, index1, "f1", index, userRole)}
                                                             </div>
                                                         ))}
                                                     </>
@@ -506,9 +519,10 @@ const RFPReqTable = ({ l1 }) => {
                     items: FItem,
                     rfp_no: sidebarValue[0].rfp_no,
                     rfp_title: sidebarValue[0].rfp_title,
-                    stage:"Reviewer"
+                    stage:"Viewer"
                 })}>
                     Submit
+                    
                 </button>
             )}
 

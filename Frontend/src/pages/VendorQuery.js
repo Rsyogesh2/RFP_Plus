@@ -10,7 +10,7 @@ const VendorQuery = () => {
   const [value, setValue] = useState();
   
   
-  const { userName, userPower, sidebarValue, moduleData, setModuleData } = useContext(AppContext); // Access shared state
+  const { userName, userPower, sidebarValue, moduleData, setModuleData, userRole } = useContext(AppContext); // Access shared state
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 
@@ -26,12 +26,16 @@ const VendorQuery = () => {
   // };
 
   // Recursive function to flatten names into hierarchy
-  const flattenHierarchy = (moduleData) => {
-    return moduleData.map((item) => ({
-      label: item.name,
-      value: item.code,
-      children: item.l2 ? flattenHierarchy(item.l2.map((l2) => l2)) : undefined,
-    }));
+
+  const flattenHierarchy = (data, prefix = "") => {
+    return data.map((item, index) => {
+      const currentPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+      return {
+        label: `${currentPrefix}. ${item.name}`, // Add hierarchical numbering
+        value: item.code,
+        children: item.l2 ? flattenHierarchy(item.l2, currentPrefix) : undefined,
+      };
+    });
   };
   const options = moduleData.itemDetails.l1.length > 0 ? flattenHierarchy(moduleData.itemDetails.l1) : "";
   console.log(options);
@@ -46,30 +50,33 @@ const VendorQuery = () => {
 
   const handleInputChange = (index, field, value) => {
     const updatedRows = [...rows];
-    
-    if(field==="RFP_Reference"){
-      updatedRows[index][field] = value.target.value;
+  
+    if (field === "RFP_Reference") {
+      updatedRows[index][field] = value; // TreeSelect directly provides the selected value
+      updatedRows[index].treeValue = value; // Update treeValue specifically for TreeSelect
     } else {
-      updatedRows[index][field] = value;
+      updatedRows[index][field] = value; // Text inputs pass the value directly
     }
-    updatedRows[index].treeValue = value;
+  
     setRows(updatedRows);
   };
+  
 
   const saveAsDraft = async () => {
     console.log("Total Rows :"+rows);
+    
     const payload = {
       rfpNo: sidebarValue[0].rfp_no,
-      rfpTitle: "<RFP Title>",
-      vendorName: "Vendor Name",
+      rfpTitle: sidebarValue[0].rfp_title,
+      vendorName: sidebarValue[0].entity_name,
       bankName: "Bank Name",
       createdBy: userName,
-      stage: "Autherisor",
+      stage: userRole==="Maker"?"Authorizer":"Viewer",
       rows,
     };
   
     try {
-      const response = await fetch(`${API_URL}/vendorQuery-save-draft`, {
+      const response = await fetch(`${API_URL}/api/vendorQuery-save-draft`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,8 +99,8 @@ const VendorQuery = () => {
 
   return (
     <div className="vendor-query-container">
-      <h2>Name of the Vendor</h2>
-      <h3>{sidebarValue[0].rfp_no} - &lt; RFP Title &gt;</h3>
+      <h2>{sidebarValue[0].entity_name}</h2>
+      <h3>{sidebarValue[0].rfp_no} - {sidebarValue[0].rfp_title}</h3>
       <h4>Vendor Query</h4>
 
       <table className="vendor-query-table">

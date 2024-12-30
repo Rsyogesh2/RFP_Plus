@@ -12,12 +12,13 @@ const RFPVendorTable = ({ l1, userRole }) => {
   const [itemData, setItemData] = useState([]);
   const [FItem, setFItem] = useState([]);
   const [data, setdata] = useState([]);
+  const [valueL1, setValueL1] = useState(null);
   const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
    
   async function fetchDetails(){
  
-    const res = await fetchModuleandFitemData("RFP123");
-    setdata(res);
+    // const res = await fetchModuleandFitemData("RFP123");
+    // setdata(res);
     // const result = await fetchModuleData("RFP123");
     // console.log(result);
     // setItemData(result);
@@ -64,8 +65,11 @@ const RFPVendorTable = ({ l1, userRole }) => {
           console.error('Error sending checked items:', error); // Log any errors
       }
 
-  } fetchArray();
-  }, [data]);  // Only trigger fetch when `data` changes
+  } if(l1.l1module!=="" && valueL1!==l1.l1module){
+    fetchArray();
+    setValueL1(l1.l1module);
+   }
+  }, [l1]);  // Only trigger fetch when `data` changes
   const filterModule = (data) => {
 
     const data1 = data.itemDetails.l1.filter(m=>m.code===l1.l1module);
