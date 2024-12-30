@@ -48,7 +48,12 @@ const RFPReqTable = ({ l1 }) => {
     
                 // const data = await response.json(); // Parse the JSON response
                 // console.log(data);  // Handle the fetched data as needed
-    
+                if(FItem.length>0){
+                    moduleData.functionalItemDetails=FItem
+                } else {
+
+                }
+                
                 //  setItemData(data.itemDetails.l1); // Set the resolved data to local state
                 setName(moduleData.itemDetails.Name); // Set the resolved data to local state
                 // setModuleData(data);
@@ -374,7 +379,7 @@ const RFPReqTable = ({ l1 }) => {
 
     const Tables = (l2, index1, f1, index, indexval) => {
         console.log("rendering Table");
-        console.log(l2);
+        // console.log(l2);
     
         // Validate l2.l3
         // const unMatchingCodes = l2?.l3?.map(l3 => l3.code) || [];
@@ -393,8 +398,8 @@ const RFPReqTable = ({ l1 }) => {
             Module_Code: l2.code
         };
 
-        // console.log(index);
-        console.log(newItems);
+        console.log(FItem);
+        // console.log(newItems);
         // console.log(newItems[index]);
 
     
@@ -519,7 +524,9 @@ const RFPReqTable = ({ l1 }) => {
                     items: FItem,
                     rfp_no: sidebarValue[0].rfp_no,
                     rfp_title: sidebarValue[0].rfp_title,
-                    stage:"Viewer"
+                    stage:"Viewer",
+                    userName,
+                    entity_Name:sidebarValue[0].entity_name,
                 })}>
                     Submit
                     
@@ -533,7 +540,9 @@ const RFPReqTable = ({ l1 }) => {
                     items: FItem,
                     rfp_no: sidebarValue[0].rfp_no,
                     rfp_title: sidebarValue[0].rfp_title,
-                    stage:"Authorizer"
+                    stage:"Authorizer",
+                    userName,
+                    entity_Name:sidebarValue[0].entity_name,
                 })}>
                     Save as Draft
                 </button>

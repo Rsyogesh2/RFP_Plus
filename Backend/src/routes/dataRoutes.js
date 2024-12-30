@@ -497,11 +497,11 @@ const saveItems = async (items) => {
 };
 
 router.post('/insertFItem', async (req, res) => {
-  const { module, items, rfp_no, rfp_title, stage } = req.body;
+  const { module, items, rfp_no, rfp_title, stage, entity_Name, userName } = req.body;
   //console.log(module);
   //console.log(items);
   //console.log(rfp_title,rfp_no);
-  const entity_name = "Coastal"
+  // const entity_name = "Coastal"
   // Start a transaction
   const connection = await db.getConnection();
   await connection.beginTransaction();
@@ -513,12 +513,12 @@ router.post('/insertFItem', async (req, res) => {
 
       // Insert or Update into L1 table
       await connection.query(
-        `INSERT INTO RFP_Saved_L1_Modules (L1_Code, L1_Module_Description, RFP_No,stage)
-         VALUES (?, ?, ?, ?)
+        `INSERT INTO RFP_Saved_L1_Modules (L1_Code, L1_Module_Description, RFP_No,stage, entity_Name, userName)
+         VALUES (?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE
          L1_Code = VALUES(L1_Code),
          L1_Module_Description = VALUES(L1_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
-        [code, name, rfp_no, stage]
+        [code, name, rfp_no, stage, entity_Name, userName]
       );
 
       if (l2 && l2.length > 0) {
@@ -567,7 +567,7 @@ router.post('/insertFItem', async (req, res) => {
 
     const insertQuery = `
     INSERT INTO RFP_FunctionalItem_Draft (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted,stage)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE 
       RFP_Title = VALUES(RFP_Title),
       Requirement = VALUES(Requirement),
@@ -575,7 +575,9 @@ router.post('/insertFItem', async (req, res) => {
       Mandatory = VALUES(Mandatory),
       Comments = VALUES(Comments),
       deleted = VALUES(deleted),
-      stage = VALUES(stage)
+      stage = VALUES(stage),
+      entity_Name = VALUES(entity_Name),
+      userName =  VALUES(userName) 
   `;
 
     for (const item of items) {
@@ -590,7 +592,9 @@ router.post('/insertFItem', async (req, res) => {
         item.MorO,
         item.Comments,
         item.deleted,
-        item.stage
+        item.stage,
+        entity_Name,
+        userName
       ];
 
       await connection.query(insertQuery, values);

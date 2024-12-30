@@ -26,7 +26,7 @@ export default sendCheckedItems;
 export const handleSave = async ({module,items,rfp_no,rfp_title,stage}) => {
     // console.log(module);
     // console.log(items);
-    setGlobalFItems(items);
+    // setGlobalFItems(items);
     try {
         const response = await fetch('/api/insertFItem', {
             method: 'POST',
