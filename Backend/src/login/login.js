@@ -72,23 +72,11 @@ router.post("/api/login", async (req, res) => {
       const query = `SELECT Role FROM Users_Login WHERE Username = ?`;
       
       const [results] = await db.execute(query, [username]);
-      const query1 = `SELECT uma.user_name AS userName, 
-       uma.rfp_no AS rfpNo, 
-       uma.entity_name AS entityName, 
-       uma.is_active AS isActive, 
-       uma.date_from AS dateFrom, 
-       uma.date_to AS dateTo, 
-       uma.is_maker AS isMaker, 
-       uma.is_authorizer AS isAuthorizer, 
-       uma.is_reviewer AS isReviewer, 
-       uma.module_name AS moduleName, 
-       uma.createdby AS createdBy
-        FROM user_modules_assignment AS uma
-        INNER JOIN Users_Table AS ut 
-            ON uma.createdby = ut.createdby AND uma.user_name = ut.user_name
-        WHERE ut.email = ?;
-        `;
-        const [results1] = await db.execute(query1, [username]);
+      if(results[0]=="Vendor User"){
+
+      }
+      let query1;
+      let results1 =[] ;
         // console.log(results1)
       if (results.length === 0) {
         return res.status(404).json({ message: "No roles found for this user." });
@@ -125,7 +113,44 @@ router.post("/api/login", async (req, res) => {
           console.log("No validity data found");
           return res.status(404).json({ message: "No validity for this user." });
       }
-      }
+      } else if(results[0].Role=="Vendor User"){
+         query1 = `SELECT uma.user_name AS userName, 
+        uma.rfp_no AS rfpNo, 
+        uma.entity_name AS entityName, 
+        uma.is_active AS isActive, 
+        uma.date_from AS dateFrom, 
+        uma.date_to AS dateTo, 
+        uma.is_maker AS isMaker, 
+        uma.is_authorizer AS isAuthorizer, 
+        uma.is_reviewer AS isReviewer, 
+        uma.module_name AS moduleName, 
+        uma.createdby AS createdBy
+         FROM Vendoruser_modules_assignment AS uma
+         INNER JOIN Vendor_Users_Table AS ut 
+             ON uma.createdby = ut.createdby AND uma.user_name = ut.user_name
+         WHERE ut.email = ?;
+         `;
+          [results1] = await db.execute(query1, [username]);
+
+      } else if(results[0].Role=="User"){
+         query1 = `SELECT uma.user_name AS userName, 
+        uma.rfp_no AS rfpNo, 
+        uma.entity_name AS entityName, 
+        uma.is_active AS isActive, 
+        uma.date_from AS dateFrom, 
+        uma.date_to AS dateTo, 
+        uma.is_maker AS isMaker, 
+        uma.is_authorizer AS isAuthorizer, 
+        uma.is_reviewer AS isReviewer, 
+        uma.module_name AS moduleName, 
+        uma.createdby AS createdBy
+         FROM user_modules_assignment AS uma
+         INNER JOIN Users_Table AS ut 
+             ON uma.createdby = ut.createdby AND uma.user_name = ut.user_name
+         WHERE ut.email = ?;
+         `;
+          [results1] = await db.execute(query1, [username]);
+      } 
       // Extract roles and send as an array
       const roles = results.map((row) => row.Role);
       res.json({ roles,results1 });

@@ -38,6 +38,7 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       { label: "Vendor Admin", section: "Vendor Admin" },
       { label: "Reports", section: "Reports" },
       { label: "Final Evaluation", section: "Final Evaluation" },
+      { label: "Vendor Query Submission", section: "Vendor Query Submission" },
     ],
     "Global Admin": [
       { label: "Add Super User", section: "Add Super User" },

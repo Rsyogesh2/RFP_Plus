@@ -291,12 +291,14 @@ const HomePage = ({ userType }) => {
       case "Assign Vendor Users":
         return <AssignUsers />;
       case "Submit Query":
-        return <RfpScoringCriteria />;
+        return <VendorQuery />;
       case "Submit RFP":
         return <CreateRFPForm />;
       case "View Vendor Assigned RFPs":
           return <RFPVendorTable />;
       case "Vendor Query":
+        return <VendorQuery />;
+      case "Vendor Query Submission":
         return <VendorQuery />;
       case "Final Evaluation":
         return <FinalEvaluation />

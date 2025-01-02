@@ -1,3 +1,5 @@
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const sendCheckedItems = async (checkedItems) => {
     try {
         const response = await fetch('/api/products/itemDetails', {
@@ -28,7 +30,7 @@ export const handleSave = async ({module,items,rfp_no,rfp_title,stage}) => {
     // console.log(items);
     // setGlobalFItems(items);
     try {
-        const response = await fetch('/api/insertFItem', {
+        const response = await fetch(`${API_URL}/api/insertFItem`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -77,7 +79,7 @@ export const fetchModuleandFitemData = async (rfpNo) => {
     try {
         // Construct the URL with query parameters
        
-        const response = await fetch(`/api/getSavedData?rfpNo=${encodeURIComponent(rfpNo)}`);
+        const response = await fetch(`${API_URL}/api/getSavedData?rfpNo=${encodeURIComponent(rfpNo)}`);
         // Check if the response is okay
         if (!response.ok) {
             throw new Error('Failed to retrieve module data');

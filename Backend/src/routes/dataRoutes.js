@@ -497,7 +497,9 @@ const saveItems = async (items) => {
 };
 
 router.post('/insertFItem', async (req, res) => {
+  console.log("insertFItem" );
   const { module, items, rfp_no, rfp_title, stage, entity_Name, userName } = req.body;
+  console.log(rfp_no, rfp_title, stage, entity_Name, userName );
   //console.log(module);
   //console.log(items);
   //console.log(rfp_title,rfp_no);
@@ -520,7 +522,7 @@ router.post('/insertFItem', async (req, res) => {
          L1_Module_Description = VALUES(L1_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
         [code, name, rfp_no, stage, entity_Name, userName]
       );
-
+      console.log("after l1");
       if (l2 && l2.length > 0) {
         const l2Values = [];
         const l3Values = [];
@@ -547,7 +549,7 @@ router.post('/insertFItem', async (req, res) => {
             l2Values.flat()
           );
         }
-
+        console.log("afterl2");
         // Batch Insert or Update into L3 table
         if (l3Values.length > 0) {
           const l3Placeholders = l3Values.map(() => "(?, ?, ?, ?)").join(", ");
@@ -555,7 +557,7 @@ router.post('/insertFItem', async (req, res) => {
             `INSERT INTO RFP_Saved_L3_Modules (L3_Code, L3_Module_Description, RFP_No, stage)
              VALUES ${l3Placeholders}
              ON DUPLICATE KEY UPDATE
-             L3_Code = VALUES(L3_Code)
+             L3_Code = VALUES(L3_Code),
              L3_Module_Description = VALUES(L3_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
             l3Values.flat()
           );
@@ -564,10 +566,11 @@ router.post('/insertFItem', async (req, res) => {
     }
 
 
-
+    console.log("after l3")
     const insertQuery = `
-    INSERT INTO RFP_FunctionalItem_Draft (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted,stage)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO RFP_FunctionalItem_Draft (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code,
+     F2_Code, New_Code, Mandatory, Comments, deleted,stage,entity_Name,userName,Level)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE 
       RFP_Title = VALUES(RFP_Title),
       Requirement = VALUES(Requirement),
@@ -577,7 +580,8 @@ router.post('/insertFItem', async (req, res) => {
       deleted = VALUES(deleted),
       stage = VALUES(stage),
       entity_Name = VALUES(entity_Name),
-      userName =  VALUES(userName) 
+      userName =  VALUES(userName) ,
+      Level =  "Bank"
   `;
 
     for (const item of items) {
@@ -592,12 +596,14 @@ router.post('/insertFItem', async (req, res) => {
         item.MorO,
         item.Comments,
         item.deleted,
-        item.stage,
+        stage,
         entity_Name,
-        userName
+        userName,
+        "Bank"
       ];
 
       await connection.query(insertQuery, values);
+      console.log("Fitems")
     }
 
     // Commit the transaction
@@ -1292,7 +1298,7 @@ router.get('/loadContents-saved', async (req, res) => {
    WHERE user_name = ? AND createdby = ?`,
         [userDetails[0].user_name, userDetails[0].createdby]
       );
-      //console.log("User Modules Assignment:", result);
+      // console.log("User Modules Assignment:", result);
 
     } else if (userPower == "Vendor User") {
       [userDetails] = await db.query(
@@ -1508,17 +1514,19 @@ router.get('/userItemsinSidebar', async (req, res) => {
 //vendorQuery Saving
 router.post('/vendorQuery-save-draft', async (req, res) => {
   console.log("vendorQuery-save-draft");
-  const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows } = req.body;
+  const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows,level } = req.body;
 
   try {
     const query = `
-            INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data,level)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE
                 rfp_title = VALUES(rfp_title),
                 stage = VALUES(stage),
                 rows_data = VALUES(rows_data),
-                updated_at = CURRENT_TIMESTAMP;
+                level = VALUES(level),
+                updated_at = CURRENT_TIMESTAMP
+                ;
         `;
     await db.execute(query, [
       rfpNo,
@@ -1528,6 +1536,7 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
       createdBy,
       stage,
       JSON.stringify(rows),
+      level,
     ]);
 
     res.status(200).send({ message: 'Draft saved or updated successfully!' });
@@ -1536,5 +1545,148 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
     res.status(500).send({ message: 'Failed to save or update draft' });
   }
 });
+router.post('/vendorQuery-fetch', async (req, res) => {
+  console.log("vendorQuery-fetch");
+  const { rfpNo, vendorName, bankName } = req.body;
+
+  if (!rfpNo || !vendorName || !bankName) {
+    return res.status(400).send({ message: "All fields (rfpNo, vendorName, bankName) are required" });
+  }
+
+  try {
+    const query = `
+      SELECT rows_data, rfp_title, stage, created_by, updated_at 
+      FROM VendorQuery
+      WHERE rfp_no = ? AND vendor_name = ? AND bank_name = ?;
+    `;
+
+    const [rows] = await db.execute(query, [rfpNo, vendorName, bankName]);
+    console.log(rows)
+    if (rows.length > 0) {
+      const result = rows[0];
+
+      // Safely parse rows_data if it is a valid JSON string
+      let rowsData;
+      try {
+        rowsData = typeof result.rows_data === "string" 
+          ? JSON.parse(result.rows_data) 
+          : result.rows_data; // Already an object
+      } catch (error) {
+        console.error("Error parsing rows_data:", error);
+        return res.status(500).send({ message: "Error parsing rows_data" });
+      }
+
+      res.status(200).send({
+        message: "Data fetched successfully!",
+        data: {
+          rfpTitle: result.rfp_title,
+          stage: result.stage,
+          createdBy: result.created_by,
+          updatedAt: result.updated_at,
+          rowsData, // Parsed JSON
+        },
+      });
+    } else {
+      res.status(404).send({ message: "No data found for the specified query." });
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send({ message: 'Failed to fetch data' });
+  }
+});
+router.post('/vendorQuery-fetch-admin', async (req, res) => {
+  console.log("vendorQuery-fetch-admin");
+  const { rfpNo, vendorName, bankName } = req.body;
+
+  if (!rfpNo || !vendorName || !bankName) {
+    return res.status(400).send({ message: "All fields (rfpNo, vendorName, bankName) are required" });
+  }
+
+  try {
+    const query = `
+      SELECT rows_data, rfp_title, stage, created_by, updated_at 
+      FROM VendorQuery
+      WHERE rfp_no = ? and stage!="viewer";
+    `;
+    // WHERE rfp_no = ? AND vendor_name = ? AND bank_name = ?;
+    const [rows] = await db.execute(query, [rfpNo]);
+    console.log(rows);
+
+    if (rows.length > 0) {
+      // Combine data from all rows
+      const combinedData = rows.map((result) => {
+        let rowsData;
+        try {
+          rowsData = typeof result.rows_data === "string" 
+            ? JSON.parse(result.rows_data) 
+            : result.rows_data; // Parse if JSON string
+        } catch (error) {
+          console.error("Error parsing rows_data:", error);
+          throw new Error("Error parsing rows_data"); // Break loop for JSON error
+        }
+
+        return {
+          rfpTitle: result.rfp_title,
+          stage: result.stage,
+          createdBy: result.created_by,
+          updatedAt: result.updated_at,
+          rowsData, // Parsed JSON
+        };
+      });
+
+      res.status(200).send({
+        message: "Data fetched successfully!",
+        data: combinedData, // Array of processed rows
+      });
+    } else {
+      res.status(404).send({ message: "No data found for the specified query." });
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send({ message: 'Failed to fetch data' });
+  }
+});
+
+// Fetch all vendor queries for admin, optionally filtered by rfp_no
+router.post('/vendorQuery-fetch-all-rows', async (req, res) => {
+  console.log("vendorQuery-fetch-all-rows");
+
+  try {
+    const query = `
+      SELECT rows_data
+      FROM VendorQuery;
+    `;
+
+    const [rows] = await db.execute(query);
+
+    // Combine all rows_data
+    let combinedRowsData = [];
+    rows.forEach(row => {
+      if (row.rows_data) {
+        try {
+          const parsedRows = JSON.parse(row.rows_data); // Parse JSON data
+          if (Array.isArray(parsedRows)) {
+            combinedRowsData = combinedRowsData.concat(parsedRows); // Combine arrays
+          }
+        } catch (error) {
+          console.error("Error parsing rows_data:", error);
+        }
+      }
+    });
+
+    res.status(200).send({
+      message: "Combined data fetched successfully!",
+      data: combinedRowsData,
+    });
+  } catch (error) {
+    console.error('Error fetching combined data:', error);
+    res.status(500).send({ message: 'Failed to fetch combined data' });
+  }
+});
+
+
+
+
+
 
 module.exports = router;

@@ -11,17 +11,7 @@ const RFPReqTable = ({ l1 }) => {
     const [name, setName] = useState(null); // Initially, no data
     // const [userRole, setUserRole] = useState("Maker"); // Initially, no data
     const [itemData, setItemData] = useState(null); // Initially, no data
-    const [FItem, setFItem] = useState([{
-        name: "",
-        Module_Code: "",
-        F1_Code: "",
-        F2_Code: "",
-        isEditing: false,
-        MorO: "",
-        Comments: "",
-        deleted: false
-
-    }]); 
+    const [FItem, setFItem] = useState([]); 
     const [newItem, setNewItem] = useState(null);
     const [valueL1, setValueL1] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
@@ -281,7 +271,7 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
+                            name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
                             checked={item.MorO === true}
                             onChange={() => handleMorOChange(true, item, TableIndex, parentIndex, subIndex, index)}
                         />
@@ -291,7 +281,7 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
+                            name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
                             checked={item.MorO === false}
                             onChange={() => handleMorOChange(false, item, TableIndex, parentIndex, subIndex, index)}
                         />
@@ -327,33 +317,40 @@ const RFPReqTable = ({ l1 }) => {
         ));
     };
     const readHierarchy = (levelData, levelType, paddingLeft = 10, TableIndex = null, parentIndex = null, subIndex = null, indexval) => {
-        // console.log('Rendering level:', levelType, 'with data', levelData,TableIndex,parentIndex," subIndex "+subIndex,"  indexval "+indexval);
+        console.log('Rendering level:', levelType, 'with data', levelData,TableIndex,parentIndex," subIndex "+subIndex,"  indexval "+indexval);
 
         if (!levelData || !Array.isArray(levelData)) return console.log("its empty"); // Ensure levelData is defined and an array
 
         return levelData.map((item, index) => (
-            <tr key={`${item.F2_Code}-${index}`} id={`${item.F2_Code}-${index}`}>
+            <tr key={`${item.Module_Code}-${item.F2_Code}-${index}`} id={`${item.Module_Code}-${item.F2_Code}-${index}`}>
+     
+                <td style={{ fontWeight: 'bold', paddingLeft: `${paddingLeft}px` }}>
+                    <span  style={{
+                                fontWeight: levelType === 'f1' ? 550 : 'normal',
+                                textDecoration: item.deleted ? 'line-through' : 'none'
+                            }}>
+                    {item.name}
+                </span>
+                    </td>
+                <td style={{ textAlign: 'center' }}>
+                    {
+                        <input
+                            type="radio"
+                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
+                            checked={item.MorO === 1}
+                        />
+                    }
+                </td>
+                <td style={{ textAlign: 'center' }}>
+                    {
+                        <input
+                            type="radio"
+                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
+                            checked={item.MorO === 0 ||!item.MorO}
+                        />
+                    }
+                </td>
 
-                
-                <td>{item.name}</td>
-                <td style={{ textAlign: 'center' }}>
-                    {
-                        <input
-                            type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
-                            checked={item.MorO === true}
-                        />
-                    }
-                </td>
-                <td style={{ textAlign: 'center' }}>
-                    {
-                        <input
-                            type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
-                            checked={item.MorO === false}
-                        />
-                    }
-                </td>
                 <td>
                     <p>{item.Comments || ''}</p>    
                 </td>
