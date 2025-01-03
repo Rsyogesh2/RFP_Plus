@@ -4,7 +4,7 @@
   }
   
   .vendor-query-table {
-    width: 100%;
+    min-width: 100% !important;
     border-collapse: collapse;
     margin-top: 20px;
   }

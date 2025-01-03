@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppContext';
 import "./VendorQuery.css";
 import { TreeSelect } from "antd";
 
-const VendorQuery = () => {
+const VendorQuery = ({rfpNo=""}) => {
   const [rows, setRows] = useState([]);
   const [options, setOptions] = useState([]);
   const { userName, userPower, userRole, sidebarValue, moduleData } = useContext(AppContext);
@@ -11,9 +11,17 @@ const VendorQuery = () => {
 
   const fetchVendorQueries = async () => {
     let url;
+    let level
     try {
       if(userPower=="Vendor User"){
         url = "api/vendorQuery-fetch";
+        level="Vendor"
+      } else if(userPower=="Vendor Admin"){
+        url = "api/vendorQuery-fetch-admin"
+         level="Vendor"
+      } else if(userPower=="Super Admin"){
+        url = "api/vendorQuery-fetch-admin";
+         level="Bank"
       } else{
         url = "api/vendorQuery-fetch-admin"
       }
@@ -23,9 +31,12 @@ const VendorQuery = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          rfpNo: sidebarValue[0].rfp_no,
-          vendorName: sidebarValue[0].entity_name,
+          rfpNo:  rfpNo || sidebarValue[0].rfp_no,
+          vendorName: sidebarValue[0]?.entity_name,
           bankName: "Bank Name",
+          level:level,
+          stage:userRole,
+          userName:userName
         }),
       });
 
@@ -33,7 +44,7 @@ const VendorQuery = () => {
       console.log(data)
       if (response.ok) {
         // Assuming `data.data` is the response structure
-        if(data.data.length>1){
+        if(data.data.length>0){
         const combinedRowsData = data.data.reduce((accumulator, currentRow) => {
           return accumulator.concat(currentRow.rowsData || []); // Merge rowsData from all rows
         }, []);
@@ -95,16 +106,43 @@ const VendorQuery = () => {
     if (userPower === "User") {
       return "Bank";
     } else if (userPower === "Super Admin") {
-      return "Vendor";
-    } else if (userPower === "Vendor User") {
       return "Bank";
+    } else if (userPower === "Vendor User") {
+      return "Vendor";
     } else if (userPower === "Vendor Admin") {
       return "Vendor";
     } else {
       return "Unknown"; // Default value
     }
   };
-  
+  const nextGetLevel = () => {
+    if (userPower === "User") {
+      return "Bank";
+    } else if (userPower === "Super Admin") {
+      return "Vendor";
+    } else if (userPower === "Vendor User") {
+      return "Vendor";
+    } else if (userPower === "Vendor Admin") {
+      return "Bank";
+    } else {
+      return "Unknown"; // Default value
+    }
+  };
+  const nextGetStage = () => {
+    if (userRole === "Maker") {
+      return "Authorizer";
+    } else if (userRole === "Authorizer") {
+      return "Viewer";
+    } else if (userRole === "Viewer") {
+      return "Vendor Admin";
+    } else if (userRole === "Vendor Admin") {
+      return "Super Admin";
+    } else if (userRole === "Super Admin") {
+      return "Vendor Admin";
+    } else {
+      return "Unknown"; // Default value
+    }
+  };
   // Example usage
  
   const saveAsDraft = async () => {
@@ -114,9 +152,10 @@ const VendorQuery = () => {
       vendorName: sidebarValue[0].entity_name,
       bankName: "Bank Name",
       createdBy: userName,
-      stage: userRole === "Maker" ? "Authorizer" : "Viewer",
-      level: getLevel(),
+      stage: nextGetStage(),
+      level: nextGetLevel(),
       rows,
+      stageNumber:2
     };
     console.log(payload.level)
 
@@ -149,8 +188,13 @@ const VendorQuery = () => {
 
   return (
     <div className="vendor-query-container">
-      <h2>{sidebarValue[0].entity_name}</h2>
-      <h3>{sidebarValue[0].rfp_no} - {sidebarValue[0].rfp_title}</h3>
+      {sidebarValue.length>0 &&(
+        <>
+         {/* <h2>{sidebarValue[0].entity_name}</h2> */}
+         <h3>{sidebarValue[0].rfp_no} - {sidebarValue[0].rfp_title}</h3>
+        </>
+      )    
+      }
       <h4>Vendor Query</h4>
       <table className="vendor-query-table">
         <thead>
@@ -159,7 +203,9 @@ const VendorQuery = () => {
             <th>RFP Reference</th>
             <th>Existing Details</th>
             <th>Clarification Needed</th>
-            {getLevel()==="Bank" && (<th>Clarification Given</th>)}
+            {(getLevel() === "Bank" || (rows && rows[0]?.clarificationGiven)) && (
+            <th>Clarification Given</th>
+        )}
           </tr>
         </thead>
         <tbody>
@@ -234,15 +280,25 @@ const VendorQuery = () => {
                     row.clarification
                   )}
                 </td>
-                <td>
-                {getLevel()==="Bank" && (<input
+                {(getLevel() === "Bank" || (rows && rows[0]?.clarificationGiven)) && (
+            <td>
+            <input
+                  type="text"
+                  maxLength="400"
+                  value={row.clarificationGiven}
+                  onChange={(e) => handleInputChange(index, "clarificationGiven", e.target.value)}
+                />
+                </td>
+              )}
+                {/* {getLevel()==="Bank" && (<td>
+                <input
                       type="text"
                       maxLength="400"
-                      // value={row.clarification}
+                      value={row.clarificationGiven}
                       onChange={(e) => handleInputChange(index, "clarificationGiven", e.target.value)}
-                    />)
-                }
-                </td>
+                    />
+                </td>)
+                } */}
               </tr>
             )
           })}
@@ -260,8 +316,8 @@ const VendorQuery = () => {
           <button onClick={saveAsDraft}>Save as Draft</button>
         </div>
       )}
-       {userPower === "Vendor Admin" && (
-  <div className="save-button-container">
+       {(userPower === "Vendor Admin" ||userPower === "Super Admin")&& (
+    <div className="save-button-container">
     <button
       onClick={() => {
         const userConfirmed = window.confirm("Are you sure you want to submit the query?");

@@ -497,9 +497,9 @@ const saveItems = async (items) => {
 };
 
 router.post('/insertFItem', async (req, res) => {
-  console.log("insertFItem" );
+  console.log("insertFItem");
   const { module, items, rfp_no, rfp_title, stage, entity_Name, userName } = req.body;
-  console.log(rfp_no, rfp_title, stage, entity_Name, userName );
+  console.log(rfp_no, rfp_title, stage, entity_Name, userName);
   //console.log(module);
   //console.log(items);
   //console.log(rfp_title,rfp_no);
@@ -1415,6 +1415,104 @@ router.get('/loadContents-saved', async (req, res) => {
     res.status(500).send('Internal Server Error'); // Handle errors
   }
 });
+router.get('/loadContents-superAdmin', async (req, res) => {
+  try {
+    console.log("loadContents-superAdmin")
+    const { userName, userPower, userRole } = req.query;// Destructure checkedItems from request body
+
+    // //console.log(userName);
+    // //console.log(userPower);
+    // Test the first query
+    let userDetails;
+    let result;
+    let result1;
+    if (userPower == "Super Admin") {
+      [userDetails] = await db.query(
+        `SELECT super_user_name, entity_Name FROM superadmin_users WHERE super_user_email = ?`,
+        [userName]
+      );
+
+      // Ensure userDetails is not undefined
+      if (!userDetails) {
+        throw new Error("User not found.");
+      }
+
+      // Test the second query
+      [result] = await db.query(
+        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
+   module_name, rfp_no 
+   FROM User_Modules_Assignment 
+   WHERE createdby = ?`,
+        [userName]
+      );
+      [result1] = await db.query(`select * from rfp_creation where email=?`, [userName]);
+      // console.log("User Modules Assignment:", result);
+
+    } else if (userPower == "Vendor Admin") {
+      [userDetails] = await db.query(
+        `SELECT rfp_reference_no, entity_Name, admin_name, createdby FROM vendor_admin_users WHERE email = ?`,
+        [userName]
+      );
+
+      // Ensure userDetails is not undefined
+      if (!userDetails) {
+        throw new Error("User not found.");
+      }
+
+      // Test the second query
+      [result] = await db.query(
+        `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
+   module_name, rfp_no 
+   FROM VendorUser_Modules_Assignment 
+   WHERE createdby = ? `,
+        [userName]
+      );
+      //console.log("Vendor User Modules Assignment:", result);
+      [result1] = await db.query(`select * from rfp_creation where email=?`, [userDetails[0].createdby]);
+    }
+    const data = { l1: [], Name: userDetails[0].admin_name };
+    let combined = [];
+    for (const res of result) { // Iterate through all entries in `result`
+      // const { rfp_no } = res;
+      for (const l1 of res.module_name) { // Process each `l1` (module_name)
+        const l2Codes = l1.l2module || [];
+
+        if (l2Codes.length > 0) {
+          const l2CodesArray = l2Codes.map(l2 => l2.code);
+          const placeholders1 = l2CodesArray.map(() => `L3_Code LIKE CONCAT(?, '%')`).join(" OR ");
+          const queryString1 = `SELECT L3_Module_Description AS name, L3_Code, Stage, Level FROM RFP_Saved_L3_Modules WHERE ${placeholders1}`;
+
+          const [l3Result] = await db.query(queryString1, l2CodesArray);
+          const l3CodesArray = l3Result.map(l3 => l3.L3_Code);
+
+          // Populate `l3` for each `l2`
+          for (const l2 of l2Codes) {
+            l2.l3 = l3Result
+              .filter(row => row.L3_Code.startsWith(l2.code))
+              .map(row => ({ name: row.name, code: row.L3_Code }));
+          }
+        }
+
+        // Push the processed `l2` with `l3` to `l1`
+        data.l1.push({ name: l1.moduleName, code: l1.code, l2: l2Codes });
+      }
+      // combined.push({data,rfp_no})
+    }
+    console.log("result")
+    console.log(result1)
+    // Finalize response
+    if (result1.length > 0) {
+      res.json({ success: true, rfps: result1, itemDetails: data });
+    } else {
+      res.status(404).json({ error: "No sub-items found for these modules" });
+    }
+
+  } catch (error) {
+    console.error(error); // Log the error for debugging
+    res.status(500).send('Internal Server Error'); // Handle errors
+  }
+});
+
 // sidebar Loads when Login
 router.get('/userItemsinSidebar', async (req, res) => {
   console.log("userItemsinSidebar");
@@ -1463,7 +1561,7 @@ router.get('/userItemsinSidebar', async (req, res) => {
           `select rfp_title from RFP_Creation where rfp_no=?`, [rfp_no]);
         //console.log(rfp_title)                  
 
-        data.push({ module_name, rfp_no, rfp_title: rfp_title[0].rfp_title,entity_name:userDetails[0].entity_Name })
+        data.push({ module_name, rfp_no, rfp_title: rfp_title[0].rfp_title, entity_name: userDetails[0].entity_Name })
         //console.log(data)
       }
     } else if (userPower == "Vendor User") {
@@ -1494,7 +1592,7 @@ router.get('/userItemsinSidebar', async (req, res) => {
           `select rfp_title from RFP_Creation where rfp_no=?`, [rfp_no]);
         //console.log(rfp_title)                  
 
-        data.push({ module_name, rfp_no, rfp_title: rfp_title[0].rfp_title,entity_name:userDetails[0].entity_Name })
+        data.push({ module_name, rfp_no, rfp_title: rfp_title[0].rfp_title, entity_name: userDetails[0].entity_Name })
         //console.log(data)
       }
 
@@ -1514,20 +1612,21 @@ router.get('/userItemsinSidebar', async (req, res) => {
 //vendorQuery Saving
 router.post('/vendorQuery-save-draft', async (req, res) => {
   console.log("vendorQuery-save-draft");
-  const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows,level } = req.body;
+  const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows, level, stageNumber } = req.body;
 
   try {
     const query = `
-            INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data,level)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-                rfp_title = VALUES(rfp_title),
-                stage = VALUES(stage),
-                rows_data = VALUES(rows_data),
-                level = VALUES(level),
-                updated_at = CURRENT_TIMESTAMP
-                ;
-        `;
+    INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data, level, StageNumber)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+        rfp_title = VALUES(rfp_title),
+        stage = VALUES(stage),
+        rows_data = VALUES(rows_data),
+        level = VALUES(level),
+        StageNumber = VALUES(StageNumber),
+        updated_at = CURRENT_TIMESTAMP;
+`;
+
     await db.execute(query, [
       rfpNo,
       rfpTitle,
@@ -1537,6 +1636,7 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
       stage,
       JSON.stringify(rows),
       level,
+      stageNumber
     ]);
 
     res.status(200).send({ message: 'Draft saved or updated successfully!' });
@@ -1568,8 +1668,8 @@ router.post('/vendorQuery-fetch', async (req, res) => {
       // Safely parse rows_data if it is a valid JSON string
       let rowsData;
       try {
-        rowsData = typeof result.rows_data === "string" 
-          ? JSON.parse(result.rows_data) 
+        rowsData = typeof result.rows_data === "string"
+          ? JSON.parse(result.rows_data)
           : result.rows_data; // Already an object
       } catch (error) {
         console.error("Error parsing rows_data:", error);
@@ -1596,29 +1696,41 @@ router.post('/vendorQuery-fetch', async (req, res) => {
 });
 router.post('/vendorQuery-fetch-admin', async (req, res) => {
   console.log("vendorQuery-fetch-admin");
-  const { rfpNo, vendorName, bankName } = req.body;
-
+  const { rfpNo, vendorName, bankName, level, userName, stage } = req.body;
+  console.log(rfpNo, userName, level)
   if (!rfpNo || !vendorName || !bankName) {
     return res.status(400).send({ message: "All fields (rfpNo, vendorName, bankName) are required" });
   }
 
   try {
-    const query = `
+
+    let query1;
+    var val;
+    if (level == "Vendor") {
+      query1 = `
       SELECT rows_data, rfp_title, stage, created_by, updated_at 
       FROM VendorQuery
-      WHERE rfp_no = ? and stage!="viewer";
+      WHERE rfp_no = ? and level ='Vendor' ;
     `;
-    // WHERE rfp_no = ? AND vendor_name = ? AND bank_name = ?;
-    const [rows] = await db.execute(query, [rfpNo]);
-    console.log(rows);
+      val = [rfpNo]
+    } else if (level == "Bank") {
+      query1 = `
+      SELECT rows_data, rfp_title, stage, created_by, updated_at 
+      FROM VendorQuery
+      WHERE rfp_no = ? and level ='Vendor' and created_by=?;
+    `;
+      val = [rfpNo, userName]
+    }
 
-    if (rows.length > 0) {
+    const [rows1] = await db.execute(query1, val);
+    console.log(rows1)
+    if (rows1.length > 0) {
       // Combine data from all rows
-      const combinedData = rows.map((result) => {
+      const combinedData = rows1.map((result) => {
         let rowsData;
         try {
-          rowsData = typeof result.rows_data === "string" 
-            ? JSON.parse(result.rows_data) 
+          rowsData = typeof result.rows_data === "string"
+            ? JSON.parse(result.rows_data)
             : result.rows_data; // Parse if JSON string
         } catch (error) {
           console.error("Error parsing rows_data:", error);
@@ -1639,8 +1751,47 @@ router.post('/vendorQuery-fetch-admin', async (req, res) => {
         data: combinedData, // Array of processed rows
       });
     } else {
-      res.status(404).send({ message: "No data found for the specified query." });
+      const query = `
+      SELECT rows_data, rfp_title, stage, created_by, updated_at 
+      FROM VendorQuery
+      WHERE rfp_no = ? and stage!="viewer" and level ='Vendor';
+    `;
+      // WHERE rfp_no = ? AND vendor_name = ? AND bank_name = ?;
+      const [rows] = await db.execute(query, [rfpNo]);
+      console.log(rows);
+
+      if (rows.length > 0) {
+        // Combine data from all rows
+        const combinedData = rows.map((result) => {
+          let rowsData;
+          try {
+            rowsData = typeof result.rows_data === "string"
+              ? JSON.parse(result.rows_data)
+              : result.rows_data; // Parse if JSON string
+          } catch (error) {
+            console.error("Error parsing rows_data:", error);
+            throw new Error("Error parsing rows_data"); // Break loop for JSON error
+          }
+
+          return {
+            rfpTitle: result.rfp_title,
+            stage: result.stage,
+            createdBy: result.created_by,
+            updatedAt: result.updated_at,
+            rowsData, // Parsed JSON
+          };
+        });
+
+        res.status(200).send({
+          message: "Data fetched successfully!",
+          data: combinedData, // Array of processed rows
+        });
+      } else {
+        res.status(404).send({ message: "No data found for the specified RFP." });
+      }
     }
+
+
   } catch (error) {
     console.error('Error fetching data:', error);
     res.status(500).send({ message: 'Failed to fetch data' });

@@ -4,6 +4,7 @@ import { AppContext } from "./../context/AppContext";
 import RfpForm from "../components/Sections/RfpForm";
 import Sidebar from "./Sidebar";
 import VendorQuery from "./VendorQuery";
+import SubmitQuery from "./Vendor/SubmitQuery";
 import AssignUsers from "./AssignUsers";
 import VendorAdmin from "./VendorAdmin";
 import ViewModifyUserTable from "./ViewModifyUserTable";
@@ -227,10 +228,17 @@ const HomePage = ({ userType }) => {
                     } else{
                       url = `${API_URL}/api/loadContents-saved?${queryParams}`;
                     }
-                     
                   } else if(userPower=="Vendor User"){
-                     url = `${API_URL}/api/loadContents-saved?${queryParams}`;
-                  } 
+                    // if(userRole=="Maker"){
+                    //   url = `${API_URL}/api/lc-initial-vendorUser?${queryParams}`;
+                    // } else{
+                      url = `${API_URL}/api/loadContents-saved?${queryParams}`;
+                    // }
+                  } else if(userPower=="Vendor Admin"){
+                    url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
+                 } else if(userPower=="Super Admin"){
+                    url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
+               } 
                   console.log("Fetching URL:", url);
                   const response = await fetch(url);
                   
@@ -291,7 +299,7 @@ const HomePage = ({ userType }) => {
       case "Assign Vendor Users":
         return <AssignUsers />;
       case "Submit Query":
-        return <VendorQuery />;
+        return <SubmitQuery />;
       case "Submit RFP":
         return <CreateRFPForm />;
       case "View Vendor Assigned RFPs":
@@ -299,7 +307,7 @@ const HomePage = ({ userType }) => {
       case "Vendor Query":
         return <VendorQuery />;
       case "Vendor Query Submission":
-        return <VendorQuery />;
+        return <SubmitQuery />;
       case "Final Evaluation":
         return <FinalEvaluation />
       case 99:
