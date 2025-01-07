@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppContext';
 import "./VendorQuery.css";
 import { TreeSelect } from "antd";
 
-const VendorQuery = ({rfpNo=""}) => {
+const VendorQuery = ({ rfpNo = "" }) => {
   const [rows, setRows] = useState([]);
   const [options, setOptions] = useState([]);
   const { userName, userPower, userRole, sidebarValue, moduleData } = useContext(AppContext);
@@ -11,53 +11,43 @@ const VendorQuery = ({rfpNo=""}) => {
 
   const fetchVendorQueries = async () => {
     let url;
-    let level
+    let level;
+
     try {
-      if(userPower=="Vendor User"){
+      level=currentLevel();
+      if (userPower === "Vendor User") {
         url = "api/vendorQuery-fetch";
-        level="Vendor"
-      } else if(userPower=="Vendor Admin"){
-        url = "api/vendorQuery-fetch-admin"
-         level="Vendor"
-      } else if(userPower=="Super Admin"){
+        // level = "Vendor";
+      } else if (userPower === "Vendor Admin") {
         url = "api/vendorQuery-fetch-admin";
-         level="Bank"
-      } else{
-        url = "api/vendorQuery-fetch-admin"
+        // level = "Vendor";
+      } else if (userPower === "Super Admin") {
+        url = "api/vendorQuery-fetch-admin";
+        // level = "Bank";
+      } else {
+        url = "api/vendorQuery-fetch-admin";
+        // level = "Unknown";
       }
+
       const response = await fetch(`${API_URL}/${url}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          rfpNo:  rfpNo || sidebarValue[0].rfp_no,
+          rfpNo: rfpNo || sidebarValue[0]?.rfp_no,
           vendorName: sidebarValue[0]?.entity_name,
           bankName: "Bank Name",
-          level:level,
-          stage:userRole,
-          userName:userName
+          level,
+          stage: userRole,
+          userName,
         }),
       });
 
       const data = await response.json();
-      console.log(data)
       if (response.ok) {
-        // Assuming `data.data` is the response structure
-        if(data.data.length>0){
-        const combinedRowsData = data.data.reduce((accumulator, currentRow) => {
-          return accumulator.concat(currentRow.rowsData || []); // Merge rowsData from all rows
-        }, []);
-
-        // Set the combined data
-        setRows(combinedRowsData);
-
-        // Log to console
-        console.log(combinedRowsData);
-      } else{
-        setRows(data.data.rowsData || []);
-        console.log(rows)
-      }
+        const combinedRowsData = data.data?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
+        setRows(combinedRowsData || []);
       } else {
         alert(data.message || "Failed to fetch data");
       }
@@ -71,29 +61,22 @@ const VendorQuery = ({rfpNo=""}) => {
     return data.map((item, index) => {
       const currentPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
       return {
-        title: `${currentPrefix}. ${item.name}`, // Use `title` for the label
-        value: item.code, // Use `value` for the unique key
-        name: item.name,  // Include the name in the data
+        title: `${currentPrefix}. ${item.name}`,
+        value: item.code,
+        name: item.name,
         children: item.l2 ? flattenHierarchy(item.l2, currentPrefix) : undefined,
       };
     });
   };
 
-
   const addRow = () => {
     if (userRole === "Maker") {
-      setRows([
-        ...rows,
-        { RFP_Reference: "", treeValue: "", existingDetails: "", clarification: "" },
-      ]);
+      setRows([...rows, { RFP_Reference: "", treeValue: "", existingDetails: "", clarification: "" }]);
     }
   };
 
   const handleInputChange = (index, field, data) => {
     const updatedRows = [...rows];
-    console.log(field);
-    console.log(data);
-
     if (field === "RFP_Reference") {
       updatedRows[index].treeValue = data.value;
       updatedRows[index].name = data.name;
@@ -102,62 +85,82 @@ const VendorQuery = ({rfpNo=""}) => {
     }
     setRows(updatedRows);
   };
-  const getLevel = () => {
-    if (userPower === "User") {
-      return "Bank";
-    } else if (userPower === "Super Admin") {
-      return "Bank";
-    } else if (userPower === "Vendor User") {
-      return "Vendor";
-    } else if (userPower === "Vendor Admin") {
-      return "Vendor";
-    } else {
-      return "Unknown"; // Default value
-    }
+
+  const getNextLevel = () => {
+    if (userRole === "Maker") return "Authorizer";
+    if (userRole === "Authorizer") return "Reviewer";
+    if (userRole === "Reviewer") return "Vendor Admin";
+    if (userRole === "Vendor Admin") return "Super Admin";
+    return "Unknown";
   };
-  const nextGetLevel = () => {
-    if (userPower === "User") {
-      return "Bank";
-    } else if (userPower === "Super Admin") {
-      return "Vendor";
-    } else if (userPower === "Vendor User") {
-      return "Vendor";
-    } else if (userPower === "Vendor Admin") {
-      return "Bank";
-    } else {
-      return "Unknown"; // Default value
-    }
-  };
-  const nextGetStage = () => {
-    if (userRole === "Maker") {
-      return "Authorizer";
-    } else if (userRole === "Authorizer") {
-      return "Viewer";
-    } else if (userRole === "Viewer") {
-      return "Vendor Admin";
-    } else if (userRole === "Vendor Admin") {
-      return "Super Admin";
-    } else if (userRole === "Super Admin") {
-      return "Vendor Admin";
-    } else {
-      return "Unknown"; // Default value
-    }
-  };
-  // Example usage
- 
-  const saveAsDraft = async () => {
-    const payload = {
-      rfpNo: sidebarValue[0].rfp_no,
-      rfpTitle: sidebarValue[0].rfp_title,
-      vendorName: sidebarValue[0].entity_name,
-      bankName: "Bank Name",
-      createdBy: userName,
-      stage: nextGetStage(),
-      level: nextGetLevel(),
-      rows,
-      stageNumber:2
+  const currentLevel =()=>{
+    return userPower === "Vendor User" && userRole === "Maker" ? 1 : userPower === "Vendor User" 
+        && userRole === "Authorizer" ? 2 : userPower === "Vendor User" && userRole === "Viewer" ? 3 :
+        userPower === "Vendor Admin" || userRole === "Vendor Admin" ? 4:5;
+  }
+  const constructPayload = (action, data) => {
+    let payload = {
+        rfp_no: data.rfp_no,
+        rfp_title: data.rfp_title,
+        vendor_name: data.vendor_name,
+        bank_name: data.bank_name,
+        created_by: data.userName,
+        rows_data: data.rows,
+        level: userPower === "Vendor User" && userRole === "Maker" ? 2 : userPower === "Vendor User" 
+        && userRole === "Authorizer" ? 3 : userPower === "Vendor User" && userRole === "Viewer" ? 4 : 1,
+        comments: data.comments || "",
+        priority: data.priority || "Medium",
+        handled_by: [{ name: data.userName, role: userRole }],
+        attachments: data.attachments || null,
+        action_log: `${action} by ${data.userName} on ${new Date().toISOString()}`,
     };
-    console.log(payload.level)
+
+    if (action === "Save as Draft") {
+        payload.stage = "Draft";
+        payload.status = "Draft";
+        payload.assigned_to = null;
+    } else if (action === "Submit") {
+        // payload.stage = userPower === "Vendor User" && userRole === "Maker" ? "Pending_Authorizer" 
+        // : userPower === "Vendor User" && userRole === "Authorizer" ? "Pending_Reviewer" 
+        // : userPower === "Vendor User" && userRole === "Viewer" ? "Pending_Vendor_Admin":"Pending_Super_Admin";
+        payload.stage = "Vendor";
+        payload.status = "Pending_Authorization";
+        payload.assigned_to = data.assignedTo || null;
+    } else if (action === "Approve" && userRole === "Authorizer") {
+        payload.stage = "Vendor";
+        payload.status = "Pending_Review";
+        payload.assigned_to = data.assignedTo || null;
+    }  else if (action === "Approve" && userRole === "Viewer") {
+      payload.stage = "Vendor";
+      payload.status = "Pending_Vendor_Admin";
+      payload.assigned_to = data.assignedTo || null;
+    } else if (action === "Submit to Bank") {
+      payload.stage = "Bank";
+      payload.status = "Pending_Super_Admin";
+      payload.assigned_to = data.assignedTo || null;
+  } else if (action === "Reject") {
+        payload.stage = "Rejected";
+        payload.status = "Rejected";
+        payload.assigned_to = null;
+    }
+
+    return payload;
+};
+
+  const saveAsDraft = async () => {
+    let payload;
+    // const payload = {
+    //   rfpNo: sidebarValue[0]?.rfp_no,
+    //   rfpTitle: sidebarValue[0]?.rfp_title,
+    //   vendorName: sidebarValue[0]?.entity_name,
+    //   bankName: "Bank Name",
+    //   createdBy: userName,
+    //   stage: getNextLevel(),
+    //   level: getNextLevel(),
+    //   rows,
+    //   stageNumber: 2,
+    // };
+    
 
     try {
       const response = await fetch(`${API_URL}/api/vendorQuery-save-draft`, {
@@ -181,20 +184,17 @@ const VendorQuery = ({rfpNo=""}) => {
   };
 
   useEffect(() => {
-    // Fetch existing queries and dropdown options
     fetchVendorQueries();
-    setOptions(flattenHierarchy(moduleData.itemDetails.l1 || []));
+    setOptions(flattenHierarchy(moduleData.itemDetails?.l1 || []));
   }, [moduleData]);
 
   return (
     <div className="vendor-query-container">
-      {sidebarValue.length>0 &&(
+      {sidebarValue.length > 0 && (
         <>
-         {/* <h2>{sidebarValue[0].entity_name}</h2> */}
-         <h3>{sidebarValue[0].rfp_no} - {sidebarValue[0].rfp_title}</h3>
+          <h3>{`${sidebarValue[0].rfp_no} - ${sidebarValue[0].rfp_title}`}</h3>
         </>
-      )    
-      }
+      )}
       <h4>Vendor Query</h4>
       <table className="vendor-query-table">
         <thead>
@@ -203,112 +203,77 @@ const VendorQuery = ({rfpNo=""}) => {
             <th>RFP Reference</th>
             <th>Existing Details</th>
             <th>Clarification Needed</th>
-            {(getLevel() === "Bank" || (rows && rows[0]?.clarificationGiven)) && (
-            <th>Clarification Given</th>
-        )}
+            {rows.some(row => row.clarificationGiven) && <th>Clarification Given</th>}
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, index) => {
-            console.log(row)
-            return (
-              <tr key={index}>
-                <td>{index + 1}</td>
+          {rows.map((row, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>
+                {userRole === "Maker" ? (
+                  <TreeSelect
+                    treeData={options}
+                    value={row.treeValue}
+                    onChange={(value, node) =>
+                      handleInputChange(index, "RFP_Reference", {
+                        value,
+                        name: node?.name,
+                      })
+                    }
+                    placeholder="Select"
+                    treeDefaultExpandAll
+                    style={{ width: "100%" }}
+                  />
+                ) : (
+                  row.treeValue || "N/A"
+                )}
+              </td>
+              <td>
+                {userRole === "Maker" ? (
+                  <input
+                    type="text"
+                    maxLength="400"
+                    value={row.existingDetails}
+                    onChange={(e) => handleInputChange(index, "existingDetails", e.target.value)}
+                  />
+                ) : (
+                  row.existingDetails
+                )}
+              </td>
+              <td>
+                {userRole === "Maker" ? (
+                  <input
+                    type="text"
+                    maxLength="400"
+                    value={row.clarification}
+                    onChange={(e) => handleInputChange(index, "clarification", e.target.value)}
+                  />
+                ) : (
+                  row.clarification
+                )}
+              </td>
+              {row.clarificationGiven && (
                 <td>
-                  {userRole === "Maker" ? (
-                    // Editable TreeSelect for Maker
-                    <TreeSelect
-                      treeData={options}
-                      value={row.treeValue}
-                      onChange={(value, node) => {
-                        handleInputChange(index, "RFP_Reference", {
-                          value,                  // The selected value
-                          label: node?.title || "", // The title displayed in the dropdown
-                          name: node?.name || "",   // The name associated with the node
-                        });
-                      }}
-                      placeholder="Please select"
-                      treeDefaultExpandAll
-                      style={{ width: "100%" }}
-                    />
-                  ) : (
-                    // Non-editable TreeSelect for other roles
-                    <TreeSelect
-                      treeData={options}
-                      value={row.treeValue}
-                      // disabled // Makes the TreeSelect non-interactive
-                      placeholder="Please select"
-                      treeDefaultExpandAll
-                      style={{
-                        width: "100%",
-                        backgroundColor: "transparent", // Make background transparent
-                        border: "none", // Remove border
-                        padding: "0", // Remove padding
-                        textAlign: "left", // Align text left
-                      }}
-                      dropdownStyle={{ display: "none" }} // Hide the dropdown arrow
-                      valueRender={(value) => <span>{value}</span>} // Render the value as text
-                    />
-
-                    //   <span>
-                    //   {row.treeValue?.label || row.treeValue?.value || "N/A"}  {/* Render label or value */}
-                    // </span>
-                  )}
-                </td>
-
-                <td>
-                  {userRole === "Maker" ? (
+                  {userRole === "Authorizer" ? (
                     <input
-                      type="text"
-                      maxLength="400"
-                      value={row.existingDetails}
-                      onChange={(e) => handleInputChange(index, "existingDetails", e.target.value)}
-                    />
-                  ) : (
-                    row.existingDetails
-                  )}
-                </td>
-                <td>
-                  {userRole === "Maker" ? (
-                    <input
-                      type="text"
-                      maxLength="400"
-                      value={row.clarification}
-                      onChange={(e) => handleInputChange(index, "clarification", e.target.value)}
-                    />
-                  ) : (
-                    row.clarification
-                  )}
-                </td>
-                {(getLevel() === "Bank" || (rows && rows[0]?.clarificationGiven)) && (
-            <td>
-            <input
-                  type="text"
-                  maxLength="400"
-                  value={row.clarificationGiven}
-                  onChange={(e) => handleInputChange(index, "clarificationGiven", e.target.value)}
-                />
-                </td>
-              )}
-                {/* {getLevel()==="Bank" && (<td>
-                <input
                       type="text"
                       maxLength="400"
                       value={row.clarificationGiven}
                       onChange={(e) => handleInputChange(index, "clarificationGiven", e.target.value)}
                     />
-                </td>)
-                } */}
-              </tr>
-            )
-          })}
+                  ) : (
+                    row.clarificationGiven
+                  )}
+                </td>
+              )}
+            </tr>
+          ))}
         </tbody>
       </table>
 
       {userRole === "Maker" && (
-        <button className="add-row-button" onClick={addRow}>
-          Add Row
-        </button>
+        <button className="add-row-button" onClick={addRow}>Add Row</button>
       )}
 
       {userRole === "Maker" && (
@@ -316,20 +281,20 @@ const VendorQuery = ({rfpNo=""}) => {
           <button onClick={saveAsDraft}>Save as Draft</button>
         </div>
       )}
-       {(userPower === "Vendor Admin" ||userPower === "Super Admin")&& (
-    <div className="save-button-container">
-    <button
-      onClick={() => {
-        const userConfirmed = window.confirm("Are you sure you want to submit the query?");
-        if (userConfirmed) {
-          saveAsDraft();
-        }
-      }}
-    >
-      Submit the Query
-    </button>
-  </div>
-)}
+
+      {(userPower === "Vendor Admin" || userPower === "Super Admin") && (
+        <div className="save-button-container">
+          <button
+            onClick={() => {
+              if (window.confirm("Are you sure you want to submit the query?")) {
+                saveAsDraft();
+              }
+            }}
+          >
+            Submit the Query
+          </button>
+        </div>
+      )}
     </div>
   );
 };

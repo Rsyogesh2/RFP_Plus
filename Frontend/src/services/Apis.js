@@ -25,24 +25,42 @@ const sendCheckedItems = async (checkedItems) => {
 
 export default sendCheckedItems;
 
-export const handleSave = async ({module,items,rfp_no,rfp_title,stage}) => {
-    // console.log(module);
-    // console.log(items);
-    // setGlobalFItems(items);
+// export const handleSave = async ({module,items,rfp_no,rfp_title,stage}) => {
+//     // console.log(module);
+//     // console.log(items);
+//     // setGlobalFItems(items);
+//     try {
+//         const response = await fetch(`${API_URL}/api/insertFItem`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({module,items,rfp_no,rfp_title,stage})
+//         });
+//         const data = await response.json();
+//         console.log('Data saved successfully:', data);
+//     } catch (error) {
+//         console.error('Error saving data:', error);
+//     }
+// };
+export const handleSave = async (payload) => {
+    console.log(payload)
     try {
         const response = await fetch(`${API_URL}/api/insertFItem`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({module,items,rfp_no,rfp_title,stage})
+            body: JSON.stringify(payload)
         });
+
         const data = await response.json();
         console.log('Data saved successfully:', data);
     } catch (error) {
         console.error('Error saving data:', error);
     }
 };
+
 // export const handleFetch = async (rfpNo) => {
 //     try {
 //         const response = await fetch(`/api/fetchFItem?rfpNo=${encodeURIComponent(rfpNo)}`);

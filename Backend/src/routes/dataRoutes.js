@@ -496,33 +496,196 @@ const saveItems = async (items) => {
   });
 };
 
+// router.post('/insertFItem', async (req, res) => {
+//   console.log("insertFItem");
+//   const { module, items, rfp_no, rfp_title, stage, entity_Name, userName } = req.body;
+//   console.log(rfp_no, rfp_title, stage, entity_Name, userName);
+//   //console.log(module);
+//   //console.log(items);
+//   //console.log(rfp_title,rfp_no);
+//   // const entity_name = "Coastal"
+//   // Start a transaction
+//   const connection = await db.getConnection();
+//   await connection.beginTransaction();
+
+//   try {
+//     //Insert into L1, L2, and L3 tables
+//     for (const l1Item of module) {
+//       const { name, code, l2 } = l1Item;
+
+//       // Insert or Update into L1 table
+//       await connection.query(
+//         `INSERT INTO RFP_Saved_L1_Modules (L1_Code, L1_Module_Description, RFP_No,stage, entity_Name, userName)
+//          VALUES (?, ?, ?, ?, ?, ?)
+//          ON DUPLICATE KEY UPDATE
+//          L1_Code = VALUES(L1_Code),
+//          L1_Module_Description = VALUES(L1_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
+//         [code, name, rfp_no, stage, entity_Name, userName]
+//       );
+//       console.log("after l1");
+//       if (l2 && l2.length > 0) {
+//         const l2Values = [];
+//         const l3Values = [];
+
+//         for (const l2Item of l2) {
+//           l2Values.push([l2Item.code, l2Item.name, rfp_no, stage]);
+
+//           if (l2Item.l3 && Array.isArray(l2Item.l3)) {
+//             for (const l3Item of l2Item.l3) {
+//               l3Values.push([l3Item.code, l3Item.name, rfp_no, stage]);
+//             }
+//           }
+//         }
+
+//         // Batch Insert or Update into L2 table
+//         if (l2Values.length > 0) {
+//           const l2Placeholders = l2Values.map(() => "(?, ?, ?, ?)").join(", ");
+//           await connection.query(
+//             `INSERT INTO RFP_Saved_L2_Modules (L2_Code, L2_Module_Description, RFP_No,stage)
+//              VALUES ${l2Placeholders}
+//              ON DUPLICATE KEY UPDATE 
+//              L2_Code = VALUES(L2_Code),
+//              L2_Module_Description = VALUES(L2_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
+//             l2Values.flat()
+//           );
+//         }
+//         console.log("afterl2");
+//         // Batch Insert or Update into L3 table
+//         if (l3Values.length > 0) {
+//           const l3Placeholders = l3Values.map(() => "(?, ?, ?, ?)").join(", ");
+//           await connection.query(
+//             `INSERT INTO RFP_Saved_L3_Modules (L3_Code, L3_Module_Description, RFP_No, stage)
+//              VALUES ${l3Placeholders}
+//              ON DUPLICATE KEY UPDATE
+//              L3_Code = VALUES(L3_Code),
+//              L3_Module_Description = VALUES(L3_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
+//             l3Values.flat()
+//           );
+//         }
+//       }
+//     }
+
+
+//     console.log("after l3")
+//     const insertQuery = `
+//     INSERT INTO RFP_FunctionalItem_Draft (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code,
+//     F2_Code, New_Code, Mandatory, Comments, deleted,stage,entity_Name,userName,Level)
+//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//     ON DUPLICATE KEY UPDATE 
+//       RFP_Title = VALUES(RFP_Title),
+//       Requirement = VALUES(Requirement),
+//       New_Code = VALUES(New_Code),
+//       Mandatory = VALUES(Mandatory),
+//       Comments = VALUES(Comments),
+//       deleted = VALUES(deleted),
+//       stage = VALUES(stage),
+//       entity_Name = VALUES(entity_Name),
+//       userName =  VALUES(userName) ,
+//       Level =  "Bank"
+//   `;
+
+//     for (const item of items) {
+//       const values = [
+//         rfp_title,
+//         rfp_no,
+//         item.name,
+//         item.Module_Code,
+//         item.F1_Code,
+//         item.F2_Code,
+//         item.New_Code,
+//         item.MorO,
+//         item.Comments,
+//         item.deleted,
+//         stage,
+//         entity_Name,
+//         userName,
+//         "Bank"
+//       ];
+
+//       await connection.query(insertQuery, values);
+//       console.log("Fitems")
+//     }
+
+//     // Commit the transaction
+//     await connection.commit();
+//     res.status(200).json({ message: 'Data inserted successfully' });
+//   } catch (error) {
+//     // Rollback the transaction in case of error
+//     await connection.rollback();
+//     console.error('Error inserting data:', error);
+//     res.status(500).json({ error: 'Error inserting data' });
+//   } finally {
+//     connection.release();
+//   }
+// });
+
 router.post('/insertFItem', async (req, res) => {
   console.log("insertFItem");
-  const { module, items, rfp_no, rfp_title, stage, entity_Name, userName } = req.body;
-  console.log(rfp_no, rfp_title, stage, entity_Name, userName);
-  //console.log(module);
-  //console.log(items);
-  //console.log(rfp_title,rfp_no);
-  // const entity_name = "Coastal"
-  // Start a transaction
+
+  const payload = req.body;
+  console.log("Payload:", payload);
+
+  const {
+    module,
+    items,
+    rfp_no,
+    rfp_title,
+    stage,
+    bank_name,
+    created_by,
+    assigned_to,
+    Status,
+    Priority,
+    Handled_by,
+    Action_log,
+    level,
+  } = payload;
+
   const connection = await db.getConnection();
-  await connection.beginTransaction();
 
   try {
-    //Insert into L1, L2, and L3 tables
+    // Start a transaction
+    await connection.beginTransaction();
+
+    // Handle `Handled_by` field
+    if (Array.isArray(Handled_by) && Handled_by.length > 0) {
+      for (const handler of Handled_by) {
+        const { name, role } = handler;
+
+        await connection.query(
+          `INSERT INTO RFP_Handled_By 
+            (RFP_No, Handler_Name, Handler_Role)
+           VALUES (?, ?, ?)
+           ON DUPLICATE KEY UPDATE
+             Handler_Role = VALUES(Handler_Role)`,
+          [rfp_no, name, role]
+        );
+      }
+    }
+
+    // Insert or Update into L1, L2, and L3 tables
     for (const l1Item of module) {
       const { name, code, l2 } = l1Item;
 
-      // Insert or Update into L1 table
       await connection.query(
-        `INSERT INTO RFP_Saved_L1_Modules (L1_Code, L1_Module_Description, RFP_No,stage, entity_Name, userName)
-         VALUES (?, ?, ?, ?, ?, ?)
+        `INSERT INTO RFP_Saved_L1_Modules 
+          (L1_Code, L1_Module_Description, RFP_No, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON DUPLICATE KEY UPDATE
-         L1_Code = VALUES(L1_Code),
-         L1_Module_Description = VALUES(L1_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
-        [code, name, rfp_no, stage, entity_Name, userName]
+           L1_Module_Description = VALUES(L1_Module_Description),
+           RFP_No = VALUES(RFP_No),
+           stage = VALUES(stage),
+           bank_name = VALUES(bank_name),
+           created_by = VALUES(created_by),
+           assigned_to = VALUES(assigned_to),
+           Status = VALUES(Status),
+           Priority = VALUES(Priority),
+           Handled_By = VALUES(Handled_By),
+           Action_Log = VALUES(Action_Log),
+           Level = VALUES(Level)`,
+        [code, name, rfp_no, stage, bank_name, created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level]
       );
-      console.log("after l1");
+
       if (l2 && l2.length > 0) {
         const l2Values = [];
         const l3Values = [];
@@ -541,49 +704,35 @@ router.post('/insertFItem', async (req, res) => {
         if (l2Values.length > 0) {
           const l2Placeholders = l2Values.map(() => "(?, ?, ?, ?)").join(", ");
           await connection.query(
-            `INSERT INTO RFP_Saved_L2_Modules (L2_Code, L2_Module_Description, RFP_No,stage)
+            `INSERT INTO RFP_Saved_L2_Modules 
+              (L2_Code, L2_Module_Description, RFP_No, stage)
              VALUES ${l2Placeholders}
              ON DUPLICATE KEY UPDATE 
-             L2_Code = VALUES(L2_Code),
-             L2_Module_Description = VALUES(L2_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
+               L2_Module_Description = VALUES(L2_Module_Description),
+               RFP_No = VALUES(RFP_No),
+               stage = VALUES(stage)`,
             l2Values.flat()
           );
         }
-        console.log("afterl2");
+
         // Batch Insert or Update into L3 table
         if (l3Values.length > 0) {
           const l3Placeholders = l3Values.map(() => "(?, ?, ?, ?)").join(", ");
           await connection.query(
-            `INSERT INTO RFP_Saved_L3_Modules (L3_Code, L3_Module_Description, RFP_No, stage)
+            `INSERT INTO RFP_Saved_L3_Modules 
+              (L3_Code, L3_Module_Description, RFP_No, stage)
              VALUES ${l3Placeholders}
              ON DUPLICATE KEY UPDATE
-             L3_Code = VALUES(L3_Code),
-             L3_Module_Description = VALUES(L3_Module_Description), RFP_No = VALUES(RFP_No),stage = VALUES(stage)`,
+               L3_Module_Description = VALUES(L3_Module_Description),
+               RFP_No = VALUES(RFP_No),
+               stage = VALUES(stage)`,
             l3Values.flat()
           );
         }
       }
     }
 
-
-    console.log("after l3")
-    const insertQuery = `
-    INSERT INTO RFP_FunctionalItem_Draft (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code,
-     F2_Code, New_Code, Mandatory, Comments, deleted,stage,entity_Name,userName,Level)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE 
-      RFP_Title = VALUES(RFP_Title),
-      Requirement = VALUES(Requirement),
-      New_Code = VALUES(New_Code),
-      Mandatory = VALUES(Mandatory),
-      Comments = VALUES(Comments),
-      deleted = VALUES(deleted),
-      stage = VALUES(stage),
-      entity_Name = VALUES(entity_Name),
-      userName =  VALUES(userName) ,
-      Level =  "Bank"
-  `;
-
+    // Insert or Update items into the draft table
     for (const item of items) {
       const values = [
         rfp_title,
@@ -597,13 +746,39 @@ router.post('/insertFItem', async (req, res) => {
         item.Comments,
         item.deleted,
         stage,
-        entity_Name,
-        userName,
-        "Bank"
+        bank_name,
+        created_by,
+        assigned_to,
+        Status,
+        Priority,
+        JSON.stringify(Handled_by),
+        Action_log,
+        level,
       ];
 
+      const insertQuery = `
+        INSERT INTO RFP_FunctionalItem_Draft 
+          (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+          RFP_Title = VALUES(RFP_Title),
+          Requirement = VALUES(Requirement),
+          New_Code = VALUES(New_Code),
+          Mandatory = VALUES(Mandatory),
+          Comments = VALUES(Comments),
+          deleted = VALUES(deleted),
+          stage = VALUES(stage),
+          bank_name = VALUES(bank_name),
+          created_by = VALUES(created_by),
+          assigned_to = VALUES(assigned_to),
+          Status = VALUES(Status),
+          Priority = VALUES(Priority),
+          Handled_By = VALUES(Handled_By),
+          Action_Log = VALUES(Action_Log),
+          Level = VALUES(Level)
+      `;
+
       await connection.query(insertQuery, values);
-      console.log("Fitems")
     }
 
     // Commit the transaction
@@ -620,7 +795,8 @@ router.post('/insertFItem', async (req, res) => {
 });
 
 
-// Saved RFP Details with Items and modules
+//Saved RFP Details with Items and modules
+
 router.get('/getSavedData', async (req, res) => {
   // const { rfpNo } = req.query;
   // console.log(rfpNo);
@@ -776,8 +952,6 @@ router.get('/getSavedData', async (req, res) => {
 //         res.status(500).json({ error: 'Database query failed' });
 //     }
 // });
-
-
 
 
 router.get('/userAssignItemsbySub', async (req, res) => {
@@ -1258,7 +1432,7 @@ router.get('/loadContents-initial', async (req, res) => {
     // console.log(combined)
     // Finalize response
     if (data.l1.length > 0) {
-      res.json({ success: true, itemDetails: data, functionalItemDetails: fItems });
+      res.json({ success: true, itemDetails: data, functionalItemDetails: fItems,entityName:userDetails[0].entity_Name });
     } else {
       res.status(404).json({ error: "No sub-items found for these modules" });
     }
@@ -1405,7 +1579,7 @@ router.get('/loadContents-saved', async (req, res) => {
     // console.log(combined)
     // Finalize response
     if (data.l1.length > 0) {
-      res.json({ success: true, itemDetails: data, functionalItemDetails: fItems });
+      res.json({ success: true, itemDetails: data, functionalItemDetails: fItems, entityName:userDetails[0].entity_Name });
     } else {
       res.status(404).json({ error: "No sub-items found for these modules" });
     }
@@ -1502,7 +1676,7 @@ router.get('/loadContents-superAdmin', async (req, res) => {
     console.log(result1)
     // Finalize response
     if (result1.length > 0) {
-      res.json({ success: true, rfps: result1, itemDetails: data });
+      res.json({ success: true, rfps: result1, itemDetails: data , entityName:userDetails[0].entity_Name});
     } else {
       res.status(404).json({ error: "No sub-items found for these modules" });
     }
@@ -1596,6 +1770,10 @@ router.get('/userItemsinSidebar', async (req, res) => {
         //console.log(data)
       }
 
+    } else if (userPower == "Super Admin") {
+
+    } else if (userPower == "Vendor Admin"){
+
     }
 
     // console.log(data);
@@ -1610,22 +1788,216 @@ router.get('/userItemsinSidebar', async (req, res) => {
 });
 
 //vendorQuery Saving
-router.post('/vendorQuery-save-draft', async (req, res) => {
-  console.log("vendorQuery-save-draft");
-  const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows, level, stageNumber } = req.body;
+// router.post('/vendorQuery-save-draft', async (req, res) => {
+//   console.log("vendorQuery-save-draft");
+//   const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows, level, stageNumber } = req.body;
+
+//   try {
+//     const query = `
+//     INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data, level, StageNumber)
+//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+//     ON DUPLICATE KEY UPDATE
+//         rfp_title = VALUES(rfp_title),
+//         stage = VALUES(stage),
+//         rows_data = VALUES(rows_data),
+//         level = VALUES(level),
+//         StageNumber = VALUES(StageNumber),
+//         updated_at = CURRENT_TIMESTAMP;
+// `;
+
+//     await db.execute(query, [
+//       rfpNo,
+//       rfpTitle,
+//       vendorName,
+//       bankName,
+//       createdBy,
+//       stage,
+//       JSON.stringify(rows),
+//       level,
+//       stageNumber
+//     ]);
+
+//     res.status(200).send({ message: 'Draft saved or updated successfully!' });
+//   } catch (error) {
+//     console.error('Error saving draft:', error);
+//     res.status(500).send({ message: 'Failed to save or update draft' });
+//   }
+// });
+// router.post('/vendorQuery-action', async (req, res) => {
+//   console.log("vendorQuery-action");
+
+//   const {
+//     rfpNo,
+//     rfpTitle,
+//     vendorName,
+//     bankName,
+//     createdBy,
+//     stage,
+//     rows,
+//     level,
+//     stageNumber,
+//     action,
+//     comments,
+//     priority,
+//     attachments,
+//     handledBy,
+//     assignedTo,
+//     actionLog,
+//   } = req.body;
+
+//   try {
+//     // Determine SQL based on action
+//     let query;
+//     let values;
+
+//     if (action === "Save as Draft") {
+//       query = `
+//         INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data, level, StageNumber, comments, priority, attachments, handled_by, action_log)
+//         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//         ON DUPLICATE KEY UPDATE
+//           rfp_title = VALUES(rfp_title),
+//           stage = VALUES(stage),
+//           rows_data = VALUES(rows_data),
+//           level = VALUES(level),
+//           StageNumber = VALUES(StageNumber),
+//           comments = VALUES(comments),
+//           priority = VALUES(priority),
+//           attachments = VALUES(attachments),
+//           handled_by = VALUES(handled_by),
+//           action_log = VALUES(action_log),
+//           updated_at = CURRENT_TIMESTAMP;
+//       `;
+//       values = [
+//         rfpNo,
+//         rfpTitle,
+//         vendorName,
+//         bankName,
+//         createdBy,
+//         "Draft",
+//         JSON.stringify(rows),
+//         level,
+//         stageNumber,
+//         comments || "",
+//         priority || "Medium",
+//         attachments || null,
+//         JSON.stringify(handledBy || []),
+//         actionLog || "",
+//       ];
+//     } else if (action === "Submit") {
+//       query = `
+//         UPDATE VendorQuery
+//         SET
+//           stage = ?,
+//           rows_data = ?,
+//           level = ?,
+//           StageNumber = ?,
+//           comments = ?,
+//           priority = ?,
+//           attachments = ?,
+//           handled_by = ?,
+//           action_log = ?,
+//           status = 'Pending_Authorization',
+//           assigned_to = ?
+//         WHERE rfp_no = ?;
+//       `;
+//       values = [
+//         stage || "Vendor",
+//         JSON.stringify(rows),
+//         level,
+//         stageNumber,
+//         comments || "",
+//         priority || "Medium",
+//         attachments || null,
+//         JSON.stringify(handledBy || []),
+//         actionLog || "",
+//         assignedTo || null,
+//         rfpNo,
+//       ];
+//     } else if (action === "Approve") {
+//       query = `
+//         UPDATE VendorQuery
+//         SET
+//           stage = ?,
+//           comments = ?,
+//           priority = ?,
+//           handled_by = ?,
+//           action_log = ?,
+//           status = 'Approved',
+//           updated_at = CURRENT_TIMESTAMP
+//         WHERE rfp_no = ?;
+//       `;
+//       values = [
+//         stage || "Approved",
+//         comments || "",
+//         priority || "Medium",
+//         JSON.stringify(handledBy || []),
+//         actionLog || "",
+//         rfpNo,
+//       ];
+//     } else if (action === "Reject") {
+//       query = `
+//         UPDATE VendorQuery
+//         SET
+//           stage = 'Rejected',
+//           comments = ?,
+//           action_log = ?,
+//           status = 'Rejected',
+//           updated_at = CURRENT_TIMESTAMP
+//         WHERE rfp_no = ?;
+//       `;
+//       values = [
+//         comments || "Rejected by user",
+//         actionLog || "",
+//         rfpNo,
+//       ];
+//     } else {
+//       return res.status(400).send({ message: "Invalid action type" });
+//     }
+
+//     // Execute SQL query
+//     await db.execute(query, values);
+//     res.status(200).send({ message: `${action} action processed successfully!` });
+//   } catch (error) {
+//     console.error(`Error processing ${action} action:`, error);
+//     res.status(500).send({ message: `Failed to process ${action} action` });
+//   }
+// });
+router.post('/vendorQuery-save', async (req, res) => {
+  const {
+    rfpNo,
+    rfpTitle,
+    vendorName,
+    bankName,
+    createdBy,
+    stage,
+    rows,
+    level,
+    stageNumber,
+    comments,
+    priority,
+    attachments,
+    handledBy,
+    actionLog,
+  } = req.body;
 
   try {
     const query = `
-    INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data, level, StageNumber)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE
+      INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data, level, StageNumber, comments, priority, attachments, handled_by, action_log, visibility_scope)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
         rfp_title = VALUES(rfp_title),
         stage = VALUES(stage),
         rows_data = VALUES(rows_data),
         level = VALUES(level),
         StageNumber = VALUES(StageNumber),
+        comments = VALUES(comments),
+        priority = VALUES(priority),
+        attachments = VALUES(attachments),
+        handled_by = VALUES(handled_by),
+        action_log = VALUES(action_log),
+        visibility_scope = VALUES(visibility_scope),
         updated_at = CURRENT_TIMESTAMP;
-`;
+    `;
 
     await db.execute(query, [
       rfpNo,
@@ -1636,18 +2008,80 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
       stage,
       JSON.stringify(rows),
       level,
-      stageNumber
+      stageNumber,
+      comments || "",
+      priority || "Medium",
+      attachments || null,
+      JSON.stringify(handledBy || []),
+      actionLog || "",
+      "PRIVATE", // Default visibility for individual users
     ]);
 
-    res.status(200).send({ message: 'Draft saved or updated successfully!' });
+    res.status(200).send({ message: 'Query saved successfully!' });
   } catch (error) {
-    console.error('Error saving draft:', error);
-    res.status(500).send({ message: 'Failed to save or update draft' });
+    console.error('Error saving query:', error);
+    res.status(500).send({ message: 'Failed to save query' });
   }
 });
+router.get('/vendorQuery-get', async (req, res) => {
+  const { userRole, userName,rfpNo, level } = req.query;
+
+  try {
+    let query;
+    let values;
+
+    if (userRole !== "Maker") {
+      // Authorizers see all PUBLIC queries
+      query = `
+        SELECT * FROM VendorQuery
+        WHERE visibility_scope = 'PUBLIC' and rfp_no=? and level=? 
+        ORDER BY updated_at DESC;
+      `;
+      values = [rfpNo,level];
+    } else {
+      // Other users see only their own PRIVATE queries
+      query = `
+        SELECT * FROM VendorQuery
+        WHERE created_by = ? AND visibility_scope = 'PRIVATE' and rfp_no=? and level=? 
+        ORDER BY updated_at DESC;
+      `;
+      values = [userName,rfpNo,level];
+    }
+
+    const [results] = await db.execute(query, values);
+    res.status(200).send(results);
+  } catch (error) {
+    console.error('Error fetching queries:', error);
+    res.status(500).send({ message: 'Failed to fetch queries' });
+  }
+});
+
+router.post('/vendorQuery-submit', async (req, res) => {
+  const { rfpNo, userRole, actionLog } = req.body;
+
+  if (userRole !== "Maker" ) {
+    return res.status(403).send({ message: 'Only Makers can submit queries' });
+  }
+
+  try {
+    const query = `
+      UPDATE VendorQuery
+      SET visibility_scope = 'PUBLIC', action_log = CONCAT(action_log, "\n", ?), status = 'Pending_Authorization'
+      WHERE rfp_no = ?;
+    `;
+
+    await db.execute(query, [`Submitted for authorization on ${new Date().toISOString()}`, rfpNo]);
+    res.status(200).send({ message: 'Query submitted successfully!' });
+  } catch (error) {
+    console.error('Error submitting query:', error);
+    res.status(500).send({ message: 'Failed to submit query' });
+  }
+});
+
+
 router.post('/vendorQuery-fetch', async (req, res) => {
   console.log("vendorQuery-fetch");
-  const { rfpNo, vendorName, bankName } = req.body;
+  const { rfpNo, vendorName, bankName,userName } = req.body;
 
   if (!rfpNo || !vendorName || !bankName) {
     return res.status(400).send({ message: "All fields (rfpNo, vendorName, bankName) are required" });
@@ -1657,10 +2091,10 @@ router.post('/vendorQuery-fetch', async (req, res) => {
     const query = `
       SELECT rows_data, rfp_title, stage, created_by, updated_at 
       FROM VendorQuery
-      WHERE rfp_no = ? AND vendor_name = ? AND bank_name = ?;
+      WHERE rfp_no = ? AND vendor_name = ? AND bank_name = ? and created_by= ?;
     `;
 
-    const [rows] = await db.execute(query, [rfpNo, vendorName, bankName]);
+    const [rows] = await db.execute(query, [rfpNo, vendorName, bankName,userName]);
     console.log(rows)
     if (rows.length > 0) {
       const result = rows[0];

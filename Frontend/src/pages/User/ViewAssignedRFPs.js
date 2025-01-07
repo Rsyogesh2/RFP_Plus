@@ -6,6 +6,8 @@ import RfpForm from '../../components/Sections/RfpForm';
 
 const ViewAssignedRFPs = (l1) => {
   const { userPower } = useContext(AppContext);
+
+
   // const fetchArray = async() =>{
   //   console.log("fetch")
   //   try {
@@ -27,13 +29,13 @@ const ViewAssignedRFPs = (l1) => {
   //     console.error('Error sending checked items:', error); // Log any errors
   // }
   // }
-  
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* <RfpForm /> */}
       <div style={{ width: '100%' }}>
-     {userPower==="User"?<RFPReqTable l1={l1} />:<RFPVendorTable l1={l1} />}
-     {/* <RFPReqTable l1={l1} /> */}
+        {userPower === "User" ? <RFPReqTable l1={l1} /> : <RFPVendorTable l1={l1} />}
+        {/* <RFPReqTable l1={l1} /> */}
         {/* <button onClick={fetchArray} >Fetch value</button> */}
       </div>
     </div>

@@ -23,12 +23,12 @@ import {fetchUsers} from '../services/loadApis';
 
 
 const Header = () => {
-  const { userPower,sidebarValue } = useContext(AppContext);
-  // console.log(sidebarValue[0].entity_name)
+  const { userPower,sidebarValue,moduleData } = useContext(AppContext);
+  // console.log(moduleData.entityName)
   return (
     <div className="header">
      <h1>
-    {sidebarValue.length > 0 ? sidebarValue[0].entity_name : ""}
+    {moduleData?moduleData.entityName:"" }
     </h1>
       <h2>{`${userPower} Module`}</h2>
     </div>

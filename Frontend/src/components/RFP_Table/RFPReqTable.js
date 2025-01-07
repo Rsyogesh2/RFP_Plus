@@ -31,9 +31,9 @@ const RFPReqTable = ({ l1 }) => {
                 // const response = await fetch(`${API_URL}/api/userAssignItemsbySub?${queryParams}`)
                 // console.log(response);
     
-                // // Check if the response is okay (status in the range 200-299)
+                // // Check if the response is okay (Status in the range 200-299)
                 // if (!response.ok) {
-                //     throw new Error(`HTTP error! Status: ${response.status}`);
+                //     throw new Error(`HTTP error! Status: ${response.Status}`);
                 // }
     
                 // const data = await response.json(); // Parse the JSON response
@@ -67,10 +67,108 @@ const RFPReqTable = ({ l1 }) => {
     
 
     const filterModule = (data) => {
-
         const data1 = data.itemDetails.l1.filter(m=>m.code===l1.l1module);
         setItemData(data1); 
     }
+
+    
+  const currentLevel = () => {
+    switch (true) {
+      case userPower === "User" && userRole === "Maker":
+        return 1;
+      case userPower === "User" && userRole === "Authorizer":
+        return 2;
+      case userPower === "User" && userRole === "Viewer":
+        return 3;
+      case userPower === "Super Admin" || userRole === "Super Admin":
+        return 4;
+      case userPower === "Vendor User" && userRole === "Maker":
+        return 5;
+      case userPower === "Vendor User" && userRole === "Authorizer":
+        return 6;
+      case userPower === "Vendor User" && userRole === "Reviewer":
+        return 7;
+      case userPower === "Vendor Admin":
+        return 8;
+      default:
+        return null;
+    }
+  };
+  const nextStatus = () => {
+    const levelNum = currentLevel();
+    switch (levelNum) {
+      case 1:
+        return "Bank_Pending_Authorization";
+      case 2:
+        return "Bank_Pending_Reviewer";
+      case 3:
+        return "Bank_Pending_Admin";
+      case 4:
+        return "Vendor_Pending_Maker";
+      case 5:
+        return "Vendor_Pending_Authorization";
+      case 6:
+        return "Vendor_Pending_Reviewer";
+      case 7:
+        return "Vendor_Pending_Admin";
+    }
+  }
+  const constructPayload = (action, data = {}) => {
+    let payload = {
+      module: itemData,
+      items: FItem,
+      rfp_no: sidebarValue[0]?.rfp_no || '',
+      rfp_title: sidebarValue[0]?.rfp_title || '',
+      bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
+      vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
+      created_by: userName,
+      level: determineLevel(),
+      Comments: data.comments || "",
+      Priority: data.priority || "Medium",
+      Handled_by: [{ name: userName, role: userRole }],
+      Action_log: `${action} by ${userName} on ${new Date().toISOString()}`,
+    };
+  
+    payload = adjustStageAndStatus(payload, action, data);
+    console.log("Constructed Payload:", payload);
+    return payload;
+  };
+  
+  const determineLevel = () => {
+    if (userPower === "User" && userRole === "Maker") return 2;
+    if (userPower === "User" && userRole === "Authorizer") return 3;
+    if (userPower === "User" && userRole === "Viewer") return 4;
+    if (userPower === "Super Admin") return 5;
+    if (userPower === "Vendor User" && userRole === "Maker") return 6;
+    if (userPower === "Vendor User" && userRole === "Authorizer") return 7;
+    if (userPower === "Vendor User" && userRole === "Reviewer") return 8;
+    if (userPower === "Vendor Admin") return 4;
+    return 5;
+  };
+  
+  const adjustStageAndStatus = (payload, action, data) => {
+    if (action === "Save as Draft") {
+      payload.stage = "Draft";
+      payload.Status = "Draft";
+      payload.assigned_to = null;
+    } else if (["Submit", "Approve", "Submit to Bank"].includes(action)) {
+      payload.Status = nextStatus();
+      payload.assigned_to = data.assignedTo || null;
+    } else if (action === "Reject") {
+      payload.stage = "Rejected";
+      payload.Status = "Rejected";
+      payload.assigned_to = null;
+    }
+    payload.stage = userPower === "Vendor User" ? "Vendor"
+      : userPower === "User" ? "Bank"
+      : userPower === "Vendor Admin" ? "Bank"
+      : userPower === "Super Admin" ? "Vendor"
+      : "";
+    return payload;
+  };
+  
+
+
 
     const findIndexByObject = (obj) => {
         return FItem.findIndex(
@@ -324,9 +422,9 @@ const RFPReqTable = ({ l1 }) => {
         return levelData.map((item, index) => (
             <tr key={`${item.Module_Code}-${item.F2_Code}-${index}`} id={`${item.Module_Code}-${item.F2_Code}-${index}`}>
      
-                <td style={{ fontWeight: 'bold', paddingLeft: `${paddingLeft}px` }}>
+                <td style={{ fontWeight: 'normal', paddingLeft: `${paddingLeft}px` }}>
                     <span  style={{
-                                fontWeight: levelType === 'f1' ? 550 : 'normal',
+                                fontWeight: levelType === 'f1' ? 300 : 'normal',
                                 textDecoration: item.deleted ? 'line-through' : 'none'
                             }}>
                     {item.name}
@@ -515,7 +613,7 @@ const RFPReqTable = ({ l1 }) => {
             </div>
 
             {/* Show Submit button only for Authorizer or Reviewer */}
-            {(userRole === "Authorizer" || userRole === "Reviewer") && (
+            {/* {(userRole === "Authorizer" || userRole === "Reviewer") && (
                 <button onClick={() => handleSave({
                     module: itemData,
                     items: FItem,
@@ -528,10 +626,10 @@ const RFPReqTable = ({ l1 }) => {
                     Submit
                     
                 </button>
-            )}
+            )} */}
 
             {/* Optional Save as Draft button for Maker */}
-            {userRole === "Maker" && (
+            {/* {userRole === "Maker" && (
                  <button onClick={() => handleSave({
                     module: itemData,
                     items: FItem,
@@ -543,7 +641,35 @@ const RFPReqTable = ({ l1 }) => {
                 })}>
                     Save as Draft
                 </button>
+            )} */}
+
+            {/* Show Submit button only for Authorizer or Reviewer */}
+            {(userRole === "Authorizer" || userRole === "Reviewer") && (
+                <button onClick={() => handleSave({
+                    module: itemData,
+                    items: FItem,
+                    rfp_no: sidebarValue[0].rfp_no,
+                    rfp_title: sidebarValue[0].rfp_title,
+                    stage: "Viewer",
+                    userName,
+                    entity_Name: sidebarValue[0].entity_name,
+                    Assigned_To: "Some Assigned User",  // Update with actual data
+                    Status: "In Progress",             // Update with actual data
+                    Priority: "High",                  // Update with actual data
+                    Handled_by: "Some Handler",        // Update with actual data
+                    Action_log: "Some action log"      // Update with actual data
+                })}>
+                    Submit
+                </button>
             )}
+
+            {/* Optional Save as Draft button for Maker */}
+            {userRole === "Maker" && (
+                <button onClick={() => handleSave(constructPayload("Save as Draft",{}))}>
+                    Save as Draft
+                </button>
+            )}
+
         </div>
     );
 };
