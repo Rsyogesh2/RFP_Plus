@@ -202,6 +202,7 @@ router.get('/assignUsersRFPNo', async (req, res) => {
   }
 });
 
+//when RFP No selected in Assigned Users
 router.get('/assignRFPUserDetails', async (req, res) => {
   const { rfpNo, userName } = req.query;
   console.log(rfpNo);
@@ -266,7 +267,7 @@ router.get('/assignRFPUserDetails', async (req, res) => {
 
     let assignedUsers;
     // Step 2: Fetch Assigned Users
-    if (userPower[0].Role == "Super User") {
+    if (userPower[0].Role == "Super Admin") {
       [assignedUsers] = await db.query(
         `SELECT user_name, is_active as active, date_from as fromDate, date_to as toDate, is_maker as maker,
          is_authorizer as authorizer, is_reviewer as reviewer, module_name 
@@ -274,6 +275,7 @@ router.get('/assignRFPUserDetails', async (req, res) => {
          WHERE rfp_no = ? `,
         [rfpNo]
       );
+      console.log(rfpNo);
     } else if (userPower[0].Role == "Vendor Admin") {
       [assignedUsers] = await db.query(
         `SELECT user_name, is_active as active, date_from as fromDate, date_to as toDate, is_maker as maker,
@@ -288,21 +290,17 @@ router.get('/assignRFPUserDetails', async (req, res) => {
     if (assignedUsers != undefined) {
       parsedUsers = assignedUsers.map(user => {
         // user.modulename.l1.l2.push("Scoring Criteria");
+        const { module_name, ...rest } = user; // Destructure to extract module_name
         return {
-          ...user,
-          selectedModules: (() => {
-            try {
-              return JSON.parse(user.module_name || []);
-            } catch {
-              return []; // Default to empty array if JSON parse fails
-            }
-          })(),
-        }
+            ...rest,
+            selectedModules: module_name, // Rename module_name to selectedModules
+        };
       });
     }
     console.log("parsedUsers");
     console.log(data);
-
+    console.log(parsedUsers);
+    // parsedUsers.module_name to parsedUsers.selectedModules
     data.l1.push({ name: "Others", code: 99, l2: [{ name: "Scoring Criteria", code: 9999 }] });
     // { name: 'Vendor specifications', code: 97, l2: [Array] }
     // Consolidate Response
@@ -452,7 +450,7 @@ router.post('/products/itemDetails', async (req, res) => {
         // fItems = f1Result;
         const updatedF1Result = f1Result.map(item => ({
           ...item,
-          MorO: true,  // Set the desired value for newKey1
+          Mandatory: true,  // Set the desired value for newKey1
           deleted: false   // Set the desired value for newKey2
         }));
         fItems.push(...updatedF1Result);
@@ -593,7 +591,7 @@ const saveItems = async (items) => {
 //         item.F1_Code,
 //         item.F2_Code,
 //         item.New_Code,
-//         item.MorO,
+//         item.Mandatory,
 //         item.Comments,
 //         item.deleted,
 //         stage,
@@ -648,20 +646,20 @@ router.post('/insertFItem', async (req, res) => {
     await connection.beginTransaction();
 
     // Handle `Handled_by` field
-    if (Array.isArray(Handled_by) && Handled_by.length > 0) {
-      for (const handler of Handled_by) {
-        const { name, role } = handler;
+    // if (Array.isArray(Handled_by) && Handled_by.length > 0) {
+    //   for (const handler of Handled_by) {
+    //     const { name, role } = handler;
 
-        await connection.query(
-          `INSERT INTO RFP_Handled_By 
-            (RFP_No, Handler_Name, Handler_Role)
-           VALUES (?, ?, ?)
-           ON DUPLICATE KEY UPDATE
-             Handler_Role = VALUES(Handler_Role)`,
-          [rfp_no, name, role]
-        );
-      }
-    }
+    //     await connection.query(
+    //       `INSERT INTO RFP_Handled_By 
+    //         (RFP_No, Handler_Name, Handler_Role)
+    //        VALUES (?, ?, ?)
+    //        ON DUPLICATE KEY UPDATE
+    //          Handler_Role = VALUES(Handler_Role)`,
+    //       [rfp_no, name, role]
+    //     );
+    //   }
+    // }
 
     // Insert or Update into L1, L2, and L3 tables
     for (const l1Item of module) {
@@ -734,6 +732,14 @@ router.post('/insertFItem', async (req, res) => {
 
     // Insert or Update items into the draft table
     for (const item of items) {
+
+      let Modified_Time;
+      if (item.Modified_Time && !isNaN(new Date(item.Modified_Time))) {
+        Modified_Time = new Date(item.Modified_Time).toISOString().slice(0, 19).replace('T', ' ');
+      } else {
+        Modified_Time = null;  // or provide a default value like new Date()
+      }
+
       const values = [
         rfp_title,
         rfp_no,
@@ -741,10 +747,12 @@ router.post('/insertFItem', async (req, res) => {
         item.Module_Code,
         item.F1_Code,
         item.F2_Code,
-        item.New_Code,
-        item.MorO,
+        item.New_Code || "00",
+        item.Mandatory,
         item.Comments,
         item.deleted,
+        Modified_Time,
+        item.Edited_By,
         stage,
         bank_name,
         created_by,
@@ -757,26 +765,26 @@ router.post('/insertFItem', async (req, res) => {
       ];
 
       const insertQuery = `
-        INSERT INTO RFP_FunctionalItem_Draft 
-          (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE 
-          RFP_Title = VALUES(RFP_Title),
-          Requirement = VALUES(Requirement),
-          New_Code = VALUES(New_Code),
-          Mandatory = VALUES(Mandatory),
-          Comments = VALUES(Comments),
-          deleted = VALUES(deleted),
-          stage = VALUES(stage),
-          bank_name = VALUES(bank_name),
-          created_by = VALUES(created_by),
-          assigned_to = VALUES(assigned_to),
-          Status = VALUES(Status),
-          Priority = VALUES(Priority),
-          Handled_By = VALUES(Handled_By),
-          Action_Log = VALUES(Action_Log),
-          Level = VALUES(Level)
-      `;
+    INSERT INTO RFP_FunctionalItem_Draft 
+      (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted,Modified_Time,Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+      Requirement = VALUES(Requirement),
+      Mandatory = VALUES(Mandatory),
+      Comments = VALUES(Comments),
+      deleted = VALUES(deleted),
+      Modified_Time = VALUES(Modified_Time),
+      Edited_By = VALUES(Edited_By),
+      stage = VALUES(stage),
+      created_by = VALUES(created_by),
+      assigned_to = VALUES(assigned_to),
+      Status = VALUES(Status),
+      Priority = VALUES(Priority),
+      Handled_By = VALUES(Handled_By),
+      Action_Log = VALUES(Action_Log),
+      Level = VALUES(Level)
+`;
+
 
       await connection.query(insertQuery, values);
     }
@@ -1059,7 +1067,7 @@ router.get('/userAssignItemsbySub', async (req, res) => {
         `;
           } else if (userPower === "Vendor User") {
             queryString2 = `
-          SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS MorO, Comments, deleted 
+          SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS Mandatory, Comments, deleted 
           FROM rfp_functionalitem_draft 
           WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')})
         `;
@@ -1069,7 +1077,7 @@ router.get('/userAssignItemsbySub', async (req, res) => {
 
           const updatedF1Result = f1Result.map(item => ({
             ...item,
-            MorO: item.MorO ?? true, // Set default if `Mandatory` is null
+            Mandatory: item.Mandatory ?? true, // Set default if `Mandatory` is null
             deleted: item.deleted ?? false, // Set default if `deleted` is null
           }));
 
@@ -1134,7 +1142,7 @@ router.get('/getSavedFItems', async (req, res) => {
 
     // Fetch Functional Items
     const [functionalItems] = await connection.query(
-      `SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS MorO, Comments, deleted 
+      `SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS Mandatory, Comments, deleted 
        FROM RFP_FunctionalItem_Draft WHERE RFP_No = ?`,
       [rfp_no]
     );
@@ -1265,7 +1273,7 @@ router.get('/getSavedFItems', async (req, res) => {
 //         // fItems = f1Result;
 //         const updatedF1Result = f1Result.map(item => ({
 //           ...item,
-//           MorO: true,  // Set the desired value for newKey1
+//           Mandatory: true,  // Set the desired value for newKey1
 //           deleted: false   // Set the desired value for newKey2
 //         }));
 
@@ -1303,7 +1311,7 @@ router.get('/loadContents-initial', async (req, res) => {
       qustring = "is_maker=1"
     } else if (userRole == "Authorizer") {
       qustring = "is_authorizer=1"
-    } else if (userRole == "Viewer") {
+    } else if (userRole == "Reviewer") {
       qustring = "is_reviewer=1"
     }
     console.log(qustring)
@@ -1360,7 +1368,7 @@ router.get('/loadContents-initial', async (req, res) => {
     // //console.log("User Details:", userDetails);
 
 
-    console.log(result)
+    console.log(result.length)
     console.log("result")
     // const { module_name } = result[0];
     const { rfp_no } = result[0];
@@ -1372,6 +1380,9 @@ router.get('/loadContents-initial', async (req, res) => {
     // Initialize an object to hold the nested structure
     const data = { l1: [], rfp_no, Name: userDetails[0].user_name };
     let combined = [];
+    let combinedArray=[];
+    let combinedData = [];
+    let updatedF1Result=[];
     for (const res of result) { // Iterate through all entries in `result`
       // const { rfp_no } = res;
       for (const l1 of res.module_name) { // Process each `l1` (module_name)
@@ -1396,37 +1407,158 @@ router.get('/loadContents-initial', async (req, res) => {
             .filter(l2Code => !l3CodesArray.some(l3Code => l3Code.startsWith(l2Code)))
             .map(code => code + "00");
 
-          const combinedArray = unmatchedL2Codes.concat(l3CodesArray);
+             combinedArray = unmatchedL2Codes.concat(l3CodesArray);
 
-          let queryString2;
-          if (userPower === "User") {
-            queryString2 = `
-          SELECT Description AS name, Module_Code, F1_Code, F2_Code 
-          FROM RFP_FunctionalItems 
-          WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')})
-        `;
-          } else if (userPower === "Vendor User") {
-            queryString2 = `
-          SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS MorO, Comments, deleted 
-          FROM rfp_functionalitem_draft 
-          WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')})
-        `;
-          }
+            let queryString2;
+            let values2 = [...combinedArray, res.rfp_no]; // Include rfp_no for binding
+            let results2 = [];
+            let unmatchedModuleCodes = [];
+            let finalResults = [];
+            // Query 1: Fetch data for "User"
+            if (userPower === "User" ) {
 
-          const [f1Result] = await db.query(queryString2, combinedArray);
+              if(userRole=="Maker"){
+                queryString2 = `
+                    SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+                           deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+                           Action_Log, Level
+                    FROM RFP_FunctionalItem_draft
+                    WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+                    AND RFP_No = ? 
+                `;
+                // console.log(queryString2);
+                // console.log(z);
+                // z++
+                // Execute first query
+                [results2] = await db.query(queryString2, values2);
+                // console.log(results2)
+                // console.log(values2)
+                // console.log(results2.length)
+                // Extract matched Module_Codes
+                const matchedModuleCodes = results2.map(row => row.Module_Code);
+            
+                // Identify unmatched codes by filtering combinedArray
+                unmatchedModuleCodes = combinedArray.filter(code => !matchedModuleCodes.includes(code));
+            
+            // Query 2: Fetch unmatched values only if necessary
+            if (unmatchedModuleCodes.length > 0 || results2.length==0) {
+                const queryString3 = `
+                    SELECT Description AS name, Module_Code, F1_Code, F2_Code 
+                    FROM RFP_FunctionalItems 
+                    WHERE Module_Code IN (${unmatchedModuleCodes.map(() => '?').join(', ')})
+                `;
+            
+                // Execute second query
+                const [results3] = await db.query(queryString3, unmatchedModuleCodes);
+                console.log("Unmatched Results from RFP_FunctionalItems:", results3);
+                const results4 = results3.map(item => ({
+                  ...item,
+                  Mandatory: item.Mandatory ?? true, // Set default if `Mandatory` is null
+                  deleted: item.deleted ?? false, // Set default if `deleted` is null
+                }));
+                // Combine the second result set with the first
+                  finalResults = [...results2, ...results4];
+                  
+            } else {
+                console.log("All Module_Codes were matched in the first query.");
+                finalResults = [...results2];
+            }
+            combinedData = [...combinedData,...finalResults]
+              } else if(userRole=="Authorizer"){
+                queryString2 = `
+                SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+                       deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+                       Action_Log, Level
+                FROM RFP_FunctionalItem_draft
+                WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+                AND RFP_No = ? and Status ="Bank_Pending_Authorization" and level='2'
+            `;
+             // Execute first query
+            [results2] = await db.query(queryString2, values2);
+            // console.log(results2)
+        
+            combinedData = [...combinedData,...results2]
+            } else if(userRole=="Reviewer"){
+              queryString2 = `
+              SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+                     deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+                     Action_Log, Level
+              FROM RFP_FunctionalItem_draft
+              WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+              AND RFP_No = ? and Status ="Bank_Pending_Reviewer"
+          `;
+           // Execute first query
+          [results2] = await db.query(queryString2, values2);
+          // console.log(results2)
+      
+          combinedData = [...combinedData,...results2]
+          } 
+                
+          }else if (userPower === "Vendor User") {
+          //   queryString2 = `
+          // SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS Mandatory, Comments, deleted 
+          // FROM rfp_functionalitem_draft 
+          // WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')})
+        // `;
+        if(userRole=="Maker"){
+          queryString2 = `
+          SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+                 deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+                 Action_Log, Level
+          FROM RFP_FunctionalItem_draft
+          WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+          AND RFP_No = ? and Status ="Vendor_Pending_Maker"
+      `;
+       // Execute first query
+      [results2] = await db.query(queryString2, values2);
+      // console.log(results2)
+  
+      combinedData = [...combinedData,...results2]
+      } else if(userRole=="Autherizor"){
+          queryString2 = `
+          SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+                 deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+                 Action_Log, Level
+          FROM RFP_FunctionalItem_draft
+          WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+          AND RFP_No = ? and Status ="Vendor_Pending_Authorization"
+      `;
+       // Execute first query
+      [results2] = await db.query(queryString2, values2);
+      // console.log(results2)
+  
+      combinedData = [...combinedData,...results2]
+      } else if(userRole=="Reviewer"){
+        queryString2 = `
+        SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+               deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+               Action_Log, Level
+        FROM RFP_FunctionalItem_draft
+        WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+        AND RFP_No = ? and Status ="Vendor_Pending_Reviewer"
+    `;
+     // Execute first query
+    [results2] = await db.query(queryString2, values2);
+    // console.log(results2)
 
-          const updatedF1Result = f1Result.map(item => ({
-            ...item,
-            MorO: item.MorO ?? true, // Set default if `Mandatory` is null
-            deleted: item.deleted ?? false, // Set default if `deleted` is null
-          }));
-
-          fItems.push(...updatedF1Result);
+    combinedData = [...combinedData,...results2]
+    }  }
+          console.log("combinedData");
+          console.log(combinedData.length);
+          console.log("combinedData");
+          // const [f1Result] = await db.query(queryString2, combinedArray);
+          
         }
-
+       
         // Push the processed `l2` with `l3` to `l1`
         data.l1.push({ name: l1.moduleName, code: l1.code, l2: l2Codes });
       }
+      updatedF1Result = combinedData.map(item => ({
+        ...item,
+        Mandatory: item.Mandatory ?? true, // Set default if `Mandatory` is null
+        deleted: item.deleted ?? false, // Set default if `deleted` is null
+      }));
+      fItems.push(...updatedF1Result);
       // combined.push({data,rfp_no})
     }
     // console.log(combined)
@@ -1541,7 +1673,7 @@ router.get('/loadContents-saved', async (req, res) => {
           let queryString2;
           if (userPower === "User") {
             queryString2 = `
-          SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS MorO, 
+          SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS Mandatory, 
          Comments, deleted, Stage, Level
           FROM rfp_functionalitem_draft 
           WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
@@ -1550,7 +1682,7 @@ router.get('/loadContents-saved', async (req, res) => {
         `;
           } else if (userPower === "Vendor User") {
             queryString2 = `
-         SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS MorO, 
+         SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS Mandatory, 
          Comments, deleted, Stage, Level
           FROM rfp_functionalitem_draft 
           WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
@@ -1564,7 +1696,7 @@ router.get('/loadContents-saved', async (req, res) => {
           const [f1Result] = await db.query(queryString2, parameters);
           const updatedF1Result = f1Result.map(item => ({
             ...item,
-            // MorO: item.MorO ?? true, // Set default if `Mandatory` is null
+            // Mandatory: item.Mandatory ?? true, // Set default if `Mandatory` is null
             // deleted: item.deleted ?? false, // Set default if `deleted` is null
           }));
 
@@ -1701,7 +1833,7 @@ router.get('/userItemsinSidebar', async (req, res) => {
       qustring = "is_maker=1"
     } else if (userRole == "Authorizer") {
       qustring = "is_authorizer=1"
-    } else if (userRole == "Viewer") {
+    } else if (userRole == "Reviewer") {
       qustring = "is_reviewer=1"
     }
     var data = [];
@@ -2188,7 +2320,7 @@ router.post('/vendorQuery-fetch-admin', async (req, res) => {
       const query = `
       SELECT rows_data, rfp_title, stage, created_by, updated_at 
       FROM VendorQuery
-      WHERE rfp_no = ? and stage!="viewer" and level ='Vendor';
+      WHERE rfp_no = ? and stage!="Reviewer" and level ='Vendor';
     `;
       // WHERE rfp_no = ? AND vendor_name = ? AND bank_name = ?;
       const [rows] = await db.execute(query, [rfpNo]);

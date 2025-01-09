@@ -44,7 +44,7 @@ export default sendCheckedItems;
 //     }
 // };
 export const handleSave = async (payload) => {
-    console.log(payload)
+    console.log(payload.level)
     try {
         const response = await fetch(`${API_URL}/api/insertFItem`, {
             method: 'POST',
@@ -55,8 +55,10 @@ export const handleSave = async (payload) => {
         });
 
         const data = await response.json();
+        alert("Data saved successfully");
         console.log('Data saved successfully:', data);
     } catch (error) {
+        alert("Error saving data");
         console.error('Error saving data:', error);
     }
 };

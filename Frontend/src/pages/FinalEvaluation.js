@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import './FinalEvaluation.css';
+import './combinedpages2.css';
 const FinalEvaluation = () => {
   const othersTitles = {
     others1: "Custom Field 1",

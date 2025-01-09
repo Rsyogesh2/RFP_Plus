@@ -17,6 +17,7 @@ const RFPReqTable = ({ l1 }) => {
     const [isEdit, setIsEdit] = useState(false);
     const { moduleData, setModuleData, userName, userPower, sidebarValue,userRole } = useContext(AppContext); // Access shared state
     // console.log(moduleData);
+    console.log("userRole : "+userRole+"userPower :" +userPower)
 
     useEffect(() => {
         async function fetchArray() {
@@ -73,12 +74,13 @@ const RFPReqTable = ({ l1 }) => {
 
     
   const currentLevel = () => {
+    console.log("vuserRole : "+userRole)
     switch (true) {
       case userPower === "User" && userRole === "Maker":
         return 1;
       case userPower === "User" && userRole === "Authorizer":
         return 2;
-      case userPower === "User" && userRole === "Viewer":
+      case userPower === "User" && userRole === "Reviewer":
         return 3;
       case userPower === "Super Admin" || userRole === "Super Admin":
         return 4;
@@ -113,7 +115,40 @@ const RFPReqTable = ({ l1 }) => {
         return "Vendor_Pending_Admin";
     }
   }
+  const determineLevel = () => {
+    if (userPower === "User" && userRole === "Maker") return 2;
+    if (userPower === "User" && userRole === "Authorizer") return 3;
+    if (userPower === "User" && userRole === "Reviewer") return 4;
+    if (userPower === "Super Admin") return 5;
+    if (userPower === "Vendor User" && userRole === "Maker") return 6;
+    if (userPower === "Vendor User" && userRole === "Authorizer") return 7;
+    if (userPower === "Vendor User" && userRole === "Reviewer") return 8;
+    if (userPower === "Vendor Admin") return 4;
+    return 5;
+  };
+  const adjustStageAndStatus = (payload, action, data) => {
+    if (action === "Save as Draft") {
+      payload.stage = "Draft";
+      payload.Status = "Draft";
+      payload.assigned_to = null;
+    } else if (["Submit", "Approve", "Submit to Bank"].includes(action)) {
+        console.log(nextStatus())
+        payload.Status = nextStatus();
+      payload.assigned_to = data.assignedTo || null;
+    } else if (action === "Reject") {
+      payload.stage = "Rejected";
+      payload.Status = "Rejected";
+      payload.assigned_to = null;
+    }
+    payload.stage = userPower === "Vendor User" ? "Vendor"
+      : userPower === "User" ? "Bank"
+      : userPower === "Vendor Admin" ? "Bank"
+      : userPower === "Super Admin" ? "Vendor"
+      : "";
+    return payload;
+  };
   const constructPayload = (action, data = {}) => {
+    
     let payload = {
       module: itemData,
       items: FItem,
@@ -134,38 +169,10 @@ const RFPReqTable = ({ l1 }) => {
     return payload;
   };
   
-  const determineLevel = () => {
-    if (userPower === "User" && userRole === "Maker") return 2;
-    if (userPower === "User" && userRole === "Authorizer") return 3;
-    if (userPower === "User" && userRole === "Viewer") return 4;
-    if (userPower === "Super Admin") return 5;
-    if (userPower === "Vendor User" && userRole === "Maker") return 6;
-    if (userPower === "Vendor User" && userRole === "Authorizer") return 7;
-    if (userPower === "Vendor User" && userRole === "Reviewer") return 8;
-    if (userPower === "Vendor Admin") return 4;
-    return 5;
-  };
+ 
+  console.log(determineLevel())
   
-  const adjustStageAndStatus = (payload, action, data) => {
-    if (action === "Save as Draft") {
-      payload.stage = "Draft";
-      payload.Status = "Draft";
-      payload.assigned_to = null;
-    } else if (["Submit", "Approve", "Submit to Bank"].includes(action)) {
-      payload.Status = nextStatus();
-      payload.assigned_to = data.assignedTo || null;
-    } else if (action === "Reject") {
-      payload.stage = "Rejected";
-      payload.Status = "Rejected";
-      payload.assigned_to = null;
-    }
-    payload.stage = userPower === "Vendor User" ? "Vendor"
-      : userPower === "User" ? "Bank"
-      : userPower === "Vendor Admin" ? "Bank"
-      : userPower === "Super Admin" ? "Vendor"
-      : "";
-    return payload;
-  };
+  
   
 
 
@@ -223,54 +230,60 @@ const RFPReqTable = ({ l1 }) => {
         console.log("ADD Items:", item);
     
         setFItem((prevItems) => {
-            // Initialize the new item's base properties
             let newCode;
-    
-            if (!item.New_Code) {
-                // Case 1: Item doesn't have New_Code, assign New_Code: 10
+        
+            if (item.New_Code == "00" || !item.New_Code) {
                 newCode = 10;
+                prevItems = prevItems.map(existingItem => ({
+                    ...existingItem,
+                    New_Code: (existingItem.Module_Code === item.Module_Code &&
+                               existingItem.F1_Code === item.F1_Code &&
+                               existingItem.F2_Code === item.F2_Code &&
+                               existingItem.New_Code !== "00" &&  // Prevent incrementing "00"
+                               Number(existingItem.New_Code) >= Number(item.New_Code))
+                              ? Number(existingItem.New_Code) + 1
+                              : existingItem.New_Code
+                }));
             } else {
-                // Case 2: Item already has New_Code, increment and ensure uniqueness
                 newCode = Number(item.New_Code) + 1;
-                while (prevItems.some((existingItem) =>
-                    existingItem.Module_Code === item.Module_Code &&
-                    existingItem.F1_Code === item.F1_Code &&
-                    existingItem.F2_Code === item.F2_Code &&
-                    existingItem.New_Code === newCode
-                )) {
-                    newCode += 1; // Increment until unique
-                }
+                prevItems = prevItems.map(existingItem => ({
+                    ...existingItem,
+                    New_Code: (existingItem.Module_Code === item.Module_Code &&
+                               existingItem.F1_Code === item.F1_Code &&
+                               existingItem.F2_Code === item.F2_Code &&
+                               existingItem.New_Code !== "00" &&  // Prevent incrementing "00"
+                               Number(existingItem.New_Code) >= Number(item.New_Code+1))
+                              ? Number(existingItem.New_Code) + 1
+                              : existingItem.New_Code
+                }));
             }
-    
-            // Create the new item
-            const newItem = {       
-                name: 'New Item',
+        
+            const newItem = {
+                name: '',
                 Module_Code: item.Module_Code,
                 F1_Code: item.F1_Code,
                 F2_Code: item.F2_Code,
                 New_Code: newCode,
-                isEditing: true, // Additional flag for new items
+                isEditing: true,
+                Mandatory: true
             };
-    
-            console.log("New Item:", newItem);
-
-            const itemIndex = prevItems.findIndex((prevItem) => 
+        
+            const itemIndex = prevItems.findIndex((prevItem) =>
                 prevItem.F2_Code === item.F2_Code &&
                 prevItem.Module_Code === item.Module_Code &&
                 (!prevItem.New_Code || !item.New_Code || prevItem.New_Code === item.New_Code)
-              );              
-              console.log(itemIndex);
+            );
+        
             const updatedItems = [
                 ...prevItems.slice(0, itemIndex + 1),
                 newItem,
                 ...prevItems.slice(itemIndex + 1)
             ];
-            // Insert the new item at the end of the array
-            // const updatedItems = [...prevItems, newItem];
-    
-            console.log("Updated Items:", updatedItems);
+        
             return updatedItems;
         });
+        
+        
     };
     
 
@@ -279,14 +292,14 @@ const RFPReqTable = ({ l1 }) => {
         setFItem((prevItems) =>
             prevItems.map((item) =>
                 item.isEditing ? {
-                    ...item, name: e.target.value, modifiedTime: new Date().toLocaleString(), // Store the current time
-                    editedBy: name,
+                    ...item, name: e.target.value, Modified_Time: new Date().toLocaleString(), // Store the current time
+                    Edited_By: name,
                 } : item
             )
         );
     };
 
-    const handleMorOChange = (value, item, TableIndex, parentIndex, subIndex, index) => {
+    const handleMandatoryChange = (value, item, TableIndex, parentIndex, subIndex, index) => {
         console.log("fcode " + item.F2_Code + "TableIndex: " + TableIndex + " parentIndex: " + parentIndex + " subIndex " + subIndex + " index " + index)
         const indexofArray = findIndexByObject(item);
         //    consol
@@ -294,7 +307,7 @@ const RFPReqTable = ({ l1 }) => {
         const newData = [...FItem];
         console.log(FItem);
         //    console.log(newData.item.F2_Code);
-        newData[indexofArray].MorO = value; // Update the MorO value
+        newData[indexofArray].Mandatory = value; // Update the Mandatory value
 
         setFItem(newData); // Update the state
 
@@ -317,7 +330,14 @@ const RFPReqTable = ({ l1 }) => {
         if (!levelData || !Array.isArray(levelData)) return console.log("its empty"); // Ensure levelData is defined and an array
         // console.log("levelData");
         // console.log(levelData);
-        return levelData.map((item, index) => (
+        
+        return levelData.map((item, index) =>{
+            const date = new Date(item.Modified_Time);
+            const formattedDate = date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+            // date.setMinutes(date.getMinutes() + 330); // Adding 5 hours and 30 minutes
+            // const formattedDate = date.toLocaleString('en-IN');
+            // console.log(formattedDate);
+           return (
             <tr key={`${item.Module_Code}-${item.F2_Code}-${index}`} id={`${item.Module_Code}-${item.F2_Code}-${index}`}>
 
                 {/* Checkbox for l2 and l3 levels */}
@@ -339,11 +359,12 @@ const RFPReqTable = ({ l1 }) => {
                 </td>
 
                 {/* Display name, bold for l1 level */}
-                <td style={{ fontWeight: 'bold', paddingLeft: `${paddingLeft}px` }}>
+                <td style={{  paddingLeft: `${paddingLeft}px` }}>
                     {!item.deleted && item.isEditing ? (
                         <input
                             type="text"
                             value={item.name}
+                            placeholder='New Item'
                             onChange={handleNameChange}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
@@ -354,7 +375,7 @@ const RFPReqTable = ({ l1 }) => {
                     ) : (
                         <span
                             style={{
-                                fontWeight: levelType === 'f1' ? 550 : 'normal',
+                                // fontWeight: levelType === 'f1' ? 550 : 'normal',
                                 textDecoration: item.deleted ? 'line-through' : 'none'
                             }}
                         >
@@ -369,9 +390,9 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
-                            checked={item.MorO === true}
-                            onChange={() => handleMorOChange(true, item, TableIndex, parentIndex, subIndex, index)}
+                            name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-Mandatory`}
+                            checked={item.Mandatory === 1 || item.Mandatory}
+                            onChange={() => handleMandatoryChange(true, item, TableIndex, parentIndex, subIndex, index)}
                         />
                     }
                 </td>
@@ -379,9 +400,9 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
-                            checked={item.MorO === false}
-                            onChange={() => handleMorOChange(false, item, TableIndex, parentIndex, subIndex, index)}
+                            name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-Mandatory`}
+                            checked={item.Mandatory === 0 || !item.Mandatory}
+                            onChange={() => handleMandatoryChange(false, item, TableIndex, parentIndex, subIndex, index)}
                         />
                     }
                 </td>
@@ -396,7 +417,7 @@ const RFPReqTable = ({ l1 }) => {
 
                 </td>
                 <td>
-                    {item.modifiedTime && (
+                    {item.Modified_Time && (
                         <p style={{
                             fontSize: '12px', wordWrap: 'break-word',
                             whiteSpace: 'normal',
@@ -404,22 +425,35 @@ const RFPReqTable = ({ l1 }) => {
                             textOverflow: 'clip'
                         }}
                         >
-                            {item.modifiedTime} </p>)}
+                            {formattedDate} </p>)}
                 </td>
                 <td>
-                    {item.modifiedTime &&
-                        <p style={{ fontSize: '12px' }}>{item.editedBy}</p>
+                    {item.Modified_Time &&
+                        <p style={{ fontSize: '12px' }}>{item.Edited_By}</p>
                     }
                 </td>
             </tr>
-        ));
+        )});
     };
     const readHierarchy = (levelData, levelType, paddingLeft = 10, TableIndex = null, parentIndex = null, subIndex = null, indexval) => {
         console.log('Rendering level:', levelType, 'with data', levelData,TableIndex,parentIndex," subIndex "+subIndex,"  indexval "+indexval);
 
         if (!levelData || !Array.isArray(levelData)) return console.log("its empty"); // Ensure levelData is defined and an array
 
-        return levelData.map((item, index) => (
+        return levelData.map((item, index) => {
+            const formatter = new Intl.DateTimeFormat('en-IN', {
+                timeZone: 'Asia/Kolkata',
+                dateStyle: 'full',
+                timeStyle: 'long'
+            });
+            const formattedDate = new Date(item.Modified_Time);
+            console.log(formattedDate);
+            const date = new Date(item.Modified_Time);  // Assuming it's UTC
+            const formattedDate1 = date.toUTCString();   // Show as UTC
+            console.log("UTC Date:", formattedDate1)
+
+            
+            return (
             <tr key={`${item.Module_Code}-${item.F2_Code}-${index}`} id={`${item.Module_Code}-${item.F2_Code}-${index}`}>
      
                 <td style={{ fontWeight: 'normal', paddingLeft: `${paddingLeft}px` }}>
@@ -434,8 +468,8 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
-                            checked={item.MorO === 1}
+                            name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-Mandatory`}
+                            checked={item.Mandatory === 1 || item.Mandatory}
                         />
                     }
                 </td>
@@ -443,8 +477,8 @@ const RFPReqTable = ({ l1 }) => {
                     {
                         <input
                             type="radio"
-                            name={`${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-MorO`}
-                            checked={item.MorO === 0 ||!item.MorO}
+                            name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-Mandatory`}
+                            checked={item.Mandatory === 0 || !item.Mandatory}
                         />
                     }
                 </td>
@@ -453,7 +487,7 @@ const RFPReqTable = ({ l1 }) => {
                     <p>{item.Comments || ''}</p>    
                 </td>
                 <td>
-                    {item.modifiedTime && (
+                    {item.Modified_Time && (
                         <p style={{
                             fontSize: '12px', wordWrap: 'break-word',
                             whiteSpace: 'normal',
@@ -461,15 +495,15 @@ const RFPReqTable = ({ l1 }) => {
                             textOverflow: 'clip'
                         }}
                         >
-                            {item.modifiedTime} </p>)}
+                            {item.Modified_Time} </p>)}
                 </td>
                 <td>
-                    {item.modifiedTime &&
-                        <p style={{ fontSize: '12px' }}>{item.editedBy}</p>
+                    {item.Modified_Time &&
+                        <p style={{ fontSize: '12px' }}>{item.Edited_By}</p>
                     }
                 </td>
             </tr>
-        ));
+        )});
     };
 
     const Tables = (l2, index1, f1, index, indexval) => {
@@ -485,13 +519,23 @@ const RFPReqTable = ({ l1 }) => {
         //     name: "Add here...",
         //     Module_Code: code
         // }));
-
-        const newItems = {
-            F2_Code: '1000',
-            F1_Code: `10`,
-            name: "Add here...",
-            Module_Code: l2.code
-        };
+        let newItems;
+        if(userRole==="Maker"){
+            newItems = {
+                F2_Code: '1000',
+                F1_Code: `10`,
+                name: "Add here...",
+                Module_Code: l2.code
+            };
+        } else{
+            newItems = {
+                F2_Code: '1000',
+                F1_Code: `10`,
+                name: "No Items",
+                Module_Code: l2.code
+            };
+        }
+         
 
         console.log(FItem);
         // console.log(newItems);
@@ -499,8 +543,21 @@ const RFPReqTable = ({ l1 }) => {
 
     
         const matchingCodes = FItem?.filter(f => f?.Module_Code?.startsWith(l2.code)) || [];
-        const f1items = matchingCodes.filter(f1 => f1?.F2_Code?.endsWith("00"));
-    
+        const f1items = matchingCodes
+    .filter(f1 => f1?.F2_Code?.endsWith("00")) 
+    .sort((a, b) => {
+        // First, compare by F1_Code (converted to number)
+        const f1Comparison = Number(a.F1_Code) - Number(b.F1_Code);
+        
+        // If F1_Code is the same, then compare by New_Code
+        if (f1Comparison !== 0) {
+            return f1Comparison;
+        }
+        
+        // Compare New_Code if F1_Code is the same
+        return Number(a.New_Code) - Number(b.New_Code);
+    });
+    console.log(f1items)
         return (
             <table className="item-table">
                 <colgroup>
@@ -526,11 +583,25 @@ const RFPReqTable = ({ l1 }) => {
                 <tbody>
                     {f1items && f1items.length > 0 ? (
                         f1items.map((item, index) => {
-                            const f2items = matchingCodes.filter(f1 =>
+                            const f2items = matchingCodes
+                            .filter(f1 =>
                                 f1?.F2_Code &&
                                 !f1.F2_Code.endsWith("00") &&
                                 f1.F2_Code.startsWith(item.F1_Code)
-                            );
+                            )
+                            .sort((a, b) => {
+                                // Sort by F2_Code first (as a number)
+                                const f2Comparison = Number(a.F2_Code) - Number(b.F2_Code);
+                        
+                                // If F2_Code is the same, sort by New_Code
+                                if (f2Comparison !== 0) {
+                                    return f2Comparison;
+                                }
+                                
+                                // Sort by New_Code if F2_Code matches
+                                return Number(a.New_Code) - Number(b.New_Code);
+                            });
+                        
     
                             return (
                                 <React.Fragment key={item.code || index}>
@@ -645,20 +716,7 @@ const RFPReqTable = ({ l1 }) => {
 
             {/* Show Submit button only for Authorizer or Reviewer */}
             {(userRole === "Authorizer" || userRole === "Reviewer") && (
-                <button onClick={() => handleSave({
-                    module: itemData,
-                    items: FItem,
-                    rfp_no: sidebarValue[0].rfp_no,
-                    rfp_title: sidebarValue[0].rfp_title,
-                    stage: "Viewer",
-                    userName,
-                    entity_Name: sidebarValue[0].entity_name,
-                    Assigned_To: "Some Assigned User",  // Update with actual data
-                    Status: "In Progress",             // Update with actual data
-                    Priority: "High",                  // Update with actual data
-                    Handled_by: "Some Handler",        // Update with actual data
-                    Action_log: "Some action log"      // Update with actual data
-                })}>
+                <button onClick={() => handleSave(constructPayload("Submit",{}))}>
                     Submit
                 </button>
             )}
@@ -667,6 +725,11 @@ const RFPReqTable = ({ l1 }) => {
             {userRole === "Maker" && (
                 <button onClick={() => handleSave(constructPayload("Save as Draft",{}))}>
                     Save as Draft
+                </button>
+            )}
+             {userRole === "Maker" && (
+                <button onClick={() => handleSave(constructPayload("Submit",{}))}>
+                    Submit
                 </button>
             )}
 

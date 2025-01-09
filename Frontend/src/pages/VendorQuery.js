@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AppContext } from '../context/AppContext';
-import "./VendorQuery.css";
+import "./combinedpages.css";
 import { TreeSelect } from "antd";
 
 const VendorQuery = ({ rfpNo = "" }) => {

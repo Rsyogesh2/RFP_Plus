@@ -1,4 +1,4 @@
-import "./Sidebar.css";
+import "./combinedpages.css";
 import { AppContext } from "./../context/AppContext";
 import React, { useEffect, useRef, useState, useContext, useCallback, useMemo } from "react";
 

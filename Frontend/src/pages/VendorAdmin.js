@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AppContext } from "./../context/AppContext";
-import './VendorAdmin.css';
+import './combinedpages.css';
 
 const VendorAdmin = () => {
   // State for form inputs
@@ -24,7 +24,7 @@ const VendorAdmin = () => {
     validTo: "",
     activeFlag: "Active",
   });
-  const { userName } = useContext(AppContext);
+  const { userName, userPower } = useContext(AppContext);
   useEffect(() => {
   async function assignRFP() {
     try {
@@ -60,7 +60,7 @@ const VendorAdmin = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({formData,userName}), // Send formData as JSON
+        body: JSON.stringify({formData,userName,userPower}), // Send formData as JSON
       });
 
       if (!response.ok) {

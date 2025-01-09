@@ -5,7 +5,7 @@ import './AssignUsers.css'
 
 const AssignUsers = () => {
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    
+
   const [assignedUsers, setAssignedUsers] = useState([]);  // Users value Stored in the table
   const [rfpDetails, setRfpDetails] = useState([]);
   const [rfpNo, setRfpNo] = useState();
@@ -17,13 +17,19 @@ const AssignUsers = () => {
   const [currentUserIndex, setCurrentUserIndex] = useState(null);
 
 
-  const { usersList, userName,userPower,setUsersList } = useContext(AppContext); // Users load in the table
+  const { usersList, userName, userPower, setUsersList } = useContext(AppContext); // Users load in the table
   console.log(usersList)
   const togglePopup = (idx) => {
+    console.log(idx);
+    if (!rfpModule?.l1?.length) {
+      alert("Please select the RFP Reference Number.");
+      return false; // Prevent further execution
+    }
     setCurrentUserIndex(idx);
     setSelectedModules(assignedUsers[idx]?.selectedModules || []);
     setPopupVisible((prev) => !prev);
   };
+  console.log(assignedUsers)
 
   const handleModuleSelection = (l2module, isChecked, parentModuleName, parentL1Code) => {
     setSelectedModules((prevSelectedModules) => {
@@ -31,16 +37,16 @@ const AssignUsers = () => {
       const existingModule = prevSelectedModules.find(
         (item) => item.moduleName === parentModuleName
       );
-  
+
       if (isChecked) {
         // If module exists, add the l2module
         if (existingModule) {
           return prevSelectedModules.map((item) =>
             item.moduleName === parentModuleName
               ? {
-                  ...item,
-                  l2module: [...item.l2module, l2module],
-                }
+                ...item,
+                l2module: [...item.l2module, l2module],
+              }
               : item
           );
         } else {
@@ -56,7 +62,7 @@ const AssignUsers = () => {
           const updatedL2Modules = existingModule.l2module.filter(
             (mod) => mod !== l2module
           );
-  
+
           if (updatedL2Modules.length > 0) {
             return prevSelectedModules.map((item) =>
               item.moduleName === parentModuleName
@@ -70,12 +76,12 @@ const AssignUsers = () => {
             );
           }
         }
-  
+
         return prevSelectedModules; // No change if module doesn't exist
       }
     });
-  };  
-  
+  };
+
 
   const handleSaveModules = () => {
     setAssignedUsers((prev) =>
@@ -133,7 +139,7 @@ const AssignUsers = () => {
   };
   const fetchUseRfpNo = async (rfpNo) => {
     try {
-      const queryParams = new URLSearchParams({ rfpNo,userName });
+      const queryParams = new URLSearchParams({ rfpNo, userName });
       const response = await fetch(`${API_URL}/api/assignRFPUserDetails?${queryParams}`, {
         method: "GET",
         headers: {
@@ -148,24 +154,25 @@ const AssignUsers = () => {
       setRfptitle(data.rfp_title);
       setRfpModule(data.modules);
       console.log(data.assignedUsers.length)
-      if(data.assignedUsers.length>0){
-      setAssignedUsers((prev) =>
-        prev.map((user) => {
-          const matchingUser = data.assignedUsers.find(
-            (assignedUser) => assignedUser.user_name === user.user_name
-          );
-      
-          // If a match is found, merge the user object with the matching data
-          return matchingUser ? { ...user, ...matchingUser } : user;
-        })
-      )}
+      if (data.assignedUsers.length > 0) {
+        setAssignedUsers((prev) =>
+          prev.map((user) => {
+            const matchingUser = data.assignedUsers.find(
+              (assignedUser) => assignedUser.user_name === user.user_name
+            );
+
+            // If a match is found, merge the user object with the matching data
+            return matchingUser ? { ...user, ...matchingUser } : user;
+          })
+        )
+      }
       // setAssignedUsers(data.assignedUsers);
     } catch (error) {
       console.error("Error fetching RFP details:", error.response?.data || error.message);
     }
   };
-  
-  
+
+
 
   return (
     <div className="assign-users-container">
@@ -182,7 +189,7 @@ const AssignUsers = () => {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ assignedUsers, rfpNo, selectedModules,userName, userPower }), // Send assignedUsers and RFP number
+              body: JSON.stringify({ assignedUsers, rfpNo, selectedModules, userName, userPower }), // Send assignedUsers and RFP number
             });
 
             if (response.ok) {
@@ -207,7 +214,7 @@ const AssignUsers = () => {
           onChange={(e) => fetchUseRfpNo(e.target.value)}
         >
           <option value="">Select</option>
-          {rfpDetails.length>0 &&
+          {rfpDetails.length > 0 &&
             rfpDetails.map((field) => (
               <option key={field.rfp_no} value={field.rfp_no}>
                 {field.rfp_no}
@@ -234,119 +241,171 @@ const AssignUsers = () => {
           </thead>
           <tbody>
             {assignedUsers &&
-              assignedUsers.map((user, idx) => (
-                <tr key={idx}>
-                  <td>{user.user_name}</td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={user.active}
-                      onChange={(e) => handleFieldChange(idx, "active", e.target.checked)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="date"
-                      value={user.fromDate || ""}
-                      onChange={(e) => handleFieldChange(idx, "fromDate", e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="date"
-                      value={user.toDate || ""}
-                      onChange={(e) => handleFieldChange(idx, "toDate", e.target.value)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={user.maker}
-                      onChange={(e) => handleFieldChange(idx, "maker", e.target.checked)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={user.authorizer}
-                      onChange={(e) => handleFieldChange(idx, "authorizer", e.target.checked)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={user.reviewer}
-                      onChange={(e) => handleFieldChange(idx, "reviewer", e.target.checked)}
-                    />
-                  </td>
-                  <td>
-                    <button type="button" onClick={() => togglePopup(idx)}>
-                      {user.selectedModules?.length
-                        ? user.selectedModules.map((mod) => mod.name).join(", ")
-                        : "Select Modules"}
-                    </button>
-                    {popupVisible && currentUserIndex === idx && (
-                      <div className="popup">
-                        <div className="popup-content">
-                          <h4>Select Modules</h4>
+              assignedUsers.map((user, idx) => {
+                let fromDate = user.fromDate;
+                let formattedfromDate = null;
+                if (fromDate) {
+                  const parsedDate = new Date(fromDate);
+                  console.log(parsedDate);
+                  // Check if the date is valid
+                  if (!isNaN(parsedDate)) {
+                    // Get the year, month, and day in local time
+                    const year = parsedDate.getFullYear();
+                    const month = String(parsedDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+                    const day = String(parsedDate.getDate()).padStart(2, '0');
+                    formattedfromDate = `${year}-${month}-${day}`;
+                    console.log(formattedfromDate); // Output: Correct local date
+                  } else {
+                    console.error('Invalid date format');
+                  }
+                } else {
+                  console.error('Date value is empty');
+                }
 
-                          {/* Tabs for Parent Elements */}
-                          <div className="tabs">
-                            {rfpModule &&
-                              rfpModule.l1.map((module, moduleIdx) => (
-                                <span
-                                  key={moduleIdx}
-                                  className={`tab ${activeTab === moduleIdx ? "active" : ""}`}
-                                  onClick={() => setActiveTab(moduleIdx)}
-                                >
-                                  {module.name}
-                                </span>
-                              ))}
-                          </div>
+                let toDate = user.toDate;
+                let formattedtoDate = null;
+                if (toDate) {
+                  const parsedDate = new Date(toDate);
+                  console.log(parsedDate);
+                  // Check if the date is valid
+                  if (!isNaN(parsedDate)) {
+                    // Get the year, month, and day in local time
+                    const year = parsedDate.getFullYear();
+                    const month = String(parsedDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+                    const day = String(parsedDate.getDate()).padStart(2, '0');
+                    formattedtoDate = `${year}-${month}-${day}`;
+                    console.log(formattedtoDate); // Output: Correct local date
+                  } else {
+                    console.error('Invalid date format');
+                  }
+                } else {
+                  console.error('Date value is empty');
+                }
 
-                          {/* Content for Selected Tab */}
-                          <div className="tab-content">
-                            {rfpModule.l1[activeTab]?.l2 && (
-                           <ul>
-                           {rfpModule.l1[activeTab].l2.map((l2module, l2moduleIndex) => (
-                             <li key={l2moduleIndex}>
-                               <label>
-                                 <input
-                                   type="checkbox"
-                                   checked={selectedModules.some(
-                                     (item) =>
-                                       item.moduleName === rfpModule.l1[activeTab].name &&
-                                       item.l2module.some((mod) => mod === l2module)
-                                   )}
-                                   onChange={(e) =>
-                                     handleModuleSelection(
-                                       l2module,
-                                       e.target.checked,
-                                       rfpModule.l1[activeTab].name,
-                                       rfpModule.l1[activeTab].code // Pass L1_Code here
-                                     )
-                                   }
-                                 />
-                                 {l2module.name}
-                               </label>
-                             </li>
-                           ))}
-                         </ul>
-                         
+                //  const formattedToDate = new Date(user.toDate).toISOString().split('T')[0];
+                return (
+                  <tr key={idx}>
+                    <td>{user.user_name}</td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={user.active}
+                        onChange={(e) => handleFieldChange(idx, "active", e.target.checked)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="date"
+                        value={formattedfromDate || ""}
+                        onChange={(e) => handleFieldChange(idx, "fromDate", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="date"
+                        value={formattedtoDate || ""}
+                        onChange={(e) => handleFieldChange(idx, "toDate", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={user.maker}
+                        onChange={(e) => handleFieldChange(idx, "maker", e.target.checked)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={user.authorizer}
+                        onChange={(e) => handleFieldChange(idx, "authorizer", e.target.checked)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={user.reviewer}
+                        onChange={(e) => handleFieldChange(idx, "reviewer", e.target.checked)}
+                      />
+                    </td>
+                    <td>
+                      <button type="button" onClick={() => togglePopup(idx)}>
+                        {user.selectedModules?.length
+                          ? user.selectedModules.map((mod) => mod.name).join(", ")
+                          : "Select Modules"}
+                      </button>
+
+                      {/* Show Popup Only if rfpModule Exists */}
+                      {popupVisible && currentUserIndex === idx && (
+                        <div className="popup">
+                          <div className="popup-content">
+                            {rfpModule?.l1?.length ? (
+                              <>
+                                <h4>Select Modules</h4>
+
+                                {/* Tabs for Parent Elements */}
+                                <div className="tabs">
+                                  {rfpModule.l1.map((module, moduleIdx) => (
+                                    <span
+                                      key={moduleIdx}
+                                      className={`tab ${activeTab === moduleIdx ? "active" : ""}`}
+                                      onClick={() => setActiveTab(moduleIdx)}
+                                    >
+                                      {module.name}
+                                    </span>
+                                  ))}
+                                </div>
+
+                                {/* Content for Selected Tab */}
+                                <div className="tab-content">
+                                  {rfpModule?.l1?.[activeTab]?.l2 && (
+                                    <ul>
+                                      {rfpModule.l1[activeTab].l2.map((l2module, l2moduleIndex) => (
+                                        <li key={l2moduleIndex}>
+                                          <label>
+                                            <input
+                                              type="checkbox"
+                                              checked={selectedModules.some(
+                                                (item) =>
+                                                  item.moduleName ===
+                                                  rfpModule.l1[activeTab].name &&
+                                                  item.l2module.some(
+                                                    (mod) => mod === l2module
+                                                  )
+                                              )}
+                                              onChange={(e) =>
+                                                handleModuleSelection(
+                                                  l2module,
+                                                  e.target.checked,
+                                                  rfpModule.l1[activeTab].name,
+                                                  rfpModule.l1[activeTab].code
+                                                )
+                                              }
+                                            />
+                                            {l2module.name}
+                                          </label>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  )}
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="button-group">
+                                  <button onClick={handleSaveModules}>Save</button>
+                                  <button onClick={() => togglePopup()}>Cancel</button>
+                                </div>
+                              </>
+                            ) : (
+                              <p className="warning-message">Please select the RFP number.</p>
                             )}
                           </div>
-
-                          {/* Action Buttons */}
-                          <div className="button-group">
-                            <button onClick={handleSaveModules}>Save</button>
-                            <button onClick={togglePopup}>Cancel</button>
-                          </div>
                         </div>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))
+                      )}
+                    </td>
+                  </tr>
+                )
+              })
             }
           </tbody>
 

@@ -14,7 +14,37 @@ const RFPVendorTable = ({ l1, userRole }) => {
   const [data, setdata] = useState([]);
   const [valueL1, setValueL1] = useState(null);
   const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
-   
+  const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', or null
+
+  const handleFileChange = async (event) => {
+      const selectedFile = event.target.files[0];
+
+      if (selectedFile) {
+          if (selectedFile.size > 5 * 1024 * 1024) {
+              alert('File size exceeds 5MB. Please upload a smaller file.');
+              setUploadStatus('error');
+              return;
+          }
+
+          // Simulate upload process
+          try {
+              // Replace with your actual upload logic (API call)
+              await fakeUpload(selectedFile);  
+              setUploadStatus('success');
+          } catch (error) {
+              setUploadStatus('error');
+          }
+      }
+  };
+
+  // Simulated upload function (replace with your real API call)
+  const fakeUpload = (file) => {
+      return new Promise((resolve, reject) => {
+          setTimeout(() => {
+              Math.random() > 0.5 ? resolve() : reject();
+          }, 1000); // Simulates success or failure randomly
+      });
+  };
   async function fetchDetails(){
  
     // const res = await fetchModuleandFitemData("RFP123");
@@ -104,7 +134,27 @@ const RFPVendorTable = ({ l1, userRole }) => {
         <td><input type="radio" name={`${item.F2_Code} - ${item.Module_Code} `} /></td>
         <td><input type="radio"  name={`${item.F2_Code} - ${item.Module_Code} `}/></td>
         <td><textarea style={{ border: 'none' }} /></td>
-        <td><MdOutlineDriveFolderUpload />
+        <td>
+        <div>
+            <label htmlFor="fileUpload">
+                <MdOutlineDriveFolderUpload
+                    size={30}
+                    style={{ 
+                        cursor: 'pointer', 
+                        color: uploadStatus === 'success' ? 'green' : uploadStatus === 'error' ? 'red' : 'black' 
+                    }}
+                />
+            </label>
+            <input
+                id="fileUpload"
+                type="file"
+                accept=".jpg,.png,.pdf,.docx"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+            />
+            {uploadStatus === 'success' && <p>File uploaded successfully!</p>}
+            {uploadStatus === 'error' && <p style={{ color: 'red' }}>File upload failed.</p>}
+        </div>
         </td>
       </tr>
     );

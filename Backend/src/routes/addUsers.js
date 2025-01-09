@@ -792,6 +792,14 @@ router.post('/api/vendor-admin', async (req, res) => {
     ];
 
     await db.query(query, values);
+    await db.query(`UPDATE rfp_functionalitem_draft
+    SET Status = 'Vendor_Pending_Maker',
+    Level = 5,
+    stage = 'Vendor'
+    WHERE Level = 4 
+    AND Status = 'Bank_Pending_Admin' 
+    AND RFP_No = ?`,rfpReferenceNo);
+
     res.status(200).json({ success: true, message: "Vendor Admin data saved successfully" });
     const password = "system@123";
     const salt = await bcrypt.genSalt(10);

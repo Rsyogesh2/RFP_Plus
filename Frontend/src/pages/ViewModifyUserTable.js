@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "./../context/AppContext";
-import "./ViewModifyUserTable.css";
+import "./combinedpages2.css";
 
 const ViewModifyUserTable = () => {
   const { usersList, setUsersList, userName, userPower } = useContext(AppContext);

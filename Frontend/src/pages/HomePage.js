@@ -17,7 +17,7 @@ import SubmitedRFPs from "./User/SubmitedRFPs";
 import FinalEvaluation from "./FinalEvaluation";
 import RfpScoringCriteria from "../ScoringCriteria/RfpScoringCriteria";
 import RFPVendorTable from "../components/RFP_Table/RFPVendorTable"
-import "./HomePage.css";
+import "./combinedpages.css";
 import {fetchUsers} from '../services/loadApis';
 // import {fetchUsers} from '../services/loadApis';
 
@@ -223,17 +223,18 @@ const HomePage = ({ userType }) => {
                   const queryParams = new URLSearchParams({ userName, userPower, userRole });
                   let url
                   if(userPower=="User"){
-                    if(userRole=="Maker"){
+                    // if(userRole=="Maker"){
                       url = `${API_URL}/api/loadContents-initial?${queryParams}`;
-                    } else{
-                      url = `${API_URL}/api/loadContents-saved?${queryParams}`;
-                    }
+                    // } else{
+                    //   url = `${API_URL}/api/loadContents-saved?${queryParams}`;
+                    // }
                   } else if(userPower=="Vendor User"){
                     // if(userRole=="Maker"){
                     //   url = `${API_URL}/api/lc-initial-vendorUser?${queryParams}`;
                     // } else{
-                      url = `${API_URL}/api/loadContents-saved?${queryParams}`;
+                      // url = `${API_URL}/api/loadContents-saved?${queryParams}`;
                     // }
+                    url = `${API_URL}/api/loadContents-initial?${queryParams}`;
                   } else if(userPower=="Vendor Admin"){
                     url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
                  } else if(userPower=="Super Admin"){
