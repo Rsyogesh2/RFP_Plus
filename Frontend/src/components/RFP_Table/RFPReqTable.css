@@ -82,13 +82,15 @@
 }
 
 
-/* .item-table tbody td {
-    padding: 8px;
+.item-table tbody td {
+    padding: 5px;
     border: 1px solid #ddd;
-    text-align: center;
+    /* text-align: center; */
+    font-size: 14px;
 }
 
-.item-table tbody td:first-child {
+
+/* .item-table tbody td:first-child {
     text-align: center;
 } */
 
@@ -100,6 +102,16 @@
     color: white;
     cursor: pointer;
     border-radius: 3px;
+}
+button {
+  padding: 5px 10px;
+  font-size: 14px;
+  border: none;
+  background-color: #007bff; /* Blue color */
+  color: white;
+  cursor: pointer;
+  border-radius: 1px;
+  margin-right: 10px;
 }
 
 .item-table button.deleteBtn {
@@ -169,3 +181,32 @@ margin: 0 !important;
   text-align: left !important;
 }
 
+/* Base styles for the table */
+.item-table th {
+  font-size: 14px; /* Default font size */
+  padding: 10px;
+  white-space: normal;
+  overflow: visible;
+}
+
+/* Media query for smaller parent sizes (e.g., below 600px width) */
+@media (max-width: 600px) {
+  .item-table th, .item-table td {
+      font-size: 15px; /* Reduce font size for smaller containers */
+      padding: 8px;
+  }
+}
+
+/* Media query for even smaller parent sizes (e.g., below 400px width) */
+@media (max-width: 400px) {
+  .item-table th, .item-table td {
+      font-size: 10px; /* Further reduce font size */
+      padding: 5px;
+  }
+
+  .item-table th, .item-table td {
+      white-space: nowrap; /* Prevent wrapping */
+      text-overflow: ellipsis; /* Add ellipsis if text overflows */
+      overflow: hidden;
+  }
+}

@@ -10,7 +10,8 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt'); // Consider using for password hashing
 const jwt = require('jsonwebtoken'); // Consider using for authentication
 const login = require('./login/login');
-const addUsers = require('./routes/addUsers')
+const addUsers = require('./routes/addUsers');
+const scoringCriteria = require('./routes/scoringCriteria');
 // const bcrypt = require("bcryptjs");
 
 // Allow requests from the frontend
@@ -38,6 +39,7 @@ app.use(cors({
 
 app.use('/', login);
 app.use('/', addUsers);
+app.use('/', scoringCriteria);
 // Home route
 // app.use(express.static(path.join(__dirname, 'client/build')));
 

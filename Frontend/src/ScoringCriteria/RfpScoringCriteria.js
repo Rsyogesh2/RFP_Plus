@@ -13,10 +13,60 @@ function RfpScoringCriteria() {
         others2: "Others 2 (Specify)",
         others3: "Others 3 (Specify)"
     });
+    const [sectionsData, setSectionsData] = useState({
+        implementationScore: [],
+        siteScore: [],
+        referenceScore: [],
+        others1Score: [],
+        others2Score: [],
+        others3Score: []
+    });
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+    const handleScoreSectionChange = (sectionKey, items) => {
+        setSectionsData((prevData) => ({
+            ...prevData,
+            [sectionKey]: items
+        }));
+    };
 
     const handleTitlesChange = (titles) => {
         setOthersTitles(titles);
     };
+   const handleSubmit = async () => {
+    const payload = {
+        sections: [
+            { title: "Implementation Score", data: sectionsData.implementationScore },
+            { title: "No of Sites Score", data: sectionsData.siteScore },
+            { title: "Site Reference", data: sectionsData.referenceScore },
+            { title: othersTitles.others1, data: sectionsData.others1Score },
+            { title: othersTitles.others2, data: sectionsData.others2Score },
+            { title: othersTitles.others3, data: sectionsData.others3Score }
+        ]
+    };
+
+    console.log("Submitting Payload: ", payload);
+    // alert( payload);
+
+    try {
+        const response = await fetch(`${API_URL}/scores`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert('Data saved successfully!');
+        } else {
+            alert('Failed to save data.');
+        }
+    } catch (error) {
+        console.error('Error submitting data:', error);
+    }
+};
+
 
     return (
         <div className="rfp-container">
@@ -47,6 +97,7 @@ function RfpScoringCriteria() {
                         "Implementation & Hosting - Partner",
                         "Others"
                     ]}
+                    onSectionChange={(items) => handleScoreSectionChange('implementationScore', items)}
                 />
 
                 <ScoreSection
@@ -58,6 +109,7 @@ function RfpScoringCriteria() {
                         "1-2 installations",
                         "Others module installations"
                     ]}
+                    onSectionChange={(items) => handleScoreSectionChange('siteScore', items)}
                 />
 
                 <ScoreSection
@@ -69,26 +121,30 @@ function RfpScoringCriteria() {
                         "Good",
                         "Very good"
                     ]}
+                    onSectionChange={(items) => handleScoreSectionChange('referenceScore', items)}
                 />
 
                 <ScoreSection
                     title={othersTitles.others1}
                     items={["To be defined", "To be defined", "To be defined", "To be defined", "To be defined"]}
+                    onSectionChange={(items) => handleScoreSectionChange('others1Score', items)}
                 />
 
                 <ScoreSection
                     title={othersTitles.others2}
                     items={["To be defined", "To be defined", "To be defined", "To be defined", "To be defined"]}
+                    onSectionChange={(items) => handleScoreSectionChange('others2Score', items)}
                 />
 
                 <ScoreSection
                     title={othersTitles.others3}
                     items={["To be defined", "To be defined", "To be defined", "To be defined", "To be defined"]}
+                    onSectionChange={(items) => handleScoreSectionChange('others3Score', items)}
                 />
             </div>
 
             <div className="buttons">
-                <button className='btn' text="Submit">Save as Draft</button>
+                <button className='btn' text="Submit" onClick={handleSubmit}>Save as Draft</button>
                 <button className='btn' text="Submit">Submit</button>
                 <button className='btn' text="Cancel">Cancel</button>
             </div>
@@ -229,25 +285,22 @@ function OverallScoring({ onTitlesChange }) {
 
 // Reusable Score Section Component with Editable Item Names and Dropdown Scores
 
-function ScoreSection({ title, items }) {
-    // State to track each item’s text and score
-    const [data, setData] = useState(items.map((item) => ({ text: '', score: 4 })));
 
-    // Calculate the total score by summing up the score values in the data array
-    const totalScore = data.reduce((acc, item) => acc + Number(item.score), 0);
+function ScoreSection({ title, items, onSectionChange }) {
+    const [data, setData] = useState(items.map(() => ({ text: '', score: 4 })));
 
-    // Handler to update the text input for an item
     const handleTextChange = (index, value) => {
         const newData = [...data];
         newData[index].text = value;
         setData(newData);
+        onSectionChange(newData); // Send data to parent component
     };
 
-    // Handler to update the score for an item
     const handleScoreChange = (index, value) => {
         const newData = [...data];
         newData[index].score = parseInt(value, 10) || 0;
         setData(newData);
+        onSectionChange(newData); // Send data to parent component
     };
 
     return (
@@ -256,7 +309,7 @@ function ScoreSection({ title, items }) {
             <table>
                 <thead>
                     <tr>
-                        <th>Implementation model</th>
+                        <th>Implementation Model</th>
                         <th>Score</th>
                     </tr>
                 </thead>
@@ -272,31 +325,23 @@ function ScoreSection({ title, items }) {
                                     className="item-input"
                                 />
                             </td>
-                            <td className="score">
+                            <td>
                                 <select
                                     value={item.score}
+                                    onChange={(e) => handleScoreChange(index, e.target.value)}
                                     className="score-dropdown"
                                 >
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
+                                    {[0, 1, 2, 3, 4].map((num) => (
+                                        <option key={num} value={num}>{num}</option>
+                                    ))}
                                 </select>
                             </td>
                         </tr>
                     ))}
-                    {/* <tr>
-                      <td style={{border:'none'}}></td>
-                      <td style={{textAlign:'center'}}>{totalScore}</td>
-                    </tr> */}
                 </tbody>
             </table>
-            <p className="benchmark-note">(Benchmark 100% = highest defined point)</p>
-            {/* <p className="total-score">Total Score: {totalScore}</p> */}
         </div>
     );
 }
-
 
 export default RfpScoringCriteria;

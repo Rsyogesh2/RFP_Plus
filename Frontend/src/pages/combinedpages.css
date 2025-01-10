@@ -40,17 +40,28 @@
     cursor: pointer;
     border-radius: 5px;
 }
-
 .sidebar ul li:hover {
-    background-color: #34495e;
+    background-color: #34495e; 
     color: #ffffff;
 }
 
+.sidebar ul li:has(.sidebar-sublabel):hover {
+    background-color: inherit; /* Reset to default or parent background */
+    color: inherit;           /* Reset to default or parent color */
+}
+
+.sidebar-sublabel:hover {
+    /* text-align: center; */
+    background-color: #509ce9; /* Slightly lighter blue */
+    color: #ffffff;  /* Green accent */
+}
+
 /* Sub-label styling */
-.sidebar .sub-label {
+.sidebar ul li .sub-label {
     margin: 0 !important;
     padding: 0 !important;
     list-style-type: none !important;
+    background-color: #34495e;
 }
 
 .sub-label li {
@@ -64,6 +75,39 @@
     font-weight: bolder;
     text-align: start;
 }
+.toggle-btn {
+    position: absolute;
+    top: 20px;
+    left: 250px; /* Positioned to the edge of the sidebar */
+    width: 40px;
+    height: 40px;
+    background-color: #3498db; /* Vibrant blue */
+    border: none;
+    border-radius: 5px; /* Rectangular with slight rounding */
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: left 0.3s ease, transform 0.2s ease, background-color 0.3s;
+  }
+  
+  
+  .sidebar.open .toggle-btn {
+    left: 220px; /* Adjust based on sidebar width */
+  }
+  
+  .toggle-btn span {
+    display: inline-block;
+    transform: rotate(0deg);
+    transition: transform 0.3s ease;
+  }
+  
+  .sidebar.open .toggle-btn span {
+    transform: rotate(180deg); /* Rotate the arrow to face the opposite direction */
+  }
+  
 
 /* Header Styling */
 .header {

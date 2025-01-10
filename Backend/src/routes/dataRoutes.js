@@ -735,11 +735,18 @@ router.post('/insertFItem', async (req, res) => {
 
       let Modified_Time;
       if (item.Modified_Time && !isNaN(new Date(item.Modified_Time))) {
-        Modified_Time = new Date(item.Modified_Time).toISOString().slice(0, 19).replace('T', ' ');
+          const date = new Date(item.Modified_Time);
+          
+          // Adjusting for local time zone offset
+          const offset = date.getTimezoneOffset() * 60000; 
+          const localISOTime = new Date(date - offset).toISOString().slice(0, 19).replace('T', ' ');
+          
+          Modified_Time = localISOTime;
+          console.log(item.Modified_Time, item.name, Modified_Time);
       } else {
-        Modified_Time = null;  // or provide a default value like new Date()
+          Modified_Time = null;  // or provide a default value like new Date()
       }
-
+      
       const values = [
         rfp_title,
         rfp_no,
@@ -787,6 +794,58 @@ router.post('/insertFItem', async (req, res) => {
 
 
       await connection.query(insertQuery, values);
+
+      if(Number(level)==5){
+      const insertQueryVendor = `
+    INSERT INTO RFP_FunctionalItem_Draft 
+      (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted,
+      Modified_Time,Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By,
+       Action_Log, Level, Vendor_Id, Bank_Id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+      Requirement = VALUES(Requirement),
+      Mandatory = VALUES(Mandatory),
+      Comments = VALUES(Comments),
+      deleted = VALUES(deleted),
+      Modified_Time = VALUES(Modified_Time),
+      Edited_By = VALUES(Edited_By),
+      stage = VALUES(stage),
+      created_by = VALUES(created_by),
+      assigned_to = VALUES(assigned_to),
+      Status = VALUES(Status),
+      Priority = VALUES(Priority),
+      Handled_By = VALUES(Handled_By),
+      Action_Log = VALUES(Action_Log),
+      Level = VALUES(Level)
+      `;  
+      const values1 = [
+        rfp_title,
+        rfp_no,
+        item.name,
+        item.Module_Code,
+        item.F1_Code,
+        item.F2_Code,
+        item.New_Code || "00",
+        item.Mandatory,
+        item.Comments,
+        item.deleted,
+        Modified_Time,
+        item.Edited_By,
+        stage,
+        bank_name,
+        created_by,
+        assigned_to,
+        Status,
+        Priority,
+        JSON.stringify(Handled_by),
+        Action_log,
+        level,
+        Vendor_Id,
+        Bank_Id
+        
+      ];
+      await connection.query(insertQueryVendor, values1);
+    }
     }
 
     // Commit the transaction
@@ -1337,7 +1396,7 @@ router.get('/loadContents-initial', async (req, res) => {
         `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
    module_name, rfp_no 
    FROM User_Modules_Assignment 
-   WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring}`,
+          WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring}`,
         [userDetails[0].user_name, userDetails[0].createdby]
       );
       //console.log("User Modules Assignment:", result);
@@ -1501,6 +1560,14 @@ router.get('/loadContents-initial', async (req, res) => {
           // WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')})
         // `;
         if(userRole=="Maker"){
+      //     queryString2 = `
+      //     SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+      //            deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+      //            Action_Log, Level
+      //     FROM RFP_FunctionalItem_Vendor
+      //     WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+      //     AND RFP_No = ? and Status ="Vendor_Pending_Maker" and Vendor_Id= ? and Bank_Id=?
+      // `;
           queryString2 = `
           SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
                  deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
@@ -1515,6 +1582,14 @@ router.get('/loadContents-initial', async (req, res) => {
   
       combinedData = [...combinedData,...results2]
       } else if(userRole=="Autherizor"){
+        // queryString2 = `
+        // SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+        //        deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+        //        Action_Log, Level
+        // FROM RFP_FunctionalItem_Vendor
+        // WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+        // AND RFP_No = ? and Status ="Vendor_Pending_Authorization" and Vendor_Id= ? and Bank_Id=?
+        // `;
           queryString2 = `
           SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
                  deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
@@ -1529,6 +1604,14 @@ router.get('/loadContents-initial', async (req, res) => {
   
       combinedData = [...combinedData,...results2]
       } else if(userRole=="Reviewer"){
+    //     queryString2 = `
+    //     SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+    //            deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+    //            Action_Log, Level
+    //     FROM RFP_FunctionalItem_Vendor
+    //     WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
+    //     AND RFP_No = ? and Status ="Vendor_Pending_Reviewer" and Vendor_Id= ? and Bank_Id=?
+    // `;
         queryString2 = `
         SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
                deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
