@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AppContext } from '../context/AppContext';
 
 const CommercialScore = () => {
+    const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const [values, setValues] = useState({
         Total_cost: 0,
         Avs: 0,
@@ -17,7 +20,49 @@ const CommercialScore = () => {
         "License cost",
         "Rate card (per person per day)"
     ];
-
+    const handleSubmit = async () => {
+        const rowsData = rows.map((row, index) => {
+            // Safely retrieve values
+            const getInputValue = (id) => {
+                const element = document.querySelector(id);
+                return element ? element.value : ""; // Default to an empty string if null
+            };
+    
+            return {
+                CommercialPattern: getInputValue(`#commercial-pattern-${index}`) ||"",
+                InternalPercent: values[keys[index]] || 0,
+                From1: getInputValue(`#from-${index}-1`),
+                To1: getInputValue(`#to-${index}-1`),
+                Score1: getInputValue(`#score-${index}-0`),
+                From2: getInputValue(`#from-${index}-2`),
+                To2: getInputValue(`#to-${index}-2`),
+                Score2: getInputValue(`#score-${index}-1`),
+                From3: getInputValue(`#from-${index}-3`),
+                To3: getInputValue(`#to-${index}-3`),
+                Score3: getInputValue(`#score-${index}-2`),
+                rfp_no:sidebarValue[0]?.rfp_no
+            };
+        });
+        console.log(rowsData)
+        try {
+            const response = await fetch(`${API_URL}/commercial-scores`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(rowsData)
+            });
+    
+            if (response.ok) {
+                alert('Data saved successfully!');
+            } else {
+                alert('Error saving data.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error submitting data.');
+        }
+    };
+    
+    
     const handleInputChange = (event, field) => {
         // Get the raw input value as a string
         let newValue = event.target.value;
@@ -56,6 +101,13 @@ const CommercialScore = () => {
         <div className="commercial-score">
             <h2>Commercial Score</h2>
             <table>
+                <colgroup>
+                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "5%" }} />
+                    <col style={{ width: "25%" }} />
+                    <col style={{ width: "60%" }} />
+                    <col style={{ width: "5%" }} />
+                </colgroup>
                 <thead>
                     <tr>
                         <th>Commercial Pattern</th>
@@ -73,9 +125,11 @@ const CommercialScore = () => {
                         internalKey={keys[index]}
                         handleInputChange={handleInputChange}
                         value={values[keys[index]]}
+                        rowIndex={index} // Pass the row index
                     />
                 ))}
-                </tbody>
+            </tbody>
+
                 <tfoot>
                     <tr>
                         <td colSpan="1">Total</td>
@@ -88,6 +142,8 @@ const CommercialScore = () => {
                             <p className="benchmark-note">
                                 (Benchmark 100% = highest defined point x internal %)
                             </p>
+                            <button onClick={handleSubmit}>Submit</button>
+
                         </td>
                     </tr>
                 </tfoot>
@@ -96,11 +152,12 @@ const CommercialScore = () => {
     );
 };
 
-function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value }) {
+function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value, rowIndex }) {
     return (
         <tr>
             <td>
                 <textarea
+                     id={`commercial-pattern-${rowIndex}`} // Unique ID for each textarea
                     placeholder={placeholder}
                     className="item-input textarea-input"
                     rows="2"
@@ -108,7 +165,7 @@ function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value
                         backgroundColor: "inherit",
                         border: "none",
                         outline: "none",
-                        height: "30px",
+                        height: "70px",
                         padding: "10px",
                         fontSize: "0.9em",
                         color: "inherit"
@@ -116,23 +173,25 @@ function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value
                 ></textarea>
             </td>
             <td>
-            <input
-                type="number"
-                className="item-input text-input"
-                placeholder="%"
-                value={value || ""} // Display an empty string if the value is 0
-                onChange={(e) => handleInputChange(e, internalKey)}
-                style={{textAlign:'center'}}
-            />
+                <input
+                    type="number"
+                    className="item-input text-input"
+                    placeholder="%"
+                    value={value || ""} // Display an empty string if the value is 0
+                    onChange={(e) => handleInputChange(e, internalKey)}
+                    style={{ textAlign: 'center' }}
+                />
             </td>
             <td>
                 <div className="amount-group">
                     {[1, 2, 3].map((index) => (
                         <input
-                            key={`from-${index}`}
+                            key={`from-${rowIndex}-${index}`}
+                            id={`from-${rowIndex}-${index}`}
                             type="text"
                             className="item-input text-input"
                             placeholder="Amount"
+                            style={{fontSize:"10px" }}
                         />
                     ))}
                 </div>
@@ -141,17 +200,23 @@ function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value
                 <div className="amount-group">
                     {[1, 2, 3].map((index) => (
                         <input
-                            key={`to-${index}`}
+                            key={`to-${rowIndex}-${index}`}
+                            id={`to-${rowIndex}-${index}`}
                             type="text"
                             className="item-input text-input"
                             placeholder="Amount"
+                            style={{fontSize:"10px"}}
                         />
                     ))}
                 </div>
             </td>
             <td>
                 {[0, 1, 2].map((scoreIndex) => (
-                    <select key={`score-${scoreIndex}`} className="item-input">
+                    <select
+                        key={`score-${rowIndex}-${scoreIndex}`}
+                        id={`score-${rowIndex}-${scoreIndex}`}
+                        className="item-input"
+                    >
                         <option value="0">0</option>
                         {[1, 2, 3, 4].map((score) => (
                             <option key={score} value={score}>
@@ -164,5 +229,6 @@ function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value
         </tr>
     );
 }
+
 
 export default CommercialScore;

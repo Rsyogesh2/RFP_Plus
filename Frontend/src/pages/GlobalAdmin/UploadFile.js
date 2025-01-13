@@ -156,9 +156,17 @@ const UploadFile = () => {
           // Extract data starting from B5
           const jsonData = XLSX.utils.sheet_to_json(sheet, {
             header: ["L1", "L2", "L3", "F1", "F2", "Product", "Description", "Geo", "Conditions"],
-            range: "B5:J100", // Start reading from the fifth row (B5, zero-based index)
+            range: "B5:J400", // Start reading from the fifth row (B5, zero-based index)
             defval: "", // Default value for empty cells
           });
+          // const jsonData = XLSX.utils.sheet_to_json(sheet, {
+          //   header: ["L1", "L2", "L3", "F1", "F2", "Product", "Description", "Geo", "Conditions"],
+          //   defval: "", // Default value for empty cells
+          //   range: "B5" // Start from B5 and include all rows until the end of the data
+          // });
+          
+          console.log(jsonData);
+        
           // const l1Data = XLSX.utils.sheet_to_json(sheet, {
           //   header: ["L1_Code", "L1_Description"],
           //   range: "B6:C100",
@@ -181,11 +189,20 @@ const UploadFile = () => {
           // Combine data from all sheets
           allSheetsData.push(...formattedData);
         }
-  
+        
         console.log(allSheetsData.slice(0, 10)); // Log first 10 rows for debugging
+        const filteredData = allSheetsData.filter((row) => row.L1 !== "" || row.Description !== "");
+        // await uploadToBackendFunctional(filteredData);
+
         console.log(allSheetsData); // Log first 10 rows for debugging
-        await uploadToBackendFunctional(allSheetsData);
+        // await uploadToBackendFunctional(allSheetsData);
         alert("File uploaded successfully!");
+        const chunkSize = 500; // Adjust chunk size
+        for (let i = 0; i < filteredData.length; i += chunkSize) {
+          const chunk = filteredData.slice(i, i + chunkSize);
+          await uploadToBackendFunctional(chunk); // Send each chunk separately
+        }
+
       };
   
       fileReader.readAsArrayBuffer(selectedFile);

@@ -18,18 +18,18 @@ import FinalEvaluation from "./FinalEvaluation";
 import RfpScoringCriteria from "../ScoringCriteria/RfpScoringCriteria";
 import RFPVendorTable from "../components/RFP_Table/RFPVendorTable"
 import "./combinedpages.css";
-import {fetchUsers} from '../services/loadApis';
+import { fetchUsers } from '../services/loadApis';
 // import {fetchUsers} from '../services/loadApis';
 
 
 const Header = () => {
-  const { userPower,sidebarValue,moduleData } = useContext(AppContext);
+  const { userPower, sidebarValue, moduleData } = useContext(AppContext);
   // console.log(moduleData.entityName)
   return (
     <div className="header">
-     <h1>
-    {moduleData?moduleData.entityName:"" }
-    </h1>
+      <h1>
+        {moduleData ? moduleData.entityName : ""}
+      </h1>
       <h2>{`${userPower} Module`}</h2>
     </div>
   );
@@ -41,8 +41,8 @@ const AddUserForm = () => {
   // console.log(userName);
   const [id, setId] = useState(1);
   const [formData, setFormData] = useState({
-    id: usersList.length + 1,
-    userName: "",
+    user_no: usersList.length + 1,
+    user_name: "",
     designation: "",
     email: "",
     mobile: "",
@@ -57,7 +57,7 @@ const AddUserForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    
+
     try {
       const response = await fetch(`${API_URL}/addUser`, {
         method: 'POST',
@@ -82,8 +82,8 @@ const AddUserForm = () => {
           const no = Number(usersList.length) == 0 ? 2 : usersList.length + 1;
           // Clear the form fields by resetting formData
           setFormData({
-            id: no,
-            userName: "",
+            user_no: no,
+            user_name: "",
             designation: "",
             email: "",
             mobile: "",
@@ -118,9 +118,9 @@ const AddUserForm = () => {
           <label>User Name:</label>
           <input
             type="text"
-            name="userName"
+            name="user_name"
             placeholder="Enter user name"
-            value={formData.userName} // Bind to formData
+            value={formData.user_name} // Bind to formData
             onChange={handleChange} // Update formData on change
           />
         </div>
@@ -167,8 +167,20 @@ const AddUserForm = () => {
         </div>
         <div className="buttons">
           <button type="submit">Submit</button>
-          <button type="button">Cancel</button>
-          <button type="button">Next &gt;&gt;</button>
+          <button
+            type="button"
+            onClick={() => setFormData({
+              user_no: usersList.length + 1,
+              user_name: "",
+              designation: "",
+              email: "",
+              mobile: "",
+              activeFlag: "Active",
+            })}
+          >
+            Cancel
+          </button>
+
         </div>
       </form>
 
@@ -192,7 +204,7 @@ const HomePage = ({ userType }) => {
   const [error, setError] = useState(null);
   const { usersList, setUsersList, userName, userPower, setModuleData, userRole } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -201,7 +213,7 @@ const HomePage = ({ userType }) => {
         // const [superUsersData, vendorsData] = await Promise.all([
         //   fetchSuperUsers(),
         //   fetchVendors(),
-        fetchUsers({setUsersList,userName,userPower});
+        fetchUsers({ setUsersList, userName, userPower });
         // ]);
         // setSuperUsers(superUsersData);
         // setVendors(vendorsData);
@@ -215,58 +227,58 @@ const HomePage = ({ userType }) => {
     loadData();
   }, []);
 
-   useEffect(() => {
-          async function fetchArray() {
-             console.log("userName " + userName)
-              //23/11/2024
-              try {
-                  const queryParams = new URLSearchParams({ userName, userPower, userRole });
-                  let url
-                  if(userPower=="User"){
-                    // if(userRole=="Maker"){
-                      url = `${API_URL}/api/loadContents-initial?${queryParams}`;
-                    // } else{
-                    //   url = `${API_URL}/api/loadContents-saved?${queryParams}`;
-                    // }
-                  } else if(userPower=="Vendor User"){
-                    // if(userRole=="Maker"){
-                    //   url = `${API_URL}/api/lc-initial-vendorUser?${queryParams}`;
-                    // } else{
-                      // url = `${API_URL}/api/loadContents-saved?${queryParams}`;
-                    // }
-                    url = `${API_URL}/api/loadContents-initial?${queryParams}`;
-                  } else if(userPower=="Vendor Admin"){
-                    url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
-                 } else if(userPower=="Super Admin"){
-                    url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
-               } 
-                  console.log("Fetching URL:", url);
-                  const response = await fetch(url);
-                  
-                  console.log(response);
-      
-                  // Check if the response is okay (status in the range 200-299)
-                  if (!response.ok) {
-                      throw new Error(`HTTP error! Status: ${response.status}`);
-                  }
-      
-                  const data = await response.json(); // Parse the JSON response
-                  console.log(data);  // Handle the fetched data as needed
-                  setModuleData(data);
-              } catch (error) {
-                  console.error('Error sending checked items:', error); // Log any errors
-              }
-      
-          }
-           fetchArray();
-      }, []);
+  useEffect(() => {
+    async function fetchArray() {
+      console.log("userName " + userName)
+      //23/11/2024
+      try {
+        const queryParams = new URLSearchParams({ userName, userPower, userRole });
+        let url
+        if (userPower == "User") {
+          // if(userRole=="Maker"){
+          url = `${API_URL}/api/loadContents-initial?${queryParams}`;
+          // } else{
+          //   url = `${API_URL}/api/loadContents-saved?${queryParams}`;
+          // }
+        } else if (userPower == "Vendor User") {
+          // if(userRole=="Maker"){
+          //   url = `${API_URL}/api/lc-initial-vendorUser?${queryParams}`;
+          // } else{
+          // url = `${API_URL}/api/loadContents-saved?${queryParams}`;
+          // }
+          url = `${API_URL}/api/loadContents-initial?${queryParams}`;
+        } else if (userPower == "Vendor Admin") {
+          url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
+        } else if (userPower == "Super Admin") {
+          url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
+        }
+        console.log("Fetching URL:", url);
+        const response = await fetch(url);
+
+        console.log(response);
+
+        // Check if the response is okay (status in the range 200-299)
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json(); // Parse the JSON response
+        console.log(data);  // Handle the fetched data as needed
+        setModuleData(data);
+      } catch (error) {
+        console.error('Error sending checked items:', error); // Log any errors
+      }
+
+    }
+    fetchArray();
+  }, []);
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
-  
+
   const renderSection = () => {
     console.log(activeSection);
-    if (!isNaN(activeSection) && activeSection!==99&& activeSection!=="" ) {
+    if (!isNaN(activeSection) && activeSection !== 99 && activeSection !== "") {
       // Call the ViewAssignedRFPs component with the activeSection as a prop
       return <ViewAssignedRFPs l1module={activeSection} />;
     }
@@ -290,7 +302,7 @@ const HomePage = ({ userType }) => {
       case "Reports":
         return <Reports />;
       case "View Assigned RFPs":
-        return <ViewAssignedRFPs  />;
+        return <ViewAssignedRFPs />;
       case "Submit RFPs":
         return <SubmitedRFPs />;
       case "Add Vendor User":
@@ -304,7 +316,7 @@ const HomePage = ({ userType }) => {
       case "Submit RFP":
         return <CreateRFPForm />;
       case "View Vendor Assigned RFPs":
-          return <RFPVendorTable />;
+        return <RFPVendorTable />;
       case "Vendor Query":
         return <VendorQuery />;
       case "Vendor Query Submission":

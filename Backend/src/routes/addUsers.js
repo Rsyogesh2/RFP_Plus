@@ -74,7 +74,9 @@ const bcrypt = require('bcryptjs')
 
 router.post('/addOrUpdateSuperUser', async (req, res) => {
   const { newUser, assignModule } = req.body;
-
+  newUser.validFrom = new Date(newUser.validFrom);
+  newUser.validTo = new Date(newUser.validTo);
+  
   try {
     // Check if user already exists based on email and entity name
     const checkUserQuery = `
@@ -376,7 +378,7 @@ router.get('/getSuperUsers', async (req, res) => {
   });
   
 router.post('/addUser', async (req, res) => {
-    const { id, userName, designation, email, mobile, activeFlag } = req.body;
+    const { id, user_name, designation, email, mobile, activeFlag } = req.body;
     const creatorName = req.body.emailId; // Extract separate userName field
     const userPower = req.body.userPower; // Extract separate userName field
     //console.log("id "+ id);
@@ -420,7 +422,7 @@ router.post('/addUser', async (req, res) => {
       
       const values = [
         no[0].no,           // User number
-        userName,           // User name
+        user_name,           // User name
         designation,        // Designation
         email,              // Email
         mobile,             // Mobile number

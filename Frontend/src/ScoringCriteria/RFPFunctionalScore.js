@@ -1,49 +1,72 @@
 import './FunctionalScore.css'; // Create a CSS file for styling
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AppContext } from '../context/AppContext';
 
 const FunctionalScore = () => {
-    // State for checkboxes
-    const [isAvailableChecked, setIsAvailableChecked] = useState(false);
-    const [isPartlyAvailableChecked, setIsPartlyAvailableChecked] = useState(false);
-    const [isCustomizableChecked, setIsCustomizableChecked] = useState(false);
-    const [isNotAvailableChecked, setIsNotAvailableChecked] = useState(false);
+    // State for checkboxes and scores
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+   const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
+       
+    const [scores, setScores] = useState({
+        isAvailableChecked: false,
+        isPartlyAvailableChecked: false,
+        isCustomizableChecked: false,
+        isNotAvailableChecked: false,
+        availableScore: 0,
+        partlyAvailableScore: 0,
+        customizableScore: 0,
+        notAvailableScore: 0,
+        mandatoryScore: 0,
+        optionalScore: 0,
+    });
 
-    // State for dropdown scores
-    const [availableScore, setAvailableScore] = useState(0);
-    const [partlyAvailableScore, setPartlyAvailableScore] = useState(0);
-    const [customizableScore, setCustomizableScore] = useState(0);
-    const [notAvailableScore, setNotAvailableScore] = useState(0);
-    const [mandatoryScore, setMandatoryScore] = useState(0);
-    const [optionalScore, setOptionalScore] = useState(0);
+    const handleCheckboxChange = (field) => {
+        setScores({ ...scores, [field]: !scores[field] });
+    };
 
-    // Sample values for functional items, mandatory, and optional
-    const functionalItems = 10;
-    const mandatory = 6;
-    const optional = 4;
+    const handleSelectChange = (field, value) => {
+        setScores({ ...scores, [field]: parseInt(value, 10) });
+    };
 
-    // Calculate the total value based on checked boxes and dropdown scores
+    // Calculate the total value
     const totalValue = () => {
-        const availableisCheckedScore = isAvailableChecked ? availableScore : 0;
-        const partlyAvailableisCheckedScore = isPartlyAvailableChecked ? partlyAvailableScore : 0;
-        const customizableisCheckedScore = isCustomizableChecked ? customizableScore : 0;
-        const notAvailableisCheckedScore = isNotAvailableChecked ? notAvailableScore : 0;
-        let totalVal
+        const { 
+            isAvailableChecked, availableScore,
+            isPartlyAvailableChecked, partlyAvailableScore,
+            isCustomizableChecked, customizableScore,
+            isNotAvailableChecked, notAvailableScore,
+            mandatoryScore, optionalScore 
+        } = scores;
+
+        let totalVal = 0;
+
         if (isAvailableChecked) {
-            totalVal =
-                availableisCheckedScore * (mandatory * mandatoryScore) +
-                availableisCheckedScore * (optional * optionalScore);
+            totalVal = availableScore * (mandatoryScore + optionalScore);
         } else if (isPartlyAvailableChecked) {
-            totalVal =
-                partlyAvailableisCheckedScore * (mandatory * mandatoryScore) +
-                partlyAvailableisCheckedScore * (optional * optionalScore);
+            totalVal = partlyAvailableScore * (mandatoryScore + optionalScore);
         } else if (isCustomizableChecked) {
-            totalVal =
-                customizableisCheckedScore * (mandatory * mandatoryScore) +
-                customizableisCheckedScore * (optional * optionalScore);
+            totalVal = customizableScore * (mandatoryScore + optionalScore);
         } else if (isNotAvailableChecked) {
             totalVal = 0;
         }
+
         return totalVal;
+    };
+
+    // Sending data to backend
+    const sendDataToBackend = async () => {
+        console.log(scores)
+        try {
+            const response = await fetch(`${API_URL}/functional-score`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({scores,rfp_no:sidebarValue[0]?.rfp_no}),
+            });
+            const result = await response.json();
+            console.log('Backend response:', result);
+        } catch (error) {
+            console.error('Error sending data to backend:', error);
+        }
     };
 
     return (
@@ -60,129 +83,54 @@ const FunctionalScore = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Available</td>
-                            <td>
-                                <input
-                                    type="checkbox"
-                                    checked={isAvailableChecked}
-                                    onChange={() => setIsAvailableChecked(!isAvailableChecked)}
-                                />
-                            </td>
-                            <td>
-                                <select
-                                    disabled={!isAvailableChecked}
-                                    value={availableScore}
-                                    onChange={(e) => setAvailableScore(parseInt(e.target.value, 10))}
-                                >
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Partly available</td>
-                            <td>
-                                <input
-                                    type="checkbox"
-                                    checked={isPartlyAvailableChecked}
-                                    onChange={() => setIsPartlyAvailableChecked(!isPartlyAvailableChecked)}
-                                />
-                            </td>
-                            <td>
-                                <select
-                                    disabled={!isPartlyAvailableChecked}
-                                    value={partlyAvailableScore}
-                                    onChange={(e) => setPartlyAvailableScore(parseInt(e.target.value, 10))}
-                                >
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Customizable</td>
-                            <td>
-                                <input
-                                    type="checkbox"
-                                    checked={isCustomizableChecked}
-                                    onChange={() => setIsCustomizableChecked(!isCustomizableChecked)}
-                                />
-                            </td>
-                            <td>
-                                <select
-                                    disabled={!isCustomizableChecked}
-                                    value={customizableScore}
-                                    onChange={(e) => setCustomizableScore(parseInt(e.target.value, 10))}
-                                >
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Not available</td>
-                            <td>
-                                <input
-                                    type="checkbox"
-                                    checked={isNotAvailableChecked}
-                                    onChange={() => setIsNotAvailableChecked(!isNotAvailableChecked)}
-                                />
-                            </td>
-                            <td>
-                                <select
-                                    disabled={!isNotAvailableChecked}
-                                    value={notAvailableScore}
-                                    onChange={(e) => setNotAvailableScore(parseInt(e.target.value, 10))}
-                                >
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                </select>
-                            </td>
-                        </tr>
+                        {['Available', 'Partly available', 'Customizable', 'Not available'].map((item, index) => (
+                            <tr key={index}>
+                                <td>{item}</td>
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        checked={scores[`is${item.replace(' ', '')}Checked`]}
+                                        onChange={() => handleCheckboxChange(`is${item.replace(' ', '')}Checked`)}
+                                    />
+                                </td>
+                                <td>
+                                    <select
+                                        disabled={!scores[`is${item.replace(' ', '')}Checked`]}
+                                        value={scores[`${item.toLowerCase()}Score`]}
+                                        onChange={(e) => handleSelectChange(`${item.toLowerCase()}Score`, e.target.value)}
+                                    >
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        ))}
+
                         <tr style={{ border: 'none' }}>
                             <td style={{ border: 'none' }}></td>
                             <td style={{ border: 'none' }}></td>
                             <td style={{ border: 'none' }}></td>
                         </tr>
-                        <tr>
-                            <td>Mandatory</td>
-                            <td style={{ border: 'none' }}></td>
-                            <td>
-                                <select
-                                    value={mandatoryScore}
-                                    onChange={(e) => setMandatoryScore(parseInt(e.target.value, 10))}
-                                >
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                </select>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Optional</td>
-                            <td style={{ border: 'none' }}></td>
-                            <td>
-                                <select
-                                    value={optionalScore}
-                                    onChange={(e) => setOptionalScore(parseInt(e.target.value, 10))}
-                                >
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                </select>
-                            </td>
-                        </tr>
+
+                        {['Mandatory', 'Optional'].map((item, index) => (
+                            <tr key={index}>
+                                <td>{item}</td>
+                                <td style={{ border: 'none' }}></td>
+                                <td>
+                                    <select
+                                        value={scores[`${item.toLowerCase()}Score`]}
+                                        onChange={(e) => handleSelectChange(`${item.toLowerCase()}Score`, e.target.value)}
+                                    >
+                                        <option value="0">0</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
@@ -194,6 +142,8 @@ const FunctionalScore = () => {
             <p className="benchmark-note">
                 (Benchmark 100% = Available score x Mandatory score)
             </p>
+
+            <button onClick={sendDataToBackend}>Send to Backend</button>
         </div>
     );
 };

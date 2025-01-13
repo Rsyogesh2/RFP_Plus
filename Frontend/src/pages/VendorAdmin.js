@@ -5,7 +5,7 @@ import './combinedpages.css';
 const VendorAdmin = () => {
   // State for form inputs
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    
+
   const [rfpNo, setRfpNo] = useState();
   const [formData, setFormData] = useState({
     rfpReferenceNo: "",
@@ -26,24 +26,24 @@ const VendorAdmin = () => {
   });
   const { userName, userPower } = useContext(AppContext);
   useEffect(() => {
-  async function assignRFP() {
-    try {
-      const queryParams = new URLSearchParams({ userName });
-      const response = await fetch(`${API_URL}/api/assignRFPNoonly?${queryParams}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }); // Adjust the endpoint as needed
-      const data = await response.json();
-      console.log(data);
-      setRfpNo(data)
-    } catch (error) {
-      console.error('Error adding user:', error.response?.data || error.message);
+    async function assignRFP() {
+      try {
+        const queryParams = new URLSearchParams({ userName });
+        const response = await fetch(`${API_URL}/api/assignRFPNoonly?${queryParams}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }); // Adjust the endpoint as needed
+        const data = await response.json();
+        console.log(data);
+        setRfpNo(data)
+      } catch (error) {
+        console.error('Error adding user:', error.response?.data || error.message);
+      }
     }
-  }
-  assignRFP()
-}, []);
+    assignRFP()
+  }, []);
   // Handle input changes
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -60,7 +60,7 @@ const VendorAdmin = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({formData,userName,userPower}), // Send formData as JSON
+        body: JSON.stringify({ formData, userName, userPower }), // Send formData as JSON
       });
 
       if (!response.ok) {
@@ -83,12 +83,15 @@ const VendorAdmin = () => {
           <label htmlFor="rfpReferenceNo">RFP Reference No:</label>
           <select id="rfpReferenceNo" value={formData.rfpReferenceNo} onChange={handleChange}>
             <option value="">Select</option>
-            {rfpNo &&
-            rfpNo.map((field) => (
-              <option key={field.rfp_no} value={field.rfp_no}>
-                {field.rfp_no}
-              </option>
-            ))}
+            {Array.isArray(rfpNo) && rfpNo.length > 0 ? (
+              rfpNo.map((field) => (
+                <option key={field.rfp_no} value={field.rfp_no}>
+                  {field.rfp_no}
+                </option>
+              ))
+            ) : null}
+
+
             {/* Dynamically add options here */}
           </select>
         </div>

@@ -156,6 +156,8 @@ function RfpScoringCriteria() {
 
 // Component for Overall Scoring
 function OverallScoring({ onTitlesChange }) {
+    const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  
     const [values, setValues] = useState({
         functionalItems: 0,
         commercials: 0,
@@ -172,6 +174,46 @@ function OverallScoring({ onTitlesChange }) {
         others2: "Others 2 (Specify)",
         others3: "Others 3 (Specify)"
     });
+    const saveData = () => {
+        const data = {
+            functionalItems: values.functionalItems,
+            commercials: values.commercials,
+            implementationModel: values.implementationModel,
+            installations: values.installations,
+            siteVisit: values.siteVisit,
+            others1: values.others1,
+            others2: values.others2,
+            others3: values.others3,
+            others1Title: othersTitles.others1,
+            others2Title: othersTitles.others2,
+            others3Title: othersTitles.others3,
+            total: totalSum,
+            rfpNo: "RFP123", // Example RFP_No
+            bankId: "Bank001" // Example Bank_Id
+        };
+
+        fetch(`${API_URL}/save-Overall-scoring`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                alert(data.message);
+            })
+            .catch((error) => console.error("Error saving data:", error));
+    };
+    const fetchData = () => {
+        fetch(`${API_URL}/fetch-scoring`)
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("Fetched Data:", data);
+            })
+            .catch((error) => console.error("Error fetching data:", error));
+    };
+
 
     const handleInputChange = (event, field) => {
         const newValue = parseFloat(event.target.value) || 0;
@@ -274,15 +316,15 @@ function OverallScoring({ onTitlesChange }) {
                 </tr>
                 </tbody>
             </table>
+            <button onClick={saveData}>Save Data</button>
+            <button onClick={fetchData}>Fetch Data</button>
+      
         </div>
     );
 }
 
 
 // Component for Commercial Score
-
-
-
 // Reusable Score Section Component with Editable Item Names and Dropdown Scores
 
 

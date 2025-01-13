@@ -25,13 +25,15 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 // 
-
-app.use(bodyParser.json());
+// Increase the payload limit
+app.use(bodyParser.json({ limit: '50mb' })); // Adjust the limit as needed
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+// app.use(bodyParser.json());
 const cors = require('cors');
 
 app.use(cors({
-  origin: 'https://rfp-plus-frontend.onrender.com', // Allow only the frontend URL
-  // orgin:"http://localhost:5000",
+  // origin: 'https://rfp-plus-frontend.onrender.com', // Allow only the frontend URL
+  orgin:"http://localhost:5000",
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow credentials (cookies, authorization headers)

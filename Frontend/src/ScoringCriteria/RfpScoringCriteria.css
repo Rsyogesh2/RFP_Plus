@@ -91,7 +91,6 @@ section {
     box-sizing: border-box;
 }
 
-
 table {
     width: 100%;
     border-collapse: collapse;
@@ -113,11 +112,13 @@ td {
 
 .item-input {
     width: 100%;
+    max-width: 250px; /* Limit the maximum width */
     padding: 0.3rem;
     border: none;
-    border-bottom: 1px solid #A9A9A9; /* gray bottom border */
+    border-bottom: 1px solid #A9A9A9;
     font-style: italic;
-    color: #666; /* placeholder gray color */
+    color: #666;
+    box-sizing: border-box; /* Ensure padding and borders are included in the width */
 }
 
 .item-input::placeholder {
