@@ -6,7 +6,7 @@ import { TreeSelect } from "antd";
 const VendorQuery = ({ rfpNo = "" }) => {
   const [rows, setRows] = useState([]);
   const [options, setOptions] = useState([]);
-  const { userName, userPower, userRole, sidebarValue, moduleData } = useContext(AppContext);
+  const { userName, userPower, userRole, sidebarValue, moduleData = {} } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const fetchVendorQueries = async () => {
@@ -35,8 +35,8 @@ const VendorQuery = ({ rfpNo = "" }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          rfpNo: rfpNo || sidebarValue[0]?.rfp_no,
-          vendorName: sidebarValue[0]?.entity_name,
+          rfpNo: rfpNo || sidebarValue?.[0]?.rfp_no || "",
+          vendorName: sidebarValue?.[0]?.entity_name || "",
           bankName: "Bank Name",
           level,
           stage: userRole,
@@ -185,7 +185,16 @@ const VendorQuery = ({ rfpNo = "" }) => {
 
   useEffect(() => {
     fetchVendorQueries();
-    setOptions(flattenHierarchy(moduleData.itemDetails?.l1 || []));
+    if (!moduleData || !moduleData.itemDetails) {
+      return <p>Loading...</p>; // Or show a default message instead of breaking
+    }    
+    try {
+      setOptions(flattenHierarchy(moduleData?.itemDetails?.l1 ? moduleData.itemDetails.l1 : []));
+    } catch (error) {
+      console.error("Error while setting options:", error);
+      setOptions([]); // Fallback to an empty array
+    }
+    
   }, [moduleData]);
 
   return (
