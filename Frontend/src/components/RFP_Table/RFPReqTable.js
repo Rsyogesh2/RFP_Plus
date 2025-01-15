@@ -60,16 +60,48 @@ const RFPReqTable = ({ l1 }) => {
             }
 
         }
-        if (l1.l1module !== "" && valueL1 !== l1.l1module) {
+        async function fetchArray1() {
+            console.log("userName " + userName)
+            console.log(l1)
+
+            //23/11/2024
+            try {
+                if (FItem.length > 0) {
+                    moduleData.functionalItemDetails = FItem
+                } else {
+
+                }
+
+                //setName(moduleData.itemDetails.Name); // Set the resolved data to local state
+                // setModuleData(data);
+                // filterModule(moduleData);
+                // console.log(data.itemDetails.l1);
+                setItemData(moduleData.modules); 
+                // setFItem(moduleData.functionalItemDetails);
+                // setSidebarValue(data.itemDetails);
+                setFItem(moduleData.fitems);
+                console.log(userRole);
+            } catch (error) {
+                console.error('Error sending checked items:', error); // Log any errors
+            }
+
+        }
+        if(l1=="Super Admin"){
+            fetchArray1();
+        } else if (l1?.l1module !== "" && valueL1 !== l1?.l1module) {
             fetchArray();
             setValueL1(l1.l1module);
-        }
+        }  
     }, [l1]);
 
 
     const filterModule = (data) => {
-        const data1 = data.itemDetails.l1.filter(m => m.code === l1.l1module);
-        setItemData(data1);
+        if(l1=="Super Admin"){
+            setItemData(data);
+        }else{
+            const data1 = data.itemDetails.l1.filter(m => m.code === l1.l1module);
+            setItemData(data1);
+        }
     }
 
 

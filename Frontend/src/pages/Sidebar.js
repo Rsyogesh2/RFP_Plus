@@ -37,8 +37,10 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       { label: "Assign Users", section: "Assign Users" },
       { label: "Vendor Admin", section: "Vendor Admin" },
       { label: "Reports", section: "Reports" },
-      { label: "Final Evaluation", section: "Final Evaluation" },
+      { label: "View RFPs", section: "View RFPs" },
       { label: "Vendor Query Submission", section: "Vendor Query Submission" },
+      { label: "Final Evaluation", section: "Final Evaluation" },
+      
     ],
     "Global Admin": [
       { label: "Add Super User", section: "Add Super User" },
@@ -50,6 +52,7 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       { label: "Add Vendor User", section: "Add Vendor User" },
       { label: "View / Modify Vendor Users", section: "View / Modify Vendor Users" },
       { label: "Assign Vendor Users", section: "Assign Vendor Users" },
+      { label: "View RFPs", section: "View RFPs" },
       { label: "Submit Query", section: "Submit Query" },
       { label: "Submit RFP", section: "Submit RFP" },
     ],

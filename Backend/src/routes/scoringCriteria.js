@@ -226,4 +226,105 @@ router.get("/fetch-scoring", (req, res) => {
     });
 });
 
+
+router.post('/save-scores', async (req, res) => {
+    const { commercialScores, functionalScores, overallScoring, rfp_no } = req.body;
+    console.log(commercialScores)
+    console.log(functionalScores)
+    console.log(overallScoring)
+    // const connection = db; // Assuming `db` is your database connection
+    // const query = util.promisify(connection.query).bind(connection); // Promisify `query`
+
+    try {
+        // Handle Commercial Scores
+        if (commercialScores && commercialScores.length > 0) {
+            const commercialQuery = `
+                INSERT INTO CommercialScores 
+                (CommercialPattern, InternalPercent, From1, To1, Score1, From2, To2, Score2, From3, To3, Score3, RFP_No)
+                VALUES ?
+            `;
+
+            const commercialValues = commercialScores.map(row => [
+                row.CommercialPattern,
+                row.InternalPercent,
+                row.From1, row.To1, row.Score1,
+                row.From2, row.To2, row.Score2,
+                row.From3, row.To3, row.Score3,
+                rfp_no
+            ]);
+
+            await db.query(commercialQuery, [commercialValues]);
+        }
+
+        // Handle Functional Scores
+        if (functionalScores) {
+            const {
+                isAvailableChecked,
+                isPartlyAvailableChecked,
+                isCustomizableChecked,
+                availableScore,
+                partlyAvailableScore,
+                customizableScore,
+                mandatoryScore,
+                optionalScore,
+                
+            } = functionalScores;
+
+            const functionalQuery = `
+                INSERT INTO functional_scores 
+                (isAvailableChecked, isPartlyAvailableChecked, isCustomizableChecked, availableScore, 
+                partlyAvailableScore, customizableScore, mandatoryScore, optionalScore, RFP_No, Bank_Id) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+
+            await db.query(functionalQuery, [
+                isAvailableChecked, isPartlyAvailableChecked, isCustomizableChecked,
+                availableScore, partlyAvailableScore, customizableScore,
+                mandatoryScore, optionalScore, rfp_no, "Bank"
+            ]);
+        }
+
+        // Handle Overall Scoring
+        if (overallScoring) {
+            const {
+                functionalItems,
+                commercials,
+                implementationModel,
+                installations,
+                siteVisit,
+                others1,
+                others2,
+                others3,
+                others1Title,
+                others2Title,
+                others3Title,
+                total,
+                bankId
+            } = overallScoring;
+
+            const overallQuery = `
+                INSERT INTO overall_scoring (
+                    functional_items, commercials, implementation_model, no_of_installations,
+                    site_visit_reference, others1_title, others1_value,
+                    others2_title, others2_value, others3_title, others3_value, rfp_no, bank_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+
+            await db.query(overallQuery, [
+                functionalItems, commercials, implementationModel, installations, siteVisit,
+                others1Title, others1, others2Title, others2, others3Title, others3, rfp_no, bankId
+            ]);
+        }
+
+        // If all inserts are successful
+        res.status(200).json({ message: 'All data saved successfully!' });
+
+    } catch (error) {
+        console.error('Error saving data:', error);
+        res.status(500).json({ message: 'Error saving data to database.', error });
+    }
+});
+
+
+
 module.exports = router;

@@ -19,6 +19,7 @@ import RfpScoringCriteria from "../ScoringCriteria/RfpScoringCriteria";
 import RFPVendorTable from "../components/RFP_Table/RFPVendorTable"
 import "./combinedpages.css";
 import { fetchUsers } from '../services/loadApis';
+import RFPReqTable from "../components/RFP_Table/RFPReqTable";
 // import {fetchUsers} from '../services/loadApis';
 
 
@@ -196,6 +197,11 @@ const CreateRFPForm = () => {
   );
 };
 
+const ViewRFPs = () => {
+  return (
+    <RFPReqTable l1="Super Admin"/>
+  );
+};
 const HomePage = ({ userType }) => {
   //   const [activeSection, setActiveSection] = useState("Add User");
   const [activeSection, setActiveSection] = useState("");
@@ -249,8 +255,10 @@ const HomePage = ({ userType }) => {
           url = `${API_URL}/api/loadContents-initial?${queryParams}`;
         } else if (userPower == "Vendor Admin") {
           url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
+          url = `${API_URL}/api/getSavedData?${queryParams}`;
         } else if (userPower == "Super Admin") {
           url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
+          url = `${API_URL}/api/getSavedData?${queryParams}`;
         }
         console.log("Fetching URL:", url);
         const response = await fetch(url);
@@ -325,6 +333,8 @@ const HomePage = ({ userType }) => {
         return <FinalEvaluation />
       case 99:
         return <RfpScoringCriteria />;
+      case "View RFPs":
+        return <ViewRFPs />;
       default:
         return <p>Welcome</p>;
     }

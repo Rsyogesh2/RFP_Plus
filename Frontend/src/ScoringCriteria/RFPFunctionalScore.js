@@ -1,8 +1,8 @@
 import './FunctionalScore.css'; // Create a CSS file for styling
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
 
-const FunctionalScore = () => {
+const FunctionalScore = ({ onUpdate }) => {
     // State for checkboxes and scores
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
    const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
@@ -19,6 +19,9 @@ const FunctionalScore = () => {
         mandatoryScore: 0,
         optionalScore: 0,
     });
+    useEffect(() => {
+        onUpdate(scores);
+    }, [scores, onUpdate]);
 
     const handleCheckboxChange = (field) => {
         setScores({ ...scores, [field]: !scores[field] });
@@ -136,14 +139,14 @@ const FunctionalScore = () => {
             </div>
 
             <div>
-                <h4>Total Value: {totalValue()}</h4>
+                {/* <h4>Total Value: {totalValue()}</h4> */}
             </div>
 
             <p className="benchmark-note">
                 (Benchmark 100% = Available score x Mandatory score)
             </p>
 
-            <button onClick={sendDataToBackend}>Send to Backend</button>
+            {/* <button onClick={sendDataToBackend}>Send to Backend</button> */}
         </div>
     );
 };

@@ -704,13 +704,15 @@ router.post("/saveassignUserModules", async (req, res) => {
           })),
         }))
       );
-
+      const dateFrom = new Date(user.fromDate).toISOString().slice(0, 19).replace('T', ' ');
+      const dateTo = new Date(user.fromDate).toISOString().slice(0, 19).replace('T', ' ');
+      
       const values = [
         user.user_name || '',
         userName || '',
         user.active ? 1 : 0,
-        user.fromDate || null,
-        user.toDate || null,
+        dateFrom || null,
+        dateTo || null,
         user.maker ? 1 : 0,
         user.authorizer ? 1 : 0,
         user.reviewer ? 1 : 0,

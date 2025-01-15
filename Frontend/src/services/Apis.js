@@ -43,16 +43,28 @@ export default sendCheckedItems;
 //         console.error('Error saving data:', error);
 //     }
 // };
-export const handleSave = async (payload) => {
-    console.log(payload.level)
+export const handleSave = async (payload,userPower="User") => {
+    console.log(payload);
+    let response;
     try {
-        const response = await fetch(`${API_URL}/api/insertFItem`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+        if(userPower=="User"){
+            response = await fetch(`${API_URL}/api/insertFItem`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+        } else if(userPower=="Vendor User"){
+            response = await fetch(`${API_URL}/api/insert-rfp-functionalitem-vendor`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+        }
+         
 
         const data = await response.json();
         alert("Data saved successfully");

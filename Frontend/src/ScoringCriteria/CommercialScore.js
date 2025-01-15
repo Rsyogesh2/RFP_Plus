@@ -1,9 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
-
-const CommercialScore = () => {
-    const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
+const CommercialScore = ({ onUpdate }) => {
+    const { sidebarValue } = useContext(AppContext); // Access shared state
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
     const [values, setValues] = useState({
         Total_cost: 0,
         Avs: 0,
@@ -11,7 +11,7 @@ const CommercialScore = () => {
         LicenseCost: 0,
         RateCard: 0,
     });
-    
+
     const keys = ["Total_cost", "Avs", "yearsTCO", "LicenseCost", "RateCard"];
     const rows = [
         "Total cost - onetime cost",
@@ -20,7 +20,9 @@ const CommercialScore = () => {
         "License cost",
         "Rate card (per person per day)"
     ];
-    const handleSubmit = async () => {
+
+    // Notify parent about changes in scores whenever `values` state updates
+    useEffect(() => {
         const rowsData = rows.map((row, index) => {
             // Safely retrieve values
             const getInputValue = (id) => {
@@ -29,7 +31,7 @@ const CommercialScore = () => {
             };
     
             return {
-                CommercialPattern: getInputValue(`#commercial-pattern-${index}`) ||"",
+                CommercialPattern: getInputValue(`#commercial-pattern-${index}`) || "",
                 InternalPercent: values[keys[index]] || 0,
                 From1: getInputValue(`#from-${index}-1`),
                 To1: getInputValue(`#to-${index}-1`),
@@ -40,61 +42,82 @@ const CommercialScore = () => {
                 From3: getInputValue(`#from-${index}-3`),
                 To3: getInputValue(`#to-${index}-3`),
                 Score3: getInputValue(`#score-${index}-2`),
-                rfp_no:sidebarValue[0]?.rfp_no
+                rfp_no: sidebarValue[0]?.rfp_no,
             };
         });
-        console.log(rowsData)
+
+    
+        if (onUpdate) {
+            onUpdate(rowsData);
+            // console.log(rowsData)
+        }
+    }, [values, sidebarValue, onUpdate]);
+    
+    const handleSubmit = async () => {
+        const rowsData = rows.map((row, index) => {
+            // Safely retrieve values
+            const getInputValue = (id) => {
+                const element = document.querySelector(id);
+                return element ? element.value : ""; // Default to an empty string if null
+            };
+
+            return {
+                CommercialPattern: getInputValue(`#commercial-pattern-${index}`) || "",
+                InternalPercent: values[keys[index]] || 0,
+                From1: getInputValue(`#from-${index}-1`),
+                To1: getInputValue(`#to-${index}-1`),
+                Score1: getInputValue(`#score-${index}-0`),
+                From2: getInputValue(`#from-${index}-2`),
+                To2: getInputValue(`#to-${index}-2`),
+                Score2: getInputValue(`#score-${index}-1`),
+                From3: getInputValue(`#from-${index}-3`),
+                To3: getInputValue(`#to-${index}-3`),
+                Score3: getInputValue(`#score-${index}-2`),
+                rfp_no: sidebarValue[0]?.rfp_no,
+            };
+        });
+
         try {
             const response = await fetch(`${API_URL}/commercial-scores`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rowsData)
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(rowsData),
             });
-    
+
             if (response.ok) {
-                alert('Data saved successfully!');
+                alert("Data saved successfully!");
             } else {
-                alert('Error saving data.');
+                alert("Error saving data.");
             }
         } catch (error) {
-            console.error('Error:', error);
-            alert('Error submitting data.');
+            console.error("Error:", error);
+            alert("Error submitting data.");
         }
     };
-    
-    
+
     const handleInputChange = (event, field) => {
-        // Get the raw input value as a string
         let newValue = event.target.value;
-    
-        // Remove any leading zeroes
-        newValue = newValue.replace(/^0+/, '');
-    
-        // Parse to a number or set it to an empty string if it's not a valid number
+
+        newValue = newValue.replace(/^0+/, "");
         newValue = newValue ? parseFloat(newValue) : "";
-    
-        // Calculate the total without the leading zeroes
+
         const newTotal = Object.values({
             ...values,
-            [field]: newValue || 0
+            [field]: newValue || 0,
         }).reduce((sum, value) => sum + parseFloat(value || 0), 0);
-    
+
         if (newTotal > 100) {
             alert("Total sum cannot exceed 100.");
-            event.target.value = ""; // Clear the input field
+            event.target.value = "";
             return;
         }
-    
-        setValues(prevValues => ({
+
+        setValues((prevValues) => ({
             ...prevValues,
             [field]: newValue,
         }));
     };
-    
-    
-    
 
-    // Calculate the total percentage
     const totalPercentage = Object.values(values).reduce((sum, value) => sum + value, 0);
 
     return (
@@ -118,32 +141,31 @@ const CommercialScore = () => {
                     </tr>
                 </thead>
                 <tbody>
-                {rows.map((placeholder, index) => (
-                    <CommercialScoreRow
-                        key={index}
-                        placeholder={placeholder}
-                        internalKey={keys[index]}
-                        handleInputChange={handleInputChange}
-                        value={values[keys[index]]}
-                        rowIndex={index} // Pass the row index
-                    />
-                ))}
-            </tbody>
+                    {rows.map((placeholder, index) => (
+                        <CommercialScoreRow
+                            key={index}
+                            placeholder={placeholder}
+                            internalKey={keys[index]}
+                            handleInputChange={handleInputChange}
+                            value={values[keys[index]]}
+                            rowIndex={index}
+                        />
+                    ))}
+                </tbody>
 
                 <tfoot>
                     <tr>
                         <td colSpan="1">Total</td>
-                        <td style={{textAlign:'center'}}>{totalPercentage}%</td> {/* Display the calculated total percentage */}
+                        <td style={{ textAlign: "center" }}>{totalPercentage}%</td>
                         <td colSpan="2"></td>
-                        <td style={{textAlign:'center'}}></td>
+                        <td style={{ textAlign: "center" }}></td>
                     </tr>
                     <tr>
                         <td colSpan="5">
                             <p className="benchmark-note">
                                 (Benchmark 100% = highest defined point x internal %)
                             </p>
-                            <button onClick={handleSubmit}>Submit</button>
-
+                            {/* <button onClick={handleSubmit}>Submit</button> */}
                         </td>
                     </tr>
                 </tfoot>
