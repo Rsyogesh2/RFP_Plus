@@ -54,12 +54,29 @@ router.post('/scores', async (req, res) => {
     }
 });
 
-// Fetching data from 6 tables using RFP_No and Bank_Name
-router.get('/fetchScores', async (req, res) => {
-    const { rfpNo, bankName } = req.query;
-    if (!rfpNo || !bankName) {
-        return res.status(400).send("RFP_No and Bank_Name are required");
+router.get('/fetchVendor', async (req, res) => {
+    const { userName } = req.query;
+    if (!userName ) {
+        return res.status(400).send("userName is required");
     }
+    try {        
+        const [rows] = await db.query(`select entity_name,email,admin_name,id from vendor_admin_users where createdby= ?`, [userName]);  
+        console.log(rows)
+        res.json(rows);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).send("Error fetching data from database.");
+    }
+});
+// Fetching data from 6 tables using RFP_No and Bank_Name
+router.post('/fetchScores', async (req, res) => {
+    const { selectedVendor,userName } = req.body; // Accessing JSON data directly
+    const { entity_name, email, admin_name, id } = selectedVendor; // Accessing JSON data directly
+    console.log(entity_name, email, admin_name, id,userName);
+    // const { rfpNo, bankName } = req.query;
+    // if (!rfpNo || !bankName) {
+    //     return res.status(400).send("RFP_No and Bank_Name are required");
+    // }
 
     const tables = [
         "Implementation_Score",
@@ -70,23 +87,125 @@ router.get('/fetchScores', async (req, res) => {
         "Scoring_Items3"
     ];
 
-    let results = {};
+    let scores = {};
     try {
+        const [rfpNo] = await db.query(`select rfp_reference_no from vendor_admin_users where id= ?`, [id]);  
+        const [bankName] = await db.query(`select entity_name from superadmin_users where super_user_email= ?`, [userName]);  
+        console.log(rfpNo)
+        console.log(bankName)
         for (const table of tables) {
-            const query = `SELECT Implementation_Model,Score  FROM ${table} WHERE RFP_No = ? AND Bank_Name = ?`;
-            const [rows] = await db.query(query, [rfpNo, bankName]);
+            // const query = `SELECT Implementation_Model,Score  FROM ${table} WHERE RFP_No = ? AND Bank_Name = ?`;
+            // const [rows] = await db.query(query, [rfpNo[0].rfp_reference_no, bankName[0].entity_name]);
+            const query = `SELECT Implementation_Model,Score  FROM ${table} WHERE RFP_No = ? `;
+            const [rows] = await db.query(query, rfpNo[0].rfp_reference_no);
+            
             if(rows.length>0){
-                results[table] = rows.map(row => [row.Implementation_Model,row.Score]);
+                scores[table] = rows.map(row => [row.Implementation_Model,row.Score]);
             }
            
         }
-        console.log(results)
-        res.json(results);
+        const query = `
+        select id,CommercialPattern, InternalPercent, From1, To1, Score1, From2, To2, Score2, From3, To3, Score3
+        from  CommercialScores 
+        `;
+        const [commercial]= await db.query(query)
+        // const query = `
+        // select CommercialPattern, InternalPercent, From1, To1, Score1, From2, To2, Score2, From3, To3, Score3
+        // from  CommercialScores where RFP_No =?
+        // `;
+        // const [commercial]= await db.query(query, rfpNo[0].rfp_reference_no)
+        console.log(commercial)
+        console.log(scores)
+        const response = [commercial,scores]
+        console.log(response)
+        res.json(response);
     } catch (error) {
         console.error("Error fetching data:", error);
         res.status(500).send("Error fetching data from database.");
     }
 });
+
+router.post('/updateBankAmount', async (req, res) => {
+    const { rfpNo, selectedVendor, commercialValue } = req.body;
+    try {
+        for (const item of commercialValue) {
+            const { CommercialPattern, Bank_Amount, id } = item;
+            await db.query("SET SQL_SAFE_UPDATES = 0");
+            const [result] = await db.query(
+                `UPDATE CommercialScores 
+                 SET Bank_Amount = ? 
+                 WHERE ID = ? AND CommercialPattern = ?`,
+                [Bank_Amount, id, CommercialPattern]
+            );
+
+            if (result.affectedRows === 0) {
+                console.warn(`No record found for RFP: ${rfpNo}`);
+            }
+        }
+        res.status(200).json({ message: "Bank Amount successfully updated" });  // Send JSON response
+    } catch (error) {
+        console.error("Error updating data:", error);
+        res.status(500).json({ error: "Error updating data" });  // Send JSON error response
+    }
+});
+
+router.post('/saveOrUpdateScores', async (req, res) => {
+    const { rfpNo, selectedValues,userName } = req.body;
+
+    try {
+        const [bankName] = await db.query(`select entity_name,user_id from superadmin_users where super_user_email= ?`, [userName]);  
+        
+        const query = `
+            INSERT INTO EvaluationScores 
+            (Implementation_Name, Implementation_Score,
+             No_of_Sites_Name, No_of_Sites_Score, 
+             Site_Reference_Name, Site_Reference_Score,
+             Scoring_Items1_Name, Scoring_Items1_Score, 
+             Scoring_Items2_Name, Scoring_Items2_Score, 
+             Scoring_Items3_Name, Scoring_Items3_Score, 
+             RFP_No, Bank_Id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE 
+             Implementation_Name = VALUES(Implementation_Name),
+             Implementation_Score = VALUES(Implementation_Score),
+             No_of_Sites_Name = VALUES(No_of_Sites_Name),
+             No_of_Sites_Score = VALUES(No_of_Sites_Score),
+             Site_Reference_Name = VALUES(Site_Reference_Name),
+             Site_Reference_Score = VALUES(Site_Reference_Score),
+             Scoring_Items1_Name = VALUES(Scoring_Items1_Name),
+             Scoring_Items1_Score = VALUES(Scoring_Items1_Score),
+             Scoring_Items2_Name = VALUES(Scoring_Items2_Name),
+             Scoring_Items2_Score = VALUES(Scoring_Items2_Score),
+             Scoring_Items3_Name = VALUES(Scoring_Items3_Name),
+             Scoring_Items3_Score = VALUES(Scoring_Items3_Score)
+        `;
+
+        const values = [
+            selectedValues.Implementation_Score?.value || '',
+            selectedValues.Implementation_Score?.score || 0,
+            selectedValues.No_of_Sites_Score?.value || '',
+            selectedValues.No_of_Sites_Score?.score || 0,
+            selectedValues.Site_Reference_Score?.value || '',
+            selectedValues.Site_Reference_Score?.score || 0,
+            selectedValues.Scoring_Items1?.value || '',
+            selectedValues.Scoring_Items1?.score || 0,
+            selectedValues.Scoring_Items2?.value || '',
+            selectedValues.Scoring_Items2?.score || 0,
+            selectedValues.Scoring_Items3?.value || '',
+            selectedValues.Scoring_Items3?.score || 0,
+            rfpNo,
+            bankName[0].user_id
+        ];
+
+        await db.query(query, values);
+        res.status(200).send("Data successfully inserted/updated");
+    } catch (error) {
+        console.error("Error saving data:", error);
+        res.status(500).send("Error saving data");
+    }
+});
+
+
 
 router.post('/commercial-scores', (req, res) => {
     const rows = req.body;

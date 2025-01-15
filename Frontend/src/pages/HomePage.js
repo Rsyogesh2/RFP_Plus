@@ -15,6 +15,7 @@ import Reports from "./GlobalAdmin/Reports";
 import ViewAssignedRFPs from "./User/ViewAssignedRFPs"
 import SubmitedRFPs from "./User/SubmitedRFPs";
 import FinalEvaluation from "./FinalEvaluation";
+import ScoringDashboard from "./Dashboard";
 import RfpScoringCriteria from "../ScoringCriteria/RfpScoringCriteria";
 import RFPVendorTable from "../components/RFP_Table/RFPVendorTable"
 import "./combinedpages.css";
@@ -39,16 +40,22 @@ const Header = () => {
 
 const AddUserForm = () => {
   const { usersList, setUsersList, userName, userPower } = useContext(AppContext);
-  // console.log(userName);
+  console.log(usersList);
   const [id, setId] = useState(1);
-  const [formData, setFormData] = useState({
-    user_no: usersList.length + 1,
-    user_name: "",
-    designation: "",
-    email: "",
-    mobile: "",
-    activeFlag: "Active",
-  });
+  const [formData, setFormData] = useState(() => {
+    const nextUserNo = usersList.length > 0 
+        ? Math.max(...usersList.map(user => user.user_no)) + 1 
+        : 1;
+
+    return {
+        user_no: nextUserNo,
+        user_name: "",
+        designation: "",
+        email: "",
+        mobile: "",
+        activeFlag: "Active",
+    };
+});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,7 +90,9 @@ const AddUserForm = () => {
           const no = Number(usersList.length) == 0 ? 2 : usersList.length + 1;
           // Clear the form fields by resetting formData
           setFormData({
-            user_no: no,
+            user_no:  usersList.length > 0 
+            ? Math.max(...usersList.map(user => user.user_no)) + 1 
+            : 1,
             user_name: "",
             designation: "",
             email: "",
@@ -113,7 +122,9 @@ const AddUserForm = () => {
       <form onSubmit={handleSubmit}>
         <div>
           <label>User:</label>
-          <span style={{ textAlign: "left" }}>{usersList.length + 1}</span>
+          <span style={{ textAlign: "left" }}>{ usersList.length > 0 
+              ? Math.max(...usersList.map(user => user.user_no)) + 1 
+              : 1}</span>
         </div>
         <div>
           <label>User Name:</label>
@@ -171,7 +182,9 @@ const AddUserForm = () => {
           <button
             type="button"
             onClick={() => setFormData({
-              user_no: usersList.length + 1,
+              user_no:  usersList.length > 0 
+              ? Math.max(...usersList.map(user => user.user_no)) + 1 
+              : 1,
               user_name: "",
               designation: "",
               email: "",
@@ -200,6 +213,11 @@ const CreateRFPForm = () => {
 const ViewRFPs = () => {
   return (
     <RFPReqTable l1="Super Admin"/>
+  );
+};
+const SubmitRFPs = () => {
+  return (
+    <RFPVendorTable l1="Vendor Admin"/>
   );
 };
 const HomePage = ({ userType }) => {
@@ -322,7 +340,7 @@ const HomePage = ({ userType }) => {
       case "Submit Query":
         return <SubmitQuery />;
       case "Submit RFP":
-        return <CreateRFPForm />;
+        return <SubmitRFPs />;
       case "View Vendor Assigned RFPs":
         return <RFPVendorTable />;
       case "Vendor Query":
@@ -335,6 +353,8 @@ const HomePage = ({ userType }) => {
         return <RfpScoringCriteria />;
       case "View RFPs":
         return <ViewRFPs />;
+      case "Dashboard":
+        return <ScoringDashboard />;
       default:
         return <p>Welcome</p>;
     }

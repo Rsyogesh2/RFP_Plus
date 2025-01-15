@@ -974,6 +974,7 @@ router.get('/getSavedData', async (req, res) => {
     const [rfp] = await db.query('select rfp_no, rfp_title from rfp_creation WHERE email = ?', [userName]);
     // console.log(rfp)
     let queryString2;
+     let fetchedArray=[] 
     // Step 1: Fetch all L1 modules with the specified RFP_No
     // const [res] = await db.query('SELECT module_name,rfp_no FROM user_modules_assignment WHERE user_name = ? and createdby=?'  , [rfpNo]);
     const [l1Rows] = await db.query('SELECT * FROM RFP_Saved_L1_Modules WHERE RFP_No = ?', [rfpNo]);
@@ -994,61 +995,85 @@ router.get('/getSavedData', async (req, res) => {
       FROM RFP_FunctionalItem_draft
       WHERE RFP_No = ? 
       `;
+       [fetchedArray] = await db.query(queryString2, [rfpNo]);
+      console.log(fetchedArray);
       // and Status ="Bank_Pending_Reviewer"
-    } if(userPower=="Vendor Admin"){
+    } else if (userPower == "Vendor Admin") {
+      const [vendorData] = await db.query(
+          `SELECT id FROM vendor_admin_users WHERE rfp_reference_no = ? AND email = ?`, 
+          [rfpNo, userName]
+      );
+  
+      // Check if vendorData exists and extract the ID safely
+      if (!vendorData || vendorData.length === 0) {
+          throw new Error("Vendor ID not found");
+      }
+  
+      const vendorId = vendorData[0].id; // Extract the actual ID
+      console.log(vendorId, rfpNo);
+  
       queryString2 = `
       SELECT 
-        d.id AS RFP_functionalitem_DraftId,
-        d.requirement AS name, 
-        d.RFP_Title, 
-        d.RFP_No, 
-        d.Module_Code, 
-        d.F1_Code, 
-        d.F2_Code, 
-        d.New_Code, 
-        d.Mandatory, 
-        d.Comments, 
-        d.deleted, 
-        d.Modified_Time, 
-        d.Edited_By, 
-        d.stage, 
-        d.bank_name, 
-        d.created_by, 
-        d.assigned_to, 
-        d.Status, 
-        d.Priority, 
-        d.Handled_By, 
-        d.Action_Log, 
-        d.Level,
-        v.Vendor_Id,
-        v.A,
-        v.P,
-        v.C,
-        v.N,
-        v.Remarks,
-        v.Attach,
-        v.stage AS vendor_stage,
-        v.created_by AS vendor_created_by,
-        v.Level AS vendor_level,
-        v.Assigned_To AS vendor_assigned_to,
-        v.Status AS vendor_status,
-        v.Priority AS vendor_priority,
-        v.Handled_By AS vendor_handled_by,
-        v.Action_Log AS vendor_action_log
+          d.id AS RFP_functionalitem_DraftId,
+          d.requirement AS name, 
+          d.RFP_Title, 
+          d.RFP_No, 
+          d.Module_Code, 
+          d.F1_Code, 
+          d.F2_Code, 
+          d.New_Code, 
+          d.Mandatory, 
+          d.Comments, 
+          d.deleted, 
+          d.Modified_Time, 
+          d.Edited_By, 
+          d.stage, 
+          d.bank_name, 
+          d.created_by, 
+          d.assigned_to, 
+          d.Status, 
+          d.Priority, 
+          d.Handled_By, 
+          d.Action_Log, 
+          d.Level,
+          v.Vendor_Id,
+          v.A,
+          v.P,
+          v.C,
+          v.N,
+          v.Remarks,
+          v.Attach,
+          v.stage AS vendor_stage,
+          v.created_by AS vendor_created_by,
+          v.Level AS vendor_level,
+          v.Assigned_To AS vendor_assigned_to,
+          v.Status AS vendor_status,
+          v.Priority AS vendor_priority,
+          v.Handled_By AS vendor_handled_by,
+          v.Action_Log AS vendor_action_log
       FROM RFP_FunctionalItem_draft d
       LEFT JOIN RFP_FunctionalItem_Vendor v
-        ON d.id = v.rfp_functionalitem_draft_id 
+          ON d.id = v.rfp_functionalitem_draft_id 
           AND v.Status IS NOT NULL  
-      WHERE  d.RFP_No = ?
-      and Status ="Vendor_Pending_Reviewer" and vendor_Id=?
-      `;
-   // Execute first query
-  // [results2] = await db.query(queryString2, [...values2,vendor_Id[0].id]);
-      }
-    // Execute first query
-    const [fetchedArray] = await db.query(queryString2, [rfpNo]);
-
-
+      WHERE d.RFP_No = ?
+      AND d.Status = "Vendor_Pending_Reviewer"
+      AND v.Vendor_Id = ?`;
+  
+      // Execute the query with the correct parameter
+       [fetchedArray] = await db.query(queryString2, [rfpNo, vendorId]);
+      console.log(fetchedArray);
+  } else if (userPower == "Super Admin") {
+     
+  }
+  
+   
+    // if(userPower=="Super Admin"){
+    //   [fetchedArray]  = await db.query(queryString2, [rfpNo]);
+    // } else if(userPower=="Vendor Admin"){
+    // [fetchedArray]  = await db.query(queryString2, [rfpNo,vendor_Id[0].id]);
+    // console.log(fetchedArray)
+    // }
+    
     // Step 3: Iterate over each L1 record and build the nested structure for L2 and L3
     const modules = await Promise.all(l1Rows.map(async (l1Item) => {
       const { L1_Code, L1_Module_Description } = l1Item;

@@ -1,0 +1,128 @@
+/* General styles for the dashboard */
+.scoring-dashboard {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    background-color: #f4f6f9;
+  }
+  
+  .scoring-dashboard .scoring-dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    table-layout: fixed; /* Ensures equal column widths */
+  }
+  
+  /* Table headers */
+  .scoring-dashboard .scoring-component-header,
+  .scoring-dashboard .overall-weightage-header,
+  .scoring-dashboard .score-header,
+  .scoring-dashboard .weighted-score-header {
+    background-color: #3498db;
+    color: white;
+    padding: 12px 15px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+  
+  .scoring-dashboard .scoring-component-header {
+    text-align: left;
+  }
+  
+  .scoring-dashboard .vendor-header {
+    background-color: #d0e4f7;
+    color: #2c3e50;
+    padding: 12px 15px;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap; /* Prevents text wrapping */
+  }
+  
+  /* Body content - each row */
+  .scoring-dashboard .scoring-component,
+  .scoring-dashboard .overall-weightage {
+    padding: 12px 15px;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  .scoring-dashboard .scoring-component {
+    background-color: #f9f9f9;
+    font-weight: 500;
+  }
+  
+  .scoring-dashboard .score-cell,
+  .scoring-dashboard .weighted-score-cell {
+    text-align: center;
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+  
+  .scoring-dashboard .score-cell {
+    background-color: #f1f8fd;
+  }
+  
+  .scoring-dashboard .weighted-score-cell {
+    background-color: #ecf6fd;
+  }
+  
+  /* Hover effects for score and weighted score cells */
+  .scoring-dashboard .score-cell:hover,
+  .scoring-dashboard .weighted-score-cell:hover {
+    background-color: #e1effd;
+    cursor: pointer;
+  }
+  
+  /* Final score styling */
+  .scoring-dashboard .final-score-label {
+    padding: 12px 15px;
+    background-color: #f9f9f9;
+    font-weight: 600;
+    text-align: center;
+    font-size: 16px;
+  }
+  
+  .scoring-dashboard .final-score-cell {
+    text-align: center;
+    padding: 12px 15px;
+    background-color: #d0e4f7;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  /* Table border styling */
+  .scoring-dashboard .scoring-dashboard-table th,
+  .scoring-dashboard .scoring-dashboard-table td {
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+  }
+  
+  /* Optional: Styling for the table on smaller screens */
+  @media (max-width: 768px) {
+    .scoring-dashboard .scoring-dashboard-table {
+      font-size: 12px;
+    }
+  
+    .scoring-dashboard .scoring-component-header,
+    .scoring-dashboard .score-header,
+    .scoring-dashboard .weighted-score-header {
+      font-size: 14px;
+    }
+  
+    .scoring-dashboard .vendor-header {
+      font-size: 12px;
+    }
+  }
+  .scoring-dashboard .scoring-dashboard-table th,
+  .scoring-dashboard .scoring-dashboard-table td {
+    width: 15%; 
+  }
+    

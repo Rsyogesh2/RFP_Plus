@@ -63,17 +63,25 @@ const RFPVendorTable = ({ l1 }) => {
             //23/11/2024
             try {
                 console.log(moduleData);
-                // setSidebarValue(data.itemDetails);
                 setFItem(moduleData.functionalItemDetails);
-                filterModule(moduleData);
+                if(l1=="Vendor Admin"){
+                    setItemData(moduleData.modules); 
+                    setFItem(moduleData.fitems);
+                } else{
+                    filterModule(moduleData);
+                }
+               
             } catch (error) {
                 console.error('Error sending checked items:', error); // Log any errors
             }
 
-        } if (l1.l1module !== "" && valueL1 !== l1.l1module) {
+        }
+        if(l1=="Vendor Admin"){
+            fetchArray();
+        } else if (l1?.l1module !== "" && valueL1 !== l1?.l1module) {
             fetchArray();
             setValueL1(l1.l1module);
-        }
+        } 
     }, [l1]);  // Only trigger fetch when `data` changes
     const filterModule = (data) => {
 
@@ -276,7 +284,7 @@ const RFPVendorTable = ({ l1 }) => {
                     <div>
                         <label htmlFor="fileUpload">
                             <MdOutlineDriveFolderUpload
-                                size={30}
+                                size={20}
                                 style={{
                                     cursor: 'pointer',
                                     color: uploadStatus === 'success' ? 'green' : uploadStatus === 'error' ? 'red' : 'black'
