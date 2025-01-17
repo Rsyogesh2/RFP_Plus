@@ -23,13 +23,25 @@ router.post("/api/login", async (req, res) => {
   
     // SQL query
     const query = "SELECT * FROM Users_Login WHERE Username = ?";
+    // const name = "SELECT user_name FROM Users_Table WHERE email = ?";
+   
     // console.log("Executing query:", query);
-  
+    let names=[];
     try {
       // Use the promise-based `execute` method
       const [results] = await db.execute(query, [username]);
+      if(results[0].Role=="Super Admin"){
+        [names] = await db.execute("SELECT super_user_name as user_name FROM superadmin_users WHERE super_user_email = ?", [username]);
+      } else if(results[0].Role=="Vendor Admin"){
+        [names] = await db.execute("SELECT admin_name as user_name FROM vendor_admin_users WHERE email = ?", [username]);
+      } else  if(results[0].Role=="User"){
+        [names] = await db.execute("SELECT user_name FROM Users_Table WHERE email = ?", [username]);
+      } else if(results[0].Role=="Vendor User"){
+        [names] = await db.execute("SELECT user_name FROM vendor_users_table WHERE email = ?", [username]);
+      }
+       
       // console.log(results.Role);
-      // console.log("Query results:", results);
+      console.log("Query results:", results);
   
       // Check if user exists
       if (results.length === 0) {
@@ -56,7 +68,7 @@ router.post("/api/login", async (req, res) => {
       // const roles = results.map((row) => row.Role);
 
       console.log("Generated token:", token);
-      res.json({ token });
+      res.json({ token,Name:names[0] });
   
     } catch (error) {
       console.error("Error:", error);

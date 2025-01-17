@@ -7,7 +7,7 @@ const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState("");
-  const { setUserPower, setUserName,setUserRole } = useContext(AppContext);
+  const { setUserPower, setUserName,setUserRole, setName } = useContext(AppContext);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,6 +28,7 @@ const Login = ({ onLogin }) => {
 
     const result = await response.json();
     console.log("Login response:", result);
+    setName(result.Name.user_name);
 
     if (response.ok) {
       alert("Login successful!");

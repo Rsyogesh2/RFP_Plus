@@ -143,7 +143,7 @@
     padding: 20px;
     width: 100%;
     overflow-y: auto;
-    margin-right: 22px;
+    /* margin-right: 20px; */
 }
 
 /* Add User Form */

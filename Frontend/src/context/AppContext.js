@@ -9,6 +9,7 @@ export const AppProvider = ({ children }) => {
     const [userPower, setUserPower] = useState();
     const [assignModule, setAssignModule] = useState([]);
     const [userName, setUserName] = useState();
+    const [name, setName] = useState();
     const [userRole, setUserRole] = useState();
     const [globalFItems, setGlobalFItems] = useState();
     const [sidebarValue, setSidebarValue] = useState(
@@ -19,7 +20,7 @@ export const AppProvider = ({ children }) => {
         <AppContext.Provider value={{ moduleData, setModuleData, usersList,
          setUsersList,userPower,setUserPower,assignModule,setAssignModule,
          userName, setUserName,sidebarValue, setSidebarValue, setUserRole,
-        userRole,globalFItems, setGlobalFItems}}>
+        userRole,globalFItems, setGlobalFItems,name, setName}}>
             {children}
         </AppContext.Provider>
     );

@@ -3,7 +3,7 @@ import { PopupManager } from './components/popup.js';
 import './App.css';
 import RfpForm from './components/Sections/RfpForm.js';
 import RFPReqTable from './components/RFP_Table/RFPReqTable.js';
-import RFPReqTable1 from './components/RFP_Table/RFPReqTable1.js';
+import Navbar from './components/Headers/Navbar.js';
 import RfpScoringCriteria from './ScoringCriteria/RfpScoringCriteria.js';
 import RFPVendorTable from './components/RFP_Table/RFPVendorTable.js';
 import OTPVerification from './Login/OTPLogin.js';
@@ -15,12 +15,13 @@ import Login from "./Login/GlobalAdminLogin";
 // import UserLogin from "./Login/UserLogin";
 import { AppProvider } from './context/AppContext';
 
+
 function App() {
   const [authState, setAuthState] = useState({
     isAuthenticated: false,
     userType: null, // Could be "GlobalAdmin", "SuperUserAdmin", or "User"
   });
-
+  
 
   const handleLogin = (userType, credentials) => {
     console.log(`${userType} logged in`);
@@ -57,32 +58,9 @@ function App() {
       <PopupManager>
         <Router>
           <div>
-          <nav className="navbar">
-  <ul className="navbar-menu">
-    {authState.isAuthenticated && (
-      <>
-        <li className="navbar-left">
-          <img src="assets/rfp-abstract.jpg" alt="Logo" className="navbar-logo" />
-        </li>
-        <li className="navbar-center">
-          <div>
-            <h1 className="navbar-title">Axis Bank</h1>
-            <p className="navbar-subtitle">Super Admin Module</p>
-          </div>
-        </li>
-        <li className="navbar-right">
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
-        </li>
-      </>
-    )}
-  </ul>
-</nav>
-
-
-
-
+          {authState.isAuthenticated && (
+              <Navbar  handleLogout={handleLogout} />
+)}
             <Routes>
               {/* Dynamic Login Route */}
               <Route

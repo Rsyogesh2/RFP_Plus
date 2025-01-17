@@ -115,10 +115,40 @@
 
 /* Right Section (Logout Button) */
 .navbar-right {
-  flex: 1;
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column; /* Stack username and button vertically */
+  align-items: flex-end; /* Align items to the right */
 }
+
+.navbar-user-container {
+  display: flex;
+  flex-direction: column; /* Stack username and logout button vertically */
+  align-items: center; /* Align content to the right */
+}
+
+.navbar-username {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 5px; /* Space between username and button */
+}
+
+.logout-btn {
+  background-color: #ff4d4d;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 9px;
+}
+
+.logout-btn:hover {
+  background-color: #e60000;
+}
+
+
 
 .logout-btn {
   background-color: #007bff;
