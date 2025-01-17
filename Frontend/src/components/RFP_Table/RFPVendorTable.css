@@ -1,4 +1,8 @@
 /* Styling for the table container */
+.rfp-table{
+  width: 100%; 
+  /* background-color: #31b1e4; */
+}
 .item-table1 {
     width: 100%;
     border-collapse: collapse;

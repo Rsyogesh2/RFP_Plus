@@ -31,7 +31,7 @@ const ViewAssignedRFPs = (l1) => {
   // }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '95%'  }}>
       {/* <RfpForm /> */}
       <div style={{ width: '100%' }}>
         {userPower === "User" ? <RFPReqTable l1={l1} /> : <RFPVendorTable l1={l1} />}

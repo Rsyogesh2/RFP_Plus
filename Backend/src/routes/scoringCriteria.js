@@ -36,13 +36,19 @@ router.post('/scores', async (req, res) => {
             ]);
             console.log("values")
             console.log(values)
-            if(values.length>0 ){
+            if (values.length > 0) {
+                // Use INSERT ... ON DUPLICATE KEY UPDATE for upsert behavior
                 const query = `
-                INSERT INTO ${table} 
-                (Implementation_Model, Score, RFP_No, Bank_Name, Created_By) 
-                VALUES ?`;
+                    INSERT INTO ${table} 
+                    (Implementation_Model, Score, RFP_No, Bank_Name, Created_By) 
+                    VALUES ? 
+                    ON DUPLICATE KEY UPDATE 
+                    Implementation_Model = VALUES(Implementation_Model),
+                    Score = VALUES(Score),
+                    Bank_Name = VALUES(Bank_Name),
+                    Created_By = VALUES(Created_By)`;
 
-            await db.query(query, [values]); 
+                await db.query(query, [values]); 
             }
             // Properly passing values as an array of arrays
         }
@@ -150,58 +156,140 @@ router.post('/updateBankAmount', async (req, res) => {
 });
 
 router.post('/saveOrUpdateScores', async (req, res) => {
-    const { rfpNo, selectedValues,userName } = req.body;
+    const { rfpNo, selectedValues, userName, sections } = req.body;
+    console.log(selectedValues);
+    console.log(sections);
+    
+    const percentageResults = {};
 
-    try {
-        const [bankName] = await db.query(`select entity_name,user_id from superadmin_users where super_user_email= ?`, [userName]);  
+// Iterate through each key in the sections object
+Object.keys(sections).forEach(key => {
+    // Extract scores and calculate the maximum score for the section
+    const sectionScores = sections[key].map(item => item[1]); 
+    const maxScore = Math.max(...sectionScores);
+
+    // Get the selected score for the current key (since it's a single value now)
+    const selectedScore = selectedValues[key]?.score || 0; 
+    
+    // Calculate the percentage (avoiding division by zero)
+    const percentage = maxScore !== 0 ? ((selectedScore / maxScore) * 100).toFixed(2) + "%" : "0%";
+    
+    // Store the calculated percentage
+    percentageResults[key] = percentage;
+});
+
+console.log("Percentage Results:", percentageResults);
+
+try {
+    const [bankName] = await db.query(
+        `SELECT entity_name, user_id FROM superadmin_users WHERE super_user_email = ?`, 
+        [userName]
+    );  
+
+    //  Modified query to include percentage columns
+    const query = `
+        INSERT INTO EvaluationScores 
+        (Implementation_Name, Implementation_Score, Implementation_Percentage,
+         No_of_Sites_Name, No_of_Sites_Score, No_of_Sites_Percentage, 
+         Site_Reference_Name, Site_Reference_Score, Site_Reference_Percentage,
+         Scoring_Items1_Name, Scoring_Items1_Score, Scoring_Items1_Percentage,
+         Scoring_Items2_Name, Scoring_Items2_Score, Scoring_Items2_Percentage,
+         Scoring_Items3_Name, Scoring_Items3_Score, Scoring_Items3_Percentage,
+         RFP_No, Bank_Id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+         Implementation_Name = VALUES(Implementation_Name),
+         Implementation_Score = VALUES(Implementation_Score),
+         Implementation_Percentage = VALUES(Implementation_Percentage),
+         No_of_Sites_Name = VALUES(No_of_Sites_Name),
+         No_of_Sites_Score = VALUES(No_of_Sites_Score),
+         No_of_Sites_Percentage = VALUES(No_of_Sites_Percentage),
+         Site_Reference_Name = VALUES(Site_Reference_Name),
+         Site_Reference_Score = VALUES(Site_Reference_Score),
+         Site_Reference_Percentage = VALUES(Site_Reference_Percentage),
+         Scoring_Items1_Name = VALUES(Scoring_Items1_Name),
+         Scoring_Items1_Score = VALUES(Scoring_Items1_Score),
+         Scoring_Items1_Percentage = VALUES(Scoring_Items1_Percentage),
+         Scoring_Items2_Name = VALUES(Scoring_Items2_Name),
+         Scoring_Items2_Score = VALUES(Scoring_Items2_Score),
+         Scoring_Items2_Percentage = VALUES(Scoring_Items2_Percentage),
+         Scoring_Items3_Name = VALUES(Scoring_Items3_Name),
+         Scoring_Items3_Score = VALUES(Scoring_Items3_Score),
+         Scoring_Items3_Percentage = VALUES(Scoring_Items3_Percentage)
+    `;
+
+    // ✅ Updated values array to include calculated percentages
+    const values = [
+        selectedValues.Implementation_Score?.value || '',
+        selectedValues.Implementation_Score?.score || 0,
+        percentageResults.Implementation_Score || "0%",
         
-        const query = `
-            INSERT INTO EvaluationScores 
-            (Implementation_Name, Implementation_Score,
-             No_of_Sites_Name, No_of_Sites_Score, 
-             Site_Reference_Name, Site_Reference_Score,
-             Scoring_Items1_Name, Scoring_Items1_Score, 
-             Scoring_Items2_Name, Scoring_Items2_Score, 
-             Scoring_Items3_Name, Scoring_Items3_Score, 
-             RFP_No, Bank_Id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE 
-             Implementation_Name = VALUES(Implementation_Name),
-             Implementation_Score = VALUES(Implementation_Score),
-             No_of_Sites_Name = VALUES(No_of_Sites_Name),
-             No_of_Sites_Score = VALUES(No_of_Sites_Score),
-             Site_Reference_Name = VALUES(Site_Reference_Name),
-             Site_Reference_Score = VALUES(Site_Reference_Score),
-             Scoring_Items1_Name = VALUES(Scoring_Items1_Name),
-             Scoring_Items1_Score = VALUES(Scoring_Items1_Score),
-             Scoring_Items2_Name = VALUES(Scoring_Items2_Name),
-             Scoring_Items2_Score = VALUES(Scoring_Items2_Score),
-             Scoring_Items3_Name = VALUES(Scoring_Items3_Name),
-             Scoring_Items3_Score = VALUES(Scoring_Items3_Score)
-        `;
+        selectedValues.No_of_Sites_Score?.value || '',
+        selectedValues.No_of_Sites_Score?.score || 0,
+        percentageResults.No_of_Sites_Score || "0%",
+        
+        selectedValues.Site_Reference_Score?.value || '',
+        selectedValues.Site_Reference_Score?.score || 0,
+        percentageResults.Site_Reference_Score || "0%",
+        
+        selectedValues.Scoring_Items1?.value || '',
+        selectedValues.Scoring_Items1?.score || 0,
+        percentageResults.Scoring_Items1 || "0%",
+        
+        selectedValues.Scoring_Items2?.value || '',
+        selectedValues.Scoring_Items2?.score || 0,
+        percentageResults.Scoring_Items2 || "0%",
+        
+        selectedValues.Scoring_Items3?.value || '',
+        selectedValues.Scoring_Items3?.score || 0,
+        percentageResults.Scoring_Items3 || "0%",
+        
+        rfpNo,
+        bankName[0].user_id
+    ];
 
-        const values = [
-            selectedValues.Implementation_Score?.value || '',
-            selectedValues.Implementation_Score?.score || 0,
-            selectedValues.No_of_Sites_Score?.value || '',
-            selectedValues.No_of_Sites_Score?.score || 0,
-            selectedValues.Site_Reference_Score?.value || '',
-            selectedValues.Site_Reference_Score?.score || 0,
-            selectedValues.Scoring_Items1?.value || '',
-            selectedValues.Scoring_Items1?.score || 0,
-            selectedValues.Scoring_Items2?.value || '',
-            selectedValues.Scoring_Items2?.score || 0,
-            selectedValues.Scoring_Items3?.value || '',
-            selectedValues.Scoring_Items3?.score || 0,
-            rfpNo,
-            bankName[0].user_id
-        ];
-
-        await db.query(query, values);
-        res.status(200).send("Data successfully inserted/updated");
+    // ✅ Execute query with percentage included
+    await db.query(query, values);
+    res.status(200).send("Data successfully inserted/updated");
     } catch (error) {
         console.error("Error saving data:", error);
         res.status(500).send("Error saving data");
+    }
+});
+
+// fetching Final Evaluation Scores for all the vendor Based on RFP_no and Bank_id
+router.get('/fetchFinalEvaluationScores', async (req, res) => {
+    //const { rfpNo, bankId } = req.query; // Expecting query parameters for flexibility
+    const rfpNo="RFP123";
+    const bankId="1";
+    if (!rfpNo || !bankId) {
+        return res.status(400).send("Missing RFP Number or Bank ID");
+    }
+
+    try {
+        // Fetch data from EvaluationScores table using RFP_No and Bank_Id
+        const query = `
+            SELECT 
+            Implementation_Percentage,
+            No_of_Sites_Percentage,
+            Site_Reference_Percentage,
+            Scoring_Items1_Percentage,
+            Scoring_Items2_Percentage,
+            Scoring_Items3_Percentage
+            FROM EvaluationScores
+            WHERE RFP_No = ? AND Bank_Id = ?;
+        `;
+
+        const [results] = await db.query(query, [rfpNo, bankId]);
+
+        if (results.length > 0) {
+            res.status(200).json(results);
+        } else {
+            res.status(404).send("No records found for the provided criteria");
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).send("Error fetching data");
     }
 });
 
@@ -291,7 +379,7 @@ router.post('/functional-score', (req, res) => {
 
 // Fetch data endpoint
 router.get('/fetchFunctional-score', (req, res) => {
-    const query = 'SELECT * FROM functional_scores';
+    const query = 'SELECT * FROM functional_scores where RFP_No = ?  and Bank_Id=?';
 
     db.query(query, (err, results) => {
         if (err) {
@@ -337,12 +425,21 @@ router.post("/save-Overall-scoring", (req, res) => {
 });
 
 // Fetch data
-router.get("/fetch-scoring", (req, res) => {
-    const sql = "SELECT * FROM overall_scoring";
-    db.query(sql, (err, results) => {
-        if (err) return res.status(500).send(err);
-        res.send(results);
-    });
+router.get("/fetch-scoring-Overall", async(req, res) => {
+    // const {rfpNo, Bank_Id}= req.body
+    const rfpNo = "HR payroll";
+    const Bank_Id = "Bank";
+    try{
+        const sql = "SELECT * FROM overall_scoring  where RFP_No = ? ";
+        // const sql = "SELECT * FROM overall_scoring  where RFP_No = ?  and Bank_Id=?";
+        const [result] = await db.query(sql, rfpNo);
+        console.log(result)
+        res.send(result);
+    }catch(error){
+        console.error("Erro in Fetching data"+error);
+        res.status(500).json({ error: 'Error Fetching data' });
+    }
+   
 });
 
 

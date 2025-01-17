@@ -91,6 +91,7 @@ const saveOrUpdateScores = async () => {
       const payload = {
           rfpNo: rfpNo,
           selectedValues: selectedValues,
+          sections,
           userName
       };
 

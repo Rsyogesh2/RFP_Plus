@@ -620,7 +620,7 @@ const saveItems = async (items) => {
 router.post('/insertFItem', async (req, res) => {
   console.log("insertFItem");
 
-  const payload = req.body;
+  const {payload,userPower} = req.body;
   console.log("Payload:", payload);
 
   const {
@@ -961,11 +961,71 @@ router.post('/insert-rfp-functionalitem-vendor', async (req, res) => {
 });
 
 //Saved RFP Details with Items and modules
+router.get('/getSavedModule', async (req, res) => {
+  const { userPower, userName,rfpNo } = req.query;
+  console.log(rfpNo);
+  // const rfpNo ="RFP123";
+  if (!rfpNo) {
+    return res.status(400).json({ error: 'RFP_No is required' });
+  }
 
+  try {
+    const [l1Rows] = await db.query('SELECT * FROM RFP_Saved_L1_Modules WHERE RFP_No = ?', [rfpNo]);
+    
+    // Step 3: Iterate over each L1 record and build the nested structure for L2 and L3
+    const modules = await Promise.all(l1Rows.map(async (l1Item) => {
+      const { L1_Code, L1_Module_Description } = l1Item;
+
+      // Fetch related L2 modules for the current L1 module and specified RFP_No
+      const [l2Rows] = await db.query('SELECT * FROM RFP_Saved_L2_Modules WHERE RFP_No = ? AND L2_Code LIKE ?', [rfpNo, `${L1_Code}%`]);
+
+      // For each L2, fetch related L3 modules and build L2-L3 structure
+      const l2Modules = await Promise.all(l2Rows.map(async (l2Item) => {
+        const { L2_Code, L2_Module_Description } = l2Item;
+
+        // Fetch related L3 modules for the current L2 module and specified RFP_No
+        const [l3Rows] = await db.query('SELECT * FROM RFP_Saved_L3_Modules WHERE RFP_No = ? and L3_Code LIKE ?', [rfpNo,`${L2_Code}%`]);
+
+        // Map L3 data into a structured format
+        const l3Modules = l3Rows.map(l3Item => ({
+          code: l3Item.L3_Code,
+          name: l3Item.L3_Module_Description
+        }));
+
+        // Return L2 structure with nested L3 modules
+        return {
+          code: L2_Code,
+          name: L2_Module_Description,
+          l3: l3Modules
+        };
+      }));
+
+      // Return L1 structure with nested L2 (and L3) modules
+      return {
+        name: L1_Module_Description,
+        code: L1_Code,
+        l2: l2Modules
+      };
+    }));
+
+    // Combine module data and functional item data into one response
+    const responseData = {
+      modules, // L1, L2, L3 data
+    };
+    // console.log("responseData :"+responseData);
+    // console.log(responseData);
+    // Send the combined data in response
+    res.json(responseData);
+
+  } catch (error) {
+    console.error('Error retrieving combined data:', error);
+    res.status(500).json({ error: 'Error retrieving combined data' });
+  }
+});
 router.get('/getSavedData', async (req, res) => {
-  const { userPower, userName } = req.query;
-  // console.log(rfpNo);
-  const rfpNo ="RFP123";
+  const { userPower, userName,rfpNo } = req.query;
+  console.log(rfpNo);
+  // const rfpNo ="RFP123";
   if (!rfpNo) {
     return res.status(400).json({ error: 'RFP_No is required' });
   }
@@ -996,7 +1056,7 @@ router.get('/getSavedData', async (req, res) => {
       WHERE RFP_No = ? 
       `;
        [fetchedArray] = await db.query(queryString2, [rfpNo]);
-      console.log(fetchedArray);
+      // console.log(fetchedArray);
       // and Status ="Bank_Pending_Reviewer"
     } else if (userPower == "Vendor Admin") {
       const [vendorData] = await db.query(
@@ -1010,7 +1070,7 @@ router.get('/getSavedData', async (req, res) => {
       }
   
       const vendorId = vendorData[0].id; // Extract the actual ID
-      console.log(vendorId, rfpNo);
+      // console.log(vendorId, rfpNo);
   
       queryString2 = `
       SELECT 
@@ -1061,9 +1121,7 @@ router.get('/getSavedData', async (req, res) => {
   
       // Execute the query with the correct parameter
        [fetchedArray] = await db.query(queryString2, [rfpNo, vendorId]);
-      console.log(fetchedArray);
-  } else if (userPower == "Super Admin") {
-     
+      // console.log(fetchedArray);
   }
   
    
@@ -2128,6 +2186,75 @@ router.get('/loadContents-saved', async (req, res) => {
     res.status(500).send('Internal Server Error'); // Handle errors
   }
 });
+// router.get('/loadContents-superAdmin', async (req, res) => {
+//   try {
+//       const { userPower, userName } = req.query;
+//       let userDetails, result, result1, fetchedArray = [];
+
+//       const rfpNo = "RFP123"; // Assuming static RFP number, modify if needed
+
+//       if (userPower === "Super Admin") {
+//           [userDetails] = await db.query(
+//               `SELECT super_user_name, entity_Name FROM superadmin_users WHERE super_user_email = ?`,
+//               [userName]
+//           );
+//           if (!userDetails) throw new Error("User not found.");
+
+//           [result] = await db.query(
+//               `SELECT * FROM User_Modules_Assignment WHERE createdby = ?`,
+//               [userName]
+//           );
+
+//           [result1] = await db.query(
+//               `SELECT * FROM rfp_creation WHERE email=?`, [userName]
+//           );
+
+//           fetchedArray = await db.query(
+//               `SELECT * FROM RFP_FunctionalItem_draft WHERE RFP_No = ?`,
+//               [rfpNo]
+//           );
+
+//       } else if (userPower === "Vendor Admin") {
+//           [userDetails] = await db.query(
+//               `SELECT rfp_reference_no, entity_Name, admin_name, createdby FROM vendor_admin_users WHERE email = ?`,
+//               [userName]
+//           );
+//           if (!userDetails) throw new Error("User not found.");
+
+//           [result] = await db.query(
+//               `SELECT * FROM VendorUser_Modules_Assignment WHERE createdby = ?`,
+//               [userName]
+//           );
+
+//           const [vendorData] = await db.query(
+//               `SELECT id FROM vendor_admin_users WHERE rfp_reference_no = ? AND email = ?`,
+//               [rfpNo, userName]
+//           );
+
+//           if (!vendorData || vendorData.length === 0) throw new Error("Vendor ID not found");
+
+//           fetchedArray = await db.query(
+//               `SELECT * FROM RFP_FunctionalItem_Vendor WHERE RFP_No = ? AND Vendor_Id = ?`,
+//               [rfpNo, vendorData[0].id]
+//           );
+//       }
+
+//       // Combine data for both user types
+//       const combinedData = {
+//           userDetails,
+//           modules: result,
+//           rfps: result1,
+//           functionalItems: fetchedArray
+//       };
+
+//       res.json({ success: true, data: combinedData });
+
+//   } catch (error) {
+//       console.error('Error fetching combined data:', error);
+//       res.status(500).send('Internal Server Error');
+//   }
+// });
+
 router.get('/loadContents-superAdmin', async (req, res) => {
   try {
     console.log("loadContents-superAdmin")
@@ -2215,7 +2342,8 @@ router.get('/loadContents-superAdmin', async (req, res) => {
     console.log(result1)
     // Finalize response
     if (result1.length > 0) {
-      res.json({ success: true, rfps: result1, itemDetails: data , entityName:userDetails[0].entity_Name});
+      // res.json({ success: true, rfps: result1, itemDetails: data , entityName:userDetails[0].entity_Name});
+      res.json({ success: true, rfps: result1, entityName:userDetails[0].entity_Name});
     } else {
       res.status(404).json({ error: "No sub-items found for these modules" });
     }
@@ -2327,41 +2455,73 @@ router.get('/userItemsinSidebar', async (req, res) => {
 });
 
 //vendorQuery Saving
-// router.post('/vendorQuery-save-draft', async (req, res) => {
-//   console.log("vendorQuery-save-draft");
-//   const { rfpNo, rfpTitle, vendorName, bankName, createdBy, stage, rows, level, stageNumber } = req.body;
+router.post('/vendorQuery-save-draft', async (req, res) => {
+  console.log("vendorQuery-save-draft initiated.");
+  const { 
+      rfp_no, 
+      rfp_title, 
+      bank_name, 
+      vendor_name, 
+      created_by, 
+      level, 
+      Comments, 
+      Priority, 
+      Handled_by, 
+      Action_log, 
+      rows, 
+      Status, 
+      Stage 
+  } = req.body;
 
-//   try {
-//     const query = `
-//     INSERT INTO VendorQuery (rfp_no, rfp_title, vendor_name, bank_name, created_by, stage, rows_data, level, StageNumber)
-//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-//     ON DUPLICATE KEY UPDATE
-//         rfp_title = VALUES(rfp_title),
-//         stage = VALUES(stage),
-//         rows_data = VALUES(rows_data),
-//         level = VALUES(level),
-//         StageNumber = VALUES(StageNumber),
-//         updated_at = CURRENT_TIMESTAMP;
-// `;
+  // Basic validation for critical fields
+  if (!rfp_no || !rfp_title || !created_by) {
+      return res.status(400).send({ message: 'Missing required fields: rfp_no, rfp_title, created_by' });
+  }
 
-//     await db.execute(query, [
-//       rfpNo,
-//       rfpTitle,
-//       vendorName,
-//       bankName,
-//       createdBy,
-//       stage,
-//       JSON.stringify(rows),
-//       level,
-//       stageNumber
-//     ]);
+  try {
+      const query = `
+      INSERT INTO VendorQuery 
+      (rfp_no, rfp_title, bank_name, vendor_name, created_by, level, Comments, Priority, 
+       Handled_by, Action_log, rows_data, Status, Stage)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+          rfp_title = VALUES(rfp_title),
+          bank_name = VALUES(bank_name),
+          vendor_name = VALUES(vendor_name),
+          level = VALUES(level),
+          Comments = VALUES(Comments),
+          Priority = VALUES(Priority),
+          Handled_by = VALUES(Handled_by),
+          Action_log = VALUES(Action_log),
+          rows_data = VALUES(rows_data),
+          Status = VALUES(Status),
+          Stage = VALUES(Stage),
+          updated_at = CURRENT_TIMESTAMP;
+      `;
 
-//     res.status(200).send({ message: 'Draft saved or updated successfully!' });
-//   } catch (error) {
-//     console.error('Error saving draft:', error);
-//     res.status(500).send({ message: 'Failed to save or update draft' });
-//   }
-// });
+      await db.execute(query, [
+          rfp_no,
+          rfp_title,
+          bank_name || null,
+          vendor_name || null,
+          created_by,
+          level || 1,
+          Comments || "",
+          Priority || "Medium",
+          JSON.stringify(Handled_by || []),
+          Action_log || "",
+          JSON.stringify(rows || []),
+          Status || "Draft",
+          Stage || "Initiated"
+      ]);
+
+      res.status(200).send({ message: 'Draft saved or updated successfully!' });
+  } catch (error) {
+      console.error('Error saving draft:', error);
+      res.status(500).send({ message: 'Error saving draft. Please try again later.' });
+  }
+});
+
 // router.post('/vendorQuery-action', async (req, res) => {
 //   console.log("vendorQuery-action");
 
@@ -2502,6 +2662,7 @@ router.get('/userItemsinSidebar', async (req, res) => {
 //   }
 // });
 router.post('/vendorQuery-save', async (req, res) => {
+  console.log("vendorQuery-save")
   const {
     rfpNo,
     rfpTitle,
@@ -2620,21 +2781,32 @@ router.post('/vendorQuery-submit', async (req, res) => {
 
 router.post('/vendorQuery-fetch', async (req, res) => {
   console.log("vendorQuery-fetch");
-  const { rfpNo, vendorName, bankName,userName } = req.body;
+  const { rfpNo, vendorName, userName, userRole,  } = req.body;
+  console.log(rfpNo, vendorName, userName ,userRole);
 
-  if (!rfpNo || !vendorName || !bankName) {
-    return res.status(400).send({ message: "All fields (rfpNo, vendorName, bankName) are required" });
+  if (!rfpNo || !vendorName || !userName) {
+      return res.status(400).send({ message: "Missing required query parameters." });
   }
 
   try {
-    const query = `
-      SELECT rows_data, rfp_title, stage, created_by, updated_at 
-      FROM VendorQuery
-      WHERE rfp_no = ? AND vendor_name = ? AND bank_name = ? and created_by= ?;
-    `;
-
-    const [rows] = await db.execute(query, [rfpNo, vendorName, bankName,userName]);
-    console.log(rows)
+    let query ;
+    let rows;
+    if(userRole=="Maker"){
+       query = `
+      SELECT * FROM VendorQuery
+      WHERE rfp_no = ? AND vendor_name = ? AND created_by = ?;
+      `;
+       [rows] = await db.execute(query, [rfpNo, vendorName, userName]);
+      
+    } else if(userRole=="Authorizer"){
+       query = `
+      SELECT * FROM VendorQuery
+      WHERE rfp_no = ? AND vendor_name = ? AND level = 6 and Status="Vendor_Pending_Authorization";
+      `;
+       [rows] = await db.execute(query, [rfpNo, vendorName]);
+      
+    }
+       console.log(rows)
     if (rows.length > 0) {
       const result = rows[0];
 
@@ -2669,30 +2841,30 @@ router.post('/vendorQuery-fetch', async (req, res) => {
 });
 router.post('/vendorQuery-fetch-admin', async (req, res) => {
   console.log("vendorQuery-fetch-admin");
-  const { rfpNo, vendorName, bankName, level, userName, stage } = req.body;
-  console.log(rfpNo, userName, level)
-  if (!rfpNo || !vendorName || !bankName) {
-    return res.status(400).send({ message: "All fields (rfpNo, vendorName, bankName) are required" });
-  }
+  const { rfpNo, vendorName, bankName, level, userName, userPower, stage } = req.body;
+  console.log(rfpNo, userName, level,vendorName,bankName)
+  // if (!rfpNo || !vendorName && !bankName) {
+  //   return res.status(400).send({ message: "All fields (rfpNo, vendorName, bankName) are required" });
+  // }
 
   try {
 
     let query1;
     var val;
-    if (level == "Vendor") {
+    if (userPower == "Vendor Admin") {
       query1 = `
       SELECT rows_data, rfp_title, stage, created_by, updated_at 
       FROM VendorQuery
-      WHERE rfp_no = ? and level ='Vendor' ;
+      WHERE rfp_no = ? ;
     `;
       val = [rfpNo]
-    } else if (level == "Bank") {
+    } else if (userPower == "Super Admin") {
       query1 = `
       SELECT rows_data, rfp_title, stage, created_by, updated_at 
       FROM VendorQuery
-      WHERE rfp_no = ? and level ='Vendor' and created_by=?;
+      WHERE rfp_no = ?;
     `;
-      val = [rfpNo, userName]
+      val = [rfpNo]
     }
 
     const [rows1] = await db.execute(query1, val);

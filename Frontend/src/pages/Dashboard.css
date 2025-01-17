@@ -121,8 +121,30 @@
       font-size: 12px;
     }
   }
-  .scoring-dashboard .scoring-dashboard-table th,
+  /* .scoring-dashboard .scoring-dashboard-table th,
   .scoring-dashboard .scoring-dashboard-table td {
     width: 15%; 
-  }
+  } */
     
+.scoring-dashboard-table {
+    border-collapse: separate; /* Prevents merging of borders */
+    border-spacing: 20px; /* Controls the gap size between columns */
+    width: 100%;
+}
+
+.vendor-header, .score-header, .weighted-score-header, 
+.scoring-component, .overall-weightage, 
+.score-cell, .weighted-score-cell, 
+.final-score-label, .final-score-cell {
+    text-align: center;
+    padding: 10px;
+    border: 1px solid black;
+}
+
+/* Removing border for the gap column */
+.vendor-gap {
+    border: none;
+    background: none;
+    padding: 0;
+    width: 20px; /* Adjust gap size as needed */
+}

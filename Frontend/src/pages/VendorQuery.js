@@ -36,17 +36,26 @@ const VendorQuery = ({ rfpNo = "" }) => {
         },
         body: JSON.stringify({
           rfpNo: rfpNo || sidebarValue?.[0]?.rfp_no || "",
-          vendorName: sidebarValue?.[0]?.entity_name || "",
-          bankName: "Bank Name",
+          bankName: userPower === "Super User" ? sidebarValue[0]?.entity_name || '' : '',
+          vendorName: userPower === "Super User" ? "" : sidebarValue[0]?.entity_name || '',
           level,
-          stage: userRole,
+          userRole,
           userName,
+          userPower
         }),
       });
 
       const data = await response.json();
+      console.log(data);
       if (response.ok) {
-        const combinedRowsData = data.data?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
+        let combinedRowsData;
+        if(userPower==="Vendor User"){
+           combinedRowsData = data.data.rowsData || [];
+        } else if(userPower==="Super Admin" || userPower==="Vendor Admin"){
+           combinedRowsData = data.data?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
+        }
+        console.log(combinedRowsData);
+        // console.log(combinedRowsData)
         setRows(combinedRowsData || []);
       } else {
         alert(data.message || "Failed to fetch data");
@@ -86,69 +95,180 @@ const VendorQuery = ({ rfpNo = "" }) => {
     setRows(updatedRows);
   };
 
-  const getNextLevel = () => {
-    if (userRole === "Maker") return "Authorizer";
-    if (userRole === "Authorizer") return "Reviewer";
-    if (userRole === "Reviewer") return "Vendor Admin";
-    if (userRole === "Vendor Admin") return "Super Admin";
-    return "Unknown";
-  };
-  const currentLevel =()=>{
-    return userPower === "Vendor User" && userRole === "Maker" ? 1 : userPower === "Vendor User" 
-        && userRole === "Authorizer" ? 2 : userPower === "Vendor User" && userRole === "Viewer" ? 3 :
-        userPower === "Vendor Admin" || userRole === "Vendor Admin" ? 4:5;
-  }
-  const constructPayload = (action, data) => {
-    let payload = {
-        rfp_no: data.rfp_no,
-        rfp_title: data.rfp_title,
-        vendor_name: data.vendor_name,
-        bank_name: data.bank_name,
-        created_by: data.userName,
-        rows_data: data.rows,
-        level: userPower === "Vendor User" && userRole === "Maker" ? 2 : userPower === "Vendor User" 
-        && userRole === "Authorizer" ? 3 : userPower === "Vendor User" && userRole === "Viewer" ? 4 : 1,
-        comments: data.comments || "",
-        priority: data.priority || "Medium",
-        handled_by: [{ name: data.userName, role: userRole }],
-        attachments: data.attachments || null,
-        action_log: `${action} by ${data.userName} on ${new Date().toISOString()}`,
-    };
-
+  
+  const currentLevel = () => {
+    console.log("vuserRole : " + userRole)
+    switch (true) {
+        case userPower === "User" && userRole === "Maker":
+            return 1;
+        case userPower === "User" && userRole === "Authorizer":
+            return 2;
+        case userPower === "User" && userRole === "Reviewer":
+            return 3;
+        case userPower === "Super Admin" || userRole === "Super Admin":
+            return 4;
+        case userPower === "Vendor User" && userRole === "Maker":
+            return 5;
+        case userPower === "Vendor User" && userRole === "Authorizer":
+            return 6;
+        case userPower === "Vendor User" && userRole === "Reviewer":
+            return 7;
+        case userPower === "Vendor Admin":
+            return 8;
+        default:
+            return null;
+    }
+};
+const nextStatus = () => {
+    const levelNum = currentLevel();
+    switch (levelNum) {
+        case 1:
+            return "Bank_Pending_Authorization";
+        case 2:
+            return "Bank_Pending_Reviewer";
+        case 3:
+            return "Bank_Pending_Admin";
+        case 4:
+            return "Vendor_Pending_Maker";
+        case 5:
+            return "Vendor_Pending_Authorization";
+        case 6:
+            return "Vendor_Pending_Reviewer";
+        case 7:
+            return "Vendor_Pending_Admin";
+    }
+}
+const determineLevel = () => {
+    if (userPower === "User" && userRole === "Maker") return 2;
+    if (userPower === "User" && userRole === "Authorizer") return 3;
+    if (userPower === "User" && userRole === "Reviewer") return 4;
+    if (userPower === "Super Admin") return 5;
+    if (userPower === "Vendor User" && userRole === "Maker") return 6;
+    if (userPower === "Vendor User" && userRole === "Authorizer") return 7;
+    if (userPower === "Vendor User" && userRole === "Reviewer") return 8;
+    if (userPower === "Vendor Admin") return 4;
+    return 5;
+};
+const adjustStageAndStatus = (payload, action, data) => {
     if (action === "Save as Draft") {
-        payload.stage = "Draft";
-        payload.status = "Draft";
+        if(currentLevel()==5){
+          payload.stage = "Draft";
+          payload.Status = "Vendor_Pending_Maker";
+        } else if(currentLevel()==1){
+          payload.stage = "Draft";
+          payload.Status = "Bank_Pending_Maker"; 
+        }
         payload.assigned_to = null;
-    } else if (action === "Submit") {
-        // payload.stage = userPower === "Vendor User" && userRole === "Maker" ? "Pending_Authorizer" 
-        // : userPower === "Vendor User" && userRole === "Authorizer" ? "Pending_Reviewer" 
-        // : userPower === "Vendor User" && userRole === "Viewer" ? "Pending_Vendor_Admin":"Pending_Super_Admin";
-        payload.stage = "Vendor";
-        payload.status = "Pending_Authorization";
+    } else if (["Submit", "Approve", "Submit to Bank"].includes(action)) {
+        console.log(nextStatus())
+        payload.Status = nextStatus();
         payload.assigned_to = data.assignedTo || null;
-    } else if (action === "Approve" && userRole === "Authorizer") {
-        payload.stage = "Vendor";
-        payload.status = "Pending_Review";
-        payload.assigned_to = data.assignedTo || null;
-    }  else if (action === "Approve" && userRole === "Viewer") {
-      payload.stage = "Vendor";
-      payload.status = "Pending_Vendor_Admin";
-      payload.assigned_to = data.assignedTo || null;
-    } else if (action === "Submit to Bank") {
-      payload.stage = "Bank";
-      payload.status = "Pending_Super_Admin";
-      payload.assigned_to = data.assignedTo || null;
-  } else if (action === "Reject") {
+    } else if (action === "Reject") {
         payload.stage = "Rejected";
-        payload.status = "Rejected";
+        payload.Status = "Rejected";
+        payload.assigned_to = null;
+    } else if (action === "Back to Maker"){
+        payload.stage = "Draft";
+        payload.Status = "Bank_Pending_Maker";
         payload.assigned_to = null;
     }
+    payload.stage = userPower === "Vendor User" ? "Vendor"
+        : userPower === "User" ? "Bank"
+            : userPower === "Vendor Admin" ? "Bank"
+                : userPower === "Super Admin" ? "Vendor"
+                    : "";
+    return payload;
+};
+const constructPayload = (action, data = {}) => {
 
+    let payload = {
+        rfp_no: sidebarValue[0]?.rfp_no || '',
+        rfp_title: sidebarValue[0]?.rfp_title || '',
+        bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
+        vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
+        created_by: userName,
+        level: userPower === "User" && data.action === "Back to Maker" ? 1
+        : userPower === "Vendor User" && data.action === "Back to Maker" ? 5: determineLevel(),
+        Comments: data.comments || "",
+        Priority: data.priority || "Medium",
+        Handled_by: [{ name: userName, role: userRole }],
+        Action_log: `${action} by ${userName} on ${new Date().toISOString()}`,
+        rows
+    };
+
+    payload = adjustStageAndStatus(payload, action, data);
+    console.log("Constructed Payload:", payload);
     return payload;
 };
 
-  const saveAsDraft = async () => {
-    let payload;
+
+console.log(determineLevel())
+
+
+//   const getNextLevel = () => {
+//     if (userRole === "Maker") return "Authorizer";
+//     if (userRole === "Authorizer") return "Reviewer";
+//     if (userRole === "Reviewer") return "Vendor Admin";
+//     if (userRole === "Vendor Admin") return "Super Admin";
+//     return "Unknown";
+//   };
+//   const currentLevel =()=>{
+//     return userPower === "Vendor User" && userRole === "Maker" ? 1 : userPower === "Vendor User" 
+//         && userRole === "Authorizer" ? 2 : userPower === "Vendor User" && userRole === "Viewer" ? 3 :
+//         userPower === "Vendor Admin" || userRole === "Vendor Admin" ? 4:5;
+//   }
+//   const constructPayload = (action, data) => {
+//     let payload = {
+//         rfp_no: data.rfp_no,
+//         rfp_title: data.rfp_title,
+//         vendor_name: data.vendor_name,
+//         bank_name: data.bank_name,
+//         created_by: data.userName,
+//         rows_data: data.rows,
+//         level: userPower === "Vendor User" && userRole === "Maker" ? 2 : userPower === "Vendor User" 
+//         && userRole === "Authorizer" ? 3 : userPower === "Vendor User" && userRole === "Viewer" ? 4 : 1,
+//         comments: data.comments || "",
+//         priority: data.priority || "Medium",
+//         handled_by: [{ name: data.userName, role: userRole }],
+//         attachments: data.attachments || null,
+//         action_log: `${action} by ${data.userName} on ${new Date().toISOString()}`,
+//     };
+
+//     if (action === "Save as Draft") {
+//         payload.stage = "Draft";
+//         payload.status = "Draft";
+//         payload.assigned_to = null;
+//     } else if (action === "Submit") {
+//         // payload.stage = userPower === "Vendor User" && userRole === "Maker" ? "Pending_Authorizer" 
+//         // : userPower === "Vendor User" && userRole === "Authorizer" ? "Pending_Reviewer" 
+//         // : userPower === "Vendor User" && userRole === "Viewer" ? "Pending_Vendor_Admin":"Pending_Super_Admin";
+//         payload.stage = "Vendor";
+//         payload.status = "Pending_Authorization";
+//         payload.assigned_to = data.assignedTo || null;
+//     } else if (action === "Approve" && userRole === "Authorizer") {
+//         payload.stage = "Vendor";
+//         payload.status = "Pending_Review";
+//         payload.assigned_to = data.assignedTo || null;
+//     }  else if (action === "Approve" && userRole === "Viewer") {
+//       payload.stage = "Vendor";
+//       payload.status = "Pending_Vendor_Admin";
+//       payload.assigned_to = data.assignedTo || null;
+//     } else if (action === "Submit to Bank") {
+//       payload.stage = "Bank";
+//       payload.status = "Pending_Super_Admin";
+//       payload.assigned_to = data.assignedTo || null;
+//   } else if (action === "Reject") {
+//         payload.stage = "Rejected";
+//         payload.status = "Rejected";
+//         payload.assigned_to = null;
+//     }
+
+//     return payload;
+// };
+
+  const saveAsDraft = async (action) => {
+    let payload = constructPayload(action);
+    console.log(payload);
     // const payload = {
     //   rfpNo: sidebarValue[0]?.rfp_no,
     //   rfpTitle: sidebarValue[0]?.rfp_title,
@@ -184,18 +304,29 @@ const VendorQuery = ({ rfpNo = "" }) => {
   };
 
   useEffect(() => {
-    fetchVendorQueries();
+    const fetchData = async () => {
+      await fetchVendorQueries();
+    };
+    fetchData();
     if (!moduleData || !moduleData.itemDetails) {
-      return <p>Loading...</p>; // Or show a default message instead of breaking
+      // return <p>Loading...</p>; // Or show a default message instead of breaking
     }    
     try {
-      setOptions(flattenHierarchy(moduleData?.itemDetails?.l1 ? moduleData.itemDetails.l1 : []));
-    } catch (error) {
+      if(userPower=="Vendor User"){
+        setOptions(flattenHierarchy(moduleData?.itemDetails?.l1 ? moduleData.itemDetails.l1 : []));
+      } else{
+        console.log(moduleData.modules)
+        setOptions(flattenHierarchy( moduleData.modules));
+        console.log(flattenHierarchy(moduleData.modules))
+       
+      }
+      console.log(options)
+      } catch (error) {
       console.error("Error while setting options:", error);
       setOptions([]); // Fallback to an empty array
     }
     
-  }, [moduleData]);
+  }, []);
 
   return (
     <div className="vendor-query-container">
@@ -235,7 +366,21 @@ const VendorQuery = ({ rfpNo = "" }) => {
                     style={{ width: "100%" }}
                   />
                 ) : (
-                  row.treeValue || "N/A"
+                  <TreeSelect
+                  treeData={options}
+                  value={row.treeValue}
+                  // treeDefaultExpandAll
+                  style={{
+                    width: "100%",
+                    backgroundColor: "#f5f5f5", // Light gray to give a read-only look
+                    color: "#000", // Keep text color standard
+                    cursor: "default", // Standard cursor
+                  }}
+                  open={false}
+                  onClick={(e) => e.preventDefault()} // Prevent dropdown from opening
+                  onKeyDown={(e) => e.preventDefault()} // Prevent keyboard interaction
+                />
+                
                 )}
               </td>
               <td>
@@ -285,18 +430,24 @@ const VendorQuery = ({ rfpNo = "" }) => {
         <button className="add-row-button" onClick={addRow}>Add Row</button>
       )}
 
-      {userRole === "Maker" && (
+      {userPower === "Vendor User" && (
         <div className="save-button-container">
-          <button onClick={saveAsDraft}>Save as Draft</button>
+          {userRole==="Maker" && <button onClick={()=>{saveAsDraft("Save as Draft")}}>Save as Draft</button>}
+          <button
+            onClick={() => {
+              if (window.confirm("Are you sure you want to submit the query?")) {
+                saveAsDraft("Submit");
+              }
+            }}
+          >Submit</button>
         </div>
       )}
-
       {(userPower === "Vendor Admin" || userPower === "Super Admin") && (
         <div className="save-button-container">
           <button
             onClick={() => {
               if (window.confirm("Are you sure you want to submit the query?")) {
-                saveAsDraft();
+                saveAsDraft("Submit");
               }
             }}
           >

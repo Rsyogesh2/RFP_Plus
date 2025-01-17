@@ -5,7 +5,7 @@ import { AppContext } from '../../context/AppContext';
 import Button from '../Buttons/Button.js';
 import { handleSave } from '../../services/Apis'
 
-const RFPReqTable = ({ l1 }) => {
+const RFPReqTable = ({ l1,rfpNo="" }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [name, setName] = useState(null); // Initially, no data
@@ -491,14 +491,14 @@ const RFPReqTable = ({ l1 }) => {
         });
     };
     const readHierarchy = (levelData, levelType, paddingLeft = 10, TableIndex = null, parentIndex = null, subIndex = null, indexval) => {
-        console.log('Rendering level:', levelType, 'with data', levelData, TableIndex, parentIndex, " subIndex " + subIndex, "  indexval " + indexval);
+        // console.log('Rendering level:', levelType, 'with data', levelData, TableIndex, parentIndex, " subIndex " + subIndex, "  indexval " + indexval);
 
         if (!levelData || !Array.isArray(levelData)) return console.log("its empty"); // Ensure levelData is defined and an array
 
         return levelData.map((item, index) => {
             const date = new Date(item.Modified_Time);
             const formattedDate = date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-            console.log(formattedDate);
+            // console.log(formattedDate);
            
 
             return (
@@ -566,7 +566,7 @@ const RFPReqTable = ({ l1 }) => {
     };
 
     const Tables = (l2, index1, f1, index, indexval) => {
-        console.log("rendering Table");
+        // console.log("rendering Table");
         // console.log(l2);
 
         // Validate l2.l3
@@ -596,7 +596,7 @@ const RFPReqTable = ({ l1 }) => {
         }
 
 
-        console.log(FItem);
+        // console.log(FItem);
         // console.log(newItems);
         // console.log(newItems[index]);
 
@@ -616,7 +616,7 @@ const RFPReqTable = ({ l1 }) => {
                 // Compare New_Code if F1_Code is the same
                 return Number(a.New_Code) - Number(b.New_Code);
             });
-        console.log(f1items)
+        // console.log(f1items)
         return (
             <table className="item-table">
                 <colgroup>

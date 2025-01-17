@@ -2,6 +2,8 @@
 .HomePage-container {
     display: flex;
     height: 100vh;
+    width: 100%;
+    /* background-color: #0056b3; */
     font-family: Arial, sans-serif;
 }
 
@@ -106,6 +108,7 @@
   
   .sidebar.open .toggle-btn span {
     transform: rotate(180deg); /* Rotate the arrow to face the opposite direction */
+    transform: translateY(-250px);
   }
   
 
@@ -138,8 +141,9 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
+    width: 100%;
     overflow-y: auto;
-    margin-left: 20px;
+    margin-right: 22px;
 }
 
 /* Add User Form */

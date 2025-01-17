@@ -400,15 +400,18 @@ router.post('/addUser', async (req, res) => {
       // Get count of users created by creatorName and add 1 to it
       // const count = `SELECT COUNT(email) + 1 AS no FROM Users_Table WHERE createdby = ?`;
       let count;
-      if(userPower=="Vendor Admin"){
-        count = ` SELECT COALESCE(MAX(id), 0) + 1 AS no 
-                FROM Vendor_Users_Table 
-                WHERE createdby = `;
-      } else if(userPower=="Super Admin"){
-        count = `SELECT COALESCE(MAX(id), 0) + 1 AS no FROM Users_Table WHERE createdby = ?`;
+      if (userPower == "Vendor Admin") {
+        count = `SELECT COALESCE(MAX(id), 0) + 1 AS no 
+                 FROM Vendor_Users_Table 
+                 WHERE createdby = ?`;
+      } else if (userPower == "Super Admin") {
+        count = `SELECT COALESCE(MAX(id), 0) + 1 AS no 
+                 FROM Users_Table 
+                 WHERE createdby = ?`;
       }
       const [no] = await db.query(count, [creatorName]);
-      //console.log(no[0].no);
+      
+     //console.log(no[0].no);
       let query;
       // Insert user details into Users_Table
       if(userPower=="Vendor Admin"){

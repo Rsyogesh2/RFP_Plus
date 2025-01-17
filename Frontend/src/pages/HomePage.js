@@ -4,7 +4,7 @@ import { AppContext } from "./../context/AppContext";
 import RfpForm from "../components/Sections/RfpForm";
 import Sidebar from "./Sidebar";
 import VendorQuery from "./VendorQuery";
-import SubmitQuery from "./Vendor/SubmitQuery";
+import RFPListTable from "./Vendor/RFPListTable";
 import AssignUsers from "./AssignUsers";
 import VendorAdmin from "./VendorAdmin";
 import ViewModifyUserTable from "./ViewModifyUserTable";
@@ -24,18 +24,18 @@ import RFPReqTable from "../components/RFP_Table/RFPReqTable";
 // import {fetchUsers} from '../services/loadApis';
 
 
-const Header = () => {
-  const { userPower, sidebarValue, moduleData } = useContext(AppContext);
-  // console.log(moduleData.entityName)
-  return (
-    <div className="header">
-      <h1>
-        {moduleData ? moduleData.entityName : ""}
-      </h1>
-      <h2>{`${userPower} Module`}</h2>
-    </div>
-  );
-};
+// const Header = () => {
+//   const { userPower, sidebarValue, moduleData } = useContext(AppContext);
+//   // console.log(moduleData.entityName)
+//   return (
+//     <div className="header">
+//       <h1>
+//         {moduleData ? moduleData.entityName : ""}
+//       </h1>
+//       <h2>{`${userPower} Module`}</h2>
+//     </div>
+//   );
+// };
 
 
 const AddUserForm = () => {
@@ -273,10 +273,10 @@ const HomePage = ({ userType }) => {
           url = `${API_URL}/api/loadContents-initial?${queryParams}`;
         } else if (userPower == "Vendor Admin") {
           url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
-          url = `${API_URL}/api/getSavedData?${queryParams}`;
+          // url = `${API_URL}/api/getSavedData?${queryParams}`;
         } else if (userPower == "Super Admin") {
           url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
-          url = `${API_URL}/api/getSavedData?${queryParams}`;
+          // url = `${API_URL}/api/getSavedData?${queryParams}`;
         }
         console.log("Fetching URL:", url);
         const response = await fetch(url);
@@ -338,7 +338,7 @@ const HomePage = ({ userType }) => {
       case "Assign Vendor Users":
         return <AssignUsers />;
       case "Submit Query":
-        return <SubmitQuery />;
+        return <RFPListTable action="View Query" />;
       case "Submit RFP":
         return <SubmitRFPs />;
       case "View Vendor Assigned RFPs":
@@ -346,13 +346,13 @@ const HomePage = ({ userType }) => {
       case "Vendor Query":
         return <VendorQuery />;
       case "Vendor Query Submission":
-        return <SubmitQuery />;
+        return <RFPListTable action="View Query"/>;
       case "Final Evaluation":
         return <FinalEvaluation />
       case 99:
         return <RfpScoringCriteria />;
       case "View RFPs":
-        return <ViewRFPs />;
+        return <RFPListTable action="View RFP"/>;
       case "Dashboard":
         return <ScoringDashboard />;
       default:
@@ -370,7 +370,7 @@ const HomePage = ({ userType }) => {
       <div
         className={`main-content ${isSidebarOpen ? "with-sidebar" : "full-screen"}`}
       >
-        <Header />
+        {/* <Header /> */}
         {renderSection()}
       </div>
     </div>
