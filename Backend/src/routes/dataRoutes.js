@@ -1754,7 +1754,7 @@ router.get('/loadContents-initial', async (req, res) => {
                 const queryString3 = `
                     SELECT Description AS name, Module_Code, F1_Code, F2_Code 
                     FROM RFP_FunctionalItems 
-                    WHERE Module_Code IN (${unmatchedModuleCodes.map(() => '?').join(', ')})
+                    WHERE Module_Code IN (${unmatchedModuleCodes.map(() => '?').join(', ')}) AND F1_Code!="00"
                 `;
             
                 // Execute second query
