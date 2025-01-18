@@ -92,7 +92,7 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
             fetchArray();
             setValueL1(l1.l1module);
         }  
-    }, [l1]);
+    }, [l1,itemData]);
 
 
     const filterModule = (data) => {
