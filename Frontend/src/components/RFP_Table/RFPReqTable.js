@@ -774,12 +774,13 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
             )} */}
 
             {/* Show Submit button only for Authorizer or Reviewer */}
-            {(userRole === "Authorizer" || userRole === "Reviewer") && (
+            {/* {(userRole === "Authorizer" || userRole === "Reviewer") && ( */}
+            {(userRole === "Authorizer") && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
-                    Submit
+                    Authorize
                 </button>
             )}
-            {(userRole === "Authorizer" || userRole === "Reviewer") && (
+            {(userRole === "Authorizer") && (
                 <button onClick={() => handleSave(constructPayload("Back to Maker", {action:"Back to Maker"}))}>
                     Back to Maker
                 </button>

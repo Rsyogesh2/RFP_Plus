@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "./../context/AppContext";
+import { MdOutlineModeEdit, MdDelete   } from "react-icons/md";
 import "./combinedpages2.css";
 
 const ViewModifyUserTable = () => {
@@ -179,8 +180,8 @@ const ViewModifyUserTable = () => {
                   <td>{user.mobile}</td>
                   <td>{user.active_flag}</td>
                   <td>
-                    <button className="save-btn" onClick={() => handleEdit(user)}>Edit</button>
-                    <button className="cancel-btn" onClick={() => handleDelete(user.user_no)}>Delete</button>
+                    <button className="save-btn" onClick={() => handleEdit(user)}><MdOutlineModeEdit /></button>
+                    <button className="cancel-btn" onClick={() => handleDelete(user.user_no)}><MdDelete  /></button>
                   </td>
                 </tr>
               )
