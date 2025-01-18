@@ -28,13 +28,16 @@ const Login = ({ onLogin }) => {
 
     const result = await response.json();
     console.log("Login response:", result);
-    setName(result.Name.user_name);
-
+    
     if (response.ok) {
       alert("Login successful!");
       localStorage.setItem("token", result.token); // Store the JWT
       setUserName(credentials.username);
-
+      if(credentials.username=="GlobalUser"){
+        setName("GlobalUser");
+      } else{
+        setName(result.Name.user_name);
+      }
       // Fetch roles for the user
       const rolesResponse = await fetch(`${API_URL}/api/get-roles`, {
         method: "POST",

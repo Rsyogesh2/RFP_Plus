@@ -2023,7 +2023,9 @@ router.get('/loadContents-initial', async (req, res) => {
         Mandatory: item.Mandatory ?? true, // Set default if `Mandatory` is null
         deleted: item.deleted ?? false, // Set default if `deleted` is null
       }));
-      fItems.push(...updatedF1Result);
+      // fItems.push(...updatedF1Result);
+      fItems.push(updatedF1Result);
+      combinedData=[];
       // combined.push({data,rfp_no})
     }
     // console.log(combined)

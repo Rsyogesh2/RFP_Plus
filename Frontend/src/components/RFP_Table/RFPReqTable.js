@@ -40,7 +40,7 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
                 // const data = await response.json(); // Parse the JSON response
                 // console.log(data);  // Handle the fetched data as needed
                 if (FItem.length > 0) {
-                    moduleData.functionalItemDetails = FItem
+                    moduleData.functionalItemDetails[0] = FItem
                 } else {
 
                 }
@@ -53,7 +53,7 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
                 // setItemData(moduleData.itemDetails.l1); 
                 // setFItem(moduleData.functionalItemDetails);
                 // setSidebarValue(data.itemDetails);
-                setFItem(moduleData.functionalItemDetails);
+                setFItem(moduleData.functionalItemDetails[0]);
                 console.log(userRole);
             } catch (error) {
                 console.error('Error sending checked items:', error); // Log any errors
@@ -603,7 +603,7 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
 
         const matchingCodes = FItem?.filter(f => f?.Module_Code?.startsWith(l2.code)) || [];
         const f1items = matchingCodes
-            .filter(f1 => f1?.F2_Code?.endsWith("00"))
+            .filter(f1 => f1?.F2_Code?.endsWith("00") && !f1.F1_Code.endsWith("00"))
             .sort((a, b) => {
                 // First, compare by F1_Code (converted to number)
                 const f1Comparison = Number(a.F1_Code) - Number(b.F1_Code);
