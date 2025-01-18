@@ -120,7 +120,7 @@ const ScoringDashboard = ({rfpNo=""}) => {
                         ...vendor,
                         scores: [
                             vendor.scores[0], // Keep the first score unchanged
-                            data?.averagePercentageScore?.[0] ?? vendor.scores[1], // Replace the second score only if data exists, else keep the original
+                            data?.averagePercentageScore?? vendor.scores[1], // Replace the second score only if data exists, else keep the original
                             ...vendor.scores.slice(2) // Keep the rest unchanged
                         ]
                     }))

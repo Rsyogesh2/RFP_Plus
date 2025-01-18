@@ -3,11 +3,13 @@ import "../VendorQuery.css";
 import VendorQuery from '../VendorQuery';
 import RFPReqTable from '../../components/RFP_Table/RFPReqTable';
 import { AppContext } from "../../context/AppContext";
+import ScoringDashboard from './../Dashboard';
 
 const RFPListTable = ({action}) => {
   const [data, setData] = useState([]);
   const [visible, setVisible] = useState(false);
   const [visibleRFP, setVisibleRFP] = useState(false);
+  const [visibleDashboard, setVisibleDashboard] = useState(false);
   const [selectedRfpNo, setSelectedRfpNo] = useState(null);
   const { moduleData, userRole, setModuleData, userName, userPower } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -78,8 +80,12 @@ const RFPListTable = ({action}) => {
 
     }
     fetchArray();
-    setVisible(!visible); // Show the VendorQuery component
-   
+    if(action==="Show Dashboard"){
+      setVisibleDashboard(!visibleDashboard)
+    } else {
+      setVisible(!visible); // Show the VendorQuery component
+    }
+    
   };
   return (
     <div className="vendor-query-container">
@@ -107,11 +113,11 @@ const RFPListTable = ({action}) => {
               <td colSpan="3">No RFP data available</td>
             </tr>
           )}
-
         </tbody>
       </table>
       {visible && action=="View Query" && <VendorQuery rfpNo={selectedRfpNo} />}
       {visibleRFP && action=="View RFP" &&<RFPReqTable l1="Super Admin" rfpNo={selectedRfpNo} /> }
+      {visibleDashboard && action=="Show Dashboard" &&<ScoringDashboard l1="Super Admin" rfpNo={selectedRfpNo} /> }
     </div>
   );
 };

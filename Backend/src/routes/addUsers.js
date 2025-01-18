@@ -709,9 +709,9 @@ router.post("/saveassignUserModules", async (req, res) => {
           })),
         }))
       );
-      const dateFrom = new Date(user.fromDate).toISOString().slice(0, 19).replace('T', ' ');
-      const dateTo = new Date(user.fromDate).toISOString().slice(0, 19).replace('T', ' ');
-      
+      const dateFrom = user.fromDate ? new Date(user.fromDate).toISOString().slice(0, 19).replace('T', ' ') : null;
+      const dateTo = user.toDate ? new Date(user.toDate).toISOString().slice(0, 19).replace('T', ' ') : null;
+    
       const values = [
         user.user_name || '',
         userName || '',

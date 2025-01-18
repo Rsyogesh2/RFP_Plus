@@ -354,7 +354,7 @@ const HomePage = ({ userType }) => {
       case "View RFPs":
         return <RFPListTable action="View RFP"/>;
       case "Dashboard":
-        return <ScoringDashboard />;
+        return <RFPListTable action="Show Dashboard" />;
       default:
         return <p>Welcome</p>;
     }
