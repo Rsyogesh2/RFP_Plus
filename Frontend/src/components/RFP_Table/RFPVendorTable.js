@@ -63,7 +63,7 @@ const RFPVendorTable = ({ l1 }) => {
             //23/11/2024
             try {
                 console.log(moduleData);
-                setFItem(moduleData.functionalItemDetails);
+                setFItem(moduleData.functionalItemDetails[0]);
                 if(l1=="Vendor Admin"){
                     setItemData(moduleData.modules); 
                     setFItem(moduleData.fitems);

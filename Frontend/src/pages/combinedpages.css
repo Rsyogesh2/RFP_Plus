@@ -215,52 +215,144 @@
 /* Vendor Query Styles */
 .vendor-query-container {
     padding: 20px;
-    font-family: Arial, sans-serif;
+    width:90%;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9f9; /* Light background for the container */
+    /* border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
 }
 
+.vendor-query-container h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+}
+
+.vendor-query-container h4 {
+    font-size: 1.2rem;
+    color: #555;
+    margin-top: 20px;
+}
+
+/* Table Styling */
 .vendor-query-table {
-    min-width: 100% !important;
+    width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .vendor-query-table th,
 .vendor-query-table td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 12px;
     text-align: left;
+    font-size: 0.9rem;
+    color: #333;
 }
 
 .vendor-query-table th {
-    background-color: #f4f4f4;
+    background-color: #007bff !important;
+    color: white;
     font-weight: bold;
+    text-transform: uppercase;
 }
 
-.vendor-query-table select,
-.vendor-query-table input {
+.vendor-query-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.vendor-query-table tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+.vendor-query-table input,
+.vendor-query-table select {
     width: 100%;
-    padding: 6px;
+    padding: 10px;
     box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: none !important; /* Ensures border is removed */
+    border-radius: 0; /* Removes any rounded corners */
+    font-size: 0.9rem;
+    background-color: transparent; /* Ensures no background effect is mistaken for a border */
 }
 
-.vendor-query-table input {
-    height: 36px;
+.vendor-query-table input:focus,
+.vendor-query-table select:focus {
+    outline: none !important; /* Removes focus outline */
+    box-shadow: none !important; /* Removes any focus shadow */
 }
 
-.add-row-button {
-    margin-top: 10px;
-    padding: 8px 16px;
+/* .vendor-query-table input:focus,
+.vendor-query-table select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
+} */
+
+/* Buttons */
+.add-row-button,
+.save-button-container button {
+    margin-top: 20px;
+    padding: 10px 20px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
+    font-size: 1rem;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-.add-row-button:hover {
+.add-row-button:hover,
+.save-button-container button:hover {
     background-color: #0056b3;
+}
+
+/* Save Button Container */
+.save-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.save-button-container button {
+    flex: 0 1 auto;
+    padding: 10px 20px;
+}
+
+.save-button-container .save-btn {
+    background-color: #6c757d; /* Save as Draft - Gray */
+}
+
+.save-button-container .save-btn:hover {
+    background-color: #5a6268;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .vendor-query-container {
+        padding: 10px;
+    }
+
+    .vendor-query-table th,
+    .vendor-query-table td {
+        font-size: 0.8rem;
+        padding: 8px;
+    }
+
+    .add-row-button,
+    .save-button-container button {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
 }
 
 /* Vendor Admin Styles */

@@ -961,8 +961,8 @@ router.post('/insert-rfp-functionalitem-vendor', async (req, res) => {
 });
 
 //Saved RFP Details with Items and modules
-router.get('/getSavedModule', async (req, res) => {
-  const { userPower, userName,rfpNo } = req.query;
+router.post('/getSavedModule', async (req, res) => {
+  const {rfpNo } = req.body;
   console.log(rfpNo);
   // const rfpNo ="RFP123";
   if (!rfpNo) {

@@ -60,7 +60,6 @@ const Login = ({ onLogin }) => {
             } else {
               rolesPer.push(`${rolesResult.roles} - Reviewer`)
             }
-            
           }
           
           if(rolesPer.length===0){

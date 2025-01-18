@@ -29,7 +29,7 @@ const Navbar = ({ handleLogout }) => {
         <li className="navbar-right">
   <div className="navbar-user-container">
     {/* Username */}
-    <span className="navbar-username">{name } - {userPower=="Super Admin"?"Admin":userRole}</span>
+    <span className="navbar-username">{name } - {userPower=="Super Admin"||userPower=="Vendor Admin"?"Admin":userRole}</span>
     <span className="navbar-username"></span>
 
     {/* Logout Button */}

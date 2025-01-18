@@ -6,6 +6,7 @@ import { TreeSelect } from "antd";
 const VendorQuery = ({ rfpNo = "" }) => {
   const [rows, setRows] = useState([]);
   const [options, setOptions] = useState([]);
+  const [modules, setModules] = useState([]);
   const { userName, userPower, userRole, sidebarValue, moduleData = {} } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -47,10 +48,28 @@ const VendorQuery = ({ rfpNo = "" }) => {
 
       const data = await response.json();
       console.log(data);
+
+      //getSavedModule
       if (response.ok) {
         let combinedRowsData;
         if(userPower==="Vendor User"){
            combinedRowsData = data.data.rowsData || [];
+           if(userRole==="Authorizer"){
+            const response = await fetch(`${API_URL}/api/getSavedModule`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                rfpNo: rfpNo || sidebarValue?.[0]?.rfp_no || ""
+              }),
+            });
+            const module = await response.json();
+            console.log(module);
+            setModules(module)
+            // combinedRowsData = module.modules?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
+            console.log("module");
+           }
         } else if(userPower==="Super Admin" || userPower==="Vendor Admin"){
            combinedRowsData = data.data?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
         }
@@ -313,7 +332,13 @@ console.log(determineLevel())
     }    
     try {
       if(userPower=="Vendor User"){
-        setOptions(flattenHierarchy(moduleData?.itemDetails?.l1 ? moduleData.itemDetails.l1 : []));
+        if(userRole==="Authorizer" || userRole==="Reviewer"){
+          // console.log(modules);
+          setOptions(flattenHierarchy(modules.modules));
+        } else{
+          setOptions(flattenHierarchy(moduleData?.itemDetails?.l1 ? moduleData.itemDetails.l1 : [])); 
+        }
+        
       } else{
         console.log(moduleData.modules)
         setOptions(flattenHierarchy( moduleData.modules));
@@ -432,8 +457,8 @@ console.log(determineLevel())
 
       {userPower === "Vendor User" && (
         <div className="save-button-container">
-          {userRole==="Maker" && <button onClick={()=>{saveAsDraft("Save as Draft")}}>Save as Draft</button>}
-          <button
+          {userRole==="Maker" && <button className="save-btn" onClick={()=>{saveAsDraft("Save as Draft")}}>Save as Draft</button>}
+          <button className="submit-btn"
             onClick={() => {
               if (window.confirm("Are you sure you want to submit the query?")) {
                 saveAsDraft("Submit");
@@ -444,7 +469,7 @@ console.log(determineLevel())
       )}
       {(userPower === "Vendor Admin" || userPower === "Super Admin") && (
         <div className="save-button-container">
-          <button
+          <button className="submit-btn"
             onClick={() => {
               if (window.confirm("Are you sure you want to submit the query?")) {
                 saveAsDraft("Submit");
