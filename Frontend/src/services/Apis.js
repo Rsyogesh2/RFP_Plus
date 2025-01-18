@@ -47,7 +47,7 @@ export const handleSave = async (payload,userPower="User") => {
     console.log(payload);
     let response;
     try {
-        if(userPower=="User"){
+        if(userPower==="User"){
             response = await fetch(`${API_URL}/api/insertFItem`, {
                 method: 'POST',
                 headers: {
@@ -55,7 +55,7 @@ export const handleSave = async (payload,userPower="User") => {
                 },
                 body: JSON.stringify({payload,userPower})
             });
-        } else if(userPower=="Vendor User"){
+        } else if(userPower==="Vendor User"){
             response = await fetch(`${API_URL}/api/insert-rfp-functionalitem-vendor`, {
                 method: 'POST',
                 headers: {

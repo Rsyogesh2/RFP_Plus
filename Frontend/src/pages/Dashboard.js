@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useContext } from 'react';
 import './Dashboard.css';
-
+import { AppContext } from "./../context/AppContext";
 const ScoringDashboard = ({rfpNo=""}) => {
     const [scoringData, setScoringData] = useState([]);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const { userName  } = useContext(AppContext); // Users load in the table
+      
     // const scoringComponents = [
         //     "Functional items", "Commercials", "Implementation model",
         //     "No of installations", "Site visit reference",
@@ -95,7 +97,43 @@ const ScoringDashboard = ({rfpNo=""}) => {
 
         fetchScoringData();
     }, []);
-    
+    useEffect(() => {
+        const fetchData2 = async () => {
+            const rfpNo = "HR payroll";
+            try {
+                const response = await fetch(`${API_URL}/fetchComScores-dashBoard`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ rfpNo, userName }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+
+                const data = await response.json();
+                console.log(data);
+                setVendors(prevVendors =>
+                    prevVendors.map((vendor, index) => ({
+                        ...vendor,
+                        scores: [
+                            vendor.scores[0], // Keep the first score unchanged
+                            data?.averagePercentageScore?.[0] ?? vendor.scores[1], // Replace the second score only if data exists, else keep the original
+                            ...vendor.scores.slice(2) // Keep the rest unchanged
+                        ]
+                    }))
+                );
+            } catch (err) {
+                console.log(err.message);
+            } finally {
+
+            }
+        };
+
+        fetchData2();
+    }, [userName]);
     
     return (
         <div className="scoring-dashboard">

@@ -112,9 +112,9 @@ router.post('/fetchScores', async (req, res) => {
         }
         const query = `
         select id,CommercialPattern, InternalPercent, From1, To1, Score1, From2, To2, Score2, From3, To3, Score3
-        from  CommercialScores 
+        from  CommercialScores and where RFP_No=?
         `;
-        const [commercial]= await db.query(query)
+        const [commercial]= await db.query(query,rfpNo)
         // const query = `
         // select CommercialPattern, InternalPercent, From1, To1, Score1, From2, To2, Score2, From3, To3, Score3
         // from  CommercialScores where RFP_No =?
@@ -538,6 +538,83 @@ router.post('/save-scores', async (req, res) => {
     } catch (error) {
         console.error('Error saving data:', error);
         res.status(500).json({ message: 'Error saving data to database.', error });
+    }
+});
+
+// Dashboard - Apis
+router.post('/fetchComScores-dashBoard', async (req, res) => {
+    const { rfpNo, userName } = req.body;
+
+    try {
+        // Fetch the bank name based on userName
+        const [bankNameResult] = await db.query(
+            `SELECT entity_name FROM superadmin_users WHERE super_user_email = ?`, 
+            [userName]
+        );
+        
+        if (!bankNameResult || bankNameResult.length === 0) {
+            return res.status(404).send("Bank name not found.");
+        }
+
+        console.log("RFP No:", rfpNo);
+        console.log("Bank Name:", bankNameResult[0].entity_name);
+
+        // Fetch commercial scores data
+        const query = `
+            SELECT id, CommercialPattern, InternalPercent, From1, To1, Score1, 
+                   From2, To2, Score2, From3, To3, Score3, Bank_Amount
+            FROM CommercialScores 
+            WHERE RFP_No = ?;
+        `;
+        
+        const [commercial] = await db.query(query, [rfpNo]);
+
+        if (!commercial || commercial.length === 0) {
+            return res.status(404).send("No commercial scores found for the provided RFP No.");
+        }
+
+        // console.log("Fetched Commercial Scores:", commercial);
+
+        let totalPercentageScore = 0;
+        let validEntriesCount = 0;
+
+        commercial.forEach(entry => {
+            const { Bank_Amount, From1, To1, Score1, From2, To2, Score2, 
+                    From3, To3, Score3, InternalPercent } = entry;
+
+            let calculatedScore = 0;
+            const maxScore = Math.max(Score1, Score2, Score3);
+
+            if (Bank_Amount >= From1 && Bank_Amount <= To1) {
+                calculatedScore = Score1;
+            } else if (Bank_Amount >= From2 && Bank_Amount <= To2) {
+                calculatedScore = Score2;
+            } else if (Bank_Amount >= From3 && Bank_Amount <= To3) {
+                calculatedScore = Score3;
+            } else {
+                console.log(`Bank Amount out of range for entry ID: ${entry.id}`);
+                return;
+            }
+
+            const percentageScore = (calculatedScore / maxScore) * InternalPercent;
+            totalPercentageScore += percentageScore;
+            validEntriesCount++;
+        });
+
+        // Calculate average percentage score
+        // let averagePercentageScore = (validEntriesCount > 0) 
+        //     ? totalPercentageScore / validEntriesCount 
+        //     : 0;
+        let averagePercentageScore =totalPercentageScore;
+
+        console.log(`Average Percentage Score: ${averagePercentageScore}`);
+        
+        // Send response with both the data and calculated score
+        res.json({ commercial, averagePercentageScore });
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).send("An error occurred while fetching data.");
     }
 });
 
