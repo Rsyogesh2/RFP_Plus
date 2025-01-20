@@ -1752,7 +1752,7 @@ router.get('/loadContents-initial', async (req, res) => {
             // Query 2: Fetch unmatched values only if necessary
             if (unmatchedModuleCodes.length > 0 || results2.length==0) {
                 const queryString3 = `
-                    SELECT Description AS name, Module_Code, F1_Code, F2_Code 
+                    SELECT Description AS name, Module_Code, F1_Code, F2_Code, level 
                     FROM RFP_FunctionalItems 
                     WHERE Module_Code IN (${unmatchedModuleCodes.map(() => '?').join(', ')}) AND F1_Code!="00"
                 `;

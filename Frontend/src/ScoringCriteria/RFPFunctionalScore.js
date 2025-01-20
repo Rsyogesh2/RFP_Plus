@@ -89,13 +89,15 @@ const FunctionalScore = ({ onUpdate }) => {
                         {['Available', 'Partly available', 'Customizable', 'Not available'].map((item, index) => (
                             <tr key={index}>
                                 <td>{item}</td>
+                                {item==='Not available' ?(
                                 <td>
                                     <input
-                                        type="checkbox"
-                                        checked={scores[`is${item.replace(' ', '')}Checked`]}
-                                        onChange={() => handleCheckboxChange(`is${item.replace(' ', '')}Checked`)}
+                                    type="checkbox"
+                                    checked={scores[`is${item.replace(' ', '')}Checked`]}
+                                    onChange={() => handleCheckboxChange(`is${item.replace(' ', '')}Checked`)}
                                     />
-                                </td>
+                                </td>):(<td style={{ border: 'none' }}></td>)
+                                }
                                 <td>
                                     <select
                                         disabled={!scores[`is${item.replace(' ', '')}Checked`]}
@@ -110,8 +112,7 @@ const FunctionalScore = ({ onUpdate }) => {
                                 </td>
                             </tr>
                         ))}
-
-                        <tr style={{ border: 'none' }}>
+                       <tr style={{ border: 'none' }}>
                             <td style={{ border: 'none' }}></td>
                             <td style={{ border: 'none' }}></td>
                             <td style={{ border: 'none' }}></td>
