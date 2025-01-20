@@ -89,7 +89,7 @@ const FunctionalScore = ({ onUpdate }) => {
                         {['Available', 'Partly available', 'Customizable', 'Not available'].map((item, index) => (
                             <tr key={index}>
                                 <td>{item}</td>
-                                {item==='Not available' ?(
+                                {item!=='Not available' ?(
                                 <td>
                                     <input
                                     type="checkbox"
