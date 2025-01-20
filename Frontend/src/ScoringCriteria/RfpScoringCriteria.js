@@ -160,7 +160,7 @@ function RfpScoringCriteria() {
         <div className="rfp-container">
             <header className="rfp-header">
                 <h2>RFP SCORING CRITERIA</h2>
-                <div><strong>RFP Reference No</strong> <strong>RFP Title</strong></div>
+                <div><h3>{`${sidebarValue[0].rfp_no} - ${sidebarValue[0].rfp_title}`}</h3></div>
             </header>
             <div className='total-score'>
                 <section className="overall-scoring">

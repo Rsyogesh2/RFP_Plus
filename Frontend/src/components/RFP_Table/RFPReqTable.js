@@ -435,7 +435,7 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
                             <input
                                 type="radio"
                                 name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-Mandatory`}
-                                checked={item.Mandatory === 1 || item.Mandatory}
+                                checked={item.Mandatory === 1 || item.Mandatory===true}
                                 onChange={() => handleMandatoryChange(true, item, TableIndex, parentIndex, subIndex, index)}
                             />
                         }
@@ -445,7 +445,7 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
                             <input
                                 type="radio"
                                 name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-Mandatory`}
-                                checked={item.Mandatory === 0 || !item.Mandatory}
+                                checked={item.Mandatory === 0 || item.Mandatory===false}
                                 onChange={() => handleMandatoryChange(false, item, TableIndex, parentIndex, subIndex, index)}
                             />
                         }
@@ -707,6 +707,7 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
             </div>
             <div className="labels">
                 <span>M-Mandatory | O-Optional </span>
+                <span>{} </span>
             </div>
             <div className="module-header">
                 {itemData && itemData.length > 0 && (
