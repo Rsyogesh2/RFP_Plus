@@ -1,6 +1,9 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect,useRef } from 'react';
 import { AppContext } from '../context/AppContext';
-const CommercialScore = ({ onUpdate }) => {
+import isEqual from "lodash.isequal";
+import { debounce } from "lodash";
+
+const CommercialScore = ({ onUpdate, data }) => {
     const { sidebarValue } = useContext(AppContext); // Access shared state
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -11,7 +14,7 @@ const CommercialScore = ({ onUpdate }) => {
         LicenseCost: 0,
         RateCard: 0,
     });
-
+    console.log(data)
     const keys = ["Total_cost", "Avs", "yearsTCO", "LicenseCost", "RateCard"];
     const rows = [
         "Total cost - onetime cost",
@@ -20,38 +23,83 @@ const CommercialScore = ({ onUpdate }) => {
         "License cost",
         "Rate card (per person per day)"
     ];
+    useEffect(() => {
+        if (data && Array.isArray(data) && data.length > 0) {
+            const formattedData = data.map((item) => ({
+                CommercialPattern: item.CommercialPattern || "",
+                InternalPercent: parseFloat(item.InternalPercent) || 0,
+                From1: item.From1 || "",
+                To1: item.To1 || "",
+                Score1: item.Score1 || "0",
+                From2: item.From2 || "",
+                To2: item.To2 || "",
+                Score2: item.Score2 || "0",
+                From3: item.From3 || "",
+                To3: item.To3 || "",
+                Score3: item.Score3 || "0",
+            }));
+            setValues(formattedData);
+        } else {
+            const defaultValues = rows.map(() => ({
+                CommercialPattern: "",
+                InternalPercent: 0,
+                From1: "",
+                To1: "",
+                Score1: "0",
+                From2: "",
+                To2: "",
+                Score2: "0",
+                From3: "",
+                To3: "",
+                Score3: "0",
+            }));
+            setValues(defaultValues);
+        }
+    }, [data, rows]);
+    
+  
 
     // Notify parent about changes in scores whenever `values` state updates
-    useEffect(() => {
-        const rowsData = rows.map((row, index) => {
-            // Safely retrieve values
-            const getInputValue = (id) => {
-                const element = document.querySelector(id);
-                return element ? element.value : ""; // Default to an empty string if null
-            };
-    
-            return {
-                CommercialPattern: getInputValue(`#commercial-pattern-${index}`) || "",
-                InternalPercent: values[keys[index]] || 0,
-                From1: getInputValue(`#from-${index}-1`),
-                To1: getInputValue(`#to-${index}-1`),
-                Score1: getInputValue(`#score-${index}-0`),
-                From2: getInputValue(`#from-${index}-2`),
-                To2: getInputValue(`#to-${index}-2`),
-                Score2: getInputValue(`#score-${index}-1`),
-                From3: getInputValue(`#from-${index}-3`),
-                To3: getInputValue(`#to-${index}-3`),
-                Score3: getInputValue(`#score-${index}-2`),
-                rfp_no: sidebarValue[0]?.rfp_no,
-            };
-        });
+    const debouncedOnUpdate = useRef(
+        debounce((rowsData) => {
+            if (onUpdate) {
+                onUpdate(rowsData);
+            }
+        }, 300)
+    ).current;
+    const prevData = useRef(null);
 
-    
+useEffect(() => {
+    const rowsData = rows.map((row, index) => {
+        const getInputValue = (id) => {
+            const element = document.querySelector(id);
+            return element ? element.value : "";
+        };
+
+        return {
+            CommercialPattern: getInputValue(`#commercial-pattern-${index}`) || "",
+            InternalPercent: values[keys[index]] || 0,
+            From1: getInputValue(`#from-${index}-1`),
+            To1: getInputValue(`#to-${index}-1`),
+            Score1: getInputValue(`#score-${index}-0`),
+            From2: getInputValue(`#from-${index}-2`),
+            To2: getInputValue(`#to-${index}-2`),
+            Score2: getInputValue(`#score-${index}-1`),
+            From3: getInputValue(`#from-${index}-3`),
+            To3: getInputValue(`#to-${index}-3`),
+            Score3: getInputValue(`#score-${index}-2`),
+            rfp_no: sidebarValue[0]?.rfp_no,
+        };
+    });
+
+    if (!isEqual(prevData.current, rowsData)) {
+        prevData.current = rowsData;
         if (onUpdate) {
             onUpdate(rowsData);
-            // console.log(rowsData)
         }
-    }, [values, sidebarValue, onUpdate]);
+    }
+}, [values, sidebarValue, rows, keys, onUpdate]);
+
     
     const handleSubmit = async () => {
         const rowsData = rows.map((row, index) => {
@@ -147,12 +195,12 @@ const CommercialScore = ({ onUpdate }) => {
                             placeholder={placeholder}
                             internalKey={keys[index]}
                             handleInputChange={handleInputChange}
-                            value={values[keys[index]]}
+                            value={values[index]?.InternalPercent || ""}
                             rowIndex={index}
+                            rowData={values[index] || {}}
                         />
                     ))}
                 </tbody>
-
                 <tfoot>
                     <tr>
                         <td colSpan="1">Total</td>
@@ -174,24 +222,23 @@ const CommercialScore = ({ onUpdate }) => {
     );
 };
 
-function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value, rowIndex }) {
+function CommercialScoreRow({
+    placeholder,
+    internalKey,
+    handleInputChange,
+    value,
+    rowIndex,
+    rowData = {}
+}) {
     return (
         <tr>
             <td>
                 <textarea
-                     id={`commercial-pattern-${rowIndex}`} // Unique ID for each textarea
+                    id={`commercial-pattern-${rowIndex}`}
                     placeholder={placeholder}
+                    defaultValue={rowData.CommercialPattern || ""}
                     className="item-input textarea-input"
                     rows="2"
-                    style={{
-                        backgroundColor: "inherit",
-                        border: "none",
-                        outline: "none",
-                        height: "70px",
-                        padding: "10px",
-                        fontSize: "0.9em",
-                        color: "inherit"
-                    }}
                 ></textarea>
             </td>
             <td>
@@ -199,7 +246,7 @@ function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value
                     type="number"
                     className="item-input text-input"
                     placeholder="%"
-                    value={value || ""} // Display an empty string if the value is 0
+                    value={value || ""}
                     onChange={(e) => handleInputChange(e, internalKey)}
                     style={{ textAlign: 'center' }}
                 />
@@ -213,7 +260,7 @@ function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value
                             type="text"
                             className="item-input text-input"
                             placeholder="Amount"
-                            style={{fontSize:"10px" }}
+                            defaultValue={rowData[`From${index}`] || ""}
                         />
                     ))}
                 </div>
@@ -227,7 +274,7 @@ function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value
                             type="text"
                             className="item-input text-input"
                             placeholder="Amount"
-                            style={{fontSize:"10px"}}
+                            defaultValue={rowData[`To${index}`] || ""}
                         />
                     ))}
                 </div>
@@ -238,6 +285,7 @@ function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value
                         key={`score-${rowIndex}-${scoreIndex}`}
                         id={`score-${rowIndex}-${scoreIndex}`}
                         className="item-input"
+                        defaultValue={rowData[`Score${scoreIndex + 1}`] || "0"}
                     >
                         <option value="0">0</option>
                         {[1, 2, 3, 4].map((score) => (
@@ -251,6 +299,7 @@ function CommercialScoreRow({ placeholder, internalKey, handleInputChange, value
         </tr>
     );
 }
+
 
 
 export default CommercialScore;

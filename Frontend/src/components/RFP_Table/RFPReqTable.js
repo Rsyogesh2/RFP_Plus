@@ -99,7 +99,7 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
         // if(l1=="Super Admin"){
         //     setItemData(data);
         // }else{
-            const data1 = data.itemDetails.l1.filter(m => m.code === l1.l1module);
+            const data1 = data.itemDetails.l1[0].filter(m => m.code === l1.l1module);
             setItemData(data1);
         // }
     }

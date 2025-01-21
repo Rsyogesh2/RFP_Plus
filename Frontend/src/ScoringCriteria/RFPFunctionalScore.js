@@ -2,7 +2,7 @@ import './FunctionalScore.css'; // Create a CSS file for styling
 import React, { useState, useContext, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
 
-const FunctionalScore = ({ onUpdate }) => {
+const FunctionalScore = ({ onUpdate, data }) => {
     // State for checkboxes and scores
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
    const { moduleData, userName, userPower, sidebarValue } = useContext(AppContext); // Access shared state
@@ -20,6 +20,9 @@ const FunctionalScore = ({ onUpdate }) => {
         optionalScore: 0,
     });
     useEffect(() => {
+        if(data.length>0){
+            setScores(data[0])
+        }
         onUpdate(scores);
     }, [scores, onUpdate]);
 
@@ -63,7 +66,7 @@ const FunctionalScore = ({ onUpdate }) => {
             const response = await fetch(`${API_URL}/functional-score`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({scores,rfp_no:sidebarValue[0]?.rfp_no}),
+                body: JSON.stringify({scores,rfpNo:sidebarValue[0]?.rfp_no,userName}),
             });
             const result = await response.json();
             console.log('Backend response:', result);

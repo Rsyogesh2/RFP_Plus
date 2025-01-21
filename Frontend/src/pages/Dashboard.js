@@ -134,7 +134,35 @@ const ScoringDashboard = ({rfpNo=""}) => {
 
         fetchData2();
     }, [userName]);
+    useEffect(() => {
+        const fetchData2 = async () => {
+            const rfpNo = "CMS";
+            try {
+                const response = await fetch(`${API_URL}/fetchScores-dashBoard`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ rfpNo, userName }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+
+                const data = await response.json();
+                console.log(data);
+            } catch (err) {
+                console.log(err.message);
+            } finally {
+
+            }
+        };
+
+        fetchData2();
+    }, [userName]);
     
+
     return (
         <div className="scoring-dashboard">
             <table className="scoring-dashboard-table" border="1" cellPadding="10">

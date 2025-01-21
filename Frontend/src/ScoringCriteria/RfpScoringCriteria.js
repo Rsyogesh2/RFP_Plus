@@ -1,15 +1,17 @@
 
 // Component for Functional Score
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import FunctionalScore from './RFPFunctionalScore';
 import CommercialScore from './CommercialScore';
 import Button from './../components/Buttons/Button';
 import './RfpScoringCriteria.css';
 import { AppContext } from '../context/AppContext';
+import isEqual from "lodash/isEqual"; // Correct import
+
 
 function RfpScoringCriteria() {
-    const { sidebarValue } = useContext(AppContext); // Access shared state
+    const { sidebarValue, userName } = useContext(AppContext); // Access shared state
     const [othersTitles, setOthersTitles] = useState({
         others1Title: "Others 1 (Specify)",
         others2Title: "Others 2 (Specify)",
@@ -26,8 +28,86 @@ function RfpScoringCriteria() {
     const [overallScoringData, setOverallScoringData] = useState({});
     const [functionalScoreData, setFunctionalScoreData] = useState({});
     const [commercialScoreData, setCommercialScoreData] = useState({});
+    const [data, setData] = useState(null);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const fetchData = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_URL}/get-all-scores?rfpNo=${sidebarValue[0]?.rfp_no}&userName=${userName}`);
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Fetched Data: ", data);
+    
+                setOverallScoringData(data.overallScoring || {});
+                setFunctionalScoreData(data.functionalScores || {});
+                setCommercialScoreData(data.commercialScores || {});
+    
+                setSectionsData({
+                    implementationScore: data.sections[0]?.data || [],
+                    siteScore: data.sections[1]?.data || [],
+                    referenceScore: data.sections[2]?.data || [],
+                    others1Score: data.sections[3]?.data || [],
+                    others2Score: data.sections[4]?.data || [],
+                    others3Score: data.sections[5]?.data || []
+                });
+    
+                setOthersTitles({
+                    others1Title: data.sections[3]?.title || 'Others 1 (Specify)',
+                    others2Title: data.sections[4]?.title || 'Others 2 (Specify)',
+                    others3Title: data.sections[5]?.title || 'Others 3 (Specify)',
+                });
+            } else {
+                console.error("Failed to fetch data.");
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [API_URL, sidebarValue, userName]);
+    
+    useEffect(() => {
+        if (sidebarValue[0]?.rfp_no) {
+            fetchData();
+        }
+    }, [sidebarValue, fetchData]);
+    
+
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             setLoading(true);
+    //             const response = await fetch('/fetchAllScores', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //                 body: JSON.stringify({
+    //                    rfpNo: sidebarValue[0].rfp_no,
+    //                     userName, // Replace with actual username
+    //                 }),
+    //             });
+
+    //             if (!response.ok) {
+    //                 throw new Error(`Error: ${response.status}`);
+    //             }
+
+    //             const result = await response.json();
+    //             setData(result);
+    //         } catch (err) {
+    //             setError(err.message || "Error fetching data");
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     fetchData();
+    // }, []); // Dependency array is empty to run the effect only once on mount
+
+    // if (loading) return <p>Loading...</p>;
+    // if (error) return <p>Error: {error}</p>;
 
     // Handlers to collect data from child components
     const handleOverallScoringData = (data) => {
@@ -86,48 +166,46 @@ function RfpScoringCriteria() {
             const updatedOverallScoringData = calculateUpdatedOverallScoringData(prev);
             return updatedOverallScoringData;
         });
-    
+
         setFunctionalScoreData((prev) => {
             const updatedFunctionalScoreData = calculateUpdatedFunctionalScoreData(prev);
             return updatedFunctionalScoreData;
         });
-    
+
         setCommercialScoreData((prev) => {
             const updatedCommercialScoreData = calculateUpdatedCommercialScoreData(prev);
             return updatedCommercialScoreData;
         });
-    
+
         // Use the updated state values for payload after batching
         const payload = {
             sections: [
                 { title: "Implementation Score", data: sectionsData.implementationScore },
                 { title: "No of Sites Score", data: sectionsData.siteScore },
                 { title: "Site Reference", data: sectionsData.referenceScore },
-                { title: othersTitles.others1Title, data: sectionsData.others1Title },
-                { title: othersTitles.others2Title, data: sectionsData.others2Title },
-                { title: othersTitles.others3Title, data: sectionsData.others3Title },
-                { title: othersTitles.others1, data: sectionsData.others1Score },
-                { title: othersTitles.others2, data: sectionsData.others2Score },
-                { title: othersTitles.others3, data: sectionsData.others3Score }
+                { title: othersTitles.others1Title, data: sectionsData.others1Score },
+                { title: othersTitles.others2Title, data: sectionsData.others2Score },
+                { title: othersTitles.others3Title, data: sectionsData.others3Score }
             ],
             overallScoring: overallScoringData, // updated
             functionalScores: functionalScoreData, // updated
             commercialScores: commercialScoreData, // updated
-            rfp_no: sidebarValue[0]?.rfp_no
+            rfpNo: sidebarValue[0]?.rfp_no,
+            userName
         };
-    
+
         // Log payload only once before making the API request
         console.log("Submitting Payload: ", payload);
-    
+
         try {
-            const response = await fetch(`${API_URL}/save-scores`, {
+            const response = await fetch(`${API_URL}/save-all-scores`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             });
-    
+
             if (response.ok) {
                 alert('Data saved successfully!');
             } else {
@@ -137,23 +215,23 @@ function RfpScoringCriteria() {
             console.error('Error submitting data:', error);
         }
     };
-    
+
     // Helper functions to calculate the new state values
     const calculateUpdatedOverallScoringData = (prevData) => {
         // Add your logic to update overall scoring data
         return { ...prevData, updatedKey: 'newValue' }; // Example update
     };
-    
+
     const calculateUpdatedFunctionalScoreData = (prevData) => {
         // Add your logic to update functional scoring data
         return { ...prevData, updatedKey: 'newValue' }; // Example update
     };
-    
+
     const calculateUpdatedCommercialScoreData = (prevData) => {
         // Add your logic to update commercial scoring data
         return { ...prevData, updatedKey: 'newValue' }; // Example update
     };
-    
+
 
 
     return (
@@ -164,18 +242,58 @@ function RfpScoringCriteria() {
             </header>
             <div className='total-score'>
                 <section className="overall-scoring">
-                    <OverallScoring onTitlesChange={handleTitlesChange} onUpdate={handleOverallScoringData} />
+
+                    {loading ? (
+                        <div>Loading...</div>
+                    ) : (
+                        <OverallScoring
+                            data={overallScoringData}
+                            onTitlesChange={handleTitlesChange}
+                            onUpdate={handleOverallScoringData}
+                        />
+                    )}
+
                 </section>
 
                 <section className="functional-score">
-                    <FunctionalScore onUpdate={handleFunctionalScoreData} />
+                {loading ? (
+                        <div>Loading...</div>
+                    ) : (
+                    <FunctionalScore
+                        data={functionalScoreData}
+                        onUpdate={handleFunctionalScoreData}
+                    />
+                    )}
                 </section>
 
                 <section className="commercial-score">
-                    <CommercialScore onUpdate={handleCommercialScoreData} />
+                {loading ? (
+                        <div>Loading...</div>
+                    ) : (
+                    <CommercialScore
+                        data={commercialScoreData}
+                        onUpdate={handleCommercialScoreData}
+                    />
+                    )}
                 </section>
             </div>
-            <div className="score-sections">
+            {sectionsData && Object.keys(sectionsData).length > 0 ? (
+                <div className="score-sections">
+                    {loading ? (
+                        <div>Loading...</div>
+                    ) : (
+                        Object.entries(sectionsData).map(([key, items], index) => (
+                            <ScoreSection
+                                key={key}
+                                title={key.replace(/([A-Z])/g, " $1")} // Convert camelCase to readable title
+                                items={items}
+                                onSectionChange={(updatedItems) => handleScoreSectionChange(key, updatedItems)}
+                            />
+                        ))
+                    )}
+
+                </div>
+            ) : (<div className="score-sections">
                 <ScoreSection
                     title="Implementation Score"
                     items={[
@@ -230,6 +348,8 @@ function RfpScoringCriteria() {
                     onSectionChange={(items) => handleScoreSectionChange('others3Score', items)}
                 />
             </div>
+            )
+            }
 
             <div className="buttons">
                 <button className='btn' text="Submit" onClick={handleSubmit}>Save as Draft</button>
@@ -242,8 +362,9 @@ function RfpScoringCriteria() {
 
 
 
-function OverallScoring({ onTitlesChange, onUpdate, rfpNo, bankId }) {
+function OverallScoring({ onTitlesChange, onUpdate, data }) {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const { userName, sidebarValue } = useContext(AppContext); // Users load in the table
 
     const [values, setValues] = useState({
         functionalItems: "",
@@ -266,8 +387,11 @@ function OverallScoring({ onTitlesChange, onUpdate, rfpNo, bankId }) {
 
     // Notify parent component of updates
     useEffect(() => {
+        if (data.length > 0) {
+            setValues(data[0])
+        }
         if (onUpdate) {
-            console.log(values,othersTitles)
+            console.log(values, othersTitles)
             onUpdate({
                 ...values,
                 ...othersTitles
@@ -322,8 +446,8 @@ function OverallScoring({ onTitlesChange, onUpdate, rfpNo, bankId }) {
             ...values,
             ...othersTitles,
             total: totalSum,
-            rfpNo: rfpNo || "RFP123", // Use passed RFP_No or default
-            bankId: bankId || "Bank001", // Use passed Bank_Id or default
+            rfpNo: sidebarValue[0].rfp_no || "", // Use passed RFP_No or default
+            userName // Use passed Bank_Id or default
         };
         console.log(data);
         try {
@@ -461,6 +585,12 @@ function OverallScoring({ onTitlesChange, onUpdate, rfpNo, bankId }) {
 function ScoreSection({ title, items, onSectionChange }) {
     const [data, setData] = useState(items.map(() => ({ text: '', score: 4 })));
 
+    useEffect(() => {
+        console.log(items)
+        if (data.length > 0) {
+            setData(items);
+        }
+    }, []);
     const handleTextChange = (index, value) => {
         const newData = [...data];
         newData[index].text = value;

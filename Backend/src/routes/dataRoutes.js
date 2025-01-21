@@ -1688,7 +1688,7 @@ router.get('/loadContents-initial', async (req, res) => {
 
     // Initialize an object to hold the nested structure
     const data = { l1: [], rfp_no, Name: userDetails[0].user_name };
-    let combined = [];
+    let combinedModule = [];
     let combinedArray=[];
     let combinedData = [];
     let updatedF1Result=[];
@@ -2016,8 +2016,11 @@ router.get('/loadContents-initial', async (req, res) => {
         }
        
         // Push the processed `l2` with `l3` to `l1`
-        data.l1.push({ name: l1.moduleName, code: l1.code, l2: l2Codes });
+        // data.l1.push({ name: l1.moduleName, code: l1.code, l2: l2Codes });
+        combinedModule.push({ name: l1.moduleName, code: l1.code, l2: l2Codes });
       }
+      data.l1.push(combinedModule);
+      combinedModule=[];
       updatedF1Result = combinedData.map(item => ({
         ...item,
         Mandatory: item.Mandatory ?? true, // Set default if `Mandatory` is null
