@@ -11,6 +11,7 @@ const RFPListTable = ({action}) => {
   const [visibleRFP, setVisibleRFP] = useState(false);
   const [visibleDashboard, setVisibleDashboard] = useState(false);
   const [selectedRfpNo, setSelectedRfpNo] = useState(null);
+  const [selectedRfpTitle, setSelectedRfpTitle] = useState(null);
   const { moduleData, userRole, setModuleData, userName, userPower } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -29,8 +30,9 @@ const RFPListTable = ({action}) => {
     }
   }, [moduleData]);
 
-  const handleSeeQuery = (rfpNo) => {
+  const handleSeeQuery = (rfpNo,rfpTitle) => {
     setSelectedRfpNo(rfpNo); // Set the selected RFP number
+    setSelectedRfpTitle(rfpTitle)
     async function fetchArray() {
       console.log("userName " + userName)
       //23/11/2024
@@ -101,10 +103,10 @@ const RFPListTable = ({action}) => {
           {Array.isArray(data) && data.length > 0 ? (
             data.map((item, index) => (
               <tr key={index}>
-                <td>{item.rfp_no}</td>
+                <td>{item.RFP_No}</td>
                 <td>{item.rfp_title}</td>
                 <td>
-                  <button onClick={() => handleSeeQuery(item.rfp_no)}>{action}</button>
+                  <button onClick={() => handleSeeQuery(item.RFP_No,item.rfp_title)}>{action}</button>
                 </td>
               </tr>
             ))
@@ -115,9 +117,9 @@ const RFPListTable = ({action}) => {
           )}
         </tbody>
       </table>
-      {visible && action=="View Query" && <VendorQuery rfpNo={selectedRfpNo} />}
-      {visibleRFP && action=="View RFP" &&<RFPReqTable l1="Super Admin" rfpNo={selectedRfpNo} /> }
-      {visibleDashboard && action=="Show Dashboard" &&<ScoringDashboard l1="Super Admin" rfpNo={selectedRfpNo} /> }
+      {visible && action=="View Query" && <VendorQuery rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle}/>}
+      {visibleRFP && action=="View RFP" &&<RFPReqTable l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} /> }
+      {visibleDashboard && action=="Show Dashboard" &&<ScoringDashboard l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle}/> }
     </div>
   );
 };

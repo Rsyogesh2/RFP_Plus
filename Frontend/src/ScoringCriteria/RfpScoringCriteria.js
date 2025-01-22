@@ -30,6 +30,7 @@ function RfpScoringCriteria() {
     const [commercialScoreData, setCommercialScoreData] = useState({});
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
+    const [isExits, setIsExits] = useState(false);
     const [loading, setLoading] = useState(true);
 
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -39,11 +40,12 @@ function RfpScoringCriteria() {
             if (response.ok) {
                 const data = await response.json();
                 console.log("Fetched Data: ", data);
-    
+                setIsExits(data.sections.length > 0 ? true : false);
+
                 setOverallScoringData(data.overallScoring || {});
                 setFunctionalScoreData(data.functionalScores || {});
                 setCommercialScoreData(data.commercialScores || {});
-    
+
                 setSectionsData({
                     implementationScore: data.sections[0]?.data || [],
                     siteScore: data.sections[1]?.data || [],
@@ -52,7 +54,7 @@ function RfpScoringCriteria() {
                     others2Score: data.sections[4]?.data || [],
                     others3Score: data.sections[5]?.data || []
                 });
-    
+
                 setOthersTitles({
                     others1Title: data.sections[3]?.title || 'Others 1 (Specify)',
                     others2Title: data.sections[4]?.title || 'Others 2 (Specify)',
@@ -67,13 +69,13 @@ function RfpScoringCriteria() {
             setLoading(false);
         }
     }, [API_URL, sidebarValue, userName]);
-    
+
     useEffect(() => {
         if (sidebarValue[0]?.rfp_no) {
             fetchData();
         }
     }, [sidebarValue, fetchData]);
-    
+
 
     // useEffect(() => {
     //     const fetchData = async () => {
@@ -232,6 +234,65 @@ function RfpScoringCriteria() {
         return { ...prevData, updatedKey: 'newValue' }; // Example update
     };
 
+    const renderScoreSection = (key, title, items) => (
+        <ScoreSection
+            key={key}
+            title={title}
+            items={items}
+            onSectionChange={(updatedItems) => handleScoreSectionChange(key, updatedItems)}
+        />
+    );
+
+    const defaultSections = [
+        {
+            key: 'implementationScore',
+            title: 'Implementation Score',
+            items: [
+                "Implementation & Hosting - Direct",
+                "Implementation: Partner, Hosting: Direct",
+                "Implement: Direct, Hosting: Partner",
+                "Implementation & Hosting - Partner",
+                "Others"
+            ],
+        },
+        {
+            key: 'siteScore',
+            title: 'No of Sites Score',
+            items: [
+                "10+ installations",
+                "6-10 installations",
+                "3-5 installations",
+                "1-2 installations",
+                "Others module installations"
+            ],
+        },
+        {
+            key: 'referenceScore',
+            title: 'Site Reference',
+            items: [
+                "Worst",
+                "Bad",
+                "Better",
+                "Good",
+                "Very good"
+            ],
+        },
+        {
+            key: 'others1Score',
+            title: othersTitles.others1Title,
+            items: Array(5).fill("To be defined"),
+        },
+        {
+            key: 'others2Score',
+            title: othersTitles.others2Title,
+            items: Array(5).fill("To be defined"),
+        },
+        {
+            key: 'others3Score',
+            title: othersTitles.others3Title,
+            items: Array(5).fill("To be defined"),
+        },
+    ];
 
 
     return (
@@ -243,113 +304,46 @@ function RfpScoringCriteria() {
             <div className='total-score'>
                 <section className="overall-scoring">
 
-                    {loading ? (
-                        <div>Loading...</div>
-                    ) : (
-                        <OverallScoring
-                            data={overallScoringData}
-                            onTitlesChange={handleTitlesChange}
-                            onUpdate={handleOverallScoringData}
-                        />
-                    )}
+                    <OverallScoring
+                        data={overallScoringData}
+                        onTitlesChange={handleTitlesChange}
+                        onUpdate={handleOverallScoringData}
+                    />
 
                 </section>
 
                 <section className="functional-score">
-                {loading ? (
-                        <div>Loading...</div>
-                    ) : (
+
                     <FunctionalScore
                         data={functionalScoreData}
                         onUpdate={handleFunctionalScoreData}
                     />
-                    )}
                 </section>
 
                 <section className="commercial-score">
-                {loading ? (
-                        <div>Loading...</div>
-                    ) : (
+
                     <CommercialScore
                         data={commercialScoreData}
                         onUpdate={handleCommercialScoreData}
                     />
-                    )}
                 </section>
             </div>
             {sectionsData && Object.keys(sectionsData).length > 0 ? (
                 <div className="score-sections">
-                    {loading ? (
-                        <div>Loading...</div>
+                    {!isExits ? (
+                        defaultSections.map(({ key, title, items }) => renderScoreSection(key, title, items))
                     ) : (
-                        Object.entries(sectionsData).map(([key, items], index) => (
-                            <ScoreSection
-                                key={key}
-                                title={key.replace(/([A-Z])/g, " $1")} // Convert camelCase to readable title
-                                items={items}
-                                onSectionChange={(updatedItems) => handleScoreSectionChange(key, updatedItems)}
-                            />
-                        ))
+                        Object.entries(sectionsData).map(([key, items]) =>
+                            renderScoreSection(key, key.replace(/([A-Z])/g, " $1"), items)
+                        )
                     )}
-
                 </div>
-            ) : (<div className="score-sections">
-                <ScoreSection
-                    title="Implementation Score"
-                    items={[
-                        "Implementation & Hosting - Direct",
-                        "Implementation: Partner, Hosting: Direct",
-                        "Implement: Direct, Hosting: Partner",
-                        "Implementation & Hosting - Partner",
-                        "Others"
-                    ]}
-                    onSectionChange={(items) => handleScoreSectionChange('implementationScore', items)}
-                />
+            ) : (
+                <div className="score-sections">
+                    {defaultSections.map(({ key, title, items }) => renderScoreSection(key, title, items))}
+                </div>
+            )}
 
-                <ScoreSection
-                    title="No of Sites Score"
-                    items={[
-                        "10+ installations",
-                        "6-10 installations",
-                        "3-5 installations",
-                        "1-2 installations",
-                        "Others module installations"
-                    ]}
-                    onSectionChange={(items) => handleScoreSectionChange('siteScore', items)}
-                />
-
-                <ScoreSection
-                    title="Site Reference"
-                    items={[
-                        "Worst",
-                        "Bad",
-                        "Better",
-                        "Good",
-                        "Very good"
-                    ]}
-                    onSectionChange={(items) => handleScoreSectionChange('referenceScore', items)}
-                />
-
-                <ScoreSection
-                    title={othersTitles.others1Title}
-                    items={["To be defined", "To be defined", "To be defined", "To be defined", "To be defined"]}
-                    onSectionChange={(items) => handleScoreSectionChange('others1Score', items)}
-                />
-
-                <ScoreSection
-                    title={othersTitles.others2Title}
-                    items={["To be defined", "To be defined", "To be defined", "To be defined", "To be defined"]}
-                    onSectionChange={(items) => handleScoreSectionChange('others2Score', items)}
-                />
-
-                <ScoreSection
-                    title={othersTitles.others3Title}
-                    items={["To be defined", "To be defined", "To be defined", "To be defined", "To be defined"]}
-                    onSectionChange={(items) => handleScoreSectionChange('others3Score', items)}
-                />
-            </div>
-            )
-            }
 
             <div className="buttons">
                 <button className='btn' text="Submit" onClick={handleSubmit}>Save as Draft</button>
@@ -383,7 +377,10 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
         others3Title: "Others 3 (Specify)"
     });
 
-    const totalSum = Object.values(values).reduce((sum, value) => sum + value, 0);
+    const totalSum = Object.values(values)
+        .map(value => Number(value)) // Convert each value to a number
+        .filter(value => !isNaN(value)) // Filter out invalid numbers (NaN)
+        .reduce((sum, value) => sum + value, 0); // Sum up the valid numbers
 
     // Notify parent component of updates
     useEffect(() => {

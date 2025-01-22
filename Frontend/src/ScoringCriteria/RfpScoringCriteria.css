@@ -1,8 +1,10 @@
- .rfp-container {
+.rfp-container {
     display: grid;
-    gap: 1rem;
-    padding: 2rem;
+    gap: 0.5rem;
+    padding: 1rem;
     font-family: Arial, sans-serif;
+    max-width: 100%; /* Prevent exceeding screen width */
+    box-sizing: border-box; /* Include padding and borders in width */
 }
 
 .rfp-header {
@@ -12,30 +14,41 @@
 
 .total-score {
     display: grid;
-    grid-template-columns: 1fr 1fr 40%; /* First two sections get equal space, last one gets 35% */
-    gap: 1rem; /* Space between the sections */
+    grid-template-columns: 1fr 1fr 40%; /* Maintain layout proportions */
+    gap: 1rem; /* Space between sections */
+    align-items: start; /* Ensure components align at the top */
+    justify-content: start;
 }
 
-  table {
+table {
     width: 100%;
     border-collapse: collapse;
-  }
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
+}
+
 section {
-    border: 1px solid #A9A9A9; 
+    border: 1px solid #A9A9A9;
     padding: 2rem;
     border-radius: 5px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
     background-color: #f9f9f9;
     margin-bottom: 1rem;
-    height:auto;
+    height: auto;
+    max-width: 100%; /* Prevent overflow */
+    box-sizing: border-box;
+    overflow-x: auto; /* Prevent breaking layout */
 }
-.overall-scoring h2 , .commercial-score h2{
+
+.overall-scoring h2,
+.commercial-score h2 {
     font-size: 1.2rem;
     color: #005b99;
     text-align: center;
     margin-bottom: 1rem;
 }
-.overall-scoring th , .commercial-score th{
+
+.overall-scoring th,
+.commercial-score th {
     font-size: 1.2rem;
     color: #005b99;
     text-align: center;
@@ -45,93 +58,89 @@ section {
     font-weight: bold;
     border: 1px solid #A9A9A9;
 }
+.overall-scoring, .commercial-score, .functional-score {
+    flex: 0 0 auto; /* Prevent stretching in a flex container */
+    height: auto; /* Take only the required height */
+        justify-self: center; /* Center this specific grid item horizontally */
+    
+}
 
 .buttons {
     display: flex;
     gap: 1rem;
     justify-content: center;
     margin-top: 1rem;
+    flex-wrap: wrap; /* Wrap buttons if they don't fit */
 }
 
 .buttons button {
     padding: 0.5rem 1rem;
     font-size: 1rem;
 }
-/* ============ */
 
 .section {
-    border: 1px solid #A9A9A9; /* light gray border */
+    border: 1px solid #A9A9A9;
     padding: 2rem;
     border-radius: 5px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
     background-color: #f1f1f1;
     margin-bottom: 1rem;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 .section-title {
     font-size: 1.1rem;
-    color: #005b99; /* blue color for section title */
+    color: #005b99;
     margin-bottom: 0.5rem;
-}
-.section {
-    border: 1px solid #ccc;
-    padding: 1rem;
 }
 
 .score-sections {
     display: flex;
     flex-wrap: wrap;
-    gap: 2%;
-    justify-content: space-evenly;
-}
-
-.score-sections .section {
-    flex: 0 1 31%; /* Set each section to take up 30% of the width */
-    margin-bottom: 1rem;
+    gap: 0%;
+    justify-content: space-between; /* Distribute space between sections */
     box-sizing: border-box;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+.score-sections .section {
+    flex: 0 1 calc(32% - 0.1rem); /* Each section takes ~32% width with gap adjustment */
+    margin-bottom: 1rem;
+    box-sizing: border-box; /* Include padding and borders in width calculation */
 }
+
 
 th, td {
     padding: 0.5rem;
     text-align: left;
-}
-
-th {
-    color: #005b99; /* blue color for headers */
-    font-weight: normal;
-}
-
-td {
-    border-top: 1px solid #ddddddd3;
+    border-top: 1px solid #dddddd;
 }
 
 .item-input {
-    width: 100%;
-    max-width: 250px; /* Limit the maximum width */
+    width: 100%; /* Take full width of the parent container */
+    max-width: 100%; /* Prevent exceeding the container's width */
     padding: 0.3rem;
     border: none;
     border-bottom: 1px solid #A9A9A9;
     font-style: italic;
     color: #666;
-    box-sizing: border-box; /* Ensure padding and borders are included in the width */
+    box-sizing: border-box; /* Include padding and borders in width calculation */
 }
 
 .item-input::placeholder {
     color: #A9A9A9;
 }
 
+/* For dropdowns */
 .score-dropdown {
-    width: 100%;
+    width: 100%; /* Full width of the container */
     padding: 0.3rem;
+    max-width: 100%; /* Prevent overflow */
     background-color: #f9f9f9;
     border: 1px solid #A9A9A9;
     border-radius: 3px;
     text-align: center;
+    box-sizing: border-box; /* Include padding and borders in width calculation */
 }
 
 .benchmark-note {
@@ -142,3 +151,46 @@ td {
     text-align: center;
 }
 
+/* Media Queries for Responsive Layout */
+@media (max-width: 768px) {
+    .score-sections .section {
+        flex: 0 1 48%;
+    }
+}
+
+@media (max-width: 576px) {
+    .score-sections .section {
+        flex: 0 1 100%; /* Full width on smallest screens */
+    }
+    .buttons {
+        flex-direction: column; /* Stack buttons vertically */
+    }
+}
+
+.commercial-score {
+    display: flex;
+    flex-direction: column; /* Arrange content vertically */
+    padding: 0.5rem; /* Reduce padding */
+    margin: 0.5rem; /* Reduce margin */
+    background-color: #f9f9f9; /* Background for contrast */
+   height: auto; /* Allow height to adjust to the content */
+    max-height: 100%; /* Prevent it from growing too large */
+    overflow-y: auto; /* Add a scroll bar if content overflows */
+    font-size: 0.5rem; /* Reduce text size for compactness */
+    
+}.commercial-score table {
+    width: 100%; /* Fit the table within the section */
+    border-collapse: collapse;
+}
+
+.commercial-score th,
+.commercial-score td {
+    padding: 0.3rem; /* Reduce padding inside cells */
+    font-size: 0.85rem; /* Reduce font size for compactness */
+}
+
+.commercial-score th {
+    background-color: #e0e0e0; /* Header background */
+    color: #005b99; /* Header text color */
+    font-weight: bold;
+}

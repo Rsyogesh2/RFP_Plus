@@ -84,8 +84,7 @@ const RFPVendorTable = ({ l1 }) => {
         } 
     }, [l1]);  // Only trigger fetch when `data` changes
     const filterModule = (data) => {
-
-        const data1 = data.itemDetails.l1.filter(m => m.code === l1.l1module);
+        const data1 = data.itemDetails.l1[0].filter(m => m.code === l1.l1module);
         setItemData(data1);
     }
 
@@ -136,6 +135,8 @@ const RFPVendorTable = ({ l1 }) => {
                 return "Vendor_Pending_Reviewer";
             case 7:
                 return "Vendor_Pending_Admin";
+            case 8:
+                return "Completed";
         }
     }
     const determineLevel = () => {

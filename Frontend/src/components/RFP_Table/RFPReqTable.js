@@ -5,7 +5,7 @@ import { AppContext } from '../../context/AppContext';
 import Button from '../Buttons/Button.js';
 import { handleSave } from '../../services/Apis'
 
-const RFPReqTable = ({ l1,rfpNo="" }) => {
+const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [name, setName] = useState(null); // Initially, no data
@@ -701,8 +701,8 @@ const RFPReqTable = ({ l1,rfpNo="" }) => {
         <div className="rfp-table">
             <div className="header">
                 <div className="title">
-                    <span>RFP No: {sidebarValue && sidebarValue[0]?.rfp_no}</span>
-                    <span>&nbsp;&nbsp; RFP Title: {sidebarValue && sidebarValue[0]?.rfp_title}</span>
+                    <span>RFP No: {rfpNo||sidebarValue && sidebarValue[0]?.rfp_no}</span>
+                    <span>&nbsp;&nbsp; RFP Title: {rfpTitle||sidebarValue && sidebarValue[0]?.rfp_title}</span>
                 </div>
             </div>
             <div className="labels">

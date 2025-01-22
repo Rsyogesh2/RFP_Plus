@@ -166,7 +166,11 @@ useEffect(() => {
         }));
     };
 
-    const totalPercentage = Object.values(values).reduce((sum, value) => sum + value, 0);
+    // const totalPercentage = Object.values(values).reduce((sum, value) => sum + value, 0);
+    const totalPercentage = Object.values(values)
+    .map(value => Number(value)) // Convert each value to a number
+    .filter(value => !isNaN(value)) // Filter out invalid numbers (NaN)
+    .reduce((sum, value) => sum + value, 0); // Sum up the valid numbers
 
     return (
         <div className="commercial-score">
@@ -261,6 +265,7 @@ function CommercialScoreRow({
                             className="item-input text-input"
                             placeholder="Amount"
                             defaultValue={rowData[`From${index}`] || ""}
+                            style={{ fontSize: '10px',width:"100%" }}
                         />
                     ))}
                 </div>
@@ -275,6 +280,7 @@ function CommercialScoreRow({
                             className="item-input text-input"
                             placeholder="Amount"
                             defaultValue={rowData[`To${index}`] || ""}
+                            style={{ fontSize: '10px' }}
                         />
                     ))}
                 </div>

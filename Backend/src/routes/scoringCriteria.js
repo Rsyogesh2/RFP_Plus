@@ -743,7 +743,11 @@ router.get('/get-all-scores', async (req, res) => {
                 `SELECT Implementation_Model as text,Score as score FROM ${table} WHERE RFP_No = ? AND Bank_Id = ?`,
                 [rfpNo, bankId]
             );
-            sections.push({ table, data: sectionData });
+            if (sectionData.length > 0) {
+                sections.push({ table, data: sectionData });
+            } else {
+                console.warn(`No data found in table: ${table}`);
+            }
         }
 
         // Send all the results back to the client

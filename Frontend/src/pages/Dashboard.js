@@ -1,7 +1,7 @@
 import React, { useState, useEffect,useContext } from 'react';
 import './Dashboard.css';
 import { AppContext } from "./../context/AppContext";
-const ScoringDashboard = ({rfpNo=""}) => {
+const ScoringDashboard = ({rfpNo="", rfpTitle= ""}) => {
     const [scoringData, setScoringData] = useState([]);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const { userName  } = useContext(AppContext); // Users load in the table
@@ -165,6 +165,7 @@ const ScoringDashboard = ({rfpNo=""}) => {
 
     return (
         <div className="scoring-dashboard">
+            <h3>{`${rfpNo} - ${rfpTitle}`}</h3>
             <table className="scoring-dashboard-table" border="1" cellPadding="10">
                 {/* HEADER */}
                 <thead>

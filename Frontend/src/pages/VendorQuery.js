@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppContext';
 import "./combinedpages.css";
 import { TreeSelect } from "antd";
 
-const VendorQuery = ({ rfpNo = "" }) => {
+const VendorQuery = ({ rfpNo = "" ,rfpTitle=""}) => {
   const [rows, setRows] = useState([]);
   const [options, setOptions] = useState([]);
   const [modules, setModules] = useState([]);
@@ -355,12 +355,13 @@ console.log(determineLevel())
 
   return (
     <div className="vendor-query-container">
-      {sidebarValue.length > 0 && (
-        <>
-          <h3>{`${sidebarValue[0].rfp_no} - ${sidebarValue[0].rfp_title}`}</h3>
-        </>
-      )}
+      {/* {sidebarValue.length > 0 && (
+      
+      )} */}
       <h4>Vendor Query</h4>
+      <>
+          <h3>{`${rfpNo || sidebarValue[0].rfp_no} - ${rfpTitle || sidebarValue[0].rfp_title}`}</h3>
+        </>
       <table className="vendor-query-table">
         <thead>
           <tr>
