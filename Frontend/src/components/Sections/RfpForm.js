@@ -18,7 +18,14 @@ const RfpForm = ({ user }) => {
   const handleGetCheckedItems = async () => {
     let modules = [];
     let products = [];
-  
+    if(rfpDetails.rfpNo===""){
+      alert("Please Enter the RFP No");
+      return false;
+    }
+    if(rfpDetails.rfpTitle=== ""){
+      alert("Please Enter the RFP Title");
+      return false;
+    }
     // Fetch checked items for modules
     if (childRef.current) {
       modules = childRef.current.getCheckedItems("RFPCreation");

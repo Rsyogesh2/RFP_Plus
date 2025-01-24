@@ -899,10 +899,10 @@ router.post('/insert-rfp-functionalitem-vendor', async (req, res) => {
 
     for (const item of items) {
       // console.log(item.SelectedOption);
-      a = item.SelectedOption === "A";
-      p = item.SelectedOption === "P";
-      c = item.SelectedOption === "C";
-      n = item.SelectedOption === "N";
+      a = item.SelectedOption === "A" || item.A ;
+      p = item.SelectedOption === "P" || item.P ;
+      c = item.SelectedOption === "C" || item.C ;
+      n = item.SelectedOption === "N" || item.N ;
 
       // Prepare the SQL insert query with ON DUPLICATE KEY UPDATE
       const query = `
@@ -1668,7 +1668,7 @@ router.get('/loadContents-initial', async (req, res) => {
    WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring}`,
         [userDetails[0].user_name, userDetails[0].createdby]
       );
-      //console.log("Vendor User Modules Assignment:", result);
+      console.log("Vendor User Modules Assignment:", result);
 
     } else if (userPower == "Super Admin") {
      
@@ -1780,8 +1780,10 @@ router.get('/loadContents-initial', async (req, res) => {
                        Action_Log, Level
                 FROM RFP_FunctionalItem_draft
                 WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
-                AND RFP_No = ? and Status ="Bank_Pending_Authorization" and level='2'
+                AND RFP_No = ? 
+                
             `;
+            //and Status ="Bank_Pending_Authorization" and level='2'
              // Execute first query
             [results2] = await db.query(queryString2, values2);
             // console.log(results2)
@@ -1881,9 +1883,9 @@ router.get('/loadContents-initial', async (req, res) => {
     ON d.id = v.rfp_functionalitem_draft_id 
        AND v.Status IS NOT NULL  -- Place right table conditions here
   WHERE d.Module_Code IN (${combinedArray.map(() => '?').join(', ')})
-    AND d.RFP_No = ?   And v.Vendor_Id= ? And  v.Status ="Vendor_Pending_Maker"
+    AND d.RFP_No = ?   
   `;
-
+// And v.Vendor_Id= ? And  v.Status ="Vendor_Pending_Maker"
     const [results2] = await db.query(queryString2, [...values2,vendor_Id[0].id]);
     // const [results3] = await db.query(queryString3, values2);
     
@@ -2034,7 +2036,8 @@ router.get('/loadContents-initial', async (req, res) => {
     // console.log(combined)
     // Finalize response
     if (data.l1.length > 0) {
-      res.json({ success: true, itemDetails: data, functionalItemDetails: fItems,entityName:userDetails[0].entity_Name });
+      res.json({ success: true, itemDetails: data, functionalItemDetails: fItems,
+        entityName:userDetails[0].entity_Name });
     } else {
       res.status(404).json({ error: "No sub-items found for these modules" });
     }

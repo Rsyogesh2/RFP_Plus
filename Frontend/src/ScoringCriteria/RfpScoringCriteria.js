@@ -234,9 +234,10 @@ function RfpScoringCriteria() {
         return { ...prevData, updatedKey: 'newValue' }; // Example update
     };
 
-    const renderScoreSection = (key, title, items) => (
+    const renderScoreSection = (key, title, items, val) => (
         <ScoreSection
             key={key}
+            newval={val}
             title={title}
             items={items}
             onSectionChange={(updatedItems) => handleScoreSectionChange(key, updatedItems)}
@@ -294,6 +295,9 @@ function RfpScoringCriteria() {
         },
     ];
 
+    console.log("sectionsData :" + sectionsData)
+    console.log(sectionsData)
+
 
     return (
         <div className="rfp-container">
@@ -331,16 +335,21 @@ function RfpScoringCriteria() {
             {sectionsData && Object.keys(sectionsData).length > 0 ? (
                 <div className="score-sections">
                     {!isExits ? (
-                        defaultSections.map(({ key, title, items }) => renderScoreSection(key, title, items))
+                        defaultSections.map(({ key, title, items }) => renderScoreSection(key, title, items, true))
                     ) : (
                         Object.entries(sectionsData).map(([key, items]) =>
-                            renderScoreSection(key, key.replace(/([A-Z])/g, " $1"), items)
+                            renderScoreSection(
+                                key,
+                                key.replace(/([A-Z])/g, " $1"),
+                                Object.values(items), // Extract the actual objects instead of just the keys
+                                false
+                            )
                         )
                     )}
                 </div>
             ) : (
                 <div className="score-sections">
-                    {defaultSections.map(({ key, title, items }) => renderScoreSection(key, title, items))}
+                    {defaultSections.map(({ key, title, items }) => renderScoreSection(key, title, items, true))}
                 </div>
             )}
 
@@ -579,27 +588,104 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
 // Reusable Score Section Component with Editable Item Names and Dropdown Scores
 
 
-function ScoreSection({ title, items, onSectionChange }) {
-    const [data, setData] = useState(items.map(() => ({ text: '', score: 4 })));
+// function ScoreSection({ title, items, onSectionChange }) {
+//     const [data, setData] = useState(items.map(() => ({ text: '', score: 4 })));
+
+//     useEffect(() => {
+//         console.log(items)
+//         if (data.length > 0) {
+//             setData(items);
+//         }
+//     }, []);
+//     const handleTextChange = (index, value) => {
+//         const newData = [...data];
+//         newData[index].text = value;
+//         setData(newData);
+//         onSectionChange(newData); // Send data to parent component
+//     };
+
+//     const handleScoreChange = (index, value) => {
+//         const newData = [...data];
+//         newData[index].score = parseInt(value, 10) || 0;
+//         setData(newData);
+//         onSectionChange(newData); // Send data to parent component
+//     };
+
+//     return (
+//         <div className="section">
+//             <h3 className="section-title">{title}</h3>
+//             <table>
+//                 <thead>
+//                     <tr>
+//                         <th>Implementation Model</th>
+//                         <th>Score</th>
+//                     </tr>
+//                 </thead>
+//                 <tbody>
+//                     {data.map((item, index) => (
+//                         <tr key={index}>
+//                             <td>
+//                                 <input
+//                                     type="text"
+//                                     placeholder={items[index]}
+//                                     value={item.text}
+//                                     onChange={(e) => handleTextChange(index, e.target.value)}
+//                                     className="item-input"
+//                                 />
+//                             </td>
+//                             <td>
+//                                 <select
+//                                     value={item.score}
+//                                     onChange={(e) => handleScoreChange(index, e.target.value)}
+//                                     className="score-dropdown"
+//                                 >
+//                                     {[0, 1, 2, 3, 4].map((num) => (
+//                                         <option key={num} value={num}>{num}</option>
+//                                     ))}
+//                                 </select>
+//                             </td>
+//                         </tr>
+//                     ))}
+//                 </tbody>
+//             </table>
+//         </div>
+//     );
+// }
+
+function ScoreSection({ title, items, onSectionChange, newval }) {
+    // Initialize state with the correct structure based on `items`
+    const [data, setData] = useState(
+        items.map((item) =>
+            typeof item === "object" && item.text && item.score !== undefined
+                ? item
+                : { text: item, score: 0 }
+        )
+    );
 
     useEffect(() => {
-        console.log(items)
-        if (data.length > 0) {
-            setData(items);
-        }
-    }, []);
+        // Update state if `items` prop changes
+        console.log(newval)
+        setData(
+            items.map((item) =>
+                typeof item === "object" && item.text && item.score !== undefined
+                    ? item
+                    : { text: item, score: 0 }
+            )
+        );
+    }, [newval]);
+
     const handleTextChange = (index, value) => {
         const newData = [...data];
         newData[index].text = value;
         setData(newData);
-        onSectionChange(newData); // Send data to parent component
+        onSectionChange(newData); // Send updated data to parent component
     };
 
     const handleScoreChange = (index, value) => {
         const newData = [...data];
         newData[index].score = parseInt(value, 10) || 0;
         setData(newData);
-        onSectionChange(newData); // Send data to parent component
+        onSectionChange(newData); // Send updated data to parent component
     };
 
     return (
@@ -618,17 +704,19 @@ function ScoreSection({ title, items, onSectionChange }) {
                             <td>
                                 <input
                                     type="text"
-                                    placeholder={items[index]}
-                                    value={item.text}
+                                    placeholder={newval===true ? item.text:undefined} // Always show a static placeholder
+                                    value={newval===true ? undefined : item.text} // Use undefined if val is true to make it uncontrolled
                                     onChange={(e) => handleTextChange(index, e.target.value)}
                                     className="item-input"
+                                    disabled={!newval} // Disable input if val is true
                                 />
                             </td>
                             <td>
                                 <select
-                                    value={item.score}
+                                    value={newval ? undefined : item.score} // Use undefined if val is true to make it uncontrolled
                                     onChange={(e) => handleScoreChange(index, e.target.value)}
                                     className="score-dropdown"
+                                    disabled={!newval} // Disable dropdown if val is true
                                 >
                                     {[0, 1, 2, 3, 4].map((num) => (
                                         <option key={num} value={num}>{num}</option>
@@ -642,5 +730,7 @@ function ScoreSection({ title, items, onSectionChange }) {
         </div>
     );
 }
+
+
 
 export default RfpScoringCriteria;

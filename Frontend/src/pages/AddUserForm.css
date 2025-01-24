@@ -1,0 +1,64 @@
+/* Add User Form Styling
+.add-user-form {
+    margin: 50px auto;
+    padding: 20px;
+    width: 60%;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+  .add-user-form h3 {
+    margin-bottom: 20px;
+    color: #02735E;
+    font-size: 24px;
+    text-align: center;
+  }
+  .add-user-form form div {
+    margin-bottom: 15px;
+  }
+  .add-user-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+  }
+  .add-user-form input,
+  .add-user-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  .add-user-form input:focus,
+  .add-user-form select:focus {
+    border-color: #02735E;
+  }
+  .add-user-form .buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+  .add-user-form button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .add-user-form button[type="submit"] {
+    background-color: #02735E;
+    color: #fff;
+  }
+  .add-user-form button[type="submit"]:hover {
+    background-color: #025C49;
+  }
+  .add-user-form button[type="button"] {
+    background-color: #ccc;
+    color: #333;
+  }
+  .add-user-form button[type="button"]:hover {
+    background-color: #aaa;
+  }
+   */

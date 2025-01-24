@@ -17,31 +17,36 @@ const ScoringDashboard = ({rfpNo="", rfpTitle= ""}) => {
             "Functional items", "Commercials", "Implementation model",
             "No of installations", "Site visit reference"
         ]);
-        const [weightage, setWeightage] = useState([10, 15, 20, 10, 15]); // Default weightage
-      
+        const [weightage, setWeightage] = useState([0, 0, 0, 0, 0]); // Default weightage
+
         const [vendors, setVendors] = useState([
-            { name: 'Vendor 1', scores: [80, 85, 90, 70, 75, 88, 92, 80] },
-            { name: 'Vendor 2', scores: [70, 75, 80, 85, 60, 78, 85, 80] },
-            { name: 'Vendor 3', scores: [85, 90, 95, 80, 88, 92, 87, 85] }
+            { name: '', scores: [0, 0, 0, 0, 0, 0, 0, 0] },
+            { name: '', scores: [0, 0, 0, 0, 0, 0, 0, 0] },
+            { name: '', scores: [0, 0, 0, 0, 0, 0, 0, 0] }
         ]);
+
         
+        // Fetch Vendor Names and Other Scores
         useEffect(() => {
             const fetchfinalEvaluation = async () => {
                 try {
-                    const response = await fetch(`${API_URL}/fetchFinalEvaluationScores`);
+                    
+                    const response = await fetch(`${API_URL}/fetchFinalEvaluationScores?rfpNo=${rfpNo}&&userName=${userName}`);
                     if (!response.ok) {
                         throw new Error('Failed to fetch scoring data');
                     }
                     const data = await response.json();
-                    console.log("Fetched Data:", data);
-        
+                    console.log("Fetched 1st Data:", data);
+                    const vendorName = data[1];
+                    const otherScores = data[0];
                     // Update the last 6 scores safely
                     setVendors(prevVendors =>
                         prevVendors.map((vendor, index) => ({
                             ...vendor,
+                            name:[vendorName[index]?.entity_name],
                             scores: [
                                 ...vendor.scores.slice(0, 2), // Keep the first 2 scores
-                                ...(data[index]?.scores ? data[index].scores.slice(-6) : vendor.scores.slice(2)) // Replace last 6 only if data exists
+                                ...(otherScores[index]?.scores ? otherScores[index].scores.slice(-6) : vendor.scores.slice(2)) // Replace last 6 only if data exists
                             ]
                         }))
                     );
@@ -52,11 +57,11 @@ const ScoringDashboard = ({rfpNo="", rfpTitle= ""}) => {
             };
             fetchfinalEvaluation();
         }, []);
-        
+        // 1section - fetch-scoring-overall
     useEffect(() => {
         const fetchScoringData = async () => {
             try {
-                const response = await fetch(`${API_URL}/fetch-scoring-overall`);
+                const response = await fetch(`${API_URL}/fetch-scoring-overall?rfpNo=${rfpNo}&&userName=${userName}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch scoring data');
                 }
@@ -99,9 +104,8 @@ const ScoringDashboard = ({rfpNo="", rfpTitle= ""}) => {
     }, []);
     useEffect(() => {
         const fetchData2 = async () => {
-            const rfpNo = "HR payroll";
             try {
-                const response = await fetch(`${API_URL}/fetchComScores-dashBoard`, {
+                const response = await fetch(`${API_URL}/fetchComFunScores-dashBoard`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -136,7 +140,6 @@ const ScoringDashboard = ({rfpNo="", rfpTitle= ""}) => {
     }, [userName]);
     useEffect(() => {
         const fetchData2 = async () => {
-            const rfpNo = "CMS";
             try {
                 const response = await fetch(`${API_URL}/fetchScores-dashBoard`, {
                     method: 'POST',

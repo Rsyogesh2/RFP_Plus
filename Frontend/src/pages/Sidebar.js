@@ -37,10 +37,11 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       { label: "Assign Users", section: "Assign Users" },
       { label: "Vendor Admin", section: "Vendor Admin" },
       { label: "Reports", section: "Reports" },
-      { label: "View RFPs", section: "View RFPs" },
-      { label: "Vendor Query Submission", section: "Vendor Query Submission" },
-      { label: "Final Evaluation", section: "Final Evaluation" },
-      { label: "Dashboard", section: "Dashboard" },
+      { label: "View RFP Table", section: "View RFP Table" },
+      // { label: "View RFPs", section: "View RFPs" },
+      // { label: "Vendor Query Submission", section: "Vendor Query Submission" },
+      // { label: "Final Evaluation", section: "Final Evaluation" },
+      // { label: "Dashboard", section: "Dashboard" },
       
     ],
     "Global Admin": [

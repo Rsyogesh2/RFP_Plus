@@ -1,9 +1,9 @@
 
 import React, {useContext}from "react";
-// import "./Navbar.css"; // Add your CSS file for styling if needed
+import "./Navbar.css"; // Add your CSS file for styling if needed
 import { AppContext } from "../../context/AppContext";
 const Navbar = ({ handleLogout }) => {
-    const { name,userRole,userPower } = useContext(AppContext);
+    const { name,userRole,userPower,sidebarValue,moduleData } = useContext(AppContext);
       
   return (
     <nav className="navbar">
@@ -20,8 +20,8 @@ const Navbar = ({ handleLogout }) => {
         {/* Title Section */}
         <li className="navbar-center">
           <div>
-            <h1 className="navbar-title">Axis Bank</h1>
-            <p className="navbar-subtitle">Super Admin Module</p>
+            <h1 className="navbar-title">{sidebarValue[0]?.entity_name || moduleData?.entityName}</h1>
+            <p className="navbar-subtitle">{userPower=="Super Admin"?"Bank Admin":userPower} Module</p>
           </div>
         </li>
 

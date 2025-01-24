@@ -787,6 +787,19 @@ router.post('/api/vendor-admin', async (req, res) => {
   } = req.body.formData;
   const creatorName = req.body.userName;
   try {
+     const [bankNameResult] = await db.query(
+                `SELECT entity_name, user_id as id FROM superadmin_users WHERE super_user_email = ?`,
+                userName
+            );
+     const [submited] =  await db.query(`select * from rfp_functionalitem_draft 
+      WHERE Level = 3 
+      AND Status = 'Bank_Pending_Reviewer' and Bank_Id=?
+      AND RFP_No = ?`,[rfpReferenceNo,bankNameResult.id]);
+      const [assigned] =  await db.query(`select * from rfp_functionalitem_draft 
+        WHERE Bank_Id=?
+        AND RFP_No = ?`,[rfpReferenceNo,bankNameResult.id]);
+    if(submited.length>0 && submited.length===assigned.length && submited[0].Status== 'Bank_Pending_Reviewer'){
+
     const query = `
       INSERT INTO Vendor_Admin_Users (
         rfp_reference_no, entity_name, entity_sub_name, entity_landline,
@@ -802,12 +815,12 @@ router.post('/api/vendor-admin', async (req, res) => {
 
     await db.query(query, values);
     await db.query(`UPDATE rfp_functionalitem_draft
-    SET Status = 'Vendor_Pending_Maker',
-    Level = 5,
-    stage = 'Vendor'
-    WHERE Level = 4 
-    AND Status = 'Bank_Pending_Admin' 
-    AND RFP_No = ?`,rfpReferenceNo);
+      SET Status = 'Vendor_Pending_Maker',
+      Level = 5,
+      stage = 'Vendor'
+      WHERE Level = 3 
+      AND Status = 'Bank_Pending_Reviewer' 
+      AND RFP_No = ?`,rfpReferenceNo);
 
     res.status(200).json({ success: true, message: "Vendor Admin data saved successfully" });
     const password = "system@123";
@@ -819,6 +832,9 @@ router.post('/api/vendor-admin', async (req, res) => {
       if (err) throw err;
           //console.log("User created!");
       });
+    } else{
+      res.send({message:"RFP Not Completed"});
+    }
   } catch (err) {
     console.error("Error saving vendor admin data:", err.message);
     res.status(500).json({ success: false, error: "Failed to save vendor admin data" });

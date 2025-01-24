@@ -336,7 +336,7 @@ console.log(determineLevel())
           // console.log(modules);
           setOptions(flattenHierarchy(modules.modules));
         } else{
-          setOptions(flattenHierarchy(moduleData?.itemDetails?.l1 ? moduleData.itemDetails.l1 : [])); 
+          setOptions(flattenHierarchy(moduleData?.itemDetails?.l1 ? moduleData.itemDetails.l1[0] : [])); 
         }
         
       } else{
@@ -411,11 +411,22 @@ console.log(determineLevel())
               </td>
               <td>
                 {userRole === "Maker" ? (
-                  <input
+                  <textarea
                     type="text"
                     maxLength="400"
                     value={row.existingDetails}
                     onChange={(e) => handleInputChange(index, "existingDetails", e.target.value)}
+                    style={{
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      width: '100%',
+                      height: '100%',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      backgroundColor:"inherit"
+                  
+                    }}
                   />
                 ) : (
                   row.existingDetails
@@ -423,11 +434,22 @@ console.log(determineLevel())
               </td>
               <td>
                 {userRole === "Maker" ? (
-                  <input
+                  <textarea
                     type="text"
                     maxLength="400"
                     value={row.clarification}
                     onChange={(e) => handleInputChange(index, "clarification", e.target.value)}
+                    style={{
+                      border: 'none',
+                      outline: 'none',
+                      resize: 'none',
+                      width: '100%',
+                      height: '100%',
+                      boxSizing: 'border-box',
+                      display: 'block',
+                      backgroundColor:"inherit"
+                  
+                    }}
                   />
                 ) : (
                   row.clarification

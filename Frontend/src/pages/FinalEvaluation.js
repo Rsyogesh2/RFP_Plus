@@ -4,8 +4,8 @@ import './combinedpages2.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-const FinalEvaluation = () => {
-  const [rfpNo, setRfpNo] = useState('RFP123');
+const FinalEvaluation = ({rfpNo="", rfpTitle= ""}) => {
+  // const [rfpNo, setRfpNo] = useState('RFP123');
   const [commercialValue, setCommercialValue] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [vendorNames, setVendorNames] = useState([]);
@@ -26,7 +26,7 @@ const FinalEvaluation = () => {
       //   return;
       // }
       try {
-        const response = await fetch(`${API_URL}/fetchVendor?userName=${userName}`);
+        const response = await fetch(`${API_URL}/fetchVendor?userName=${userName}&&rfpNo=${rfpNo}`);
         const data = await response.json();
         setVendorNames(data);
       } catch (error) {
@@ -44,7 +44,7 @@ const FinalEvaluation = () => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({selectedVendor,userName})
+            body: JSON.stringify({selectedVendor,userName,rfpNo})
         });
         const data = await response.json();
         console.log(data)
@@ -92,6 +92,7 @@ const saveOrUpdateScores = async () => {
           rfpNo: rfpNo,
           selectedValues: selectedValues,
           sections,
+          selectedVendor,
           userName
       };
 

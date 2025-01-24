@@ -7,7 +7,7 @@ import { AppContext } from '../../context/AppContext';
 import { handleSave } from '../../services/Apis'
 
 
-const RFPVendorTable = ({ l1 }) => {
+const RFPVendorTable = ({ l1, rfpNo="",rfpTitle=""  }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [itemData, setItemData] = useState([]);
@@ -253,13 +253,13 @@ const RFPVendorTable = ({ l1 }) => {
                 </td>
                 <td>{item.Mandatory === 0 ? "O" : "M"}</td>
                 <td>{item.Comments}</td>
-                <td><input type="radio" checked={item.A === 1 ? true : false} onChange={() => handleMandatoryChange("A", item, TableIndex, parentIndex, subIndex, index)}
+                <td><input type="radio" checked={item.A === 1 ? true : false ||item.SelectedOption==="A"?true:false} onChange={() => handleMandatoryChange("A", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
-                <td><input type="radio" checked={item.P === 1 ? true : false} onChange={() => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index)}
+                <td><input type="radio" checked={item.P === 1 ? true : false ||item.SelectedOption==="P"?true:false} onChange={() => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
-                <td><input type="radio" checked={item.C === 1 ? true : false} onChange={() => handleMandatoryChange("C", item, TableIndex, parentIndex, subIndex, index)}
+                <td><input type="radio" checked={item.C === 1 ? true : false ||item.SelectedOption==="C"?true:false} onChange={() => handleMandatoryChange("C", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
-                <td><input type="radio" checked={item.N === 1 ? true : false} onChange={() => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index)}
+                <td><input type="radio" checked={item.N === 1 ? true : false ||item.SelectedOption==="N"?true:false} onChange={() => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
                 <td style={{ padding: "5px", height: '100%',textAlign:"center" }}>
                     {userRole !== 'Maker' ? (
@@ -281,7 +281,7 @@ const RFPVendorTable = ({ l1 }) => {
                     )}
                 </td>
 
-                <td>
+                {/* <td>
                     <div>
                         <label htmlFor="fileUpload">
                             <MdOutlineDriveFolderUpload
@@ -303,7 +303,7 @@ const RFPVendorTable = ({ l1 }) => {
                         {uploadStatus === 'success' && <p>File uploaded successfully!</p>}
                         {uploadStatus === 'error' && <p style={{ color: 'red' }}>File upload failed.</p>}
                     </div>
-                </td>
+                </td> */}
             </tr>
         )
         );
@@ -345,7 +345,7 @@ const RFPVendorTable = ({ l1 }) => {
                         <th>C</th>
                         <th>N</th>
                         <th>Remarks</th>
-                        <th>Attach</th>
+                        {/* <th>Attach</th> */}
                     </tr>
                 </thead>
                 <tbody>

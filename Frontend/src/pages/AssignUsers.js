@@ -266,7 +266,7 @@ const AssignUsers = () => {
                 let formattedtoDate = null;
                 if (toDate) {
                   const parsedDate = new Date(toDate);
-                  console.log(parsedDate);
+                  // console.log(parsedDate);
                   // Check if the date is valid
                   if (!isNaN(parsedDate)) {
                     // Get the year, month, and day in local time
@@ -274,7 +274,7 @@ const AssignUsers = () => {
                     const month = String(parsedDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
                     const day = String(parsedDate.getDate()).padStart(2, '0');
                     formattedtoDate = `${year}-${month}-${day}`;
-                    console.log(formattedtoDate); // Output: Correct local date
+                    // console.log(formattedtoDate); // Output: Correct local date
                   } else {
                     console.error('Invalid date format');
                   }
@@ -331,7 +331,7 @@ const AssignUsers = () => {
                     <td>
                       <button type="button" onClick={() => togglePopup(idx)}>
                         {user.selectedModules?.length
-                          ? user.selectedModules.map((mod) => mod.name).join(", ")
+                          ? user.selectedModules.map((mod) => mod.moduleName).join(", ")
                           : "Select Modules"}
                       </button>
 
@@ -363,7 +363,26 @@ const AssignUsers = () => {
                                       {rfpModule.l1[activeTab].l2.map((l2module, l2moduleIndex) => (
                                         <li key={l2moduleIndex}>
                                           <label>
-                                            <input
+                                          <input
+                                              type="checkbox"
+                                              checked={selectedModules.some(
+                                                (item) =>
+                                                  item.code ===
+                                                  rfpModule.l1[activeTab].code &&
+                                                  item.l2module.some(
+                                                    (mod) => mod.code === l2module.code
+                                                  )
+                                              )}
+                                              onChange={(e) =>
+                                                handleModuleSelection(
+                                                  l2module,
+                                                  e.target.checked,
+                                                  rfpModule.l1[activeTab].name,
+                                                  rfpModule.l1[activeTab].code
+                                                )
+                                              }
+                                            />
+                                            {/* <input
                                               type="checkbox"
                                               checked={selectedModules.some(
                                                 (item) =>
@@ -381,7 +400,7 @@ const AssignUsers = () => {
                                                   rfpModule.l1[activeTab].code
                                                 )
                                               }
-                                            />
+                                            /> */}
                                             {l2module.name}
                                           </label>
                                         </li>

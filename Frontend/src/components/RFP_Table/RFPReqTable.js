@@ -620,7 +620,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
         return (
             <table className="item-table">
                 <colgroup>
-                    {userRole === "Maker" && <col style={{ width: "8%" }} />}
+                    {userRole === "Maker" &&  FItem?.[0]?.Level ===1 && <col style={{ width: "8%" }} />}
                     <col style={{ width: "60%" }} />
                     <col style={{ width: "0%" }} />
                     <col style={{ width: "0.1%" }} />
@@ -630,7 +630,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
                 </colgroup>
                 <thead>
                     <tr>
-                        {userRole === "Maker" && <th className="col-modify">Modify</th>}
+                        {userRole === "Maker" && FItem?.[0]?.Level ===1 && <th className="col-modify">Modify</th>}
                         <th className="col-requirement">Requirement</th>
                         <th className="col-m">M</th>
                         <th className="col-o">O</th>
@@ -664,13 +664,13 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
 
                             return (
                                 <React.Fragment key={item.code || index}>
-                                    {userRole === 'Maker'
+                                    {userRole === 'Maker' && FItem?.[0]?.Level ===1 
                                         ? renderHierarchy([item], 'f1', 10, index1, index, indexval)
                                         : readHierarchy([item], 'f1', 10, index1, index, indexval)}
 
                                     {f2items.map((level2, subIndex) => (
                                         <React.Fragment key={level2.code || subIndex}>
-                                            {userRole === 'Maker'
+                                            {userRole === 'Maker' && FItem?.[0]?.Level ===1 
                                                 ? renderHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)
                                                 : readHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)}
                                         </React.Fragment>
@@ -681,7 +681,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
                     ) : (
                         <React.Fragment>
                             {newItems ? (
-                                userRole === 'Maker'
+                                userRole === 'Maker' && FItem?.[0]?.Level ===1 
                                     ? renderHierarchy([newItems], 'f1', 10, index1)
                                     : readHierarchy([newItems], 'f1', 10, index1)
                             ) : (
@@ -696,6 +696,8 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
         );
     };
 
+    
+    
 
     return (
         <div className="rfp-table">
@@ -707,7 +709,9 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
             </div>
             <div className="labels">
                 <span>M-Mandatory | O-Optional </span>
-                <span>{} </span>
+                <span>{Number(FItem?.[0]?.Level)>4?"Vendor Level":
+                Number(FItem?.[0]?.Level)===1?"Maker Stage": Number(FItem?.[0]?.Level)===2?"Authorizer Stage":
+                Number(FItem?.[0]?.Level)===3?"Reviewer Stage":""} </span>
             </div>
             <div className="module-header">
                 {itemData && itemData.length > 0 && (
@@ -776,24 +780,24 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
 
             {/* Show Submit button only for Authorizer or Reviewer */}
             {/* {(userRole === "Authorizer" || userRole === "Reviewer") && ( */}
-            {(userRole === "Authorizer") && (
+            {(userRole === "Authorizer") && FItem?.[0]?.Level ===2 && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
                     Authorize
                 </button>
             )}
-            {(userRole === "Authorizer") && (
+            {(userRole === "Authorizer") && FItem?.[0]?.Level ===2 && (
                 <button onClick={() => handleSave(constructPayload("Back to Maker", {action:"Back to Maker"}))}>
                     Back to Maker
                 </button>
             )}
 
             {/* Optional Save as Draft button for Maker */}
-            {userRole === "Maker" && (
+            {userRole === "Maker" && FItem?.[0]?.Level ===1 && (
                 <button onClick={() => handleSave(constructPayload("Save as Draft", {}))}>
                     Save as Draft
                 </button>
             )}
-            {userRole === "Maker" && (
+            {userRole === "Maker" && FItem?.[0]?.Level ===1 && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
                     Submit
                 </button>

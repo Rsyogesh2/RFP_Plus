@@ -68,7 +68,8 @@ const VendorAdmin = () => {
       }
 
       const result = await response.json();
-      alert("Vendor admin data saved successfully!");
+      alert(result.message);
+      // alert("Vendor admin data saved successfully!");
     } catch (error) {
       console.error("Error saving vendor admin data:", error.message);
       alert("Failed to save data. Please try again.");
