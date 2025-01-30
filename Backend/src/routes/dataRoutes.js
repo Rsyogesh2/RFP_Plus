@@ -1312,7 +1312,7 @@ router.get('/getSavedData', async (req, res) => {
               deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
               Action_Log, Level
         FROM RFP_FunctionalItem_draft
-        WHERE RFP_No = ? andAND Level >= 4
+        WHERE RFP_No = ? AND Level >= 4
         ORDER BY Level ASC
         LIMIT 1`;
       }

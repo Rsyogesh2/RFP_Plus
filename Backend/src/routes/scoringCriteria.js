@@ -1352,4 +1352,43 @@ router.post('/fetchAllScores', async (req, res) => {
 });
 
 
+//APCN
+router.post('/fetchAPCN', async (req, res) => {
+    console.log("fetch APCN")
+    const { rfpNo, userName } = req.body;
+
+    try {
+        // Fetch bank name
+        const [bankNameResult] = await db.query(
+            `SELECT entity_name,user_id FROM superadmin_users WHERE super_user_email = ?`, 
+            [userName]
+        );
+        console.log(bankNameResult)
+        
+      
+        if (!bankNameResult || bankNameResult.length === 0) {
+             console.error("Bank name not found.");
+            return res.status(404).send("Bank name not found.");
+        }
+
+        const functionalQuery = `
+            SELECT 
+                isAvailableChecked, isPartlyAvailableChecked, isCustomizableChecked,
+                availableScore, partlyAvailableScore, customizableScore, mandatoryScore, optionalScore 
+            FROM functional_scores 
+            WHERE RFP_No = ? AND Bank_Id = ?;
+        `;
+        const [functionalScores] = await db.query(functionalQuery, [rfpNo, bankNameResult.user_id]);
+
+
+        res.json({
+            functionalScores
+        });
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).send("An error occurred while fetching data.");
+    }
+});
+
 module.exports = router;

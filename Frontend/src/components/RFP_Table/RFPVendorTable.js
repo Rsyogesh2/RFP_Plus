@@ -11,6 +11,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [itemData, setItemData] = useState([]);
+    const [APCN, setAPCN] = useState({isAvailableChecked:false,isPartlyAvailableChecked:false,isCustomizableChecked:false});
     const [FItem, setFItem] = useState([]);
     const [data, setdata] = useState([]);
     const [valueL1, setValueL1] = useState(null);
@@ -59,12 +60,24 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
     useEffect(() => {
         async function fetchArray() {
             console.log("userName " + userName)
-            console.log(l1)
+            console.log(l1);
+            try{
+                const response = await fetch(`${API_URL}/fetchAPCN?userName=${userName}&&rfpNo=${rfpNo}`);
+                const data = await response.json();
+                console.log(data)
+                setAPCN(data);
+            } catch(error){
+                console.log("Error Fetch the  APCN Value: "+error)
+            }
+           
             //23/11/2024
             try {
                 console.log(moduleData);
                 
                 if (l1 == "Vendor Admin") {
+                    setItemData(moduleData.modules);
+                    setFItem(moduleData.fitems);
+                } else if (l1 == "Super Admin") {
                     setItemData(moduleData.modules);
                     setFItem(moduleData.fitems);
                 } else {
@@ -258,30 +271,31 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                 </td>
                 <td>{item.Mandatory === 0 ? "O" : "M"}</td>
                 <td>{item.Comments}</td>
-                <td>
+                
+                {APCN.isAvailableChecked && <td>
                     <input
                         type="radio"
                         checked={item.A === 1 || item.SelectedOption === "A"}
                         onChange={userRole === "Maker" ? () => handleMandatoryChange("A", item, TableIndex, parentIndex, subIndex, index) : undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
-                </td>
-                <td>
+                </td>}
+                {APCN.isPartlyAvailableChecked && <td>
                     <input
                         type="radio"
                         checked={item.P === 1 || item.SelectedOption === "P"}
                         onChange={userRole === "Maker" ?() => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index): undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
-                </td>
-                <td>
+                </td>}
+                {APCN.isCustomizableChecked && <td>
                     <input
                         type="radio"
                         checked={item.C === 1 || item.SelectedOption === "C"}
                         onChange={userRole === "Maker" ?() => handleMandatoryChange("C", item, TableIndex, parentIndex, subIndex, index): undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
-                </td>
+                </td>}
                 <td>
                     <input
                         type="radio"
@@ -376,10 +390,13 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                         <th>Requirement</th>
                         <th>M/O</th>
                         <th>Comments</th>
-                        <th>A</th>
-                        <th>P</th>
-                        <th>C</th>
+                        {APCN.isAvailableChecked && <th>A</th>}
+                        {APCN.isPartlyAvailableChecked && <th>P</th>}
+                        {APCN.isCustomizableChecked && <th>C</th>}
                         <th>N</th>
+                        {/* <th>P</th>
+                        <th>C</th>
+                        <th>N</th> */}
                         <th>Remarks</th>
                         {/* <th>Attach</th> */}
                     </tr>

@@ -215,7 +215,7 @@ const RFPListTable = ({ }) => {
       } */}
       {visible && actionName === "Vendor Query" && <VendorQuery rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
       {visibleRFP && actionName === "View RFP" && <RFPReqTable l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} action={"View RFP"} />}
-      {visibleFinalRFP && actionName === "Final RFP" && <RFPReqTable l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} action={"Final RFP"} />}
+      {visibleFinalRFP && actionName === "Final RFP" && <RFPVendorTable l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} action={"Final RFP"} />}
       {visibleDashboard && actionName === "Dashboard" && <ScoringDashboard l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
       {visibleEvaluation && actionName === "Final Evaluation" && <FinalEvaluation l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
       {visibleSubmitRFP && actionName === "Submitted RFP" && <RFPVendorTable l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
