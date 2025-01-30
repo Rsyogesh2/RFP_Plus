@@ -331,7 +331,7 @@ const AssignUsers = () => {
                     <td>
                       <button type="button" onClick={() => togglePopup(idx)}>
                         {user.selectedModules?.length
-                          ? user.selectedModules.map((mod) => mod.moduleName).join(", ")
+                          ? user.selectedModules.map((mod) => mod.name).join(", ")
                           : "Select Modules"}
                       </button>
 

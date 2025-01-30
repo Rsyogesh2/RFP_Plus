@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "./../context/AppContext";
 import { MdOutlineModeEdit, MdDelete   } from "react-icons/md";
-import "./combinedpages2.css";
+import "./../styles/ViewModifyUserTable.css";
 
 const ViewModifyUserTable = () => {
   const { usersList, setUsersList, userName, userPower } = useContext(AppContext);
@@ -157,6 +157,7 @@ const ViewModifyUserTable = () => {
                       name="active_flag"
                       value={formData.active_flag}
                       onChange={handleChange}
+                      className="status-badge paid"
                     >
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>

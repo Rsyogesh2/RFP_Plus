@@ -2,6 +2,8 @@
 import React, {useContext}from "react";
 import "./Navbar.css"; // Add your CSS file for styling if needed
 import { AppContext } from "../../context/AppContext";
+import logo from "./rfp-logo.jpeg";
+       
 const Navbar = ({ handleLogout }) => {
     const { name,userRole,userPower,sidebarValue,moduleData } = useContext(AppContext);
       
@@ -10,13 +12,8 @@ const Navbar = ({ handleLogout }) => {
       <ul className="navbar-menu">
         {/* Logo Section */}
         <li className="navbar-left">
-          {/* <img
-            src="/assets/rfp-abstract.jpg"
-            alt="Logo"
-            className="navbar-logo"
-          /> */}
+        <img src={logo} alt="Logo" className="navbar-logo" />
         </li>
-
         {/* Title Section */}
         <li className="navbar-center">
           <div>
@@ -38,7 +35,6 @@ const Navbar = ({ handleLogout }) => {
     </button>
   </div>
 </li>
-
       </ul>
     </nav>
   );

@@ -124,7 +124,7 @@ const RfpForm = ({ user }) => {
         {/* <ModuleList title="RFP Response Options" /> */}
       </div>
 
-      <div className="button-group" style={{ textAlign: 'center' }}>
+      <div className="button-group" style={{ display: 'flex',alignItems:"center",justifyContent:"center",gap:"20px" }}>
         <button className='btn' text="Submit" onClick={handleGetCheckedItems}>Submit</button>
         <button className='btn' text="Cancel">Cancel</button>
       </div>

@@ -111,8 +111,8 @@ const HomePage = ({ userType }) => {
           // }
           url = `${API_URL}/api/loadContents-initial?${queryParams}`;
         } else if (userPower == "Vendor Admin") {
-          url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
-          // url = `${API_URL}/api/getSavedData?${queryParams}`;
+          // url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
+          url = `${API_URL}/api/getSavedData?${queryParams}`;
         } else if (userPower == "Super Admin") {
           url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
           // url = `${API_URL}/api/getSavedData?${queryParams}`;
@@ -168,14 +168,16 @@ const HomePage = ({ userType }) => {
         return <Reports />;
       case "View Assigned RFPs":
         return <ViewAssignedRFPs />;
-      case "Submit RFPs":
-        return <SubmitedRFPs />;
+      case "Submit RFP":
+        return <RFPVendorTable l1="Vendor Admin" />;
       case "Add Vendor User":
         return <AddUserForm />;
       case "View / Modify Vendor Users":
         return <ViewModifyUserTable />
       case "Assign Vendor Users":
         return <AssignUsers />;
+      case "View RFP":
+        return <RFPVendorTable l1="Vendor Admin" />;
       case "Submit Query":
         return <VendorQuery rfpNo={"RFP123"} rfpTitle={"title"}/>;
       case "Submit RFP":

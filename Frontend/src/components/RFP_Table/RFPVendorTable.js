@@ -7,7 +7,7 @@ import { AppContext } from '../../context/AppContext';
 import { handleSave } from '../../services/Apis'
 
 
-const RFPVendorTable = ({ l1, rfpNo="",rfpTitle=""  }) => {
+const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [itemData, setItemData] = useState([]);
@@ -63,25 +63,26 @@ const RFPVendorTable = ({ l1, rfpNo="",rfpTitle=""  }) => {
             //23/11/2024
             try {
                 console.log(moduleData);
-                setFItem(moduleData.functionalItemDetails[0]);
-                if(l1=="Vendor Admin"){
-                    setItemData(moduleData.modules); 
+                
+                if (l1 == "Vendor Admin") {
+                    setItemData(moduleData.modules);
                     setFItem(moduleData.fitems);
-                } else{
+                } else {
                     filterModule(moduleData);
+                    setFItem(moduleData.functionalItemDetails[0]);
                 }
-               
+
             } catch (error) {
                 console.error('Error sending checked items:', error); // Log any errors
             }
 
         }
-        if(l1=="Vendor Admin"){
+        if (l1 == "Vendor Admin") {
             fetchArray();
         } else if (l1?.l1module !== "" && valueL1 !== l1?.l1module) {
             fetchArray();
             setValueL1(l1.l1module);
-        } 
+        }
     }, [l1]);  // Only trigger fetch when `data` changes
     const filterModule = (data) => {
         const data1 = data.itemDetails.l1[0].filter(m => m.code === l1.l1module);
@@ -166,6 +167,10 @@ const RFPVendorTable = ({ l1, rfpNo="",rfpTitle=""  }) => {
         } else if (action === "Back to Maker") {
             payload.stage = "Draft";
             payload.Status = "Bank_Pending_Maker";
+            payload.assigned_to = null;
+        }  else if (action === "Submit the RFP") {
+            payload.stage = "Bank";
+            payload.Status = "Completed";
             payload.assigned_to = null;
         }
         payload.stage = userPower === "Vendor User" ? "Vendor"
@@ -253,17 +258,48 @@ const RFPVendorTable = ({ l1, rfpNo="",rfpTitle=""  }) => {
                 </td>
                 <td>{item.Mandatory === 0 ? "O" : "M"}</td>
                 <td>{item.Comments}</td>
-                <td><input type="radio" checked={item.A === 1 ? true : false ||item.SelectedOption==="A"?true:false} onChange={() => handleMandatoryChange("A", item, TableIndex, parentIndex, subIndex, index)}
-                    name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
-                <td><input type="radio" checked={item.P === 1 ? true : false ||item.SelectedOption==="P"?true:false} onChange={() => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index)}
+                <td>
+                    <input
+                        type="radio"
+                        checked={item.A === 1 || item.SelectedOption === "A"}
+                        onChange={userRole === "Maker" ? () => handleMandatoryChange("A", item, TableIndex, parentIndex, subIndex, index) : undefined}
+                        name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
+                    />
+                </td>
+                <td>
+                    <input
+                        type="radio"
+                        checked={item.P === 1 || item.SelectedOption === "P"}
+                        onChange={userRole === "Maker" ?() => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index): undefined}
+                        name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
+                    />
+                </td>
+                <td>
+                    <input
+                        type="radio"
+                        checked={item.C === 1 || item.SelectedOption === "C"}
+                        onChange={userRole === "Maker" ?() => handleMandatoryChange("C", item, TableIndex, parentIndex, subIndex, index): undefined}
+                        name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
+                    />
+                </td>
+                <td>
+                    <input
+                        type="radio"
+                        checked={item.N === 1 || item.SelectedOption === "N"}
+                        onChange={userRole === "Maker" ?() => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index): undefined}
+                        name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
+                    />
+                </td>
+
+                {/* <td><input type="radio" checked={item.P === 1 ? true : false ||item.SelectedOption==="P"?true:false} onChange={() => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
                 <td><input type="radio" checked={item.C === 1 ? true : false ||item.SelectedOption==="C"?true:false} onChange={() => handleMandatoryChange("C", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
                 <td><input type="radio" checked={item.N === 1 ? true : false ||item.SelectedOption==="N"?true:false} onChange={() => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index)}
-                    name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
-                <td style={{ padding: "5px", height: '100%',textAlign:"center" }}>
+                    name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td> */}
+                <td style={{ padding: "5px", height: '100%', textAlign: "center" }}>
                     {userRole !== 'Maker' ? (
-                        <span style={{ fontWeight:"normal"}}>{item.Remarks}</span>
+                        <span style={{ fontWeight: "normal" }}>{item.Remarks}</span>
                     ) : (
                         <textarea
                             style={{
@@ -472,6 +508,11 @@ const RFPVendorTable = ({ l1, rfpNo="",rfpTitle=""  }) => {
             {userRole === "Maker" && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}), "Vendor User")}>
                     Submit
+                </button>
+            )}
+            {userPower === "Vendor Admin" && (
+                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {action:"Submit the RFP"}), "Vendor Admin")}>
+                    Submit the RFP
                 </button>
             )}
         </div>

@@ -1,11 +1,12 @@
 /* Add your CSS styles here */
 
 .rfp-table {
-    border: 1px solid #ccc;
-    padding: 20px;
-    width: 80%;
-    margin:auto;
+    /* border: 1px solid #ccc; */
+    padding: 20px 30px;
+    /* max-width: 75%; */
+    /* margin: 0px 0 0 200px; */
     table-layout: fixed;
+    overflow-x: auto;
   }
   
   .header {
@@ -33,7 +34,7 @@
     width: 11% 55% 5% 5% 25%; /* Distributes width evenly for 5 columns */
     padding: 10px;
     text-align: left;
-    border: 1px solid #ccc;
+    /* border: 1px solid #ccc; */
     overflow: hidden; /* Prevents content overflow */
     white-space: nowrap; /* Prevents text wrapping */
     text-overflow: ellipsis; /* Adds ellipsis for long text */

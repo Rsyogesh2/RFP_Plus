@@ -1,0 +1,154 @@
+/* Table Container */
+.view-modify-table-container {
+    padding: 20px;
+    /* max-width: 75%; */
+    background-color: #ffffff;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* Header */
+  .view-modify-table-container h2 {
+    font-size: 20px;
+    color: #4A5568; /* Subtle gray */
+    text-align: left;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+  
+  /* Table */
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 15px;
+    font-size: 14px;
+    text-align: left;
+  }
+  
+  /* Table Header */
+  .user-table thead {
+    background-color: #E2E8F0; /* Light gray-blue */
+    border-radius: 15px;
+  }
+  
+  .user-table th {
+    padding: 12px 16px;
+    color: #4A5568; /* Dark gray for header text */
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  /* Table Body */
+  .user-table tbody tr {
+    background-color: #ffffff;
+    transition: background-color 0.3s ease;
+  }
+  
+  .user-table tbody tr:nth-child(even) {
+    background-color: #F7FAFC; /* Alternate row background */
+  }
+  
+  .user-table tbody tr:hover {
+    background-color: #EDF2F7; /* Light hover effect */
+  }
+  
+  .user-table td {
+    padding: 5px 10px;
+    color: #2D3748; /* Dark gray for text */
+    font-size: 14px;
+    border-bottom: 1px solid #E2E8F0;
+  }
+  
+  /* Status Badge */
+  .status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50px;
+    color: #ffffff;
+    text-transform: capitalize;
+  }
+  
+  .status-badge.open {
+    background-color: #3182CE; /* Blue for "Open" */
+  }
+  
+  .status-badge.paid {
+    background-color: #38A169; /* Green for "Paid" */
+  }
+  
+  .status-badge.inactive {
+    background-color: #E53E3E; /* Red for "Inactive" */
+  }
+  
+  /* Currency Styling */
+  .currency-positive {
+    color: #38A169; /* Green for positive amounts */
+    font-weight: bold;
+  }
+  
+  .currency-negative {
+    color: #E53E3E; /* Red for negative amounts */
+    font-weight: bold;
+  }
+  
+  /* Pagination */
+  .pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #4A5568;
+  }
+  
+  .pagination-container .pagination-info {
+    font-size: 12px;
+  }
+  
+  .pagination-container .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .pagination-container button {
+    padding: 5px 10px;
+    border: 1px solid #CBD5E0;
+    border-radius: 4px;
+    background-color: #ffffff;
+    cursor: pointer;
+    font-size: 12px;
+    color: #4A5568;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .pagination-container button:hover {
+    background-color: #3182CE;
+    color: #ffffff;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .view-modify-table-container {
+      padding: 10px;
+      max-width: 95%;
+    }
+  
+    .user-table th,
+    .user-table td {
+      padding: 8px;
+      font-size: 12px;
+    }
+  
+    .pagination-container {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+  
+
+  /* RFP List Table */
+
+  

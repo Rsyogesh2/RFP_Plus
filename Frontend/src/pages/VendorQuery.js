@@ -7,8 +7,30 @@ const VendorQuery = ({ rfpNo = "" ,rfpTitle=""}) => {
   const [rows, setRows] = useState([]);
   const [options, setOptions] = useState([]);
   const [modules, setModules] = useState([]);
+  const [vendorNames, setVendorNames] = useState([]);
+  const [selectedVendor, setSelectedVendor] = useState(null);
+ 
   const { userName, userPower, userRole, sidebarValue, moduleData = {} } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+   useEffect(() => {
+              const fetchVendor = async () => {
+                // if (!userName) {
+                //   alert("Please enter both RFP No and Bank Name");
+                //   return;
+                // }
+                try {
+                  const response = await fetch(`${API_URL}/fetchVendor?userName=${userName}&&rfpNo=${rfpNo}`);
+                  const data = await response.json();
+                  setVendorNames(data);
+                } catch (error) {
+                  console.error('Error fetching data:', error);
+                }
+              };
+              fetchVendor();
+            }, [userName]);
+          
+          
 
   const fetchVendorQueries = async () => {
     let url;
@@ -353,6 +375,34 @@ console.log(determineLevel())
     
   }, []);
 
+  const handleDropdownChangeVendor = (event) => {
+    const selectedIndex = event.target.value;  // Index is a string
+    if (selectedIndex !== "") {
+        const selectedObject = vendorNames[parseInt(selectedIndex)]; // Convert to number and access object
+        console.log("Selected Vendor Object:", selectedObject);
+        setSelectedVendor(selectedObject); // Store the entire object
+    } else {
+        setSelectedVendor(null); // Reset if no selection
+    }
+  };
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${API_URL}/fetchScores`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({selectedVendor,userName,rfpNo})
+            });
+            const data = await response.json();
+            console.log(data)
+            // setSections(data[1]);
+            // setCommercialValue(data[0]);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
   return (
     <div className="vendor-query-container">
       {/* {sidebarValue.length > 0 && (
@@ -362,6 +412,32 @@ console.log(determineLevel())
       <>
           <h3>{`${rfpNo || sidebarValue[0].rfp_no} - ${rfpTitle || sidebarValue[0].rfp_title}`}</h3>
         </>
+      <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
+              <select
+               onChange={handleDropdownChangeVendor}
+                style={{
+                  width: "80%",
+                  padding: "10px",
+                  height: "40px",
+                  boxSizing: "border-box"
+                }}
+              >
+                <option>Select Vendor</option>
+                {vendorNames && vendorNames.map((vName, index) => (
+                  <option key={index} value={index}>{vName.entity_name}</option>
+                ))}
+              </select>
+              <button
+                onClick={fetchData}
+                style={{
+                  padding: "10px",
+                  height: "40px",
+                  boxSizing: "border-box"
+                }}
+              >
+                Fetch Data
+              </button>
+            </div>
       <table className="vendor-query-table">
         <thead>
           <tr>

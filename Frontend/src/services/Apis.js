@@ -63,6 +63,14 @@ export const handleSave = async (payload,userPower="User") => {
                 },
                 body: JSON.stringify(payload)
             });
+        } else if(userPower==="Vendor Admin"){
+            response = await fetch(`${API_URL}/api/completed-rfp-functionalitem-vendor`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
         }
          
 

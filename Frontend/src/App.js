@@ -60,7 +60,7 @@ function App() {
           <div>
           {authState.isAuthenticated && (
               <Navbar  handleLogout={handleLogout} />
-)}
+            )}
             <Routes>
               {/* Dynamic Login Route */}
               <Route

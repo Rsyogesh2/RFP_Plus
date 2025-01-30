@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "./../context/AppContext";
-import './AddUserForm.css'
+import { HiUserAdd } from "react-icons/hi";
+// import './AddUserForm.css'
 
 const AddUserForm = () => {
   const { usersList, setUsersList, userName, userPower } = useContext(AppContext);
@@ -82,7 +83,7 @@ const AddUserForm = () => {
 
   return (
     <div className="add-user-form">
-      <h3>Add User</h3>
+      <h3><HiUserAdd /> Add User</h3>
 
       <form onSubmit={handleSubmit}>
         <div>

@@ -788,17 +788,26 @@ router.post('/api/vendor-admin', async (req, res) => {
   const creatorName = req.body.userName;
   try {
      const [bankNameResult] = await db.query(
-                `SELECT entity_name, user_id as id FROM superadmin_users WHERE super_user_email = ?`,
-                userName
+      `SELECT entity_name, user_id as id FROM superadmin_users WHERE super_user_email = ?`,
+                creatorName
             );
      const [submited] =  await db.query(`select * from rfp_functionalitem_draft 
-      WHERE Level = 3 
-      AND Status = 'Bank_Pending_Reviewer' and Bank_Id=?
-      AND RFP_No = ?`,[rfpReferenceNo,bankNameResult.id]);
+      WHERE Level = 4 
+      AND Status = 'Bank_Pending_Admin' 
+      AND RFP_No = ?`,[rfpReferenceNo]);
+      //and Bank_Id=?
+      // console.log(submited)
       const [assigned] =  await db.query(`select * from rfp_functionalitem_draft 
-        WHERE Bank_Id=?
-        AND RFP_No = ?`,[rfpReferenceNo,bankNameResult.id]);
-    if(submited.length>0 && submited.length===assigned.length && submited[0].Status== 'Bank_Pending_Reviewer'){
+        WHERE RFP_No = ?`,[rfpReferenceNo]);
+      // const [assigned] =  await db.query(`select * from rfp_functionalitem_draft 
+      //   WHERE Bank_Id=?
+      //   AND RFP_No = ?`,[rfpReferenceNo,bankNameResult.id]);
+          if(submited.length==0){
+          res.send({message:"RFP Not Completed"});
+          return false;
+        }
+        
+    if(submited.length>0 && submited.length===assigned.length){
 
     const query = `
       INSERT INTO Vendor_Admin_Users (
@@ -818,8 +827,8 @@ router.post('/api/vendor-admin', async (req, res) => {
       SET Status = 'Vendor_Pending_Maker',
       Level = 5,
       stage = 'Vendor'
-      WHERE Level = 3 
-      AND Status = 'Bank_Pending_Reviewer' 
+      WHERE Level = 4 
+      AND Status = 'Bank_Pending_Admin' 
       AND RFP_No = ?`,rfpReferenceNo);
 
     res.status(200).json({ success: true, message: "Vendor Admin data saved successfully" });

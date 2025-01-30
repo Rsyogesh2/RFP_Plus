@@ -5,7 +5,7 @@ import { AppContext } from '../../context/AppContext';
 import Button from '../Buttons/Button.js';
 import { handleSave } from '../../services/Apis'
 
-const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
+const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [name, setName] = useState(null); // Initially, no data
@@ -115,7 +115,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
             case userPower === "User" && userRole === "Reviewer":
                 return 3;
             case userPower === "Super Admin" || userRole === "Super Admin":
-                return 4;
+                return 3;
             case userPower === "Vendor User" && userRole === "Maker":
                 return 5;
             case userPower === "Vendor User" && userRole === "Authorizer":
@@ -151,7 +151,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
         if (userPower === "User" && userRole === "Maker") return 2;
         if (userPower === "User" && userRole === "Authorizer") return 3;
         if (userPower === "User" && userRole === "Reviewer") return 4;
-        if (userPower === "Super Admin") return 5;
+        if (userPower === "Super Admin") return 4;
         if (userPower === "Vendor User" && userRole === "Maker") return 6;
         if (userPower === "Vendor User" && userRole === "Authorizer") return 7;
         if (userPower === "Vendor User" && userRole === "Reviewer") return 8;
@@ -163,7 +163,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
             payload.stage = "Draft";
             payload.Status = "Bank_Pending_Maker";
             payload.assigned_to = null;
-        } else if (["Submit", "Approve", "Submit to Bank"].includes(action)) {
+        } else if (["Submit", "Approve", "Submit to Bank","Finalize the RFP"].includes(action)) {
             console.log(nextStatus())
             payload.Status = nextStatus();
             payload.assigned_to = data.assignedTo || null;
@@ -188,7 +188,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
         let payload = {
             module: itemData,
             items: FItem,
-            rfp_no: sidebarValue[0]?.rfp_no || '',
+            rfp_no: rfpNo || sidebarValue[0]?.rfp_no || '',
             rfp_title: sidebarValue[0]?.rfp_title || '',
             bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
             vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
@@ -199,6 +199,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
             Priority: data.priority || "Medium",
             Handled_by: [{ name: userName, role: userRole }],
             Action_log: `${action} by ${userName} on ${new Date().toISOString()}`,
+            userPower:userPower,
         };
 
         payload = adjustStageAndStatus(payload, action, data);
@@ -208,11 +209,6 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
 
 
     console.log(determineLevel())
-
-
-
-
-
 
     const findIndexByObject = (obj) => {
         return FItem.findIndex(
@@ -493,7 +489,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
     const readHierarchy = (levelData, levelType, paddingLeft = 10, TableIndex = null, parentIndex = null, subIndex = null, indexval) => {
         // console.log('Rendering level:', levelType, 'with data', levelData, TableIndex, parentIndex, " subIndex " + subIndex, "  indexval " + indexval);
 
-        if (!levelData || !Array.isArray(levelData)) return console.log("its empty"); // Ensure levelData is defined and an array
+        if (!levelData || !Array.isArray(levelData) || (levelData[0].deleted && levelData[0].Level===4)) return console.log("its empty"); // Ensure levelData is defined and an array
 
         return levelData.map((item, index) => {
             const date = new Date(item.Modified_Time);
@@ -509,7 +505,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
                             wordWrap: 'break-word',  // Breaks long words
                            paddingLeft: `${paddingLeft}px` }}>
                         <span style={{
-                            fontWeight: levelType === 'f1' ? 300 : 'normal',
+                            // fontWeight: levelType === 'f1' ? 300 : 'normal',
                             textDecoration: item.deleted ? 'line-through' : 'none'
                         }}>
                             {item.name}
@@ -780,26 +776,31 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="" }) => {
 
             {/* Show Submit button only for Authorizer or Reviewer */}
             {/* {(userRole === "Authorizer" || userRole === "Reviewer") && ( */}
-            {(userRole === "Authorizer") && FItem?.[0]?.Level ===2 && (
+            {(userRole === "Authorizer") && Number(FItem?.[0]?.Level) ===2 && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
                     Authorize
                 </button>
             )}
-            {(userRole === "Authorizer") && FItem?.[0]?.Level ===2 && (
+            {(userRole === "Authorizer") && Number(FItem?.[0]?.Level) ===2 && (
                 <button onClick={() => handleSave(constructPayload("Back to Maker", {action:"Back to Maker"}))}>
                     Back to Maker
                 </button>
             )}
 
             {/* Optional Save as Draft button for Maker */}
-            {userRole === "Maker" && FItem?.[0]?.Level ===1 && (
+            {userRole === "Maker" && Number(FItem?.[0]?.Level) ===1 && (
                 <button onClick={() => handleSave(constructPayload("Save as Draft", {}))}>
                     Save as Draft
                 </button>
             )}
-            {userRole === "Maker" && FItem?.[0]?.Level ===1 && (
+            {userRole === "Maker" && Number(FItem?.[0]?.Level) ===1 && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
                     Submit
+                </button>
+            )}
+            {userPower === "Super Admin" && Number(FItem?.[0]?.Level) ===3 && (
+                <button className="submitbtn" onClick={() => handleSave(constructPayload("Finalize the RFP", {}))}>
+                    Finalize the RFP
                 </button>
             )}
 

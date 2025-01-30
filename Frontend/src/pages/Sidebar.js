@@ -1,6 +1,7 @@
 import "./combinedpages.css";
 import { AppContext } from "./../context/AppContext";
 import React, { useEffect, useRef, useState, useContext, useCallback, useMemo } from "react";
+import { FaUserPlus, FaUsersCog, FaFileAlt, FaUserTag, FaUserShield, FaChartLine, FaTable } from "react-icons/fa";
 
 const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar }) => {
   const sidebarRef = useRef(null);
@@ -31,19 +32,19 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
   // Sidebar configuration based on user role
   const sidebarConfig = {
     "Super Admin": [
-      { label: "Add User", section: "Add User" },
-      { label: "View / Modify User", section: "View / Modify User" },
-      { label: "Create RFP", section: "Create RFP" },
-      { label: "Assign Users", section: "Assign Users" },
-      { label: "Vendor Admin", section: "Vendor Admin" },
-      { label: "Reports", section: "Reports" },
-      { label: "View RFP Table", section: "View RFP Table" },
-      // { label: "View RFPs", section: "View RFPs" },
+      { label: "Add User", section: "Add User", icon: <FaUserPlus /> },
+      { label: "View / Modify User", section: "View / Modify User", icon: <FaUsersCog /> },
+      { label: "Create RFP", section: "Create RFP", icon: <FaFileAlt /> },
+      { label: "Assign Users", section: "Assign Users", icon: <FaUserTag /> },
+      { label: "Vendor Admin", section: "Vendor Admin", icon: <FaUserShield /> },
+      { label: "Reports", section: "Reports", icon: <FaChartLine /> },
+      { label: "View RFP Table", section: "View RFP Table", icon: <FaTable /> },
+    ], // { label: "View RFPs", section: "View RFPs" },
       // { label: "Vendor Query Submission", section: "Vendor Query Submission" },
       // { label: "Final Evaluation", section: "Final Evaluation" },
       // { label: "Dashboard", section: "Dashboard" },
       
-    ],
+    // ],
     "Global Admin": [
       { label: "Add Super User", section: "Add Super User" },
       { label: "Modify Super User", section: "Modify Super User" },
@@ -54,6 +55,7 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       { label: "Add Vendor User", section: "Add Vendor User" },
       { label: "View / Modify Vendor Users", section: "View / Modify Vendor Users" },
       { label: "Assign Vendor Users", section: "Assign Vendor Users" },
+      { label: "View RFP", section: "View RFP" },
       { label: "Submit Query", section: "Submit Query" },
       { label: "Submit RFP", section: "Submit RFP" },
     ],
@@ -167,7 +169,7 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       </button>
       {isSidebarOpen && (
         <div>
-          <h3>Welcome...</h3>
+         
           <ul>
             {menuItems.length > 0 ? (
               menuItems.map((item, index) => (
@@ -177,7 +179,10 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
                     if (userPower !== "User" && userPower !== "Vendor User") {
                       handleSectionClick(item.section)}
                     }
-                    }>{item.label}</div>
+                    }>
+                      <span className="sidebar-icon">{item.icon && item.icon}</span>
+                      <span className="sidebar-label">{item.label}</span>
+                      </div>
                   {item.subItems?.length > 0 && (
                     <ul className="nested-sub-label">
                       {item.subItems.map((subItem, subIndex) => (

@@ -1,183 +1,317 @@
-.App {
-  text-align: center
+/* General Styling */
+body {
+  font-family: 'Arial', sans-serif;
+  /* background-color: #E9F5F1; */
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.HomePage-container {
+  padding-top: 60px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  height: 100vh;
+  /* background-color: #f4f6f9; */
+}
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+ 
+  transition: margin-left 0.3s ease-in-out;
+}
+/* Sidebar Styling */
+.sidebar {
+  position: fixed;
+  width: 250px;
+  height: 100vh;
+  background-color: #fff;
+  /* box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); */
+  transition: width 0.3s ease;
+  overflow: hidden;
+  margin-top: 30px;
+}
+.sidebar.open {
+  width: 250px;
+}
+.sidebar.closed {
+  width: 50px;
+}
+/* When Sidebar is Open */
+.with-sidebar {
+  margin-left: 250px;
 }
 
-.App-link {
-  color: #61dafb;
+/* Full-Screen Mode */
+.full-screen {
+  margin-left: 50px;
 }
-
-.btn {
-  padding: 10px 20px;
-  margin: 5px;
+.toggle-btn {
+  position: absolute;
+  top: 0px;
+  right: -15px;
+  width: 30px;
+  height: 30px;
+  /* background-color: #02735E; */
+  color: #02735E;
   border: none;
-  border-radius: 4px;
+  border-radius: 10%;
   cursor: pointer;
-  font-size: 1em;
-  color: white;
-}
-
-.btn[text="submit"] {
-  background-color: #4CAF50; /* Green */
-}
-
-.btn[text="cancel"] {
-  background-color: #f44336; /* Red */
-}
-
-
-
-.logout-btn:hover {
-  background-color: #45a049; /* Slightly darker green on hover */
-}
-
-/* Navigation Bar */
-.navbar {
+  font-size: 18px;
+  text-align: center;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 10px 20px;
-  /* background-color: #fff; */
-  background-color: #007bff;
-  border-bottom: 1px solid #ddd;
-  font-family: Arial, sans-serif;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar h3 {
+  margin: 20px;
+  color: #4A4A4A;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar ul li {
+  padding: 13px 15px;
+  cursor: pointer;
+  transition: background-color 0.1s ease, color 0.3s ease;
+  color: #333;
+  align-self: center;
+  font-weight: bold;
+  border-radius: 25px;
+}
+.sidebar ul li:hover {
+  background-color: #02735E;
+  border-radius: 25px;
+  color: #fff;
+}
+
+
+.sidebar-mainlabel:has(+ .sidebar-sublabel):hover {
+  background-color: transparent; /* Remove hover effect when sublabel exists */
+  cursor: default;
+}
+
+
+.sidebar-mainlabel{
+  display: flex;
+  align-items: center;
+  /* padding: 10px 15px; */
+  margin-bottom: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.sidebar-icon {
+  font-size: 18px;
+  /* color: #007bff; */
+  margin-right: 10px;
+}
+
+.sidebar-sublabel {
+  padding-left: 40px;
+  font-size: 14px;
+  color: #666;
+}
+/* Remove hover effect from parent when any sub-label is hovered */
+.sidebar ul li:hover:has(.sidebar-sublabel:hover) {
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+}
+/* Navbar Styling */
+/* Navbar.css */
+.navbar {
+  position: fixed; /* Fix the navbar to the top */
+  top: 0; /* Align it at the top of the page */
+  left: 0;
+  right: 0;
+  z-index: 1000; /* Ensure it stays on top of other elements */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff; /* Background color */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  padding: 10px 15px; /* Spacing */
+  border-radius: 0; /* No rounded corners for a cleaner fixed navbar */
+  margin-bottom: 0;
 }
 
 .navbar-menu {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
+  width: 100%;
+  align-items: center;
 }
 
-/* Logo Section */
 .navbar-left {
   flex: 1;
-  display: flex;
-  align-items: center;
 }
 
 .navbar-logo {
   height: 40px;
-  cursor: pointer;
-  margin-left: 10px;
+  width: auto;
+  padding-left: 10px;
+  border-radius: 4px;
 }
 
-/* Center Section */
 .navbar-center {
   flex: 2;
   text-align: center;
 }
 
 .navbar-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
-  color: #ffffff;
+  color: #333333; /* Title color */
   margin: 0;
 }
 
 .navbar-subtitle {
   font-size: 14px;
-  color: #ffffff;
+  color: #777777; /* Subtitle color */
   margin: 0;
 }
 
-.navbar-center div {
-  background-color: #007bff;
-  padding: 10px 20px;
-  border-radius: 8px;
-  display: inline-block;
-}
-
-/* Right Section (Logout Button) */
 .navbar-right {
-  display: flex;
-  flex-direction: column; /* Stack username and button vertically */
-  align-items: flex-end; /* Align items to the right */
+  flex: 1;
+  text-align: right;
 }
 
 .navbar-user-container {
   display: flex;
-  flex-direction: column; /* Stack username and logout button vertically */
-  align-items: center; /* Align content to the right */
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .navbar-username {
   font-size: 14px;
-  font-weight: bold;
-  color: #ffffff;
-  margin-bottom: 5px; /* Space between username and button */
-}
-
-.logout-btn {
-  background-color: #ff4d4d;
-  color: #ffffff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-left: 9px;
-}
-
-.logout-btn:hover {
-  background-color: #e60000;
+  font-weight: 500;
+  color: #333333;
 }
 
 
 
 .logout-btn {
-  background-color: #007bff;
-  color: #fff;
+  background-color: #007BFF; /* Button color */
+  color: #ffffff;
   border: none;
   border-radius: 4px;
-  padding: 8px 16px;
+  padding: 8px 12px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  margin-top: 5px;
+  transition: background-color 0.3s ease;
 }
 
 .logout-btn:hover {
-  background-color: #0056b3;
+  background-color: #0056b3; /* Hover color */
+}
+
+/* Add User Form Styling */
+.add-user-form {
+  padding: 0  0  0 30px;
+  max-width: 500px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  font-family: 'Arial', sans-serif;
+}
+.add-user-form h3 {
+  margin-bottom: 20px;
+  color: #02735E;
+  font-size: 24px;
+  font-weight: bold;
+}
+.add-user-form form div {
+  margin-bottom: 15px;
+}
+.add-user-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+.add-user-form input,
+.add-user-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
+.add-user-form input::placeholder,
+.add-user-form select::placeholder {
+  /* color: #a77e4d; Light brown placeholder */
+  font-style: italic;
+}
+.add-user-form input:focus,
+.add-user-form select:focus {
+  border-color: #02735E;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(2, 115, 94, 0.5);
+}
+.add-user-form .buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+.add-user-form button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+.add-user-form button[type="submit"] {
+  background-color: #02735E;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+.add-user-form button[type="submit"]:hover {
+  background-color: #025C49;
+}
+.add-user-form button[type="button"] {
+  background-color: #f0f0f0;
+  color: #333;
+  transition: background-color 0.3s ease;
+}
+.add-user-form button[type="button"]:hover {
+  background-color: #ddd;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .navbar-menu {
-    flex-direction: column;
-    align-items: center;
+  .add-user-form {
+    margin: 10px; /* Adjust for smaller screens */
+    padding: 15px;
+    width: auto;
   }
-
-  .navbar-left, .navbar-right {
-    flex: unset;
-    margin-bottom: 10px;
+  .add-user-form h3 {
+    font-size: 20px;
   }
-
-  .navbar-center div {
-    width: 100%;
+  .add-user-form label {
+    font-size: 12px;
+  }
+  .add-user-form input,
+  .add-user-form select {
+    font-size: 12px;
+    padding: 8px;
+  }
+  .add-user-form button {
+    font-size: 12px;
+    padding: 8px 12px;
   }
 }

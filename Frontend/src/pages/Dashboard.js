@@ -3,6 +3,7 @@ import './Dashboard.css';
 import { AppContext } from "./../context/AppContext";
 const ScoringDashboard = ({rfpNo="", rfpTitle= ""}) => {
     const [scoringData, setScoringData] = useState([]);
+       
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const { userName  } = useContext(AppContext); // Users load in the table
       
@@ -25,7 +26,6 @@ const ScoringDashboard = ({rfpNo="", rfpTitle= ""}) => {
             { name: '', scores: [0, 0, 0, 0, 0, 0, 0, 0] }
         ]);
 
-        
         // Fetch Vendor Names and Other Scores
         useEffect(() => {
             const fetchfinalEvaluation = async () => {
@@ -164,11 +164,12 @@ const ScoringDashboard = ({rfpNo="", rfpTitle= ""}) => {
 
         fetchData2();
     }, [userName]);
+    // Handle Dropdown Change
     
-
     return (
         <div className="scoring-dashboard">
             <h3>{`${rfpNo} - ${rfpTitle}`}</h3>
+            
             <table className="scoring-dashboard-table" border="1" cellPadding="10">
                 {/* HEADER */}
                 <thead>
@@ -237,7 +238,7 @@ const ScoringDashboard = ({rfpNo="", rfpTitle= ""}) => {
                             return (
                                 <React.Fragment key={`final-${index}`}>
                                     <td colSpan={2} className="final-score-cell">
-                                    <span>{finalScore.toFixed(2)}%</span>
+                                    <span>{isNaN(finalScore.toFixed(2))?"0":finalScore.toFixed(2)}%</span>
                                     </td>
                                     {index < vendors.length - 1 && <td className="vendor-gap"></td>}
                                 </React.Fragment>

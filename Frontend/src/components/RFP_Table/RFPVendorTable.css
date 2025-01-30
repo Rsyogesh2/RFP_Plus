@@ -1,121 +1,235 @@
-/* Styling for the table container */
-.rfp-table{
-  width: 100%; 
-  /* background-color: #31b1e4; */
+/* Table Container */
+.rfp-table {
+  /* width: 85%; */
+  /* margin: 10px 0 0 260px;  */
+  padding: 20px;
+  overflow-x: auto; /* Prevents page-wide horizontal scrolling */
 }
-.item-table1 {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: Arial, sans-serif;
-    text-align: left;
-    font-size: 13px;
-  }
-  
-  .item-table1 th, .item-table1 td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
-  }
-  
-  .item-table1 th {
-    background-color: #f2f2f2;
-    /* font-weight: bold; */
-  }
-  
-  .item-table1 td {
-    vertical-align: middle;
-  }
-  
-  /* Specific column widths */
-  .item-table1 th:first-child,
-  .item-table1 td:first-child {
-    width: 30%; /* Requirement column */
-    text-align: left;
-  }
-  
-  .item-table1 th:nth-child(2),
-  .item-table1 td:nth-child(2) {
-    width: 5%; /* M/O column */
-    font-weight: normal;
-
-  }
-  
-  .item-table1 th:nth-child(3),
-  .item-table1 td:nth-child(3) {
-    width: 15%; /* Comments column */
-    text-align: left;
-    font-weight: normal;
-  }
-  
-  .item-table1 th:nth-child(4),
-  .item-table1 td:nth-child(4),
-  .item-table1 th:nth-child(5),
-  .item-table1 td:nth-child(5),
-  .item-table1 th:nth-child(6),
-  .item-table1 td:nth-child(6),
-  .item-table1 th:nth-child(7),
-  .item-table1 td:nth-child(7) {
-    width: 2%; /* A, P, C, N columns */
-    text-align: center;
-  }
-  
-  .item-table1 th:nth-child(8),
-  .item-table1 td:nth-child(8) {
-    width:45%; /* Remarks column */
-  }
-  .item-table1 td:nth-child(8) textarea{
-    width: 100%;
-  }
-  
-  .item-table1 th:nth-child(9),
-  .item-table1 td:nth-child(9) {
-    width: 3%; /* Attach column */
-    font-size: 16px;
-  }
-  
- /* Scale the checkbox */
-.item-table1 input[type="checkbox"] {
-  transform: scale(1.2); /* Scale checkboxes for better visibility */
-  /* appearance: none; */
-  /* width: 20px;
-  height: 20px;
-  border: 2px solid #666;
-  border-radius: 3px;
-  background-color: #f0f0f0;
-  cursor: pointer; */
+/* Header - Flexbox for Title & Labels on the Same Line */
+.header {
+  display: flex;
+  justify-content: space-between; /* Pushes title left, labels right */
+  /* align-items: center; */
+  /* padding: 0px 5px; */
+  flex-wrap: wrap; /* Ensures responsiveness */
 }
 
-/* Light green background when checkbox is checked */
-.item-table1 input[type="checkbox"]:checked {
-  background-color: #a8e6a3; /* Light green background */
-  border-color: #28a745; /* Darker green border */
+/* Title Styling */
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #222;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-/* White checkmark */
+/* Labels Section - Align to Right */
+.labels {
+  display: flex;
+  margin-top: -15px;
+  flex-direction: column; /* Stack labels vertically */
+  align-items: flex-end; /* Align to the right */
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
+  text-align: right; /* Ensure text is aligned to the right */
+}
 
+/* Label Style */
+.labels span {
+  background: #e9ecef;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #0077cc;
+  display: inline-block;
+  width: fit-content;
+}
 
-  
-  .item-table1 input[type="text"],
-  .item-table1 input[type="file"] {
-    width: 100%;
-    box-sizing: border-box;
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
-  
-  /* Optional: Style table rows with alternating colors */
-  .item-table1 tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  .item-table1 tbody tr:nth-child(odd) {
-    background-color: #ffffff;
-  }
-  
-  /* Highlight the header row with a specific color */
-  .item-table1 thead tr {
-    background-color: #e0e0e0;
-  }
-  
   .labels {
-    padding-left: 20px;
-    padding-right: 20px;
+    align-items: flex-start;
+    text-align: left;
   }
+}
+
+/* Table General Styling */
+.item-table1 {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Table Header */
+.item-table1 thead tr {
+  background: #325496;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.item-table1 th, 
+.item-table1 td {
+  border: 1px solid #ddd;
+  padding: 14px;
+  text-align: center;
+}
+
+/* Adjust Column Widths */
+.item-table1 th:first-child,
+.item-table1 td:first-child {
+  width: 25%;
+  text-align: left;
+}
+
+.item-table1 th:nth-child(2),
+.item-table1 td:nth-child(2) {
+  width: 5%;
+  font-weight: normal;
+}
+
+.item-table1 th:nth-child(3),
+.item-table1 td:nth-child(3) {
+  width: 15%;
+  text-align: left;
+}
+
+.item-table1 th:nth-child(4),
+.item-table1 td:nth-child(4),
+.item-table1 th:nth-child(5),
+.item-table1 td:nth-child(5),
+.item-table1 th:nth-child(6),
+.item-table1 td:nth-child(6),
+.item-table1 th:nth-child(7),
+.item-table1 td:nth-child(7) {
+  width: 5%;
+}
+
+.item-table1 th:nth-child(8),
+.item-table1 td:nth-child(8) {
+  width: 40%;
+}
+
+.item-table1 td:nth-child(8) textarea {
+  width: 100%;
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+/* Attach Column */
+.item-table1 th:nth-child(9),
+.item-table1 td:nth-child(9) {
+  width: 5%;
+  font-size: 16px;
+}
+
+/* Alternating Row Colors */
+.item-table1 tbody tr:nth-child(even) {
+  background: #f9fcff;
+}
+
+.item-table1 tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+
+/* Hover Effect */
+.item-table1 tbody tr:hover {
+  background: #e1effe;
+  transition: 0.3s;
+}
+
+/* Input Fields */
+.item-table1 input[type="text"],
+.item-table1 input[type="file"],
+.item-table1 textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition: all 0.2s ease-in-out;
+}
+
+.item-table1 input[type="text"]:focus,
+.item-table1 input[type="file"]:focus,
+.item-table1 textarea:focus {
+  border-color: #0077cc;
+  box-shadow: 0px 0px 8px rgba(0, 119, 204, 0.2);
+}
+
+/* Styled Checkboxes */
+.item-table1 input[type="checkbox"] {
+  transform: scale(1.2);
+  accent-color: #28a745;
+  cursor: pointer;
+}
+
+/* Checkbox Checked Styling */
+.item-table1 input[type="checkbox"]:checked {
+  background: #28a745;
+  border-color: #28a745;
+}
+
+/* Labels */
+.labels {
+  padding: 12px;
+  font-weight: bold;
+  color: #444;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .rfp-table {
+    width: 100%;
+    margin: 0;
+    padding: 10px;
+  }
+
+  .item-table1 {
+    font-size: 12px;
+  }
+
+  .item-table1 th, 
+  .item-table1 td {
+    padding: 10px;
+  }
+
+  .item-table1 input[type="text"],
+  .item-table1 input[type="file"],
+  .item-table1 textarea {
+    padding: 8px;
+  }
+
+  .item-table1 input[type="checkbox"] {
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .item-table1 th, 
+  .item-table1 td {
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .item-table1 input[type="text"],
+  .item-table1 input[type="file"],
+  .item-table1 textarea {
+    padding: 6px;
+  }
+}

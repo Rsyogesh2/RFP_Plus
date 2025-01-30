@@ -2,149 +2,155 @@
 .scoring-dashboard {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 20px;
-    background-color: #f4f6f9;
-  }
-  
-  .scoring-dashboard .scoring-dashboard-table {
+    background-color: #eef2f7;
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    table-layout: fixed; /* Ensures equal column widths */
-  }
-  
-  /* Table headers */
-  .scoring-dashboard .scoring-component-header,
-  .scoring-dashboard .overall-weightage-header,
-  .scoring-dashboard .score-header,
-  .scoring-dashboard .weighted-score-header {
-    background-color: #3498db;
-    color: white;
-    padding: 12px 15px;
-    text-align: center;
-    font-size: 16px;
-    font-weight: 600;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-  }
-  
-  .scoring-dashboard .scoring-component-header {
-    text-align: left;
-  }
-  
-  .scoring-dashboard .vendor-header {
-    background-color: #d0e4f7;
-    color: #2c3e50;
-    padding: 12px 15px;
-    font-weight: 600;
-    font-size: 14px;
-    text-align: center;
-    white-space: nowrap; /* Prevents text wrapping */
-  }
-  
-  /* Body content - each row */
-  .scoring-dashboard .scoring-component,
-  .scoring-dashboard .overall-weightage {
-    padding: 12px 15px;
-    text-align: center;
-    font-size: 14px;
-  }
-  
-  .scoring-dashboard .scoring-component {
-    background-color: #f9f9f9;
-    font-weight: 500;
-  }
-  
-  .scoring-dashboard .score-cell,
-  .scoring-dashboard .weighted-score-cell {
-    text-align: center;
-    padding: 12px 15px;
-    font-size: 14px;
-  }
-  
-  .scoring-dashboard .score-cell {
-    background-color: #f1f8fd;
-  }
-  
-  .scoring-dashboard .weighted-score-cell {
-    background-color: #ecf6fd;
-  }
-  
-  /* Hover effects for score and weighted score cells */
-  .scoring-dashboard .score-cell:hover,
-  .scoring-dashboard .weighted-score-cell:hover {
-    background-color: #e1effd;
-    cursor: pointer;
-  }
-  
-  /* Final score styling */
-  .scoring-dashboard .final-score-label {
-    padding: 12px 15px;
-    background-color: #f9f9f9;
-    font-weight: 600;
-    text-align: center;
-    font-size: 16px;
-  }
-  
-  .scoring-dashboard .final-score-cell {
-    text-align: center;
-    padding: 12px 15px;
-    background-color: #d0e4f7;
-    font-size: 16px;
-    font-weight: 600;
-    color: #2c3e50;
-  }
-  
-  /* Table border styling */
-  .scoring-dashboard .scoring-dashboard-table th,
-  .scoring-dashboard .scoring-dashboard-table td {
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    text-align: center;
-  }
-  
-  /* Optional: Styling for the table on smaller screens */
-  @media (max-width: 768px) {
-    .scoring-dashboard .scoring-dashboard-table {
-      font-size: 12px;
-    }
-  
-    .scoring-dashboard .scoring-component-header,
-    .scoring-dashboard .score-header,
-    .scoring-dashboard .weighted-score-header {
-      font-size: 14px;
-    }
-  
-    .scoring-dashboard .vendor-header {
-      font-size: 12px;
-    }
-  }
-  /* .scoring-dashboard .scoring-dashboard-table th,
-  .scoring-dashboard .scoring-dashboard-table td {
-    width: 15%; 
-  } */
-    
+    overflow-x: auto; /* Enables horizontal scrolling if needed */
+    max-width: 100%;
+}
+
+/* Table container */
 .scoring-dashboard-table {
-    border-collapse: separate; /* Prevents merging of borders */
-    border-spacing: 20px; /* Controls the gap size between columns */
-    width: 100%;
+    width: 100%; /* Reduce table width */
+    max-width: 100%; /* Prevent overflow */
+    /* table-layout: fixed; Ensures equal column distribution */
+    /* border-collapse: collapse; */
+    /* overflow-x: auto; Enable horizontal scrolling if content overflows */
+    /* box-sizing: border-box; Ensure padding doesn't cause overflow */
+    /* border-collapse: collapse; */
+    /* border-collapse: collapse; */
+    margin-top: 20px;
+    background: #ffffff;
+    /* border-radius: 12px; */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* overflow: hidden; */
 }
 
-.vendor-header, .score-header, .weighted-score-header, 
-.scoring-component, .overall-weightage, 
-.score-cell, .weighted-score-cell, 
-.final-score-label, .final-score-cell {
+/* Table headers */
+.scoring-dashboard-table th {
+    background: #2c3e50;
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
     text-align: center;
-    padding: 10px;
-    border: 1px solid black;
 }
 
-/* Removing border for the gap column */
-.vendor-gap {
-    border: none;
-    background: none;
-    padding: 0;
-    width: 20px; /* Adjust gap size as needed */
+.scoring-dashboard-table th:first-child {
+    /* border-top-left-radius: 12px; */
+}
+
+.scoring-dashboard-table th:last-child {
+    /* border-top-right-radius: 12px; */
+}
+
+/* Table rows */
+.scoring-dashboard-table td {
+    padding: 14px;
+    font-size: 14px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Alternating row colors */
+.scoring-dashboard-table tbody tr:nth-child(odd) {
+    background: #f9fbfd;
+}
+
+.scoring-dashboard-table tbody tr:nth-child(even) {
+    background: #ffffff;
+}
+
+/* Hover effects */
+.scoring-dashboard-table tbody tr:hover {
+    background: #d0e4f7;
+    transition: background 0.3s ease;
+}
+
+/* Score and weighted score styling */
+.score-cell,
+.weighted-score-cell {
+    font-weight: 500;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.score-cell:hover,
+.weighted-score-cell:hover {
+    background: #b0d4f1;
+    cursor: pointer;
+    transform: scale(1.05);
+}
+
+/* Final score row */
+.final-score-label {
+    font-weight: 700;
+    background: #ecf6fd;
+    text-align: center;
+}
+
+.final-score-cell {
+    font-weight: 700;
+    /* background: #2980b9; */
+    background: #ecf6fd;
+    color: white;
+    font-size: 18px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .scoring-dashboard-table th, 
+    .scoring-dashboard-table td {
+        font-size: 12px;
+        padding: 10px;
+    }
+}
+/* Remove background color from score and weighted score cells */
+.scoring-dashboard .score-cell,
+.scoring-dashboard .weighted-score-cell {
+    background-color: transparent; /* Remove the unwanted coloring */
+    text-align: center;
+    padding: 12px 15px;
+    font-size: 14px;
+    border-left: 1px solid #e0e0e0; /* Add a subtle border between columns */
+    border-right: 1px solid #e0e0e0;
+}
+
+/* Keep hover effect but avoid background change */
+.scoring-dashboard .score-cell:hover,
+.scoring-dashboard .weighted-score-cell:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Slight highlight on hover */
+    cursor: pointer;
+}
+
+/* Ensure no extra border spacing */
+.scoring-dashboard-table {
+    border-collapse: collapse;
+    width: 80%;
+}
+
+/* Apply uniform background color to all header cells */
+.scoring-dashboard-table th {
+  background-color: #2c3e50 !important; /* Force dark blue */
+  color: white !important;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Fix for alternating white headers */
+/* Ensure every 3rd header (3rd, 6th, 9th, etc.) in the second row has a light gray background */
+.scoring-dashboard-table tr:nth-child(2) th:nth-child(3n) {
+  background: #f9fbfd !important; /* Light gray */
+  color: #2c3e50 !important; /* Adjust text color for contrast */
+  border-bottom: none !important; 
+}
+
+
+/* Ensure 3rd, 5th, and 7th headers in the first row are white */
+.scoring-dashboard-table tr:first-child th:nth-child(3),
+.scoring-dashboard-table tr:first-child th:nth-child(5),
+.scoring-dashboard-table tr:first-child th:nth-child(7) {
+    background-color: #f9fbfd !important;
+    color: #2c3e50 !important; /* Adjust text color for visibility */
+    border-bottom: none !important;  /* Optional: Add border for clarity */
 }

@@ -494,6 +494,188 @@ const saveItems = async (items) => {
   });
 };
 
+router.post('/insertFItem', async (req, res) => {
+  console.log("🚀 insertFItem API called");
+
+  const { payload } = req.body;
+  const {
+    module,
+    items,
+    rfp_no,
+    rfp_title,
+    stage,
+    bank_name,
+    created_by,
+    assigned_to,
+    Status,
+    Priority,
+    Handled_by,
+    Action_log,
+    level,  
+    userPower
+  } = payload;
+
+  console.log(`🔹 User Power: ${userPower}, Level: ${level}, Status: ${Status}`);
+
+  const connection = await db.getConnection();
+
+  try {
+    console.log("✅ Starting transaction...");
+    await connection.beginTransaction();
+
+    if (userPower === "User" || userPower === "Super Admin") {
+      for (const l1Item of module) {
+        const { name, code, l2 } = l1Item;
+        console.log(`🔍 Processing L1: Code=${code}, Name=${name}`);
+
+        // First, attempt an UPDATE
+        const updateL1 = await connection.query(
+          `UPDATE RFP_Saved_L1_Modules 
+           SET L1_Module_Description = ?, stage = ?, bank_name = ?, created_by = ?, assigned_to = ?, Status = ?, Priority = ?, Handled_By = ?, Action_Log = ?, Level = ?
+           WHERE L1_Code = ? AND RFP_No = ?`,
+          [name, stage, bank_name, created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level, code, rfp_no]
+        );
+
+        console.log(`🔄 L1 Update Affected Rows: ${updateL1[0].affectedRows}`);
+
+        if (updateL1[0].affectedRows === 0) {
+          console.log(`⚠️ No existing L1 record found, inserting new row for Code=${code}`);
+          await connection.query(
+            `INSERT INTO RFP_Saved_L1_Modules 
+              (L1_Code, L1_Module_Description, RFP_No, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [code, name, rfp_no, stage, bank_name, created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level]
+          );
+        }
+
+        if (l2 && l2.length > 0) {
+          for (const l2Item of l2) {
+            console.log(`🔍 Processing L2: Code=${l2Item.code}, Name=${l2Item.name}`);
+
+            await connection.query(
+              `INSERT INTO RFP_Saved_L2_Modules (L2_Code, L2_Module_Description, RFP_No, stage)
+               VALUES (?, ?, ?, ?)
+               ON DUPLICATE KEY UPDATE L2_Module_Description = VALUES(L2_Module_Description), stage = VALUES(stage)`,
+              [l2Item.code, l2Item.name, rfp_no, stage]
+            );
+
+            if (l2Item.l3 && l2Item.l3.length > 0) {
+              for (const l3Item of l2Item.l3) {
+                console.log(`🔍 Processing L3: Code=${l3Item.code}, Name=${l3Item.name}`);
+
+                await connection.query(
+                  `INSERT INTO RFP_Saved_L3_Modules (L3_Code, L3_Module_Description, RFP_No, stage)
+                   VALUES (?, ?, ?, ?)
+                   ON DUPLICATE KEY UPDATE L3_Module_Description = VALUES(L3_Module_Description), stage = VALUES(stage)`,
+                  [l3Item.code, l3Item.name, rfp_no, stage]
+                );
+              }
+            }
+          }
+        }
+      }
+
+      for (const item of items) {
+        // console.log(`🔍 Processing Item: Name=${item.name}, Module_Code=${item.Module_Code}`);
+
+        let Modified_Time = null;
+        if (item.Modified_Time && !isNaN(new Date(item.Modified_Time))) {
+          const date = new Date(item.Modified_Time);
+          Modified_Time = new Date(date - date.getTimezoneOffset() * 60000).toISOString().slice(0, 19).replace('T', ' ');
+        }
+
+        if(userPower==="User"){
+          const values = [
+            rfp_title, rfp_no, item.name, item.Module_Code, item.F1_Code, item.F2_Code, item.New_Code || "00",
+            item.Mandatory, item.Comments, item.deleted, Modified_Time, item.Edited_By, stage, bank_name, 
+            created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level
+          ];
+  
+          const insertQuery = ` 
+            INSERT INTO RFP_FunctionalItem_Draft 
+              (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE 
+              Requirement = VALUES(Requirement),
+              Mandatory = VALUES(Mandatory),
+              Comments = VALUES(Comments),
+              deleted = VALUES(deleted),
+              Modified_Time = VALUES(Modified_Time),
+              Edited_By = VALUES(Edited_By),
+              stage = VALUES(stage),
+              created_by = VALUES(created_by),
+              assigned_to = VALUES(assigned_to),
+              Status = VALUES(Status),
+              Priority = VALUES(Priority),
+              Handled_By = VALUES(Handled_By),
+              Action_Log = VALUES(Action_Log),
+              Level = VALUES(Level);
+          `;
+  
+          const updateResult = await connection.query(insertQuery, values);
+          // console.log(`🔄 Item Insert/Update Affected Rows: ${updateResult[0].affectedRows}`);
+        
+        } else if(userPower==="Super Admin"){
+          console.log("inside super Admin")
+          const [rows] = await connection.query(
+            `SELECT Level FROM RFP_FunctionalItem_Draft WHERE RFP_No = ? AND Module_Code = ?`, 
+            [rfp_no, item.Module_Code]
+          );
+          // console.log(`Before Update - Level in DB: ${rows.length ? rows[0].Level : 'Not Found'}`);
+          
+          const updateQuery = `
+                UPDATE RFP_FunctionalItem_Draft
+                SET 
+                  assigned_to = ?, 
+                  Status = ?, 
+                  Handled_By = ?, 
+                  Action_Log = ?, 
+                  Level = ?
+                WHERE 
+                  RFP_No = ? AND 
+                  Module_Code = ? AND 
+                  F1_Code = ? AND 
+                  F2_Code = ? AND 
+                  New_Code = ?;
+              `;
+
+              const updateValues = [
+                assigned_to, 
+                "Bank_Pending_Admin", 
+                JSON.stringify(Handled_by), 
+                Action_log, 
+                4, // Updating Level to 4
+                rfp_no, 
+                item.Module_Code, 
+                item.F1_Code, 
+                item.F2_Code, 
+                item.New_Code || "00"
+              ];
+
+              console.log(updateValues)
+          const updateResult = await connection.query(updateQuery, updateValues);
+          // console.log(`🔄 Item Insert/Update Affected Rows: ${updateResult[0].affectedRows}`);
+        
+        }
+        }
+    } else if (userPower === "Vendor User") {
+      console.log("⚠️ Vendor User access - No operations performed.");
+    }
+
+    console.log("✅ Committing transaction...");
+    await connection.commit();
+    res.status(200).json({ message: 'Data inserted/updated successfully' });
+
+  } catch (error) {
+    await connection.rollback();
+    console.error('❌ Error inserting data:', error);
+    res.status(500).json({ error: 'Error inserting data', details: error.message });
+  } finally {
+    connection.release();
+  }
+});
+
+
 // router.post('/insertFItem', async (req, res) => {
 //   console.log("insertFItem");
 //   const { module, items, rfp_no, rfp_title, stage, entity_Name, userName } = req.body;
@@ -617,259 +799,262 @@ const saveItems = async (items) => {
 //   }
 // });
 
-router.post('/insertFItem', async (req, res) => {
-  console.log("insertFItem");
+// router.post('/insertFItem', async (req, res) => {
+//   console.log("insertFItem");
 
-  const {payload,userPower} = req.body;
-  console.log("Payload:", payload);
+//   const {payload} = req.body;
+//   // console.log("Payload:", payload);
 
-  const {
-    module,
-    items,
-    rfp_no,
-    rfp_title,
-    stage,
-    bank_name,
-    created_by,
-    assigned_to,
-    Status,
-    Priority,
-    Handled_by,
-    Action_log,
-    level,
-  } = payload;
+//   const {
+//     module,
+//     items,
+//     rfp_no,
+//     rfp_title,
+//     stage,
+//     bank_name,
+//     created_by,
+//     assigned_to,
+//     Status,
+//     Priority,
+//     Handled_by,
+//     Action_log,
+//     level,  
+//     userPower
+//   } = payload;
+//   console.log(level,Status,userPower);
 
-  const connection = await db.getConnection();
+//   const connection = await db.getConnection();
 
-  try {
-    // Start a transaction
-    await connection.beginTransaction();
+//   try {
+//     // Start a transaction
+//     await connection.beginTransaction();
 
-    // Handle `Handled_by` field
-    // if (Array.isArray(Handled_by) && Handled_by.length > 0) {
-    //   for (const handler of Handled_by) {
-    //     const { name, role } = handler;
+//     // Handle `Handled_by` field
+//     // if (Array.isArray(Handled_by) && Handled_by.length > 0) {
+//     //   for (const handler of Handled_by) {
+//     //     const { name, role } = handler;
 
-    //     await connection.query(
-    //       `INSERT INTO RFP_Handled_By 
-    //         (RFP_No, Handler_Name, Handler_Role)
-    //        VALUES (?, ?, ?)
-    //        ON DUPLICATE KEY UPDATE
-    //          Handler_Role = VALUES(Handler_Role)`,
-    //       [rfp_no, name, role]
-    //     );
-    //   }
-    // }
+//     //     await connection.query(
+//     //       `INSERT INTO RFP_Handled_By 
+//     //         (RFP_No, Handler_Name, Handler_Role)
+//     //        VALUES (?, ?, ?)
+//     //        ON DUPLICATE KEY UPDATE
+//     //          Handler_Role = VALUES(Handler_Role)`,
+//     //       [rfp_no, name, role]
+//     //     );
+//     //   }
+//     // }
 
-    if(userPower=="User"){
-    // Insert or Update into L1, L2, and L3 tables
-    for (const l1Item of module) {
-      const { name, code, l2 } = l1Item;
+//     if(userPower=="User" ||userPower=="Super Admin"){
+//       console.log(userPower);
+//     // Insert or Update into L1, L2, and L3 tables
+//     for (const l1Item of module) {
+//       const { name, code, l2 } = l1Item;
 
-      await connection.query(
-        `INSERT INTO RFP_Saved_L1_Modules 
-          (L1_Code, L1_Module_Description, RFP_No, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           L1_Module_Description = VALUES(L1_Module_Description),
-           RFP_No = VALUES(RFP_No),
-           stage = VALUES(stage),
-           bank_name = VALUES(bank_name),
-           created_by = VALUES(created_by),
-           assigned_to = VALUES(assigned_to),
-           Status = VALUES(Status),
-           Priority = VALUES(Priority),
-           Handled_By = VALUES(Handled_By),
-           Action_Log = VALUES(Action_Log),
-           Level = VALUES(Level)`,
-        [code, name, rfp_no, stage, bank_name, created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level]
-      );
+//       await connection.query(
+//         `INSERT INTO RFP_Saved_L1_Modules 
+//           (L1_Code, L1_Module_Description, RFP_No, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
+//          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//          ON DUPLICATE KEY UPDATE
+//            L1_Module_Description = VALUES(L1_Module_Description),
+//            RFP_No = VALUES(RFP_No),
+//            stage = VALUES(stage),
+//            bank_name = VALUES(bank_name),
+//            created_by = VALUES(created_by),
+//            assigned_to = VALUES(assigned_to),
+//            Status = VALUES(Status),
+//            Priority = VALUES(Priority),
+//            Handled_By = VALUES(Handled_By),
+//            Action_Log = VALUES(Action_Log),
+//            Level = VALUES(Level)`,
+//         [code, name, rfp_no, stage, bank_name, created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level]
+//       );
 
-      if (l2 && l2.length > 0) {
-        const l2Values = [];
-        const l3Values = [];
+//       if (l2 && l2.length > 0) {
+//         const l2Values = [];
+//         const l3Values = [];
 
-        for (const l2Item of l2) {
-          l2Values.push([l2Item.code, l2Item.name, rfp_no, stage]);
+//         for (const l2Item of l2) {
+//           l2Values.push([l2Item.code, l2Item.name, rfp_no, stage]);
 
-          if (l2Item.l3 && Array.isArray(l2Item.l3)) {
-            for (const l3Item of l2Item.l3) {
-              l3Values.push([l3Item.code, l3Item.name, rfp_no, stage]);
-            }
-          }
-        }
+//           if (l2Item.l3 && Array.isArray(l2Item.l3)) {
+//             for (const l3Item of l2Item.l3) {
+//               l3Values.push([l3Item.code, l3Item.name, rfp_no, stage]);
+//             }
+//           }
+//         }
 
-        // Batch Insert or Update into L2 table
-        if (l2Values.length > 0) {
-          const l2Placeholders = l2Values.map(() => "(?, ?, ?, ?)").join(", ");
-          await connection.query(
-            `INSERT INTO RFP_Saved_L2_Modules 
-              (L2_Code, L2_Module_Description, RFP_No, stage)
-             VALUES ${l2Placeholders}
-             ON DUPLICATE KEY UPDATE 
-               L2_Module_Description = VALUES(L2_Module_Description),
-               RFP_No = VALUES(RFP_No),
-               stage = VALUES(stage)`,
-            l2Values.flat()
-          );
-        }
+//         // Batch Insert or Update into L2 table
+//         if (l2Values.length > 0) {
+//           const l2Placeholders = l2Values.map(() => "(?, ?, ?, ?)").join(", ");
+//           await connection.query(
+//             `INSERT INTO RFP_Saved_L2_Modules 
+//               (L2_Code, L2_Module_Description, RFP_No, stage)
+//              VALUES ${l2Placeholders}
+//              ON DUPLICATE KEY UPDATE 
+//                L2_Module_Description = VALUES(L2_Module_Description),
+//                RFP_No = VALUES(RFP_No),
+//                stage = VALUES(stage)`,
+//             l2Values.flat()
+//           );
+//         }
 
-        // Batch Insert or Update into L3 table
-        if (l3Values.length > 0) {
-          const l3Placeholders = l3Values.map(() => "(?, ?, ?, ?)").join(", ");
-          await connection.query(
-            `INSERT INTO RFP_Saved_L3_Modules 
-              (L3_Code, L3_Module_Description, RFP_No, stage)
-             VALUES ${l3Placeholders}
-             ON DUPLICATE KEY UPDATE
-               L3_Module_Description = VALUES(L3_Module_Description),
-               RFP_No = VALUES(RFP_No),
-               stage = VALUES(stage)`,
-            l3Values.flat()
-          );
-        }
-      }
-    }
+//         // Batch Insert or Update into L3 table
+//         if (l3Values.length > 0) {
+//           const l3Placeholders = l3Values.map(() => "(?, ?, ?, ?)").join(", ");
+//           await connection.query(
+//             `INSERT INTO RFP_Saved_L3_Modules 
+//               (L3_Code, L3_Module_Description, RFP_No, stage)
+//              VALUES ${l3Placeholders}
+//              ON DUPLICATE KEY UPDATE
+//                L3_Module_Description = VALUES(L3_Module_Description),
+//                RFP_No = VALUES(RFP_No),
+//                stage = VALUES(stage)`,
+//             l3Values.flat()
+//           );
+//         }
+//       }
+//     }
 
-    // Insert or Update items into the draft table
-    for (const item of items) {
+//     // Insert or Update items into the draft table
+//     for (const item of items) {
 
-      let Modified_Time;
-      if (item.Modified_Time && !isNaN(new Date(item.Modified_Time))) {
-          const date = new Date(item.Modified_Time);
+//       let Modified_Time;
+//       if (item.Modified_Time && !isNaN(new Date(item.Modified_Time))) {
+//           const date = new Date(item.Modified_Time);
           
-          // Adjusting for local time zone offset
-          const offset = date.getTimezoneOffset() * 60000; 
-          const localISOTime = new Date(date - offset).toISOString().slice(0, 19).replace('T', ' ');
+//           // Adjusting for local time zone offset
+//           const offset = date.getTimezoneOffset() * 60000; 
+//           const localISOTime = new Date(date - offset).toISOString().slice(0, 19).replace('T', ' ');
           
-          Modified_Time = localISOTime;
-          console.log(item.Modified_Time, item.name, Modified_Time);
-      } else {
-          Modified_Time = null;  // or provide a default value like new Date()
-      }
+//           Modified_Time = localISOTime;
+//           // console.log(item.Modified_Time, item.name, Modified_Time);
+//       } else {
+//           Modified_Time = null;  // or provide a default value like new Date()
+//       }
       
-      const values = [
-        rfp_title,
-        rfp_no,
-        item.name,
-        item.Module_Code,
-        item.F1_Code,
-        item.F2_Code,
-        item.New_Code || "00",
-        item.Mandatory,
-        item.Comments,
-        item.deleted,
-        Modified_Time,
-        item.Edited_By,
-        stage,
-        bank_name,
-        created_by,
-        assigned_to,
-        Status,
-        Priority,
-        JSON.stringify(Handled_by),
-        Action_log,
-        level,
-      ];
+//       const values = [
+//         rfp_title,
+//         rfp_no,
+//         item.name,
+//         item.Module_Code,
+//         item.F1_Code,
+//         item.F2_Code,
+//         item.New_Code || "00",
+//         item.Mandatory,
+//         item.Comments,
+//         item.deleted,
+//         Modified_Time,
+//         item.Edited_By,
+//         stage,
+//         bank_name,
+//         created_by,
+//         assigned_to,
+//         Status,
+//         Priority,
+//         JSON.stringify(Handled_by),
+//         Action_log,
+//         level,
+//       ];
 
-      const insertQuery = `
-    INSERT INTO RFP_FunctionalItem_Draft 
-      (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted,Modified_Time,Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE 
-      Requirement = VALUES(Requirement),
-      Mandatory = VALUES(Mandatory),
-      Comments = VALUES(Comments),
-      deleted = VALUES(deleted),
-      Modified_Time = VALUES(Modified_Time),
-      Edited_By = VALUES(Edited_By),
-      stage = VALUES(stage),
-      created_by = VALUES(created_by),
-      assigned_to = VALUES(assigned_to),
-      Status = VALUES(Status),
-      Priority = VALUES(Priority),
-      Handled_By = VALUES(Handled_By),
-      Action_Log = VALUES(Action_Log),
-      Level = VALUES(Level)
-`;
+//       const insertQuery = `
+//     INSERT INTO RFP_FunctionalItem_Draft 
+//       (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted,Modified_Time,Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
+//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//     ON DUPLICATE KEY UPDATE 
+//       Requirement = VALUES(Requirement),
+//       Mandatory = VALUES(Mandatory),
+//       Comments = VALUES(Comments),
+//       deleted = VALUES(deleted),
+//       Modified_Time = VALUES(Modified_Time),
+//       Edited_By = VALUES(Edited_By),
+//       stage = VALUES(stage),
+//       created_by = VALUES(created_by),
+//       assigned_to = VALUES(assigned_to),
+//       Status = VALUES(Status),
+//       Priority = VALUES(Priority),
+//       Handled_By = VALUES(Handled_By),
+//       Action_Log = VALUES(Action_Log),
+//       Level = VALUES(Level)
+// `;
 
 
-      await connection.query(insertQuery, values);
+//       await connection.query(insertQuery, values);
 
-      if(Number(level)==5){
-      const insertQueryVendor = `
-    INSERT INTO RFP_FunctionalItem_Draft 
-      (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted,
-      Modified_Time,Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By,
-       Action_Log, Level, Vendor_Id, Bank_Id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE 
-      Requirement = VALUES(Requirement),
-      Mandatory = VALUES(Mandatory),
-      Comments = VALUES(Comments),
-      deleted = VALUES(deleted),
-      Modified_Time = VALUES(Modified_Time),
-      Edited_By = VALUES(Edited_By),
-      stage = VALUES(stage),
-      created_by = VALUES(created_by),
-      assigned_to = VALUES(assigned_to),
-      Status = VALUES(Status),
-      Priority = VALUES(Priority),
-      Handled_By = VALUES(Handled_By),
-      Action_Log = VALUES(Action_Log),
-      Level = VALUES(Level)
-      `;  
-      const values1 = [
-        rfp_title,
-        rfp_no,
-        item.name,
-        item.Module_Code,
-        item.F1_Code,
-        item.F2_Code,
-        item.New_Code || "00",
-        item.Mandatory,
-        item.Comments,
-        item.deleted,
-        Modified_Time,
-        item.Edited_By,
-        stage,
-        bank_name,
-        created_by,
-        assigned_to,
-        Status,
-        Priority,
-        JSON.stringify(Handled_by),
-        Action_log,
-        level,
-        Vendor_Id,
-        Bank_Id
+//     //   if(Number(level)==5){
+//     //   const insertQueryVendor = `
+//     // INSERT INTO RFP_FunctionalItem_Draft 
+//     //   (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted,
+//     //   Modified_Time,Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By,
+//     //    Action_Log, Level, Vendor_Id, Bank_Id)
+//     // VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//     // ON DUPLICATE KEY UPDATE 
+//     //   Requirement = VALUES(Requirement),
+//     //   Mandatory = VALUES(Mandatory),
+//     //   Comments = VALUES(Comments),
+//     //   deleted = VALUES(deleted),
+//     //   Modified_Time = VALUES(Modified_Time),
+//     //   Edited_By = VALUES(Edited_By),
+//     //   stage = VALUES(stage),
+//     //   created_by = VALUES(created_by),
+//     //   assigned_to = VALUES(assigned_to),
+//     //   Status = VALUES(Status),
+//     //   Priority = VALUES(Priority),
+//     //   Handled_By = VALUES(Handled_By),
+//     //   Action_Log = VALUES(Action_Log),
+//     //   Level = VALUES(Level)
+//     //   `;  
+//     //   const values1 = [
+//     //     rfp_title,
+//     //     rfp_no,
+//     //     item.name,
+//     //     item.Module_Code,
+//     //     item.F1_Code,
+//     //     item.F2_Code,
+//     //     item.New_Code || "00",
+//     //     item.Mandatory,
+//     //     item.Comments,
+//     //     item.deleted,
+//     //     Modified_Time,
+//     //     item.Edited_By,
+//     //     stage,
+//     //     bank_name,
+//     //     created_by,
+//     //     assigned_to,
+//     //     Status,
+//     //     Priority,
+//     //     JSON.stringify(Handled_by),
+//     //     Action_log,
+//     //     level,
+//     //     Vendor_Id,
+//     //     Bank_Id
         
-      ];
-      await connection.query(insertQueryVendor, values1);
-    }
-    }
-    } else if(userPower=="Vendor User"){
+//     //   ];
+//     //   await connection.query(insertQueryVendor, values1);
+//     // }
+//     }
+//     } else if(userPower=="Vendor User"){
       
-    }
+//     }
 
-    // Commit the transaction
-    await connection.commit();
-    res.status(200).json({ message: 'Data inserted successfully' });
-  } catch (error) {
-    // Rollback the transaction in case of error
-    await connection.rollback();
-    console.error('Error inserting data:', error);
-    res.status(500).json({ error: 'Error inserting data' });
-  } finally {
-    connection.release();
-  }
-});
+//     // Commit the transaction
+//     await connection.commit();
+//     res.status(200).json({ message: 'Data inserted successfully' });
+//   } catch (error) {
+//     // Rollback the transaction in case of error
+//     await connection.rollback();
+//     console.error('Error inserting data:', error);
+//     res.status(500).json({ error: 'Error inserting data' });
+//   } finally {
+//     connection.release();
+//   }
+// });
 
 // Define the route to insert data
 router.post('/insert-rfp-functionalitem-vendor', async (req, res) => {
   try {
     const payload = req.body;
-    // console.log("Payload:", payload);
+    console.log("Payload:", payload);
 
     const {
       rfp_no,
@@ -960,6 +1145,72 @@ router.post('/insert-rfp-functionalitem-vendor', async (req, res) => {
   }
 });
 
+// Completed the RFP by Vendor
+router.post('/completed-rfp-functionalitem-vendor', async (req, res) => {
+  try {
+    const payload = req.body;
+    console.log("Payload:", payload);
+
+    const {
+      rfp_no,
+      items,
+      stage,
+      created_by,
+      level,
+      Status,
+      Handled_by,
+      Action_log,
+    } = payload;
+
+    // Fetch vendor_Id based on rfp_no and created_by
+    const [vendor_Id] = await db.query(
+      `SELECT id FROM vendor_admin_users WHERE rfp_reference_no = ? AND email = ?`, 
+      [rfp_no, created_by]
+    );
+
+    if (!vendor_Id.length) {
+      return res.status(404).json({ error: "Vendor ID not found" });
+    }
+
+    for (const item of items) {
+      const query = `
+        UPDATE RFP_FunctionalItem_Vendor 
+        SET 
+          stage = ?, 
+          Level = ?, 
+          Status = ?, 
+          Handled_By = ?, 
+          Action_Log = ? 
+        WHERE 
+          rfp_functionalitem_draft_id = ? 
+          AND Vendor_Id = ? 
+          AND rfp_reference_no = ?
+      `;
+
+      const values = [
+        stage, 
+        level, 
+        Status, 
+        Handled_by, 
+        Action_log, 
+        item.RFP_functionalitem_DraftId, 
+        vendor_Id[0].id, 
+        rfp_no
+      ];
+
+      await db.query(query, values);
+    }
+
+    res.status(200).json({ message: "Data updated successfully" });
+  } catch (error) {
+    console.error("Update Failed: " + error);
+    res.status(500).json({ error: "Update failed", message: error.message });
+  }
+});
+
+
+
+
 //Saved RFP Details with Items and modules
 router.post('/getSavedModule', async (req, res) => {
   const {rfpNo } = req.body;
@@ -1023,10 +1274,10 @@ router.post('/getSavedModule', async (req, res) => {
   }
 });
 router.get('/getSavedData', async (req, res) => {
-  const { userPower, userName,rfpNo } = req.query;
-  console.log(rfpNo);
+  let { userPower, userName,rfpNo,actionName } = req.query;
+  console.log("rfpNo" +rfpNo);
   // const rfpNo ="RFP123";
-  if (!rfpNo) {
+  if (!rfpNo && userPower=="Super Admin") {
     return res.status(400).json({ error: 'RFP_No is required' });
   }
 
@@ -1037,7 +1288,6 @@ router.get('/getSavedData', async (req, res) => {
      let fetchedArray=[] 
     // Step 1: Fetch all L1 modules with the specified RFP_No
     // const [res] = await db.query('SELECT module_name,rfp_no FROM user_modules_assignment WHERE user_name = ? and createdby=?'  , [rfpNo]);
-    const [l1Rows] = await db.query('SELECT * FROM RFP_Saved_L1_Modules WHERE RFP_No = ?', [rfpNo]);
     // const [l1Rows] = await db.query('SELECT * FROM RFP_L1_Modules WHERE RFP_No = ?', [rfpNo]);
 
     // Step 2: Fetch related FItem data
@@ -1048,20 +1298,32 @@ router.get('/getSavedData', async (req, res) => {
     //         WHERE RFP_No =?`;
     // const [fetchedArray] = await db.query(dropQuery, [rfpNo]);
     if(userPower=="Super Admin"){
-      queryString2 = `
-      SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
-            deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
-            Action_Log, Level
-      FROM RFP_FunctionalItem_draft
-      WHERE RFP_No = ? 
-      `;
+      if(actionName==="View RFP"){
+        queryString2 = `
+        SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+              deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+              Action_Log, Level
+        FROM RFP_FunctionalItem_draft
+        WHERE RFP_No = ? 
+        `;
+      } else if(actionName==="Final RFP"){
+        queryString2 = `
+        SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+              deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
+              Action_Log, Level
+        FROM RFP_FunctionalItem_draft
+        WHERE RFP_No = ? andAND Level >= 4
+        ORDER BY Level ASC
+        LIMIT 1`;
+      }
+      
        [fetchedArray] = await db.query(queryString2, [rfpNo]);
       // console.log(fetchedArray);
       // and Status ="Bank_Pending_Reviewer"
     } else if (userPower == "Vendor Admin") {
       const [vendorData] = await db.query(
-          `SELECT id FROM vendor_admin_users WHERE rfp_reference_no = ? AND email = ?`, 
-          [rfpNo, userName]
+          `SELECT id,rfp_reference_no FROM vendor_admin_users WHERE email = ?`, 
+          [userName]
       );
   
       // Check if vendorData exists and extract the ID safely
@@ -1070,6 +1332,7 @@ router.get('/getSavedData', async (req, res) => {
       }
   
       const vendorId = vendorData[0].id; // Extract the actual ID
+      rfpNo =vendorData[0].rfp_reference_no;
       // console.log(vendorId, rfpNo);
   
       queryString2 = `
@@ -1116,14 +1379,16 @@ router.get('/getSavedData', async (req, res) => {
           ON d.id = v.rfp_functionalitem_draft_id 
           AND v.Status IS NOT NULL  
       WHERE d.RFP_No = ?
-      AND d.Status = "Vendor_Pending_Reviewer"
+      AND v.Status = "Vendor_Pending_Reviewer"
       AND v.Vendor_Id = ?`;
   
       // Execute the query with the correct parameter
        [fetchedArray] = await db.query(queryString2, [rfpNo, vendorId]);
-      // console.log(fetchedArray);
+      console.log(fetchedArray);
+      console.log("fetchedArray");
   }
-  
+  const [l1Rows] = await db.query('SELECT * FROM RFP_Saved_L1_Modules WHERE RFP_No = ?', [rfpNo]);
+   
    
     // if(userPower=="Super Admin"){
     //   [fetchedArray]  = await db.query(queryString2, [rfpNo]);
@@ -1663,9 +1928,9 @@ router.get('/loadContents-initial', async (req, res) => {
       // Test the second query
       [result] = await db.query(
         `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
-   module_name, rfp_no 
-   FROM VendorUser_Modules_Assignment 
-   WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring}`,
+          module_name, rfp_no 
+          FROM VendorUser_Modules_Assignment 
+          WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring}`,
         [userDetails[0].user_name, userDetails[0].createdby]
       );
       console.log("Vendor User Modules Assignment:", result);
@@ -1805,18 +2070,28 @@ router.get('/loadContents-initial', async (req, res) => {
           combinedData = [...combinedData,...results2]
           } 
                 
-          }else if (userPower === "Vendor User") {
+          }else if (userPower === "Vendor User" || userPower === "Vendor Admin") {
              // Fetch created_by from vendor_users_table
-          const [createdby] = await db.query(`
-            SELECT createdby FROM vendor_users_table WHERE email = ?`, [userName]);
-          console.log(createdby[0].createdby);
-
-          // Fetch vendor_Id based on rfp_no and createdby
-          const [vendor_Id] = await db.query(`
-            SELECT id FROM vendor_admin_users WHERE rfp_reference_no = ? AND email = ?`, 
-            [rfp_no, createdby[0].createdby]);
-          console.log(vendor_Id[0].id);
-
+             let createdby =[];
+             let vendor_Id =[];
+             if(userPower === "Vendor User"){
+               [createdby] = await db.query(`
+                SELECT createdby FROM vendor_users_table WHERE email = ?`, [userName]);
+              console.log(createdby[0].createdby);
+    
+              // Fetch vendor_Id based on rfp_no and createdby
+               [vendor_Id] = await db.query(`
+                SELECT id FROM vendor_admin_users WHERE rfp_reference_no = ? AND email = ?`, 
+                [rfp_no, createdby[0].createdby]);
+                console.log(vendor_Id[0].id);
+    
+             } else if(userPower === "Vendor Admin"){
+              [vendor_Id] = await db.query(`
+                SELECT id FROM vendor_admin_users WHERE rfp_reference_no = ? AND email = ?`, 
+                [rfp_no, userName]);
+                console.log(vendor_Id[0].id);
+             }
+         
           //   queryString2 = `
           // SELECT Requirement AS name, Module_Code, F1_Code, F2_Code, New_Code, Mandatory AS Mandatory, Comments, deleted 
           // FROM rfp_functionalitem_draft 
@@ -1956,7 +2231,7 @@ router.get('/loadContents-initial', async (req, res) => {
       // console.log(results2)
   
       combinedData = [...combinedData,...results2]
-      } else if(userRole=="Reviewer"){   
+      } else if(userRole=="Reviewer" || userPower === "Vendor Admin"){   
         const queryString2 = `
         SELECT 
           d.id AS RFP_functionalitem_DraftId,
