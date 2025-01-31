@@ -18,7 +18,7 @@ const Navbar = ({ handleLogout }) => {
         <li className="navbar-center">
           <div>
             <h1 className="navbar-title">{sidebarValue[0]?.entity_name || moduleData?.entityName}</h1>
-            <p className="navbar-subtitle">{userPower=="Super Admin"?"Bank Admin":userPower} Module</p>
+            <p className="navbar-subtitle">{userPower=="Super Admin"?"Bank Admin":userPower=="User"?"Bank User":userPower} Module</p>
           </div>
         </li>
 
