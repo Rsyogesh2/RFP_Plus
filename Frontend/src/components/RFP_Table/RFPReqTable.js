@@ -193,7 +193,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
             bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
             vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
             created_by: userName,
-            level: userPower === "User" && data.action === "Back to Maker" ? 1
+            level: userPower === "User" && data.action === "Back to Maker" ? 1:userPower === "User" && data.action === "Save as Draft"?1
             : userPower === "Vendor User" && data.action === "Back to Maker" ? 5: determineLevel(),
             Comments: data.comments || "",
             Priority: data.priority || "Medium",
@@ -788,12 +788,12 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
             )}
 
             {/* Optional Save as Draft button for Maker */}
-            {userRole === "Maker" && Number(FItem?.[0]?.Level) ===1 && (
+            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Level) ===1 && (
                 <button onClick={() => handleSave(constructPayload("Save as Draft", {}))}>
                     Save as Draft
                 </button>
             )}
-            {userRole === "Maker" && Number(FItem?.[0]?.Level) ===1 && (
+            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Level) ===1 && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
                     Submit
                 </button>
