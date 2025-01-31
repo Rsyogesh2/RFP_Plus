@@ -1274,8 +1274,9 @@ router.post('/getSavedModule', async (req, res) => {
   }
 });
 router.get('/getSavedData', async (req, res) => {
-  let { userPower, userName,rfpNo,actionName } = req.query;
-  console.log("rfpNo" +rfpNo);
+  let { userPower, userName,rfpNo,actionName,selectedVendor } = req.query;
+  // console.log("rfpNo" +rfpNo);
+  console.log(actionName);
   // const rfpNo ="RFP123";
   if (!rfpNo && userPower=="Super Admin") {
     return res.status(400).json({ error: 'RFP_No is required' });
@@ -1315,10 +1316,58 @@ router.get('/getSavedData', async (req, res) => {
         WHERE RFP_No = ? AND Level >= 4
         ORDER BY Level ASC
         LIMIT 1`;
+      } else if(actionName==="Submitted RFP"){
+        queryString2 = `
+        SELECT 
+          d.id AS RFP_functionalitem_DraftId,
+          d.requirement AS name, 
+          d.RFP_Title, 
+          d.RFP_No, 
+          d.Module_Code, 
+          d.F1_Code, 
+          d.F2_Code, 
+          d.New_Code, 
+          d.Mandatory, 
+          d.Comments, 
+          d.deleted, 
+          d.Modified_Time, 
+          d.Edited_By, 
+          d.stage, 
+          d.bank_name, 
+          d.created_by, 
+          d.assigned_to, 
+          d.Status, 
+          d.Priority, 
+          d.Handled_By, 
+          d.Action_Log, 
+          d.Level,
+          v.Vendor_Id,
+          v.A,
+          v.P,
+          v.C,
+          v.N,
+          v.Remarks,
+          v.Attach,
+          v.stage AS vendor_stage,
+          v.created_by AS vendor_created_by,
+          v.Level AS vendor_level,
+          v.Assigned_To AS vendor_assigned_to,
+          v.Status AS vendor_status,
+          v.Priority AS vendor_priority,
+          v.Handled_By AS vendor_handled_by,
+          v.Action_Log AS vendor_action_log
+      FROM RFP_FunctionalItem_draft d
+      LEFT JOIN RFP_FunctionalItem_Vendor v
+          ON d.id = v.rfp_functionalitem_draft_id 
+          AND v.Status IS NOT NULL  
+      WHERE d.RFP_No = ?
+      AND  v.Status = "Completed"
+      AND v.Vendor_Id = ?`;
       }
       
-       [fetchedArray] = await db.query(queryString2, [rfpNo]);
-      // console.log(fetchedArray);
+       [fetchedArray] = await db.query(queryString2, [rfpNo,selectedVendor]);
+      console.log(selectedVendor);
+      console.log(fetchedArray);
       // and Status ="Bank_Pending_Reviewer"
     } else if (userPower == "Vendor Admin") {
       const [vendorData] = await db.query(
@@ -1335,6 +1384,7 @@ router.get('/getSavedData', async (req, res) => {
       rfpNo =vendorData[0].rfp_reference_no;
       // console.log(vendorId, rfpNo);
   
+      if(actionName==="Submit RFP"){
       queryString2 = `
       SELECT 
           d.id AS RFP_functionalitem_DraftId,
@@ -1379,12 +1429,60 @@ router.get('/getSavedData', async (req, res) => {
           ON d.id = v.rfp_functionalitem_draft_id 
           AND v.Status IS NOT NULL  
       WHERE d.RFP_No = ?
-      AND v.Status = "Vendor_Pending_Reviewer"
+      AND (v.Status = "Vendor_Pending_Reviewer" OR v.Status = "Completed")
       AND v.Vendor_Id = ?`;
-  
+      } else if(actionName==="View RFP"){
+        queryString2 = `
+      SELECT 
+          d.id AS RFP_functionalitem_DraftId,
+          d.requirement AS name, 
+          d.RFP_Title, 
+          d.RFP_No, 
+          d.Module_Code, 
+          d.F1_Code, 
+          d.F2_Code, 
+          d.New_Code, 
+          d.Mandatory, 
+          d.Comments, 
+          d.deleted, 
+          d.Modified_Time, 
+          d.Edited_By, 
+          d.stage, 
+          d.bank_name, 
+          d.created_by, 
+          d.assigned_to, 
+          d.Status, 
+          d.Priority, 
+          d.Handled_By, 
+          d.Action_Log, 
+          d.Level,
+          v.Vendor_Id,
+          v.A,
+          v.P,
+          v.C,
+          v.N,
+          v.Remarks,
+          v.Attach,
+          v.stage AS vendor_stage,
+          v.created_by AS vendor_created_by,
+          v.Level AS vendor_level,
+          v.Assigned_To AS vendor_assigned_to,
+          v.Status AS vendor_status,
+          v.Priority AS vendor_priority,
+          v.Handled_By AS vendor_handled_by,
+          v.Action_Log AS vendor_action_log
+      FROM RFP_FunctionalItem_draft d
+      LEFT JOIN RFP_FunctionalItem_Vendor v
+          ON d.id = v.rfp_functionalitem_draft_id 
+          AND v.Status IS NOT NULL  
+      WHERE d.RFP_No = ?
+      AND (v.Status = "Vendor_Pending_Reviewer" OR v.Status = "Completed" OR 
+      v.Status = "Vendor_Pending_Authorization" OR v.Status = "Vendor_Pending_Maker")
+      AND v.Vendor_Id = ?`;
+      } 
       // Execute the query with the correct parameter
        [fetchedArray] = await db.query(queryString2, [rfpNo, vendorId]);
-      console.log(fetchedArray);
+      // console.log(fetchedArray);
       console.log("fetchedArray");
   }
   const [l1Rows] = await db.query('SELECT * FROM RFP_Saved_L1_Modules WHERE RFP_No = ?', [rfpNo]);

@@ -54,11 +54,35 @@ const ViewRFPs = () => {
     <RFPReqTable l1="Super Admin"/>
   );
 };
-const SubmitRFPs = () => {
-  return (
-    <RFPVendorTable l1="Vendor Admin"/>
-  );
+const SubmitRFPs = ({ action }) => {
+  const { userName, userPower, setModuleData, userRole } = useContext(AppContext);
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        console.log(action.action);
+        const queryParams = new URLSearchParams({ userName, userPower, userRole, actionName: action.action });
+
+        const response = await fetch(`${API_URL}/api/getSavedData?${queryParams}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json(); // Parse the JSON response
+        console.log(data);  // Handle the fetched data as needed
+        setModuleData(data);
+      } catch (error) {
+        console.log("Error in Submited or View RFP Fetch: " + error);
+      }
+    };
+
+    fetchData(); // Call the async function inside useEffect
+  }, [action, userName, userPower, userRole, API_URL, setModuleData]); // Add necessary dependencies
+
+  return <RFPVendorTable l1="Vendor Admin" />;
 };
+
 const HomePage = ({ userType }) => {
   //   const [activeSection, setActiveSection] = useState("Add User");
   const [activeSection, setActiveSection] = useState("");
@@ -95,7 +119,7 @@ const HomePage = ({ userType }) => {
       console.log("userName " + userName)
       //23/11/2024
       try {
-        const queryParams = new URLSearchParams({ userName, userPower, userRole });
+        const queryParams = new URLSearchParams({ userName, userPower, userRole});
         let url
         if (userPower == "User") {
           // if(userRole=="Maker"){
@@ -111,8 +135,8 @@ const HomePage = ({ userType }) => {
           // }
           url = `${API_URL}/api/loadContents-initial?${queryParams}`;
         } else if (userPower == "Vendor Admin") {
-          // url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
-          url = `${API_URL}/api/getSavedData?${queryParams}`;
+          url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
+          //url = `${API_URL}/api/getSavedData?${queryParams}`;
         } else if (userPower == "Super Admin") {
           url = `${API_URL}/api/loadContents-superAdmin?${queryParams}`;
           // url = `${API_URL}/api/getSavedData?${queryParams}`;
@@ -169,7 +193,7 @@ const HomePage = ({ userType }) => {
       case "View Assigned RFPs":
         return <ViewAssignedRFPs />;
       case "Submit RFP":
-        return <RFPVendorTable l1="Vendor Admin" />;
+        return <SubmitRFPs action="Submit RFP" />;
       case "Add Vendor User":
         return <AddUserForm />;
       case "View / Modify Vendor Users":
@@ -177,12 +201,10 @@ const HomePage = ({ userType }) => {
       case "Assign Vendor Users":
         return <AssignUsers />;
       case "View RFP":
-        return <RFPVendorTable l1="Vendor Admin" />;
+        return <SubmitRFPs action="View RFP" />;
       case "Submit Query":
         return <VendorQuery rfpNo={"RFP123"} rfpTitle={"title"}/>;
-      case "Submit RFP":
-        return <SubmitRFPs />;
-      case "View Vendor Assigned RFPs":
+     case "View Vendor Assigned RFPs":
         return <RFPVendorTable />;
       case "Vendor Query":
         return <VendorQuery />;

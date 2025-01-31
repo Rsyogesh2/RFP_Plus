@@ -318,10 +318,13 @@ router.post('/fetchScores', async (req, res) => {
 router.post('/updateBankAmount', async (req, res) => {
     const { rfpNo, selectedVendor, commercialValue,userName } = req.body;
     try {
+        console.log("Received superUserEmail:", userName);
+
         const [bankNameResult] = await db.query(
             `SELECT entity_name, user_id as id FROM superadmin_users WHERE super_user_email = ?`,
             userName
         );
+        console.log(bankNameResult)
         const [vendor] = await db.query(`
             SELECT entity_name, email, admin_name, id 
             FROM vendor_admin_users 
@@ -352,13 +355,13 @@ router.post('/updateBankAmount', async (req, res) => {
             } 
             // INSERT or UPDATE in one query
             const query = `
-                INSERT INTO CommercialPattern_Amounts 
-                ( RFP_No, Bank_Id, Vendor_Id, CommercialPattern, Bank_Amount, created_by,Percentage) 
-                VALUES (?, ?, ?, ?, ?, ?) 
-                ON DUPLICATE KEY UPDATE 
-                    Bank_Amount = VALUES(Bank_Amount), 
-                    Percentage = VALUES(Percentage), 
-                    updated_at = CURRENT_TIMESTAMP
+            INSERT INTO CommercialPattern_Amounts 
+            (RFP_No, Bank_Id, Vendor_Id, CommercialPattern, Bank_Amount, created_by, Percentage) 
+            VALUES (?, ?, ?, ?, ?, ?, ?) 
+            ON DUPLICATE KEY UPDATE 
+                Bank_Amount = VALUES(Bank_Amount), 
+                Percentage = VALUES(Percentage), 
+                updated_at = CURRENT_TIMESTAMP
             `;
 
             const [result] = await db.query(query, [
@@ -386,8 +389,8 @@ router.post('/updateBankAmount', async (req, res) => {
 // saving the Others Final Score
 router.post('/saveOrUpdateScores', async (req, res) => {
     const { rfpNo, selectedValues,selectedVendor, userName, sections } = req.body;
-    console.log(selectedValues);
-    console.log(sections);
+    // console.log(selectedValues);
+    // console.log(sections);
     
     const percentageResults = {};
 
@@ -407,7 +410,7 @@ Object.keys(sections).forEach(key => {
     percentageResults[key] = percentage;
 });
 
-console.log("Percentage Results:", percentageResults);
+// console.log("Percentage Results:", percentageResults);
 
 try {
     const [bankName] = await db.query(
@@ -416,17 +419,47 @@ try {
     );  
 
     //  Modified query to include percentage columns
+    // const query = `
+    //     INSERT INTO EvaluationScores 
+    //     (Implementation_Name, Implementation_Score, Implementation_Percentage,
+    //      No_of_Sites_Name, No_of_Sites_Score, No_of_Sites_Percentage, 
+    //      Site_Reference_Name, Site_Reference_Score, Site_Reference_Percentage,
+    //      Scoring_Items1_Name, Scoring_Items1_Score, Scoring_Items1_Percentage,
+    //      Scoring_Items2_Name, Scoring_Items2_Score, Scoring_Items2_Percentage,
+    //      Scoring_Items3_Name, Scoring_Items3_Score, Scoring_Items3_Percentage,
+    //      RFP_No, Bank_Id, Vendor_Id)
+    //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    //     ON DUPLICATE KEY UPDATE 
+    //      Implementation_Name = VALUES(Implementation_Name),
+    //      Implementation_Score = VALUES(Implementation_Score),
+    //      Implementation_Percentage = VALUES(Implementation_Percentage),
+    //      No_of_Sites_Name = VALUES(No_of_Sites_Name),
+    //      No_of_Sites_Score = VALUES(No_of_Sites_Score),
+    //      No_of_Sites_Percentage = VALUES(No_of_Sites_Percentage),
+    //      Site_Reference_Name = VALUES(Site_Reference_Name),
+    //      Site_Reference_Score = VALUES(Site_Reference_Score),
+    //      Site_Reference_Percentage = VALUES(Site_Reference_Percentage),
+    //      Scoring_Items1_Name = VALUES(Scoring_Items1_Name),
+    //      Scoring_Items1_Score = VALUES(Scoring_Items1_Score),
+    //      Scoring_Items1_Percentage = VALUES(Scoring_Items1_Percentage),
+    //      Scoring_Items2_Name = VALUES(Scoring_Items2_Name),
+    //      Scoring_Items2_Score = VALUES(Scoring_Items2_Score),
+    //      Scoring_Items2_Percentage = VALUES(Scoring_Items2_Percentage),
+    //      Scoring_Items3_Name = VALUES(Scoring_Items3_Name),
+    //      Scoring_Items3_Score = VALUES(Scoring_Items3_Score),
+    //      Scoring_Items3_Percentage = VALUES(Scoring_Items3_Percentage)
+    // `;
     const query = `
-        INSERT INTO EvaluationScores 
+    INSERT INTO EvaluationScores 
         (Implementation_Name, Implementation_Score, Implementation_Percentage,
          No_of_Sites_Name, No_of_Sites_Score, No_of_Sites_Percentage, 
          Site_Reference_Name, Site_Reference_Score, Site_Reference_Percentage,
          Scoring_Items1_Name, Scoring_Items1_Score, Scoring_Items1_Percentage,
          Scoring_Items2_Name, Scoring_Items2_Score, Scoring_Items2_Percentage,
          Scoring_Items3_Name, Scoring_Items3_Score, Scoring_Items3_Percentage,
-         RFP_No, Bank_Id, Vendor_Id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE 
+         RFP_No, Bank_Id, Vendor_Id)  
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
          Implementation_Name = VALUES(Implementation_Name),
          Implementation_Score = VALUES(Implementation_Score),
          Implementation_Percentage = VALUES(Implementation_Percentage),
@@ -444,9 +477,8 @@ try {
          Scoring_Items2_Percentage = VALUES(Scoring_Items2_Percentage),
          Scoring_Items3_Name = VALUES(Scoring_Items3_Name),
          Scoring_Items3_Score = VALUES(Scoring_Items3_Score),
-         Scoring_Items3_Percentage = VALUES(Scoring_Items3_Percentage)
-    `;
-
+         Scoring_Items3_Percentage = VALUES(Scoring_Items3_Percentage);
+`;
     // ✅ Updated values array to include calculated percentages
     const values = [
         selectedValues.Implementation_Score?.value || '',
@@ -457,9 +489,9 @@ try {
         selectedValues.No_of_Sites_Score?.score || 0,
         percentageResults.No_of_Sites_Score || "0%",
         
-        selectedValues.Site_Reference_Score?.value || '',
-        selectedValues.Site_Reference_Score?.score || 0,
-        percentageResults.Site_Reference_Score || "0%",
+        selectedValues.Site_Reference?.value || '',
+        selectedValues.Site_Reference?.score || 0,
+        percentageResults.Site_Reference || "0%",
         
         selectedValues.Scoring_Items1?.value || '',
         selectedValues.Scoring_Items1?.score || 0,
@@ -1130,19 +1162,19 @@ router.post('/save-scores', async (req, res) => {
 
 // Fetch Functional and Commercial Percentage in DashBoard
 router.post('/fetchComFunScores-dashBoard', async (req, res) => {
-    console.log("fetchScores-dashBoard")
+    console.log("fetchComFunScores-dashBoard")
     const { rfpNo, userName } = req.body;
 
     try {
         // Fetch bank name
         const [bankNameResult] = await db.query(
-            `SELECT entity_name,id FROM superadmin_users WHERE super_user_email = ?`, 
+            `SELECT entity_name,user_id as id FROM superadmin_users WHERE super_user_email = ?`, 
             [userName]
         );
         //console.log(bankNameResult)
         const [rows] = await db.query(`select entity_name,email,admin_name,id from 
             vendor_admin_users where createdby= ?`, [userName]);  
-        //console.log(rows)
+        console.log("rows")
         
       
         if (!bankNameResult || bankNameResult.length === 0) {

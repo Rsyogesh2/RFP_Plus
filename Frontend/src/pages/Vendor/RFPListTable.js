@@ -20,6 +20,7 @@ const RFPListTable = ({ }) => {
   const [selectedRfpNo, setSelectedRfpNo] = useState(null);
   const [selectedRfpTitle, setSelectedRfpTitle] = useState(null);
   const [vendorNames, setVendorNames] = useState([]);
+  const [selectedVendor, setSelectedVendor] = useState(null);
   const [visibleVendor, setVisibleVendor] = useState(false);
   const { moduleData, userRole, setModuleData, userName, userPower } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -48,9 +49,39 @@ const RFPListTable = ({ }) => {
 
   const handleSeeQuery = (rfpNo, rfpTitle, actionName) => {
     console.log(actionName)
-    setActionName(actionName);
-    setSelectedRfpNo(rfpNo); // Set the selected RFP number
-    setSelectedRfpTitle(rfpTitle)
+    
+    if (actionName === "Submitted RFP") {
+      setVisibleVendor(!visibleVendor)
+      setVisibleSubmitRFP(!visibleSubmitRFP)
+      if(visibleVendor){
+        // setVisibleVendor(!visibleVendor);
+        setActionName(actionName);
+        setSelectedRfpNo(rfpNo); // Set the selected RFP number
+        setSelectedRfpTitle(rfpTitle);
+
+        async function fetchArray() {
+          const response = await fetch(`${API_URL}/fetchVendor?userName=${userName}&&rfpNo=${rfpNo}`);
+          const data = await response.json();
+          setVendorNames(data);
+        }
+        fetchArray()
+        return false;
+      } else {
+        rfpNo=selectedRfpNo;
+        actionName="Submitted RFP";
+        async function fetchArray() {
+          const response = await fetch(`${API_URL}/fetchVendor?userName=${userName}&&rfpNo=${rfpNo}`);
+          const data = await response.json();
+          setVendorNames(data);
+        }
+        fetchArray()
+      }
+     
+    } else{
+      setActionName(actionName);
+      setSelectedRfpNo(rfpNo); // Set the selected RFP number
+      setSelectedRfpTitle(rfpTitle);
+    }
     async function fetchArray() {
       console.log("userName " + userName)
       //23/11/2024
@@ -111,25 +142,25 @@ const RFPListTable = ({ }) => {
       setVisibleRFP(false);
       }
     } else if (actionName === "Final Evaluation") {
-      setVisibleVendor(!visibleVendor)
-      if(visibleVendor){
+      // setVisibleVendor(!visibleVendor)
+      // if(visibleVendor){
       setVisibleDashboard(false)
       setVisible(false);
       setVisibleEvaluation(!visibleEvaluation)
       setVisibleFinalRFP(false)
       setVisibleSubmitRFP(false);
       setVisibleRFP(false);
-      }
+      // }
     } else if (actionName === "Vendor Query") {
-      setVisibleVendor(!visibleVendor)
-      if(visibleVendor){
+      // setVisibleVendor(!visibleVendor)
+      // if(visibleVendor){
       setVisible(!visible); // Show the VendorQuery component
       setVisibleDashboard(false)
       setVisibleEvaluation(false);
       setVisibleFinalRFP(false)
       setVisibleSubmitRFP(false);
       setVisibleRFP(false);
-      }
+      // }
     } else if (actionName === "View RFP") {
       setVisibleDashboard(false)
       setVisibleEvaluation(false)
@@ -145,16 +176,58 @@ const RFPListTable = ({ }) => {
       setVisibleSubmitRFP(false);
       setVisibleRFP(false);
     } else if (actionName === "Submitted RFP") {
-      setVisibleSubmitRFP(!visibleSubmitRFP)
-      setVisibleFinalRFP(false)
-      setVisible(false); // Show the VendorQuery component
-      setVisibleDashboard(false);
-      setVisibleEvaluation(false);
-      setVisibleRFP(false);
+      
+    }
+  };
+
+  // Handle Dropdown Change
+const handleDropdownChangeVendor = (event) => {
+  const selectedIndex = event.target.value;  // Index is a string
+  if (selectedIndex !== "") {
+      const selectedObject = vendorNames[parseInt(selectedIndex)]; // Convert to number and access object
+      console.log("Selected Vendor Object:", selectedObject);
+      setSelectedVendor(selectedObject); // Store the entire object
+  } else {
+      setSelectedVendor(null); // Reset if no selection
+  }
+};
+  const fetchSubmittedRFP = async() => {
+
+    const queryParams = new URLSearchParams({ userName, userPower, userRole, rfpNo: selectedRfpNo,selectedVendor:selectedVendor.id, actionName:"Submitted RFP" });
+    let url
+    if (userPower === "Super Admin") {
+      url = `${API_URL}/api/getSavedData?${queryParams}`;
+    }
+    console.log("Fetching URL:", url);
+    const response = await fetch(url);
+
+    console.log(response);
+
+    // Check if the response is okay (status in the range 200-299)
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
+    const data = await response.json(); // Parse the JSON response
+    console.log(data);  // Handle the fetched data as needed
+    console.log(moduleData);  // Handle the fetched data as needed
+    
+      // setVisibleFinalRFP(false)
+      // setVisible(false); // Show the VendorQuery component
+      // setVisibleDashboard(false);
+      // setVisibleEvaluation(false);
+      // setVisibleRFP(false);
+      
+    setModuleData(prevState => {
+      const updatedData = { ...prevState, ...data };
+      console.log("Updated instantly:", updatedData);
+      return updatedData;
+    });
 
-  };
+  }
+
+
+
   return (
     <div className="vendor-query-container">
       <table className="vendor-query-table">
@@ -183,7 +256,7 @@ const RFPListTable = ({ }) => {
           )}
         </tbody>
       </table>
-      {/* {
+      {
         visibleVendor &&
 
         <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
@@ -194,6 +267,7 @@ const RFPListTable = ({ }) => {
               height: "40px",
               boxSizing: "border-box"
             }}
+            onChange={handleDropdownChangeVendor}
           >
             <option>Select Vendor</option>
             {vendorNames && vendorNames.map((vName, index) => (
@@ -201,7 +275,7 @@ const RFPListTable = ({ }) => {
             ))}
           </select>
           <button
-            // onClick={fetchData}
+            onClick={fetchSubmittedRFP}
             style={{
               padding: "10px",
               height: "40px",
@@ -212,7 +286,7 @@ const RFPListTable = ({ }) => {
           </button>
         </div>
 
-      } */}
+      }
       {visible && actionName === "Vendor Query" && <VendorQuery rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
       {visibleRFP && actionName === "View RFP" && <RFPReqTable l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} action={"View RFP"} />}
       {visibleFinalRFP && actionName === "Final RFP" && <RFPVendorTable l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} action={"Final RFP"} />}

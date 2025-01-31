@@ -616,7 +616,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
         return (
             <table className="item-table">
                 <colgroup>
-                    {userRole === "Maker" &&  FItem?.[0]?.Level ===1 && <col style={{ width: "8%" }} />}
+                    {userRole === "Maker" &&  (!FItem?.[0]?.Level || FItem[0].Level === 1) && <col style={{ width: "8%" }} />}
                     <col style={{ width: "60%" }} />
                     <col style={{ width: "0%" }} />
                     <col style={{ width: "0.1%" }} />
@@ -626,7 +626,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                 </colgroup>
                 <thead>
                     <tr>
-                        {userRole === "Maker" && FItem?.[0]?.Level ===1 && <th className="col-modify">Modify</th>}
+                        {userRole === "Maker" && (!FItem?.[0]?.Level || FItem[0].Level === 1) && <th className="col-modify">Modify</th>}
                         <th className="col-requirement">Requirement</th>
                         <th className="col-m">M</th>
                         <th className="col-o">O</th>
@@ -660,13 +660,13 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
 
                             return (
                                 <React.Fragment key={item.code || index}>
-                                    {userRole === 'Maker' && FItem?.[0]?.Level ===1 
+                                    {userRole === 'Maker' && (!FItem?.[0]?.Level || FItem[0].Level === 1) 
                                         ? renderHierarchy([item], 'f1', 10, index1, index, indexval)
                                         : readHierarchy([item], 'f1', 10, index1, index, indexval)}
 
                                     {f2items.map((level2, subIndex) => (
                                         <React.Fragment key={level2.code || subIndex}>
-                                            {userRole === 'Maker' && FItem?.[0]?.Level ===1 
+                                            {userRole === 'Maker' && (!FItem?.[0]?.Level || FItem[0].Level === 1) 
                                                 ? renderHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)
                                                 : readHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)}
                                         </React.Fragment>
@@ -677,7 +677,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                     ) : (
                         <React.Fragment>
                             {newItems ? (
-                                userRole === 'Maker' && FItem?.[0]?.Level ===1 
+                                userRole === 'Maker' && (!FItem?.[0]?.Level || FItem[0].Level === 1) 
                                     ? renderHierarchy([newItems], 'f1', 10, index1)
                                     : readHierarchy([newItems], 'f1', 10, index1)
                             ) : (
