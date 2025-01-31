@@ -522,7 +522,14 @@ router.post('/insertFItem', async (req, res) => {
   try {
     console.log("✅ Starting transaction...");
     await connection.beginTransaction();
-
+    const [userDetails] = await db.query(
+      `SELECT user_name, entity_Name, createdby FROM Users_table WHERE email = ?`,
+      [created_by]
+    );
+    const [bankNameResult] = await db.query(
+            `SELECT entity_name,user_id as id FROM superadmin_users WHERE super_user_email = ?`, 
+            [userDetails[0].createdby]
+        );
     if (userPower === "User" || userPower === "Super Admin") {
       for (const l1Item of module) {
         const { name, code, l2 } = l1Item;
@@ -542,9 +549,11 @@ router.post('/insertFItem', async (req, res) => {
           console.log(`⚠️ No existing L1 record found, inserting new row for Code=${code}`);
           await connection.query(
             `INSERT INTO RFP_Saved_L1_Modules 
-              (L1_Code, L1_Module_Description, RFP_No, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
+              (L1_Code, L1_Module_Description, RFP_No, stage, bank_name, created_by, assigned_to, 
+              Status, Priority, Handled_By, Action_Log, Level,Bank_Id)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [code, name, rfp_no, stage, bank_name, created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level]
+            [code, name, rfp_no, stage, bank_name, created_by, assigned_to, Status, Priority, 
+              JSON.stringify(Handled_by), Action_log, level,bankNameResult[0].id]
           );
         }
 
@@ -588,13 +597,15 @@ router.post('/insertFItem', async (req, res) => {
           const values = [
             rfp_title, rfp_no, item.name, item.Module_Code, item.F1_Code, item.F2_Code, item.New_Code || "00",
             item.Mandatory, item.Comments, item.deleted, Modified_Time, item.Edited_By, stage, bank_name, 
-            created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level
+            created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level,bankNameResult[0].id
           ];
   
           const insertQuery = ` 
             INSERT INTO RFP_FunctionalItem_Draft 
-              (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, Action_Log, Level)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              (RFP_Title, RFP_No, Requirement, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
+              deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, 
+              Handled_By, Action_Log, Level,Bank_Id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE 
               Requirement = VALUES(Requirement),
               Mandatory = VALUES(Mandatory),

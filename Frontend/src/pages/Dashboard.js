@@ -146,7 +146,8 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
                     prevVendors.map((vendor, index) => ({
                         ...vendor,
                         scores: [
-                            data?.functionalScores[index] || 0, // Keep the first score unchanged
+                            // 0, // Keep the first score unchanged
+                            data?.functionalScores[index]?.percentage || 0, // Keep the first score unchanged
                             data?.averagePercentageScore[index] || vendor.scores[1], // Replace the second score only if data exists, else keep the original
                             ...vendor.scores.slice(2) // Keep the rest unchanged
                         ]

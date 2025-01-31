@@ -62,10 +62,10 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
             console.log("userName " + userName)
             console.log(l1);
             try{
-                const response = await fetch(`${API_URL}/fetchAPCN?userName=${userName}&&rfpNo=${rfpNo}`);
+                const response = await fetch(`${API_URL}/fetchAPCN?userName=${userName}&&rfpNo=${rfpNo || sidebarValue[0]?.rfp_no}&&userPower=${userPower}`);
                 const data = await response.json();
-                console.log(data)
-                setAPCN(data);
+                console.log(data.functionalScores[0])
+                setAPCN(data.functionalScores[0]);
             } catch(error){
                 console.log("Error Fetch the  APCN Value: "+error)
             }
@@ -272,7 +272,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                 <td>{item.Mandatory === 0 ? "O" : "M"}</td>
                 <td>{item.Comments}</td>
                 
-                {APCN.isAvailableChecked && <td>
+                {APCN?.isAvailableChecked !==0 && <td>
                     <input
                         type="radio"
                         checked={item.A === 1 || item.SelectedOption === "A"}
@@ -280,7 +280,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>}
-                {APCN.isPartlyAvailableChecked && <td>
+                {APCN.isPartlyAvailableChecked !==0 && <td>
                     <input
                         type="radio"
                         checked={item.P === 1 || item.SelectedOption === "P"}
@@ -288,7 +288,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>}
-                {APCN.isCustomizableChecked && <td>
+                {APCN.isCustomizableChecked !==0 && <td>
                     <input
                         type="radio"
                         checked={item.C === 1 || item.SelectedOption === "C"}
@@ -390,9 +390,9 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                         <th>Requirement</th>
                         <th>M/O</th>
                         <th>Comments</th>
-                        {APCN.isAvailableChecked && <th>A</th>}
-                        {APCN.isPartlyAvailableChecked && <th>P</th>}
-                        {APCN.isCustomizableChecked && <th>C</th>}
+                        {APCN.isAvailableChecked !==0 && <th>A</th>}
+                        {APCN.isPartlyAvailableChecked !==0 && <th>P</th>}
+                        {APCN.isCustomizableChecked !==0 && <th>C</th>}
                         <th>N</th>
                         {/* <th>P</th>
                         <th>C</th>
