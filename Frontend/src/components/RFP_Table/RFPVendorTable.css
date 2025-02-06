@@ -11,7 +11,7 @@
   justify-content: space-between; /* Pushes title left, labels right */
   /* align-items: center; */
   /* padding: 0px 5px; */
-  flex-wrap: wrap; /* Ensures responsiveness */
+  flex-wrap: nowrap; /* Ensures responsiveness */
 }
 
 /* Title Styling */
@@ -21,7 +21,8 @@
   color: #222;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  justify-content: flex-start;
+  gap: 0px;
 }
 
 /* Labels Section - Align to Right */
@@ -31,10 +32,10 @@
   flex-direction: column; /* Stack labels vertically */
   align-items: flex-end; /* Align to the right */
   gap: 6px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
   color: #444;
-  text-align: right; /* Ensure text is aligned to the right */
+  text-align: center; /* Ensure text is aligned to the right */
 }
 
 /* Label Style */
@@ -53,7 +54,7 @@
   .header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    /* gap: 10px; */
   }
   .labels {
     align-items: flex-start;
@@ -179,14 +180,14 @@
 /* Styled Checkboxes */
 .item-table1 input[type="checkbox"] {
   transform: scale(1.2);
-  accent-color: #28a745;
+  /* accent-color: #28a745; */
   cursor: pointer;
 }
 
 /* Checkbox Checked Styling */
 .item-table1 input[type="checkbox"]:checked {
-  background: #28a745;
-  border-color: #28a745;
+  /* background: #28a745;
+  border-color: #28a745; */
 }
 
 /* Labels */
@@ -238,67 +239,35 @@
   }
 }
 
-
-.file-uploader {
-  text-align: center;
-  padding: 6px;
-  font-family: Arial, sans-serif;
-}
-
-.upload-btn {
-  background-color: #007bff;
-  color: white;
-  padding: 4px 7px; /* Reduced by 20% */
-  border-radius: 4px; /* Smaller rounded corners */
-  cursor: pointer;
-  font-size: 6px; /* Reduced font size */
-  transition: 0.3s ease;
-  display: inline-block;
-}
-
-.upload-btn:hover {
-  background-color: #0056b3;
-}
-
-.file-actions {
+.mini-file-uploader {
   display: flex;
-  justify-content: center;
-  gap: 5px; /* Less spacing */
-  /* margin-top: 8px; */
+  align-items: center;
+  gap: 5px;
 }
 
-.action-btn {
-  /* padding: 2px 3px; Reduced by 20% */
-  border: none;
-  border-radius: 3px; /* Smaller rounded corners */
+.mini-upload-btn {
   cursor: pointer;
-  font-size: 5px; /* Smaller font */
-  transition: 0.3s ease;
+  font-size: 16px;
+  background: none;
+  border: none;
+  padding: 5px;
 }
 
-.view {
-  background-color: #28a745;
-  color: white;
+.mini-file-actions {
+  display: flex;
+  gap: 3px;
 }
 
-.view:hover {
-  background-color: #218838;
+.mini-action-btn {
+  font-size: 14px;
+  padding: 3px 5px;
+  border: none;
+  background: #f1f1f1;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
-.download {
-  background-color: #17a2b8;
-  color: white;
+.mini-action-btn:hover {
+  background: #ddd !important;
 }
 
-.download:hover {
-  background-color: #138496;
-}
-
-.upload-new {
-  background-color: #ffc107;
-  color: black;
-}
-
-.upload-new:hover {
-  background-color: #e0a800;
-}

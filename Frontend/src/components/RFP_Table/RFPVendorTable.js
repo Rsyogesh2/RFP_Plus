@@ -7,7 +7,7 @@ import { AppContext } from '../../context/AppContext';
 import { handleSave } from '../../services/Apis'
 
 
-const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" ,action=""}) => {
+const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [itemData, setItemData] = useState([]);
@@ -221,7 +221,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" ,action=""}) => {
             bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
             vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
             created_by: userName,
-            level: userPower === "User" && data.action === "Back to Maker" ? 1: userPower === "Vendor User" && data.action=== "Save as Draft"?5
+            level: userPower === "User" && data.action === "Back to Maker" ? 1 : userPower === "Vendor User" && data.action === "Save as Draft" ? 5
                 : userPower === "Vendor User" && data.action === "Back to Maker" ? 5 : determineLevel(),
             Comments: data.comments || "",
             Priority: data.priority || "Medium",
@@ -294,7 +294,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" ,action=""}) => {
                     <input
                         type="radio"
                         checked={item.A === 1 || item.SelectedOption === "A"}
-                        onChange={userRole === "Maker"&& (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? () => handleMandatoryChange("A", item, TableIndex, parentIndex, subIndex, index) : undefined}
+                        onChange={userRole === "Maker" && (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? () => handleMandatoryChange("A", item, TableIndex, parentIndex, subIndex, index) : undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>}
@@ -330,20 +330,20 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" ,action=""}) => {
                 <td><input type="radio" checked={item.N === 1 ? true : false ||item.SelectedOption==="N"?true:false} onChange={() => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td> */}
                 <td style={{ padding: "5px", height: '100%', textAlign: "center" }}>
-                    {userRole === 'Maker'  && (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? (
-                     <textarea
-                     style={{
-                         border: 'none',
-                         outline: 'none',
-                         resize: 'none',
-                         width: '100%',
-                         height: '100%',
-                         boxSizing: 'border-box',
-                         display: 'block'
-                     }}
-                     value={item.Remarks}
-                     onChange={(e) => handleCommentsChange(e, item)}
-                 />
+                    {userRole === 'Maker' && (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? (
+                        <textarea
+                            style={{
+                                border: 'none',
+                                outline: 'none',
+                                resize: 'none',
+                                width: '100%',
+                                height: '100%',
+                                boxSizing: 'border-box',
+                                display: 'block'
+                            }}
+                            value={item.Remarks}
+                            onChange={(e) => handleCommentsChange(e, item)}
+                        />
                     ) : (
                         <span style={{ fontWeight: "normal" }}>{item.Remarks}</span>
                     )}
@@ -500,27 +500,20 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" ,action=""}) => {
                                                             <div key={l3.code} className='level3'>
                                                                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                                                                     <span className='l3'>{(index1 + 1) + "." + (Number(index2) + 1) + "." + (Number(index) + 1)}{" " + l3.name}</span>
-                                                                    <div className="file-uploader">
+                                                                    <div className="mini-file-uploader">
                                                                         {!file ? (
-                                                                            <label className="upload-btn">
+                                                                            <label className="mini-upload-btn">
                                                                                 <input type="file" onChange={handleFileChange} hidden />
-                                                                                📂 Upload File
+                                                                                📂Attach
                                                                             </label>
                                                                         ) : (
-                                                                            <div className="file-actions">
-                                                                                <button className="action-btn view" onClick={() => window.open(fileURL, "_blank")}>
-                                                                                    👁 View
-                                                                                </button>
-                                                                                <button className="action-btn download" onClick={handleDownload}>
-                                                                                    ⬇️ Download
-                                                                                </button>
-                                                                                <button className="action-btn upload-new" onClick={() => setFile(null)}>
-                                                                                    🔄 Upload New File
-                                                                                </button>
+                                                                            <div className="mini-file-actions">
+                                                                                <button className="mini-action-btn" onClick={() => window.open(fileURL, "_blank")}>👁</button>
+                                                                                <button className="mini-action-btn" onClick={handleDownload}>⬇️</button>
+                                                                                <button className="mini-action-btn" onClick={() => setFile(null)}>🔄</button>
                                                                             </div>
                                                                         )}
                                                                     </div>
-
 
                                                                 </div>
 
