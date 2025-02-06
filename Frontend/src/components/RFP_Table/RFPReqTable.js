@@ -705,7 +705,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
             </div>
             <div className="labels">
                 <span>M-Mandatory | O-Optional </span>
-                <span>{Number(FItem?.[0]?.Level)>4?"Vendor Level":
+                <span>{Number(FItem?.[0]?.Level)>4 && Number(FItem?.[0]?.vendor_level)!==4?"Vendor Level":
                 Number(FItem?.[0]?.Level)===1?"Maker Stage": Number(FItem?.[0]?.Level)===2?"Authorizer Stage":
                 Number(FItem?.[0]?.Level)===3?"Reviewer Stage":""} </span>
             </div>

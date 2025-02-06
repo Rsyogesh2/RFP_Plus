@@ -2168,7 +2168,7 @@ router.get('/loadContents-initial', async (req, res) => {
                        Action_Log, Level
                 FROM RFP_FunctionalItem_draft
                 WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
-                AND RFP_No = ? 
+                AND RFP_No = ? and (Status ="Bank_Pending_Authorization" OR Level >=2)
                 
             `;
             //and Status ="Bank_Pending_Authorization" and level='2'
@@ -2184,7 +2184,7 @@ router.get('/loadContents-initial', async (req, res) => {
                      Action_Log, Level
               FROM RFP_FunctionalItem_draft
               WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
-              AND RFP_No = ? and Status ="Bank_Pending_Reviewer"
+              AND RFP_No = ? and (Status ="Bank_Pending_Reviewer" OR Level >=3)
           `;
            // Execute first query
           [results2] = await db.query(queryString2, values2);
@@ -2347,7 +2347,7 @@ router.get('/loadContents-initial', async (req, res) => {
              AND v.Status IS NOT NULL  -- Place right table conditions here
         WHERE d.Module_Code IN (${combinedArray.map(() => '?').join(', ')})
           AND d.RFP_No = ? And v.Vendor_Id= ?
-        and v.Status ="Vendor_Pending_Authorization"
+        and (v.Status ="Vendor_Pending_Authorization" OR v.Level >=6 OR  v.Level=4)
       `;
        // Execute first query
       [results2] = await db.query(queryString2, [...values2,vendor_Id[0].id]);
@@ -2400,7 +2400,8 @@ router.get('/loadContents-initial', async (req, res) => {
             AND v.Status IS NOT NULL  -- Place right table conditions here
         WHERE d.Module_Code IN (${combinedArray.map(() => '?').join(', ')})
           AND d.RFP_No = ?
-        and Status ="Vendor_Pending_Reviewer" and vendor_Id=?
+        and v.vendor_Id=? and
+         (v.Status ="Vendor_Pending_Reviewer"  OR v.Level >=7 OR  v.Level=4)
         `;
      // Execute first query
     [results2] = await db.query(queryString2, [...values2,vendor_Id[0].id]);

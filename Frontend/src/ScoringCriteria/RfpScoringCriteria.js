@@ -56,9 +56,9 @@ function RfpScoringCriteria() {
                 });
 
                 setOthersTitles({
-                    others1Title: data.sections[3]?.title || 'Others 1 (Specify)',
-                    others2Title: data.sections[4]?.title || 'Others 2 (Specify)',
-                    others3Title: data.sections[5]?.title || 'Others 3 (Specify)',
+                    others1Title: data.overallScoring[0]?.others1Title || 'No value',
+                    others2Title: data.overallScoring[0]?.others2Title || 'Others 2 (Specify)',
+                    others3Title: data.overallScoring[0]?.others3Title || 'Others 3 (Specify)',
                 });
             } else {
                 console.error("Failed to fetch data.");
