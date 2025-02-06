@@ -98,12 +98,12 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-left">
-        <h2>Login</h2>
+    <div className="login-page">
+      <div className="login-container">
+        <h2 className="login-title">Login</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Username:</label>
+            <label>Email address <span className="required">*</span></label>
             <input
               type="text"
               name="username"
@@ -113,7 +113,7 @@ const Login = ({ onLogin }) => {
             />
           </div>
           <div className="form-group">
-            <label>Password:</label>
+            <label>Password <span className="required">*</span></label>
             <input
               type="password"
               name="password"
@@ -122,27 +122,26 @@ const Login = ({ onLogin }) => {
               required
             />
           </div>
-          <button type="submit" className="login-button">
-            Login
-          </button>
+          <div className="login-options">
+            <label>
+              <input type="checkbox" name="rememberMe" />
+              Remember Me
+            </label>
+            <a href="#" className="forgot-password">Forgot Password?</a>
+          </div>
+          <button type="submit" className="login-btn">LOGIN</button>
         </form>
 
         {roles.length > 0 && (
           <div className="role-selection">
             <label htmlFor="role">Select Role:</label>
             <select id="role" value={selectedRole} onChange={handleRoleSelect}>
-              <option value="" disabled>
-                -- Select a Role --
-              </option>
+              <option value="" disabled>-- Select a Role --</option>
               {roles.map((role, index) => (
-                <option key={index} value={role}>
-                  {role}
-                </option>
+                <option key={index} value={role}>{role}</option>
               ))}
             </select>
-            <button onClick={handleNavigateToHome()} className="home-button">
-              Go to Home
-            </button>
+            <button onClick={handleNavigateToHome} className="home-btn">Go to Home</button>
           </div>
         )}
       </div>

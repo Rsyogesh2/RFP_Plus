@@ -1,128 +1,133 @@
-/* Container for the login page */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Apply Font Globally */
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Page layout */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Login Container */
 .login-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 90vh;
-    width: 100%;
-    background: linear-gradient(to bottom, #f0f4ff, #ffffff);
-    font-family: Arial, sans-serif;
-  }
-  
-  /* Left side styling */
-  .login-left {
-    /* flex: 1; */
-    padding: 40px;
-    width: 40%;
-    background-color: #ffffff;
-    border-radius: 10px;
-    margin: 0 auto;
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  .login-left h2 {
-    font-size: 24px;
-    color: #333;
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 16px;
-    color: #555;
-  }
-  
-  input[type="text"],
-  input[type="password"] {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  input[type="text"]:focus,
-  input[type="password"]:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-  
-  .form-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .forgot-password {
-    font-size: 12px;
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .forgot-password:hover {
-    text-decoration: underline;
-  }
-  
-  .login-button {
-    width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .login-button:hover {
-    background-color: #0056b3;
-  }
-  
-  .signup-link {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 14px;
-  }
-  
-  .signup-link a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .signup-link a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Right side styling */
-  .login-right {
-    flex: 1;
-    text-align: center;
-    padding: 40px;
-  }
-  
-  .login-right h3 {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  .login-right p {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 20px;
-  }
-  
-  /* .illustration {
-    height: 500px;
-    background: url('./../assets/loginImage.png') no-repeat center;
-    background-size: contain;
-  } */
-  
+  width: 350px;
+  padding: 30px;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 300;
+}
+
+/* Title */
+.login-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+/* Form Inputs */
+.form-group {
+  text-align: left;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; Ensures the input fields are centered */
+  width: 100%;
+}
+
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500; /* Reduced from 600 to 500 */
+  color: #333; /* Slightly softer color */
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 95%; /* Reduce width slightly to avoid stretching */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  text-align: left; /* Keeps text alignment left */
+}
+
+
+.required {
+  color: red;
+}
+
+/* Login Options */
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+.forgot-password {
+  color: #333;
+  font-weight: 500; /* Reduced from bold to medium weight */
+  text-decoration: none;
+}
+
+/* Login Button */
+.login-btn {
+  width: 100%;
+  background: black !important;
+  color: white;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background: #333;
+}
+
+/* Role Selection */
+.role-selection {
+  margin-top: 15px;
+  text-align: left;
+}
+
+.role-selection label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.role-selection select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+
+.home-btn {
+  width: 100%;
+  margin-top: 10px;
+  background: #007bff;
+  color: white;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.home-btn:hover {
+  background: #0056b3;
+}
