@@ -7,7 +7,7 @@ import { AppContext } from '../../context/AppContext';
 import { handleSave } from '../../services/Apis'
 
 
-const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
+const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" ,action=""}) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [itemData, setItemData] = useState([]);
@@ -580,20 +580,25 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                     Submit
                 </button>
             )} */}
-            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Venor_Level) === 5 && (
+            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.vendor_level) === 5 && (
                 <button onClick={() => handleSave(constructPayload("Save as Draft", {}))}>
                     Save as Draft
                 </button>
             )}
-            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Venor_Level) === 5 && (
+            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.vendor_level) === 5 && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
                     Submit
                 </button>
             )}
-            {userPower === "Vendor Admin" && FItem?.every(item => Number(item?.Venor_Level) === 7) && (
+            {userPower === "Vendor Admin" && FItem?.every(item => Number(item?.vendor_level) === 7) && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", { action: "Submit the RFP" }), "Vendor Admin")}>
                     Submit the RFP
                 </button>
+            )}
+            {userPower === "Vendor Admin" && action === "Submit RFP" && FItem?.every(item => Number(item?.vendor_level) === 4) && (
+                <div className="submitbtn" >
+                    RFP is Submitted to Bank
+                </div>
             )}
         </div>
     );

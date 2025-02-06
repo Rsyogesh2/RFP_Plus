@@ -80,7 +80,7 @@ const SubmitRFPs = ({ action }) => {
     fetchData(); // Call the async function inside useEffect
   }, [action, userName, userPower, userRole, API_URL, setModuleData]); // Add necessary dependencies
 
-  return <RFPVendorTable l1="Vendor Admin" />;
+  return <RFPVendorTable l1="Vendor Admin" action={action}/>;
 };
 
 const HomePage = ({ userType }) => {
