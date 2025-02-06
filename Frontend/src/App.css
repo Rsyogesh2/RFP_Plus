@@ -52,7 +52,7 @@ body {
   right: -15px;
   width: 30px;
   height: 30px;
-  /* background-color: #02735E; */
+  background-color: white;
   color: #02735E;
   border: none;
   border-radius: 10%;
@@ -62,7 +62,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); */
 }
 
 .sidebar h3 {
