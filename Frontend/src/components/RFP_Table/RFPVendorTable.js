@@ -504,7 +504,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                                                                         {!file ? (
                                                                             <label className="mini-upload-btn">
                                                                                 <input type="file" onChange={handleFileChange} hidden />
-                                                                                📂Attach
+                                                                                📂
                                                                             </label>
                                                                         ) : (
                                                                             <div className="mini-file-actions">
