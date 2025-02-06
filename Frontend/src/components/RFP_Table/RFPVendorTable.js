@@ -221,7 +221,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
             bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
             vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
             created_by: userName,
-            level: userPower === "User" && data.action === "Back to Maker" ? 1
+            level: userPower === "User" && data.action === "Back to Maker" ? 1: userPower === "Vendor User" && data.action=== "Save as Draft"?5
                 : userPower === "Vendor User" && data.action === "Back to Maker" ? 5 : determineLevel(),
             Comments: data.comments || "",
             Priority: data.priority || "Medium",
@@ -294,7 +294,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                     <input
                         type="radio"
                         checked={item.A === 1 || item.SelectedOption === "A"}
-                        onChange={userRole === "Maker" ? () => handleMandatoryChange("A", item, TableIndex, parentIndex, subIndex, index) : undefined}
+                        onChange={userRole === "Maker"&& (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? () => handleMandatoryChange("A", item, TableIndex, parentIndex, subIndex, index) : undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>}
@@ -302,7 +302,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                     <input
                         type="radio"
                         checked={item.P === 1 || item.SelectedOption === "P"}
-                        onChange={userRole === "Maker" ? () => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index) : undefined}
+                        onChange={userRole === "Maker" && (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? () => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index) : undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>}
@@ -310,7 +310,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                     <input
                         type="radio"
                         checked={item.C === 1 || item.SelectedOption === "C"}
-                        onChange={userRole === "Maker" ? () => handleMandatoryChange("C", item, TableIndex, parentIndex, subIndex, index) : undefined}
+                        onChange={userRole === "Maker" && (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? () => handleMandatoryChange("C", item, TableIndex, parentIndex, subIndex, index) : undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>}
@@ -318,7 +318,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                     <input
                         type="radio"
                         checked={item.N === 1 || item.SelectedOption === "N"}
-                        onChange={userRole === "Maker" ? () => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index) : undefined}
+                        onChange={userRole === "Maker" && (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? () => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index) : undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>
@@ -330,22 +330,22 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                 <td><input type="radio" checked={item.N === 1 ? true : false ||item.SelectedOption==="N"?true:false} onChange={() => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td> */}
                 <td style={{ padding: "5px", height: '100%', textAlign: "center" }}>
-                    {userRole !== 'Maker' ? (
-                        <span style={{ fontWeight: "normal" }}>{item.Remarks}</span>
+                    {userRole === 'Maker'  && (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? (
+                     <textarea
+                     style={{
+                         border: 'none',
+                         outline: 'none',
+                         resize: 'none',
+                         width: '100%',
+                         height: '100%',
+                         boxSizing: 'border-box',
+                         display: 'block'
+                     }}
+                     value={item.Remarks}
+                     onChange={(e) => handleCommentsChange(e, item)}
+                 />
                     ) : (
-                        <textarea
-                            style={{
-                                border: 'none',
-                                outline: 'none',
-                                resize: 'none',
-                                width: '100%',
-                                height: '100%',
-                                boxSizing: 'border-box',
-                                display: 'block'
-                            }}
-                            value={item.Remarks}
-                            onChange={(e) => handleCommentsChange(e, item)}
-                        />
+                        <span style={{ fontWeight: "normal" }}>{item.Remarks}</span>
                     )}
                 </td>
 
@@ -500,28 +500,28 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                                                             <div key={l3.code} className='level3'>
                                                                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                                                                     <span className='l3'>{(index1 + 1) + "." + (Number(index2) + 1) + "." + (Number(index) + 1)}{" " + l3.name}</span>
-                                                                        <div className="file-uploader">
-                                                                            {!file ? (
-                                                                                <label className="upload-btn">
-                                                                                    <input type="file" onChange={handleFileChange} hidden />
-                                                                                    📂 Upload File
-                                                                                </label>
-                                                                            ) : (
-                                                                                <div className="file-actions">
-                                                                                    <button className="action-btn view" onClick={() => window.open(fileURL, "_blank")}>
-                                                                                        👁 View
-                                                                                    </button>
-                                                                                    <button className="action-btn download" onClick={handleDownload}>
-                                                                                        ⬇️ Download
-                                                                                    </button>
-                                                                                    <button className="action-btn upload-new" onClick={() => setFile(null)}>
-                                                                                        🔄 Upload New File
-                                                                                    </button>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
+                                                                    <div className="file-uploader">
+                                                                        {!file ? (
+                                                                            <label className="upload-btn">
+                                                                                <input type="file" onChange={handleFileChange} hidden />
+                                                                                📂 Upload File
+                                                                            </label>
+                                                                        ) : (
+                                                                            <div className="file-actions">
+                                                                                <button className="action-btn view" onClick={() => window.open(fileURL, "_blank")}>
+                                                                                    👁 View
+                                                                                </button>
+                                                                                <button className="action-btn download" onClick={handleDownload}>
+                                                                                    ⬇️ Download
+                                                                                </button>
+                                                                                <button className="action-btn upload-new" onClick={() => setFile(null)}>
+                                                                                    🔄 Upload New File
+                                                                                </button>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
 
-                                                                   
+
                                                                 </div>
 
                                                                 {/* <Tables l2={l2} index1={index1} f1={"f1"} index={index} /> */}
@@ -547,7 +547,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
 
             </div>
             {/* Show Submit button only for Authorizer or Reviewer */}
-            {(userRole === "Authorizer" || userRole === "Reviewer") && (
+            {/* {(userRole === "Authorizer" || userRole === "Reviewer") && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}), "Vendor User")}>
                     Submit
                 </button>
@@ -556,10 +556,21 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                 <button onClick={() => handleSave(constructPayload("Back to Maker", { action: "Back to Maker" }), "Vendor User")}>
                     Back to Maker
                 </button>
+            )} */}
+            {(userRole === "Authorizer") && Number(FItem?.[0]?.Venor_Level) === 6 && (
+                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
+                    Authorize
+                </button>
+            )}
+            {(userRole === "Authorizer") && Number(FItem?.[0]?.Venor_Level) === 6 && (
+                <button onClick={() => handleSave(constructPayload("Back to Maker", { action: "Back to Maker" }))}>
+                    Back to Maker
+                </button>
             )}
 
+
             {/* Optional Save as Draft button for Maker */}
-            {userRole === "Maker" && (
+            {/* {userRole === "Maker" && (
                 <button onClick={() => handleSave(constructPayload("Save as Draft", {}), "Vendor User")}>
                     Save as Draft
                 </button>
@@ -568,8 +579,18 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}), "Vendor User")}>
                     Submit
                 </button>
+            )} */}
+            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Venor_Level) === 5 && (
+                <button onClick={() => handleSave(constructPayload("Save as Draft", {}))}>
+                    Save as Draft
+                </button>
             )}
-            {userPower === "Vendor Admin" && (
+            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Venor_Level) === 5 && (
+                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
+                    Submit
+                </button>
+            )}
+            {userPower === "Vendor Admin" && FItem?.every(item => Number(item?.Venor_Level) === 7) && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", { action: "Submit the RFP" }), "Vendor Admin")}>
                     Submit the RFP
                 </button>
