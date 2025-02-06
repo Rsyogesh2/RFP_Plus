@@ -60,7 +60,7 @@ router.get('/api/hello', async (req, res) => {
 
 router.get('/modules', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT distinct Module_Group as name FROM RFP_L1_modules');
+    const [rows] = await db.query('SELECT distinct Module_Group as name, Module_ID as Code FROM RFP_L1_modules');
     //////console.log(rows[0].name);
     res.status(200).json(rows);
   } catch (error) {
@@ -324,7 +324,7 @@ router.get('/modules/:moduleName/subItems', async (req, res) => {
     //////console.log("Error fetching sub-items:");
     // Use parameterized query to prevent SQL injection
     const [rows] = await db.query(
-      `SELECT L1_Module_Description as name,L1_Code FROM RFP_L1_modules WHERE Module_Group = ?`,
+      `SELECT L1_Module_Description as name,L1_Code as Code FROM RFP_L1_modules WHERE Module_Group = ?`,
       [moduleName]
     );
 
@@ -342,7 +342,7 @@ router.get('/modules/:moduleName/subItems', async (req, res) => {
 
 router.get('/products', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT distinct Product_Group as name FROM RFP_Products');
+    const [rows] = await db.query('SELECT distinct Product_Group as name , Group_ID as Code FROM RFP_Products');
     //////console.log(rows[0].name);
     res.status(200).json(rows);
   } catch (error) {
@@ -358,7 +358,7 @@ router.get('/products/:moduleName/subItems', async (req, res) => {
     //////console.log("Error fetching sub-items:");
     // Use parameterized query to prevent SQL injection
     const [rows] = await db.query(
-      `SELECT Financial_Products as name FROM RFP_Products WHERE Product_Group = ?`,
+      `SELECT Financial_Products as name, Code FROM RFP_Products WHERE Product_Group = ?`,
       [moduleName]
     );
 
@@ -528,7 +528,7 @@ router.post('/insertFItem', async (req, res) => {
     );
     const [bankNameResult] = await db.query(
             `SELECT entity_name,user_id as id FROM superadmin_users WHERE super_user_email = ?`, 
-            [userDetails[0].createdby]
+            [userPower=="Super Admin"?created_by:userDetails[0].createdby]
         );
     if (userPower === "User" || userPower === "Super Admin") {
       for (const l1Item of module) {
@@ -551,7 +551,7 @@ router.post('/insertFItem', async (req, res) => {
             `INSERT INTO RFP_Saved_L1_Modules 
               (L1_Code, L1_Module_Description, RFP_No, stage, bank_name, created_by, assigned_to, 
               Status, Priority, Handled_By, Action_Log, Level,Bank_Id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [code, name, rfp_no, stage, bank_name, created_by, assigned_to, Status, Priority, 
               JSON.stringify(Handled_by), Action_log, level,bankNameResult[0].id]
           );
@@ -1287,7 +1287,8 @@ router.post('/getSavedModule', async (req, res) => {
 router.get('/getSavedData', async (req, res) => {
   let { userPower, userName,rfpNo,actionName,selectedVendor } = req.query;
   // console.log("rfpNo" +rfpNo);
-  console.log(actionName);
+  console.log("getSavedData");
+  console.log(userPower, userName,rfpNo,actionName,selectedVendor);
   // const rfpNo ="RFP123";
   if (!rfpNo && userPower=="Super Admin") {
     return res.status(400).json({ error: 'RFP_No is required' });
@@ -1326,7 +1327,8 @@ router.get('/getSavedData', async (req, res) => {
         FROM RFP_FunctionalItem_draft
         WHERE RFP_No = ? AND Level >= 4
         ORDER BY Level ASC
-        LIMIT 1`;
+        `;
+        // LIMIT 1`;
       } else if(actionName==="Submitted RFP"){
         queryString2 = `
         SELECT 
@@ -1440,9 +1442,10 @@ router.get('/getSavedData', async (req, res) => {
           ON d.id = v.rfp_functionalitem_draft_id 
           AND v.Status IS NOT NULL  
       WHERE d.RFP_No = ?
-      AND (v.Status = "Vendor_Pending_Reviewer" OR v.Status = "Completed")
+      AND (v.Status = "Vendor_Pending_Reviewer" OR v.Status = "Completed" OR v.Status = "Vendor_Pending_Admin")
       AND v.Vendor_Id = ?`;
       } else if(actionName==="View RFP"){
+        console.log("View RFP is")
         queryString2 = `
       SELECT 
           d.id AS RFP_functionalitem_DraftId,
@@ -1984,7 +1987,7 @@ router.get('/getSavedFItems', async (req, res) => {
 
 router.get('/loadContents-initial', async (req, res) => {
   try {
-    console.log("loadContents-initial")
+    console.log("loadContents-initial");
     const { userName, userPower, userRole } = req.query;// Destructure checkedItems from request body
     var fItems = [];
     let qustring;
@@ -2101,6 +2104,15 @@ router.get('/loadContents-initial', async (req, res) => {
             if (userPower === "User" ) {
 
               if(userRole=="Maker"){
+
+                // Product Filter Code
+                let prod = `select products from RFP_Creation where RFP_No=?`
+                let [products] = await db.query(prod,res.rfp_no);
+                let prodCode = products[0].products.map(item => item.subItemCode);
+                console.log("prodCode");
+                // prodCode.push(null)
+                console.log(prodCode);
+                
                 queryString2 = `
                     SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
                            deleted, Modified_Time, Edited_By, stage, bank_name, created_by, assigned_to, Status, Priority, Handled_By, 
@@ -2129,8 +2141,10 @@ router.get('/loadContents-initial', async (req, res) => {
                     SELECT Description AS name, Module_Code, F1_Code, F2_Code 
                     FROM RFP_FunctionalItems 
                     WHERE Module_Code IN (${unmatchedModuleCodes.map(() => '?').join(', ')}) AND F1_Code!="00"
+                    
                 `;
-            
+                // And (Product IN (${prodCode.join(', ')}) OR Product IS NULL)
+                console.log(queryString3)
                 // Execute second query
                 const [results3] = await db.query(queryString3, unmatchedModuleCodes);
                 console.log("Unmatched Results from RFP_FunctionalItems:", results3);

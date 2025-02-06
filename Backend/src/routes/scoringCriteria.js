@@ -1345,7 +1345,7 @@ router.post('/fetchComFunScores-dashBoard', async (req, res) => {
                     totalScore += customizableScore * optionalScore;
                 }
             });
-            let percentage = ((totalScore/total) /100).toFixed(2)
+            let percentage = ((totalScore/total) *100).toFixed(2)
             vendorScores.push({ vendorId, totalScore,percentage });
         }
         console.log(vendorScores)

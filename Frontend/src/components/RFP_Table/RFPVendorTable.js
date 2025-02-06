@@ -11,33 +11,51 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [itemData, setItemData] = useState([]);
-    const [APCN, setAPCN] = useState({isAvailableChecked:false,isPartlyAvailableChecked:false,isCustomizableChecked:false});
+    const [APCN, setAPCN] = useState({ isAvailableChecked: false, isPartlyAvailableChecked: false, isCustomizableChecked: false });
     const [FItem, setFItem] = useState([]);
     const [data, setdata] = useState([]);
     const [valueL1, setValueL1] = useState(null);
     const { moduleData, userName, userRole, userPower, sidebarValue } = useContext(AppContext); // Access shared state
     const [uploadStatus, setUploadStatus] = useState(null); // 'success', 'error', or null
+    const [file, setFile] = useState(null);
+    const [fileURL, setFileURL] = useState("");
 
-    const handleFileChange = async (event) => {
-        const selectedFile = event.target.files[0];
-
-        if (selectedFile) {
-            if (selectedFile.size > 5 * 1024 * 1024) {
-                alert('File size exceeds 5MB. Please upload a smaller file.');
-                setUploadStatus('error');
-                return;
-            }
-
-            // Simulate upload process
-            try {
-                // Replace with your actual upload logic (API call)
-                await fakeUpload(selectedFile);
-                setUploadStatus('success');
-            } catch (error) {
-                setUploadStatus('error');
-            }
+    const handleFileChange = (event) => {
+        const uploadedFile = event.target.files[0];
+        if (uploadedFile) {
+            setFile(uploadedFile);
+            setFileURL(URL.createObjectURL(uploadedFile));
         }
     };
+
+    const handleDownload = () => {
+        const link = document.createElement("a");
+        link.href = fileURL;
+        link.download = file.name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+    // const handleFileChange = async (event) => {
+    //     const selectedFile = event.target.files[0];
+
+    //     if (selectedFile) {
+    //         if (selectedFile.size > 5 * 1024 * 1024) {
+    //             alert('File size exceeds 5MB. Please upload a smaller file.');
+    //             setUploadStatus('error');
+    //             return;
+    //         }
+
+    //         // Simulate upload process
+    //         try {
+    //             // Replace with your actual upload logic (API call)
+    //             await fakeUpload(selectedFile);
+    //             setUploadStatus('success');
+    //         } catch (error) {
+    //             setUploadStatus('error');
+    //         }
+    //     }
+    // };
 
     // Simulated upload function (replace with your real API call)
     const fakeUpload = (file) => {
@@ -61,19 +79,19 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
         async function fetchArray() {
             console.log("userName " + userName)
             console.log(l1);
-            try{
+            try {
                 const response = await fetch(`${API_URL}/fetchAPCN?userName=${userName}&&rfpNo=${rfpNo || sidebarValue[0]?.rfp_no}&&userPower=${userPower}`);
                 const data = await response.json();
                 console.log(data.functionalScores[0])
                 setAPCN(data.functionalScores[0]);
-            } catch(error){
-                console.log("Error Fetch the  APCN Value: "+error)
+            } catch (error) {
+                console.log("Error Fetch the  APCN Value: " + error)
             }
-           
+
             //23/11/2024
             try {
                 console.log(moduleData);
-                
+
                 if (l1 == "Vendor Admin") {
                     setItemData(moduleData.modules);
                     setFItem(moduleData.fitems);
@@ -181,7 +199,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
             payload.stage = "Draft";
             payload.Status = "Bank_Pending_Maker";
             payload.assigned_to = null;
-        }  else if (action === "Submit the RFP") {
+        } else if (action === "Submit the RFP") {
             payload.stage = "Bank";
             payload.Status = "Completed";
             payload.assigned_to = null;
@@ -271,8 +289,8 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                 </td>
                 <td>{item.Mandatory === 0 ? "O" : "M"}</td>
                 <td>{item.Comments}</td>
-                
-                {APCN?.isAvailableChecked !==0 && <td>
+
+                {APCN?.isAvailableChecked !== 0 && <td>
                     <input
                         type="radio"
                         checked={item.A === 1 || item.SelectedOption === "A"}
@@ -280,19 +298,19 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>}
-                {APCN.isPartlyAvailableChecked !==0 && <td>
+                {APCN?.isPartlyAvailableChecked !== 0 && <td>
                     <input
                         type="radio"
                         checked={item.P === 1 || item.SelectedOption === "P"}
-                        onChange={userRole === "Maker" ?() => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index): undefined}
+                        onChange={userRole === "Maker" ? () => handleMandatoryChange("P", item, TableIndex, parentIndex, subIndex, index) : undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>}
-                {APCN.isCustomizableChecked !==0 && <td>
+                {APCN?.isCustomizableChecked !== 0 && <td>
                     <input
                         type="radio"
                         checked={item.C === 1 || item.SelectedOption === "C"}
-                        onChange={userRole === "Maker" ?() => handleMandatoryChange("C", item, TableIndex, parentIndex, subIndex, index): undefined}
+                        onChange={userRole === "Maker" ? () => handleMandatoryChange("C", item, TableIndex, parentIndex, subIndex, index) : undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>}
@@ -300,7 +318,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                     <input
                         type="radio"
                         checked={item.N === 1 || item.SelectedOption === "N"}
-                        onChange={userRole === "Maker" ?() => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index): undefined}
+                        onChange={userRole === "Maker" ? () => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index) : undefined}
                         name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`}
                     />
                 </td>
@@ -390,9 +408,9 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                         <th>Requirement</th>
                         <th>M/O</th>
                         <th>Comments</th>
-                        {APCN.isAvailableChecked !==0 && <th>A</th>}
-                        {APCN.isPartlyAvailableChecked !==0 && <th>P</th>}
-                        {APCN.isCustomizableChecked !==0 && <th>C</th>}
+                        {APCN?.isAvailableChecked !== 0 && <th>A</th>}
+                        {APCN?.isPartlyAvailableChecked !== 0 && <th>P</th>}
+                        {APCN?.isCustomizableChecked !== 0 && <th>C</th>}
                         <th>N</th>
                         {/* <th>P</th>
                         <th>C</th>
@@ -480,7 +498,31 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                                                     <>
                                                         {l2.l3.map((l3, index) => (
                                                             <div key={l3.code} className='level3'>
-                                                                <span className='l3'>{(index1 + 1) + "." + (Number(index2) + 1) + "." + (Number(index) + 1)}{" " + l3.name}</span>
+                                                                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                                                    <span className='l3'>{(index1 + 1) + "." + (Number(index2) + 1) + "." + (Number(index) + 1)}{" " + l3.name}</span>
+                                                                        <div className="file-uploader">
+                                                                            {!file ? (
+                                                                                <label className="upload-btn">
+                                                                                    <input type="file" onChange={handleFileChange} hidden />
+                                                                                    📂 Upload File
+                                                                                </label>
+                                                                            ) : (
+                                                                                <div className="file-actions">
+                                                                                    <button className="action-btn view" onClick={() => window.open(fileURL, "_blank")}>
+                                                                                        👁 View
+                                                                                    </button>
+                                                                                    <button className="action-btn download" onClick={handleDownload}>
+                                                                                        ⬇️ Download
+                                                                                    </button>
+                                                                                    <button className="action-btn upload-new" onClick={() => setFile(null)}>
+                                                                                        🔄 Upload New File
+                                                                                    </button>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+
+                                                                   
+                                                                </div>
 
                                                                 {/* <Tables l2={l2} index1={index1} f1={"f1"} index={index} /> */}
                                                                 {Tables(l3, index1, "f1", index, userRole)}
@@ -528,7 +570,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "" }) => {
                 </button>
             )}
             {userPower === "Vendor Admin" && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {action:"Submit the RFP"}), "Vendor Admin")}>
+                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", { action: "Submit the RFP" }), "Vendor Admin")}>
                     Submit the RFP
                 </button>
             )}

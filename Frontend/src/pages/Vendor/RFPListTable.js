@@ -45,16 +45,20 @@ const RFPListTable = ({ }) => {
     } else {
       setData([]); // Provide a fallback
     }
-  }, [moduleData]);
+  }, [moduleData,selectedRfpNo]);
 
   const handleSeeQuery = (rfpNo, rfpTitle, actionName) => {
     console.log(actionName)
     
     if (actionName === "Submitted RFP") {
+      setVisibleDashboard(false)
+      setVisibleEvaluation(false);
+      setVisibleFinalRFP(false);
+      setVisible(false);
+      setVisibleSubmitRFP(false);
+      setVisibleRFP(false);
       setVisibleVendor(!visibleVendor)
-      setVisibleSubmitRFP(!visibleSubmitRFP)
       if(visibleVendor){
-        // setVisibleVendor(!visibleVendor);
         setActionName(actionName);
         setSelectedRfpNo(rfpNo); // Set the selected RFP number
         setSelectedRfpTitle(rfpTitle);
@@ -132,17 +136,17 @@ const RFPListTable = ({ }) => {
     }
     fetchArray();
     if (actionName === "Dashboard") {
-      setVisibleVendor(!visibleVendor);
-      if(visibleVendor){
+      setVisibleVendor(false);
+      // if(visibleVendor){
       setVisibleDashboard(!visibleDashboard)
       setVisibleEvaluation(false);
       setVisibleFinalRFP(false);
       setVisible(false);
       setVisibleSubmitRFP(false);
       setVisibleRFP(false);
-      }
+      // }
     } else if (actionName === "Final Evaluation") {
-      // setVisibleVendor(!visibleVendor)
+      setVisibleVendor(false);
       // if(visibleVendor){
       setVisibleDashboard(false)
       setVisible(false);
@@ -152,7 +156,7 @@ const RFPListTable = ({ }) => {
       setVisibleRFP(false);
       // }
     } else if (actionName === "Vendor Query") {
-      // setVisibleVendor(!visibleVendor)
+      setVisibleVendor(false);
       // if(visibleVendor){
       setVisible(!visible); // Show the VendorQuery component
       setVisibleDashboard(false)
@@ -162,6 +166,7 @@ const RFPListTable = ({ }) => {
       setVisibleRFP(false);
       // }
     } else if (actionName === "View RFP") {
+      setVisibleVendor(false);
       setVisibleDashboard(false)
       setVisibleEvaluation(false)
       setVisibleFinalRFP(false)
@@ -169,6 +174,7 @@ const RFPListTable = ({ }) => {
       setVisibleSubmitRFP(false);
       setVisibleRFP(!visibleRFP);
     } else if (actionName === "Final RFP") {
+      setVisibleVendor(false);
       setVisibleFinalRFP(!visibleFinalRFP)
       setVisible(false); // Show the VendorQuery component
       setVisibleDashboard(false)
@@ -191,7 +197,7 @@ const handleDropdownChangeVendor = (event) => {
       setSelectedVendor(null); // Reset if no selection
   }
 };
-  const fetchSubmittedRFP = async() => {
+const fetchSubmittedRFP = async() => {
 
     const queryParams = new URLSearchParams({ userName, userPower, userRole, rfpNo: selectedRfpNo,selectedVendor:selectedVendor.id, actionName:"Submitted RFP" });
     let url
@@ -217,14 +223,16 @@ const handleDropdownChangeVendor = (event) => {
       // setVisibleDashboard(false);
       // setVisibleEvaluation(false);
       // setVisibleRFP(false);
-      
+       setVisibleSubmitRFP(!visibleSubmitRFP);
+
     setModuleData(prevState => {
       const updatedData = { ...prevState, ...data };
       console.log("Updated instantly:", updatedData);
       return updatedData;
     });
 
-  }
+   
+}
 
 
 

@@ -105,7 +105,9 @@ const ModuleList = forwardRef(({title,url},ref) => {
                 .filter((subItem) => subItem.selected)
                 .map((subItem) => ({
                     parent: module.name,
+                    parentCode: module.Code,
                     subItem: subItem.name,
+                    subItemCode:subItem.Code
                 }))
         );
         console.log("Checked Items:", checkedItems);
@@ -117,7 +119,7 @@ const ModuleList = forwardRef(({title,url},ref) => {
         setAssignModule(subItems);
         setModuleData(sendCheckedItems(subItems));
         if(i==="RFPCreation"){
-            return subItems
+            return [subItems,checkedItems]
         } else if(i==="RFPAssignedtoSuperUser"){
             return subItems
         }

@@ -147,8 +147,10 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
                         ...vendor,
                         scores: [
                             // 0, // Keep the first score unchanged
-                            data?.functionalScores[index]?.percentage || 0, // Keep the first score unchanged
-                            data?.averagePercentageScore[index] || vendor.scores[1], // Replace the second score only if data exists, else keep the original
+                            isNaN(data?.functionalScores[index]?.percentage) 
+                            ? 0 
+                            : data?.functionalScores[index]?.percentage,
+                             data?.averagePercentageScore[index] || vendor.scores[1], // Replace the second score only if data exists, else keep the original
                             ...vendor.scores.slice(2) // Keep the rest unchanged
                         ]
                     }))

@@ -18,14 +18,7 @@ const RfpForm = ({ user }) => {
   const handleGetCheckedItems = async () => {
     let modules = [];
     let products = [];
-    if(rfpDetails.rfpNo===""){
-      alert("Please Enter the RFP No");
-      return false;
-    }
-    if(rfpDetails.rfpTitle=== ""){
-      alert("Please Enter the RFP Title");
-      return false;
-    }
+   
     // Fetch checked items for modules
     if (childRef.current) {
       modules = childRef.current.getCheckedItems("RFPCreation");
@@ -39,11 +32,19 @@ const RfpForm = ({ user }) => {
     // Prepare the request payload
     const payload = {
       rfpDetails,
-      modules,
-      products,
+      modules: modules[0] || [],  // Ensure safe access
+      products: products[1] || [], // Ensure safe access
       userName,
-    };
-  
+    };    
+    console.log(payload)
+    if(rfpDetails.rfpNo===""){
+      alert("Please Enter the RFP No");
+      return false;
+    }
+    if(rfpDetails.rfpTitle=== ""){
+      alert("Please Enter the RFP Title");
+      return false;
+    }
     // Send POST request
     const response = await fetch(`${API_URL}/api/rfpCreation`, {
       method: "POST",

@@ -798,7 +798,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                     Submit
                 </button>
             )}
-            {userPower === "Super Admin" && Number(FItem?.[0]?.Level) ===3 && (
+            {userPower === "Super Admin" && FItem?.every(item => Number(item?.Level) === 3) && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Finalize the RFP", {}))}>
                     Finalize the RFP
                 </button>

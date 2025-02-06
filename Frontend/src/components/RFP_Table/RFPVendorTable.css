@@ -122,6 +122,10 @@
 .item-table1 td:nth-child(8) {
   width: 40%;
 }
+.item-table1 th:last-child,
+.item-table1 td:last-child {
+  width: 40%;
+}
 
 .item-table1 td:nth-child(8) textarea {
   width: 100%;
@@ -232,4 +236,69 @@
   .item-table1 textarea {
     padding: 6px;
   }
+}
+
+
+.file-uploader {
+  text-align: center;
+  padding: 6px;
+  font-family: Arial, sans-serif;
+}
+
+.upload-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 4px 7px; /* Reduced by 20% */
+  border-radius: 4px; /* Smaller rounded corners */
+  cursor: pointer;
+  font-size: 6px; /* Reduced font size */
+  transition: 0.3s ease;
+  display: inline-block;
+}
+
+.upload-btn:hover {
+  background-color: #0056b3;
+}
+
+.file-actions {
+  display: flex;
+  justify-content: center;
+  gap: 5px; /* Less spacing */
+  /* margin-top: 8px; */
+}
+
+.action-btn {
+  /* padding: 2px 3px; Reduced by 20% */
+  border: none;
+  border-radius: 3px; /* Smaller rounded corners */
+  cursor: pointer;
+  font-size: 5px; /* Smaller font */
+  transition: 0.3s ease;
+}
+
+.view {
+  background-color: #28a745;
+  color: white;
+}
+
+.view:hover {
+  background-color: #218838;
+}
+
+.download {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.download:hover {
+  background-color: #138496;
+}
+
+.upload-new {
+  background-color: #ffc107;
+  color: black;
+}
+
+.upload-new:hover {
+  background-color: #e0a800;
 }

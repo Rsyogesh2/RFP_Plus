@@ -61,8 +61,8 @@ const SubmitRFPs = ({ action }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log(action.action);
-        const queryParams = new URLSearchParams({ userName, userPower, userRole, actionName: action.action });
+        console.log(action);
+        const queryParams = new URLSearchParams({ userName, userPower, userRole, actionName: action });
 
         const response = await fetch(`${API_URL}/api/getSavedData?${queryParams}`);
         if (!response.ok) {
