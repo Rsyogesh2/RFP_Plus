@@ -401,11 +401,11 @@ router.post('/addUser', async (req, res) => {
       // const count = `SELECT COUNT(email) + 1 AS no FROM Users_Table WHERE createdby = ?`;
       let count;
       if (userPower == "Vendor Admin") {
-        count = `SELECT COALESCE(MAX(id), 0) + 1 AS no 
+        count = `SELECT COALESCE(MAX(user_no), 0) + 1 AS no 
                  FROM Vendor_Users_Table 
                  WHERE createdby = ?`;
       } else if (userPower == "Super Admin") {
-        count = `SELECT COALESCE(MAX(id), 0) + 1 AS no 
+        count = `SELECT COALESCE(MAX(user_no), 0) + 1 AS no 
                  FROM Users_Table 
                  WHERE createdby = ?`;
       }
