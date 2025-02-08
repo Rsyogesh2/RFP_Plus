@@ -114,7 +114,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
             fetchArray();
             setValueL1(l1.l1module);
         }
-    }, [l1]);  // Only trigger fetch when `data` changes
+    }, [l1,moduleData]);  // Only trigger fetch when `data` changes
     const filterModule = (data) => {
         const data1 = data.itemDetails.l1[0].filter(m => m.code === l1.l1module);
         setItemData(data1);
@@ -288,7 +288,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     {item.name}
                 </td>
                 <td>{item.Mandatory === 0 ? "O" : "M"}</td>
-                <td>{item.Comments}</td>
+                <td style={{fontWeight:"normal"}}>{item.Comments}</td>
 
                 {APCN?.isAvailableChecked !== 0 && <td>
                     <input

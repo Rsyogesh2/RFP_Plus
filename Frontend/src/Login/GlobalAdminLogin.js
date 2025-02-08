@@ -2,12 +2,18 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "./../context/AppContext";
 import "./GlobalAdminLogin.css";
+import ForgotPassword from './ForgotPassword'; // Import the Forgot Password component
 
 const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState("");
   const { setUserPower, setUserName,setUserRole, setName } = useContext(AppContext);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+
+    const handleForgotPasswordClick = () => {
+        setShowForgotPassword(true); // Show the Forgot Password component
+    };
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -99,6 +105,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login-page">
+       {!showForgotPassword ? (
       <div className="login-container">
         <h2 className="login-title">Login</h2>
         <form onSubmit={handleSubmit}>
@@ -127,7 +134,7 @@ const Login = ({ onLogin }) => {
               <input type="checkbox" name="rememberMe" />
               Remember Me
             </label>
-            <a href="#" className="forgot-password">Forgot Password?</a>
+            <a href="#" className="forgot-password" onClick={handleForgotPasswordClick} >Forgot Password?</a>
           </div>
           <button type="submit" className="login-btn">LOGIN</button>
         </form>
@@ -145,6 +152,9 @@ const Login = ({ onLogin }) => {
           </div>
         )}
       </div>
+       ): (
+        <ForgotPassword /> // Show the Forgot Password component
+    )}
     </div>
   );
 };

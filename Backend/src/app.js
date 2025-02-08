@@ -5,6 +5,7 @@ const path = require('path');
 const db = require('./config/db');
 const dataRoutes = require('./routes/dataRoutes');
 const globalUserRoutes = require('./routes/globalUserRoutes');
+const resetPasswordRoute = require('./routes/resetPassword');
 
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt'); // Consider using for password hashing
@@ -34,9 +35,9 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 const cors = require('cors');
 
 app.use(cors({
-  origin: 'https://rfp-plus.vercel.app', // Allow only the frontend URL
+  // origin: 'https://rfp-plus.vercel.app', // Allow only the frontend URL
   // origin: 'https://rfp-plus.onrender.com', // Allow only the frontend URL
-  // orgin:"http://localhost:5000",
+  orgin:"http://localhost:5000",
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow credentials (cookies, authorization headers)
@@ -45,6 +46,7 @@ app.use(cors({
 app.use('/', login);
 app.use('/', addUsers);
 app.use('/', scoringCriteria);
+app.use('/', resetPasswordRoute);
 // Home route
 // app.use(express.static(path.join(__dirname, 'client/build')));
 
