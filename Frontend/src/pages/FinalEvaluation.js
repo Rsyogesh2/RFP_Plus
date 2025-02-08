@@ -7,6 +7,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const FinalEvaluation = ({rfpNo="", rfpTitle= ""}) => {
   // const [rfpNo, setRfpNo] = useState('RFP123');
   const [commercialValue, setCommercialValue] = useState([]);
+  const [savedScores, setSavedScores] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [vendorNames, setVendorNames] = useState([]);
   const [sections, setSections] = useState({
@@ -50,6 +51,7 @@ const FinalEvaluation = ({rfpNo="", rfpTitle= ""}) => {
         console.log(data)
         setSections(data[1]);
         setCommercialValue(data[0]);
+        setSavedScores(data[2]);
     } catch (error) {
         console.error('Error fetching data:', error);
     }
@@ -186,7 +188,7 @@ const handleDropdownChange = (table, value, score) => {
         />
 
       {/* Collapsible Section with 6 Dropdowns */}
-      <CollapsibleSection1 sections={sections} onDropdownChange={handleDropdownChange} />
+      <CollapsibleSection1 sections={sections} savedScores={savedScores} onDropdownChange={handleDropdownChange} />
 
       <button style={{marginTop:"15px"}}onClick={saveDataToBackend}>Save Data</button>
     </div>
@@ -197,7 +199,7 @@ export default FinalEvaluation;
 
 // Collapsible Section Component with 6 Dropdowns
 
-const CollapsibleSection1 = ({ sections, onDropdownChange }) => {
+const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectedScores, setSelectedScores] = useState({}); // To store scores dynamically
 
@@ -299,7 +301,7 @@ const CollapsibleSection = ({ title, items, setItems }) => {
                 <input
                   type="text"
                   placeholder="Amount"
-                  value={item.amount}
+                  value={item.Bank_Amount}
                   onChange={(e) => handleTextChange(index, e.target.value)}
                   className="item-input"
                   style={{ flex: 1 }}

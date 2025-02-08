@@ -257,7 +257,7 @@ router.post('/fetchScores', async (req, res) => {
     let scores = {};
     try {
         const [rfpNo] = await db.query(`select rfp_reference_no from vendor_admin_users where id= ?`, [id]);  
-        const [bankName] = await db.query(`select entity_name from superadmin_users where super_user_email= ?`, [userName]);  
+        const [bankName] = await db.query(`select entity_name, user_id from superadmin_users where super_user_email= ?`, [userName]);  
         //console.log(rfpNo)
         //console.log(bankName)
         for (const table of tables) {
@@ -271,11 +271,42 @@ router.post('/fetchScores', async (req, res) => {
             }
            
         }
-        const query = `
-        select id,CommercialPattern, InternalPercent, From1, To1, Score1, From2, To2, Score2, From3, To3, Score3
-        from  CommercialScores where RFP_No=?
-        `;
-        const [commercial]= await db.query(query,rfpNo[0].rfp_reference_no)
+
+           const savedScoreQuery= ` Select Implementation_Name, Implementation_Score,
+            No_of_Sites_Name, No_of_Sites_Score, 
+            Site_Reference_Name, Site_Reference_Score,
+            Scoring_Items1_Name, Scoring_Items1_Score,
+            Scoring_Items2_Name, Scoring_Items2_Score,
+            Scoring_Items3_Name, Scoring_Items3_Score
+            from  EvaluationScores where RFP_No = ?  and Vendor_Id = ? and Bank_Id= ?
+           `
+           const [savedScores]= await db.query(savedScoreQuery,[rfpNo[0].rfp_reference_no,id,bankName[0].user_id])
+        
+        const query = `SELECT 
+            cs.id, 
+            cs.CommercialPattern, 
+            cs.InternalPercent, 
+            cs.From1, cs.To1, cs.Score1, 
+            cs.From2, cs.To2, cs.Score2, 
+            cs.From3, cs.To3, cs.Score3,
+            cpa.Bank_Id, 
+            cpa.Bank_Amount, 
+            cpa.created_by, 
+            cpa.Percentage
+        FROM CommercialScores cs
+        LEFT JOIN CommercialPattern_Amounts cpa 
+            ON cs.RFP_No = cpa.RFP_No 
+            AND cs.CommercialPattern = cpa.CommercialPattern
+        WHERE cs.RFP_No = ? 
+        AND cpa.Vendor_Id = ?;
+        `
+        // const query = `
+        // select id,CommercialPattern, InternalPercent, From1, To1, Score1, From2, To2, Score2, From3, To3, Score3
+        // from  CommercialScores where RFP_No=?
+        // `;
+         
+        // "select Bank_Id , CommercialPattern, Bank_Amount, created_by, Percentage from CommercialPattern_Amounts where RFP_No=? and Vendor_Id=?"
+        const [commercial]= await db.query(query,[rfpNo[0].rfp_reference_no,id])
         // const query = `
         // select CommercialPattern, InternalPercent, From1, To1, Score1, From2, To2, Score2, From3, To3, Score3
         // from  CommercialScores where RFP_No =?
@@ -283,7 +314,7 @@ router.post('/fetchScores', async (req, res) => {
         // const [commercial]= await db.query(query, rfpNo[0].rfp_reference_no)
         //console.log(commercial)
         //console.log(scores)
-        const response = [commercial,scores]
+        const response = [commercial,scores,savedScores]
         //console.log(response)
         res.json(response);
     } catch (error) {
