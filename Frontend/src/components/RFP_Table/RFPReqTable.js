@@ -616,7 +616,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
         return (
             <table className="item-table">
                 <colgroup>
-                    {userRole === "Maker" &&  (!FItem?.[0]?.Level || FItem[0].Level === 1) && <col style={{ width: "8%" }} />}
+                    {userRole === "Maker" &&  (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1) && <col style={{ width: "8%" }} />}
                     <col style={{ width: "60%" }} />
                     <col style={{ width: "0%" }} />
                     <col style={{ width: "0.1%" }} />
