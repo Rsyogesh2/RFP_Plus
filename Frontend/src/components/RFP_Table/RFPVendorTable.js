@@ -574,7 +574,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                 </button>
             )} */}
             {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.vendor_level) === 5 && (
-                <button onClick={() => handleSave(constructPayload("Save as Draft", {}))}>
+                <button onClick={() => handleSave(constructPayload("Save as Draft", {action:"Save as Draft"}))}>
                     Save as Draft
                 </button>
             )}

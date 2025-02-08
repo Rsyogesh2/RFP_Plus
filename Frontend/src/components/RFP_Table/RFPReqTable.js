@@ -789,7 +789,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
 
             {/* Optional Save as Draft button for Maker */}
             {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Level) ===1 && (
-                <button onClick={() => handleSave(constructPayload("Save as Draft", {}))}>
+                <button onClick={() => handleSave(constructPayload("Save as Draft", {action:"Save as Draft"}))}>
                     Save as Draft
                 </button>
             )}
