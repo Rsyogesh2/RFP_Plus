@@ -1523,4 +1523,170 @@ router.get('/fetchAPCN', async (req, res) => {
     }
 });
 
+// Dashboard Commercial and Other Scores
+router.post('/fetchDashboardMCO', async (req, res) => {
+    const { userName,rfpNo } = req.body; // Accessing JSON data directly
+    console.log(userName,rfpNo );
+    // const { rfpNo, bankName } = req.query;
+    // if (!rfpNo || !bankName) {
+    //     return res.status(400).send("RFP_No and Bank_Name are required");
+    // }
+
+    const tables = [
+        "Implementation_Score",
+        "No_of_Sites_Score",
+        "Site_Reference",
+        "Scoring_Items1",
+        "Scoring_Items2",
+        "Scoring_Items3"
+    ];
+
+    let scores = {};
+    let othersScoreVendor = [];
+    let comScoreVendor = [];
+    try {
+        const [vendors] = await db.query(`select * from vendor_admin_users where rfp_reference_no= ?`, [rfpNo]);  
+        const [bankName] = await db.query(`select entity_name, user_id from superadmin_users where super_user_email= ?`, [userName]);  
+        //console.log(rfpNo)
+        //console.log(bankName)
+        // Fetch Overall Scores
+        const  overallScores = `select others1_title,others2_title,others3_title from overall_scoring
+         where rfp_no= ? and bank_id= ?`
+        const [overall] = await db.query(overallScores,[rfpNo,bankName[0].user_id]);
+        console.log(overall);
+
+        let categories = [
+            { category: "Implementation Score", benchmark: 5 },
+            { category: "No of Sites Score", benchmark: 5 },
+            { category: "Site Reference Score", benchmark: 5 },
+        ];
+
+        // Add others titles to the categories array if they exist
+        if (overall.length > 0) {
+            const { others1_title, others2_title, others3_title } = overall[0];
+            if (others1_title) categories.push({ category: others1_title, benchmark: 5 });
+            if (others2_title) categories.push({ category: others2_title, benchmark: 5 });
+            if (others3_title) categories.push({ category: others3_title, benchmark: 5 });
+        }
+        
+        for (const table of tables) {
+            const query = `SELECT Implementation_Model,Score  FROM ${table} WHERE RFP_No = ?  and Bank_Id= ?`;
+            const [rows] = await db.query(query, [rfpNo,bankName[0].user_id]);
+            
+            if(rows.length>0){
+                const maxScore = Math.max(...rows.map(row => row.Score));
+                scores[table] = maxScore;
+            }
+           
+        }
+         // Store the scores in the benchmark field of the categories array
+         categories.forEach((category, index) => {
+            if (scores[tables[index]]) {
+                category.benchmark = scores[tables[index]];
+            }
+        });
+
+        for(const vendor of vendors){
+            const savedScoreQuery = ` 
+            SELECT 
+                es.Implementation_Score,
+                es.No_of_Sites_Score, 
+                es.Site_Reference_Score,
+                es.Scoring_Items1_Score,
+                es.Scoring_Items1_Name, 
+                es.Scoring_Items2_Name, 
+                es.Scoring_Items3_Name, 
+                es.Scoring_Items2_Score,
+                es.Scoring_Items3_Score,
+                os.others1_title,
+                os.others2_title,
+                os.others3_title
+            FROM EvaluationScores es
+            JOIN overall_scoring os 
+                ON es.RFP_No = os.rfp_no 
+                AND es.Bank_Id = os.bank_id
+            WHERE es.RFP_No = ?  
+            AND es.Bank_Id = ?  
+            AND es.Vendor_Id = ?;
+            `;
+
+            let result = [];
+           const [rows]= await db.query(savedScoreQuery,[rfpNo,bankName[0].user_id,vendor.id]);
+           if (rows.length > 0) {
+             result = rows.map(row => ({
+                Implementation_Score: row.Implementation_Score,
+                No_of_Sites_Score: row.No_of_Sites_Score,
+                Site_Reference_Score: row.Site_Reference_Score,
+                [row.others1_title]: row.Scoring_Items1_Score, // Key as name, value as score
+                [row.others2_title]: row.Scoring_Items2_Score,
+                [row.others3_title]: row.Scoring_Items3_Score
+            }));
+        
+            console.log(result);
+        }
+        othersScoreVendor.push(result[0]);
+        let commericalVendor = [];
+        const query1 = `SELECT 
+         cs.id, 
+         cs.CommercialPattern, 
+         cs.InternalPercent, 
+         cs.From1, cs.To1, cs.Score1, 
+         cs.From2, cs.To2, cs.Score2, 
+         cs.From3, cs.To3, cs.Score3,
+         cpa.Bank_Id, 
+         cpa.Bank_Amount, 
+         cpa.created_by, 
+         cpa.Percentage
+     FROM CommercialScores cs
+     LEFT JOIN CommercialPattern_Amounts cpa 
+         ON cs.RFP_No = cpa.RFP_No 
+         AND cs.CommercialPattern = cpa.CommercialPattern
+     WHERE cs.RFP_No = ?  and cs.Bank_Id = ?
+     AND cpa.Vendor_Id = ?`;
+      [commericalVendor]= await db.query(query1,[rfpNo,bankName[0].user_id,vendor.id]);
+        console.log(commericalVendor);
+        console.log("commericalVendor");
+     for(let i=0; i<commericalVendor.length; i++){
+     const { From1, To1, Score1, From2, To2, Score2, From3, To3, Score3,Bank_Amount, InternalPercent } = commericalVendor[i];
+           
+     if (Bank_Amount >= From1 && Bank_Amount <= To1) {
+        calculatedScore = Score1;
+        console.log(`Bank_Amount falls in range [From1-To1], assigned Score1: ${Score1}`);
+    } else if (Bank_Amount >= From2 && Bank_Amount <= To2) {
+        calculatedScore = Score2;
+        console.log(`Bank_Amount falls in range [From2-To2], assigned Score2: ${Score2}`);
+    } else if (Bank_Amount >= From3 && Bank_Amount <= To3) {
+        calculatedScore = Score3;
+        console.log(`Bank_Amount falls in range [From3-To3], assigned Score3: ${Score3}`);
+    } else {
+        console.log(`Bank_Amount does not fall in any range, calculatedScore remains 0`);
+    }
+    commericalVendor[i].calculatedScore = calculatedScore;
+    }
+    let newArray = commericalVendor.map(val => ({
+        [val.CommercialPattern]: val.calculatedScore // Use val.calculatedScore, not calculatedScore directly
+    }));
+    
+    comScoreVendor.push(newArray);
+           
+    }
+           const query = `SELECT 
+           CommercialPattern, 
+           GREATEST(Score1, Score2, Score3) AS MaxScore,
+           InternalPercent
+       FROM CommercialScores 
+       WHERE RFP_No = ? 
+       AND Bank_Id = ?`;
+         const [commercial]= await db.query(query,[rfpNo,bankName[0].user_id])
+       
+         
+        const response = [commercial,comScoreVendor,othersScoreVendor,categories]
+        console.log(comScoreVendor)
+        res.json(response);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).send("Error fetching data from database.");
+    }
+});
+
 module.exports = router;

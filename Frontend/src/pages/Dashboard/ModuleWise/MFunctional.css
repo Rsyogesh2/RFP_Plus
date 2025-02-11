@@ -1,0 +1,49 @@
+.modulewise-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  width: 100%;
+}
+
+/* Align tables in a row */
+.score-section {
+  display: flex;
+  gap: 10px; /* Reduce space between tables */
+  align-items: flex-start;
+  justify-content: flex-start; /* Align items to the start */
+  flex-wrap: nowrap; /* No wrapping, keep in the same row */
+  overflow-x: auto; /* Enable horizontal scrolling if needed */
+}
+
+/* Style for all tables */
+.styled-table {
+  width: 60%; /* Reduce width to prevent overflow */
+  border-collapse: collapse;
+  margin-top: 0px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 8px; /* Reduce padding */
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.styled-table th {
+  background: #2c3e50;
+  color: white;
+  font-size: 15px; /* Reduce font size */
+}
+
+h2, h3 {
+  text-align: center;
+  color: #333;
+}
+
+.vendor-tables {
+  display: flex;
+  gap: 13px; /* Reduce space between tables */
+  justify-content: flex-start; /* Align items to the start */
+  flex-wrap: nowrap;
+}

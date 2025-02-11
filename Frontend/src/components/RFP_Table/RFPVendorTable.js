@@ -288,7 +288,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     {item.name}
                 </td>
                 <td>{item.Mandatory === 0 ? "O" : "M"}</td>
-                <td style={{fontWeight:"normal"}}>{item.Comments}</td>
+                {/* <td style={{fontWeight:"normal"}}>{item.Comments}</td> */}
 
                 {APCN?.isAvailableChecked !== 0 && <td>
                     <input
@@ -407,7 +407,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     <tr>
                         <th>Requirement</th>
                         <th>M/O</th>
-                        <th>Comments</th>
+                        {/* <th>Comments</th> */}
                         {APCN?.isAvailableChecked !== 0 && <th>A</th>}
                         {APCN?.isPartlyAvailableChecked !== 0 && <th>P</th>}
                         {APCN?.isCustomizableChecked !== 0 && <th>C</th>}

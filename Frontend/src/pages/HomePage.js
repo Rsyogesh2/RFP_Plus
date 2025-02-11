@@ -16,7 +16,7 @@ import Reports from "./GlobalAdmin/Reports";
 import ViewAssignedRFPs from "./User/ViewAssignedRFPs"
 import SubmitedRFPs from "./User/SubmitedRFPs";
 import FinalEvaluation from "./FinalEvaluation";
-import ScoringDashboard from "./Dashboard";
+import ScoringDashboard from "./Dashboard/Dashboard.js";
 import RfpScoringCriteria from "../ScoringCriteria/RfpScoringCriteria";
 import RFPVendorTable from "../components/RFP_Table/RFPVendorTable"
 import "./combinedpages.css";

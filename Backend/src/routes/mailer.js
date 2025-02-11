@@ -3,10 +3,11 @@ const bcrypt = require('bcrypt'); // Consider using for password hashing
 const jwt = require('jsonwebtoken'); // Consider using for authentication
 
 const SECRET_KEY = process.env.LOGINKEY; // Use an environment variable in production
-
+const API_URL =  'http://localhost:5000';
+ 
 const sendResetEmail = (recipientEmail) => {
     const token = jwt.sign({ email: recipientEmail }, SECRET_KEY, { expiresIn: "1h" }); // Token expires in 1 hour
-    const resetLink = `https://rfp-plus.vercel.app/reset-password?token=${token}`;
+    const resetLink = `${API_URL}/reset-password?token=${token}`;
 
     // Create reusable transporter object using Gmail SMTP
     const transporter = nodemailer.createTransport({

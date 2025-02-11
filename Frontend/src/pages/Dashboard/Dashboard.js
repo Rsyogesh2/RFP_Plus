@@ -1,9 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
 import './Dashboard.css';
-import { AppContext } from "./../context/AppContext";
+import { AppContext } from "../../context/AppContext";
+import MFunctional from './ModuleWise/MFunctional';
+import Commercial from './ModuleWise/MCommercial';
+import MOthers from './ModuleWise/MOthers';
+import Collapsible from './Collapsible';
+import { use } from 'react';
 const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
     const [scoringData, setScoringData] = useState([]);
-
+    const [sections, setSections] = useState([]);
+    const [commercialValue, setCommercialValue] = useState([]);
+    const [savedScores, setSavedScores] = useState([]);
+    const [comVendorScores, setComVendorScores] = useState([]);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const { userName } = useContext(AppContext); // Users load in the table
 
@@ -192,6 +200,32 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
     }, [userName]);
     // Handle Dropdown Change
 
+    //write a useeffect to fetch the data from the backend
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`${API_URL}/fetchDashboardMCO`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({userName,rfpNo})
+                });
+                const data = await response.json();
+                console.log(data)
+                setSections(data[3]);
+                setSavedScores(data[2]);
+                setComVendorScores(data[1]);
+                setCommercialValue(data[0]);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        fetchData();
+    }, [rfpNo]);
+    
+
     return (
         <div className="scoring-dashboard">
             <h3>{`${rfpNo} - ${rfpTitle}`}</h3>
@@ -273,6 +307,19 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
                     </tr>
                 </tfoot>
             </table>
+            <br />
+            <div className="module-wise">
+            <Collapsible title="Functional Scores">
+            <MFunctional  />
+             </Collapsible>
+            <Collapsible title="Commercial Scores">
+            <Commercial values={commercialValue} comVendor={comVendorScores}/>
+            </Collapsible>
+            <Collapsible title="Others Scores">
+             <MOthers values={sections} othersVendor={savedScores}/>
+            </Collapsible>
+            </div>
+           
         </div>
     );
 };

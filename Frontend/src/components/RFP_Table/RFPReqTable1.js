@@ -461,7 +461,7 @@ const RFPReqTable = ({ l1, userRole }) => {
                         <th className="col-requirement">Requirement</th>
                         <th className="col-m">M</th>
                         <th className="col-o">O</th>
-                        <th className="col-comments">Comments</th>
+                        <th className="col-comments">Internal Comments</th>
                         <th className="col-modified-time">Modified Time</th>
                         <th className="col-edited-by">Edited By</th>
                     </tr>

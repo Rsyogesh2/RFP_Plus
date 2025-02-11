@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import VendorQuery from "../VendorQuery";
 import RFPReqTable from "../../components/RFP_Table/RFPReqTable";
 import { AppContext } from "../../context/AppContext";
-import ScoringDashboard from "../Dashboard";
+import ScoringDashboard from "../Dashboard/Dashboard.js";
 import FinalEvaluation from "../FinalEvaluation";
 import RFPVendorTable from "../../components/RFP_Table/RFPVendorTable";
 import "./RFPListTable.css";
