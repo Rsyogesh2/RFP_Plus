@@ -35,9 +35,9 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 const cors = require('cors');
 
 app.use(cors({
-  // origin: 'https://rfp-plus.vercel.app', // Allow only the frontend URL
+  origin: 'https://rfp-plus.vercel.app', // Allow only the frontend URL
   // origin: 'https://rfp-plus.onrender.com', // Allow only the frontend URL
-  orgin:"http://localhost:5000",
+  // orgin:"http://localhost:5000",
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow credentials (cookies, authorization headers)
