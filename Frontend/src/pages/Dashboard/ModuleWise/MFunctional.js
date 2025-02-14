@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./MFunctional.css";
+import { use } from "react";
 
 const functionalScores = [
   { module: "L2 module", score: 120 },
@@ -70,7 +71,10 @@ const Table = ({ data, headers }) => (
   </table>
 );
 
-const MFunctional = () => {
+const MFunctional = ({values}) => {
+  useEffect(() => {
+    console.log(values.l2.map((l2) => ({ modules: l2.name })));
+  }, [values]);
   return (
     <div className="modulewise-container">
       <h2>Final Score – Module-wise</h2>
@@ -78,7 +82,7 @@ const MFunctional = () => {
         <div>
           <h3>Functional Score</h3>
           <Table
-            data={[...functionalScores, { module: "Total", score: 388 }]}
+            data={values.l2.map((l2) => ({ modules: l2.name }))}
             headers={["Functional Requirement", "Benchmark Score"]}
           />
         </div>

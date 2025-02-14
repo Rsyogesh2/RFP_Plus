@@ -533,7 +533,7 @@ router.post('/insertFItem', async (req, res) => {
     if (userPower === "User" || userPower === "Super Admin") {
       for (const l1Item of module) {
         const { name, code, l2 } = l1Item;
-        console.log(`🔍 Processing L1: Code=${code}, Name=${name}`);
+        // console.log(`🔍 Processing L1: Code=${code}, Name=${name}`);
 
         // First, attempt an UPDATE
         const updateL1 = await connection.query(
@@ -543,10 +543,10 @@ router.post('/insertFItem', async (req, res) => {
           [name, stage, bank_name, created_by, assigned_to, Status, Priority, JSON.stringify(Handled_by), Action_log, level, code, rfp_no]
         );
 
-        console.log(`🔄 L1 Update Affected Rows: ${updateL1[0].affectedRows}`);
+        // console.log(`🔄 L1 Update Affected Rows: ${updateL1[0].affectedRows}`);
 
         if (updateL1[0].affectedRows === 0) {
-          console.log(`⚠️ No existing L1 record found, inserting new row for Code=${code}`);
+          // console.log(`⚠️ No existing L1 record found, inserting new row for Code=${code}`);
           await connection.query(
             `INSERT INTO RFP_Saved_L1_Modules 
               (L1_Code, L1_Module_Description, RFP_No, stage, bank_name, created_by, assigned_to, 

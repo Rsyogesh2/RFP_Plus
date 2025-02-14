@@ -12,6 +12,7 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
     const [commercialValue, setCommercialValue] = useState([]);
     const [savedScores, setSavedScores] = useState([]);
     const [comVendorScores, setComVendorScores] = useState([]);
+    const [functionalScore, setFunctionalScore] = useState([]);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const { userName } = useContext(AppContext); // Users load in the table
 
@@ -226,6 +227,28 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
     }, [rfpNo]);
     
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`${API_URL}/fetchDashboardFunctional`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({userName,rfpNo})
+                });
+                const data = await response.json();
+                console.log(data);
+                console.log(data.modules);
+                
+                setFunctionalScore(data.modules[1]);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        fetchData();
+    }, [rfpNo]);
+
     return (
         <div className="scoring-dashboard">
             <h3>{`${rfpNo} - ${rfpTitle}`}</h3>
@@ -310,7 +333,7 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
             <br />
             <div className="module-wise">
             <Collapsible title="Functional Scores">
-            <MFunctional  />
+            <MFunctional values={functionalScore} />
              </Collapsible>
             <Collapsible title="Commercial Scores">
             <Commercial values={commercialValue} comVendor={comVendorScores}/>

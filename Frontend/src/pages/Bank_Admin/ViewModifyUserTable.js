@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import { AppContext } from "./../context/AppContext";
+import { AppContext } from "../../context/AppContext";
 import { MdOutlineModeEdit, MdDelete   } from "react-icons/md";
-import "./../styles/ViewModifyUserTable.css";
+import "./../../styles/ViewModifyUserTable.css";
 
 const ViewModifyUserTable = () => {
   const { usersList, setUsersList, userName, userPower } = useContext(AppContext);

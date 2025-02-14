@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
-import { AppContext } from "./../context/AppContext";
-import './../styles/VendorAdmin.css';
+import { AppContext } from "../../context/AppContext";
+import './../../styles/VendorAdmin.css';
 
 const VendorAdmin = () => {
   // State for form inputs

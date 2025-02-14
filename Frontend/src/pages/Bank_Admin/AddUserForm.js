@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect, useContext } from "react";
-import { AppContext } from "./../context/AppContext";
+import { AppContext } from "./../../context/AppContext";
 import { HiUserAdd } from "react-icons/hi";
 // import './AddUserForm.css'
 
 const AddUserForm = () => {
   const { usersList, setUsersList, userName, userPower } = useContext(AppContext);
   console.log(usersList);
-  const [id, setId] = useState(1);
+  const [id, setId] = useState("");
   const [formData, setFormData] = useState(() => {
     const nextUserNo = usersList.length > 0 
         ? Math.max(...usersList.map(user => user.user_no)) + 1 
@@ -19,9 +18,9 @@ const AddUserForm = () => {
         designation: "",
         email: "",
         mobile: "",
-        activeFlag: "Active",
+        active_flag: "Active",
     };
-});
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,6 +30,9 @@ const AddUserForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const newId = id !== "" ? id : usersList.length > 0 
+      ? Math.max(...usersList.map(user => user.user_no)) + 1 
+      : 1;
 
     try {
       const response = await fetch(`${API_URL}/addUser`, {
@@ -46,27 +48,21 @@ const AddUserForm = () => {
       });
 
       if (response.ok) {
-
-        // Increment the local ID
         const data = await response.json();
         if (data.success) {
           // Update global state with the new user
-          setUsersList([...usersList, { ...formData }]);
+          setUsersList([...usersList, { ...formData, user_no: newId }]);
           alert('User added successfully!');
-          const no = Number(usersList.length) == 0 ? 2 : usersList.length + 1;
           // Clear the form fields by resetting formData
           setFormData({
-            user_no:  usersList.length > 0 
-            ? Math.max(...usersList.map(user => user.user_no)) + 1 
-            : 1,
+            user_no: newId + 1,
             user_name: "",
             designation: "",
             email: "",
             mobile: "",
-            activeFlag: "Active", // Reset to default value
-
+            active_flag: "Active", // Reset to default value
           });
-          // setId(usersList.length+2);
+          setId(newId + 1); // Update the id state to reflect the new user_no
         } else {
           alert('Failed to add user. Please try again.');
         }
@@ -79,8 +75,6 @@ const AddUserForm = () => {
     }
   };
 
-
-
   return (
     <div className="add-user-form">
       <h3><HiUserAdd /> Add User</h3>
@@ -88,7 +82,7 @@ const AddUserForm = () => {
       <form onSubmit={handleSubmit}>
         <div>
           <label>User:</label>
-          <span style={{ textAlign: "left" }}>{ usersList.length > 0 
+          <span style={{ textAlign: "left" }}>{id !== "" ? id : usersList.length > 0 
               ? Math.max(...usersList.map(user => user.user_no)) + 1 
               : 1}</span>
         </div>
@@ -135,8 +129,8 @@ const AddUserForm = () => {
         <div>
           <label>Active Flag:</label>
           <select
-            name="activeFlag"
-            value={formData.activeFlag} // Bind to formData
+            name="active_flag"
+            value={formData.active_flag} // Bind to formData
             onChange={handleChange}
           >
             <option value="Active">Active</option>
@@ -148,25 +142,22 @@ const AddUserForm = () => {
           <button
             type="button"
             onClick={() => setFormData({
-              user_no:  usersList.length > 0 
+              user_no: usersList.length > 0 
               ? Math.max(...usersList.map(user => user.user_no)) + 1 
               : 1,
               user_name: "",
               designation: "",
               email: "",
               mobile: "",
-              activeFlag: "Active",
+              active_flag: "Active",
             })}
           >
             Cancel
           </button>
-
         </div>
       </form>
-
     </div>
   );
 };
-
 
 export default AddUserForm;

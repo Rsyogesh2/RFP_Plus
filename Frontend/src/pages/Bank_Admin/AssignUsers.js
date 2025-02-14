@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
-import { AppContext } from "./../context/AppContext";
-import './AssignUsers.css'
+import { AppContext } from "./../../context/AppContext";
+import './../AssignUsers.css'
 
 
 const AssignUsers = () => {
@@ -180,7 +180,15 @@ const AssignUsers = () => {
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          console.log(assignedUsers);
+          console.log(assignedUsers); 
+          for(let user of assignedUsers){
+            if(user.active){
+              if(user.fromDate===""|| user.fromDate===null||user.toDate===""|| user.toDate===null){
+                alert("Please select the From and To Date for the Active Users");
+                return false; 
+              }
+            } 
+          }
           console.log(rfpNo);
           try {
             // Send assigned users data to the backend

@@ -9,8 +9,8 @@ router.post('/scores', async (req, res) => {
      const [bankNameResult] = await db.query(`SELECT entity_name,id FROM superadmin_users WHERE 
         super_user_email = ?`, created_by[0].Created_by);
 
-    //console.log(bankNameResult[0].id)
-    //console.log(sections)
+    ////console.log(bankNameResult[0].id)
+    ////console.log(sections)
     if (!sections || sections.length === 0) {
         return res.status(400).send("No data received");
     }
@@ -41,8 +41,8 @@ router.post('/scores', async (req, res) => {
                 bankNameResult[0].entity_name,
                 userName
             ]);
-            //console.log("values")
-            //console.log(values)
+            ////console.log("values")
+            ////console.log(values)
             if (values.length > 0) {
                 // Use INSERT ... ON DUPLICATE KEY UPDATE for upsert behavior
                 const query = `
@@ -81,7 +81,7 @@ router.post('/functional-score', async (req, res) => {
    const [bankNameResult] = await db.query(`SELECT entity_name,id FROM superadmin_users WHERE 
       super_user_email = ?`, created_by[0].Created_by);
 
-  //console.log(bankNameResult[0].id)
+  ////console.log(bankNameResult[0].id)
 
     const query = `INSERT INTO functional_scores (
     isAvailableChecked, isPartlyAvailableChecked, isCustomizableChecked,
@@ -126,7 +126,7 @@ router.post('/commercial-scores', async(req, res) => {
    const [bankNameResult] = await db.query(`SELECT entity_name,id FROM superadmin_users WHERE 
       super_user_email = ?`, created_by[0].Created_by);
 
-  //console.log(bankNameResult[0].id)
+  ////console.log(bankNameResult[0].id)
 
     try{
         const query = `
@@ -186,7 +186,7 @@ router.post("/save-Overall-scoring", async(req, res) => {
     const [bankNameResult] = await db.query(`SELECT entity_name,id FROM superadmin_users WHERE 
        super_user_email = ?`, created_by[0].Created_by);
  
-   //console.log(bankNameResult[0].id)
+   ////console.log(bankNameResult[0].id)
 
     const sql = `
     INSERT INTO overall_scoring (
@@ -228,7 +228,7 @@ router.get('/fetchVendor', async (req, res) => {
     try {        
         const [rows] = await db.query(`select entity_name,email,admin_name,id from vendor_admin_users 
             where createdby= ? AND rfp_reference_no=?`, [userName,rfpNo] );  
-        //console.log(rows)
+        ////console.log(rows)
         res.json(rows);
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -239,7 +239,7 @@ router.get('/fetchVendor', async (req, res) => {
 router.post('/fetchScores', async (req, res) => {
     const { selectedVendor,userName,rfpNo } = req.body; // Accessing JSON data directly
     const { entity_name, email, admin_name, id } = selectedVendor; // Accessing JSON data directly
-    //console.log(entity_name, email, admin_name, id,userName);
+    ////console.log(entity_name, email, admin_name, id,userName);
     // const { rfpNo, bankName } = req.query;
     // if (!rfpNo || !bankName) {
     //     return res.status(400).send("RFP_No and Bank_Name are required");
@@ -258,8 +258,8 @@ router.post('/fetchScores', async (req, res) => {
     try {
         const [rfpNo] = await db.query(`select rfp_reference_no from vendor_admin_users where id= ?`, [id]);  
         const [bankName] = await db.query(`select entity_name, user_id from superadmin_users where super_user_email= ?`, [userName]);  
-        //console.log(rfpNo)
-        //console.log(bankName)
+        ////console.log(rfpNo)
+        ////console.log(bankName)
         for (const table of tables) {
             // const query = `SELECT Implementation_Model,Score  FROM ${table} WHERE RFP_No = ? AND Bank_Name = ?`;
             // const [rows] = await db.query(query, [rfpNo[0].rfp_reference_no, bankName[0].entity_name]);
@@ -312,10 +312,10 @@ router.post('/fetchScores', async (req, res) => {
         // from  CommercialScores where RFP_No =?
         // `;
         // const [commercial]= await db.query(query, rfpNo[0].rfp_reference_no)
-        //console.log(commercial)
-        //console.log(scores)
+        ////console.log(commercial)
+        ////console.log(scores)
         const response = [commercial,scores,savedScores]
-        //console.log(response)
+        ////console.log(response)
         res.json(response);
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -349,13 +349,13 @@ router.post('/fetchScores', async (req, res) => {
 router.post('/updateBankAmount', async (req, res) => {
     const { rfpNo, selectedVendor, commercialValue,userName } = req.body;
     try {
-        //console.log("Received superUserEmail:", userName);
+        ////console.log("Received superUserEmail:", userName);
 
         const [bankNameResult] = await db.query(
             `SELECT entity_name, user_id as id FROM superadmin_users WHERE super_user_email = ?`,
             userName
         );
-        //console.log(bankNameResult)
+        ////console.log(bankNameResult)
         const [vendor] = await db.query(`
             SELECT entity_name, email, admin_name, id 
             FROM vendor_admin_users 
@@ -366,16 +366,16 @@ router.post('/updateBankAmount', async (req, res) => {
         from  CommercialScores where RFP_No =? and Bank_Id = ?
         `;
         const [rfpCommercial] = await db.query(query,[rfpNo,bankNameResult[0].id])
-        console.log(rfpCommercial);
+        //console.log(rfpCommercial);
         let i=0;
         for (const item of commercialValue) {
             const { CommercialPattern, Bank_Amount, id } = item;
             const { From1, To1, Score1, From2, To2, Score2, From3, To3, Score3, InternalPercent } = rfpCommercial[i];
             i++
-            // console.log(`Processing item ID: ${id}`);
-            // console.log(`Bank_Amount: ${Bank_Amount}`);
-            // console.log(`Thresholds: From1-To1(${From1}-${To1}), From2-To2(${From2}-${To2}), From3-To3(${From3}-${To3})`);
-            // console.log(`Scores: Score1(${Score1}), Score2(${Score2}), Score3(${Score3})`);
+            // //console.log(`Processing item ID: ${id}`);
+            // //console.log(`Bank_Amount: ${Bank_Amount}`);
+            // //console.log(`Thresholds: From1-To1(${From1}-${To1}), From2-To2(${From2}-${To2}), From3-To3(${From3}-${To3})`);
+            // //console.log(`Scores: Score1(${Score1}), Score2(${Score2}), Score3(${Score3})`);
             
             const maxScore = Math.max(Score1, Score2, Score3);
             let calculatedScore = 0;
@@ -383,25 +383,25 @@ router.post('/updateBankAmount', async (req, res) => {
         
             if (Bank_Amount >= From1 && Bank_Amount <= To1) {
                 calculatedScore = Score1;
-                console.log(`Bank_Amount falls in range [From1-To1], assigned Score1: ${Score1}`);
+                //console.log(`Bank_Amount falls in range [From1-To1], assigned Score1: ${Score1}`);
             } else if (Bank_Amount >= From2 && Bank_Amount <= To2) {
                 calculatedScore = Score2;
-                console.log(`Bank_Amount falls in range [From2-To2], assigned Score2: ${Score2}`);
+                //console.log(`Bank_Amount falls in range [From2-To2], assigned Score2: ${Score2}`);
             } else if (Bank_Amount >= From3 && Bank_Amount <= To3) {
                 calculatedScore = Score3;
-                console.log(`Bank_Amount falls in range [From3-To3], assigned Score3: ${Score3}`);
+                //console.log(`Bank_Amount falls in range [From3-To3], assigned Score3: ${Score3}`);
             } else {
-                console.log(`Bank_Amount does not fall in any range, calculatedScore remains 0`);
+                //console.log(`Bank_Amount does not fall in any range, calculatedScore remains 0`);
             }
         
             if (calculatedScore > 0) {
                 totalPercentageScore += (calculatedScore / maxScore) * InternalPercent;
-                console.log(`Calculated totalPercentageScore: ${totalPercentageScore}`);
+                //console.log(`Calculated totalPercentageScore: ${totalPercentageScore}`);
             } else {
-                console.log(`No valid score assigned, totalPercentageScore remains 0`);
+                //console.log(`No valid score assigned, totalPercentageScore remains 0`);
             }
         
-            console.log(`Executing DB query for RFP: ${rfpNo}, Vendor: ${selectedVendor.id}, Bank ID: ${bankNameResult[0].id}`);
+            //console.log(`Executing DB query for RFP: ${rfpNo}, Vendor: ${selectedVendor.id}, Bank ID: ${bankNameResult[0].id}`);
         
             // INSERT or UPDATE in one query
             const query = `
@@ -427,7 +427,7 @@ router.post('/updateBankAmount', async (req, res) => {
             if (result.affectedRows === 0) {
                 console.warn(`No record inserted/updated for RFP: ${rfpNo}`);
             } else {
-                console.log(`Successfully inserted/updated record for RFP: ${rfpNo}`);
+                //console.log(`Successfully inserted/updated record for RFP: ${rfpNo}`);
             }
         }
         
@@ -442,8 +442,8 @@ router.post('/updateBankAmount', async (req, res) => {
 // saving the Others Final Score
 router.post('/saveOrUpdateScores', async (req, res) => {
     const { rfpNo, selectedValues,selectedVendor, userName, sections } = req.body;
-    // //console.log(selectedValues);
-    // //console.log(sections);
+    // ////console.log(selectedValues);
+    // ////console.log(sections);
     
     const percentageResults = {};
 
@@ -463,7 +463,7 @@ Object.keys(sections).forEach(key => {
     percentageResults[key] = percentage;
 });
 
-// //console.log("Percentage Results:", percentageResults);
+// ////console.log("Percentage Results:", percentageResults);
 
 try {
     const [bankName] = await db.query(
@@ -579,7 +579,7 @@ try {
 router.get('/fetchFinalEvaluationScores', async (req, res) => {
     const { rfpNo,userName } = req.query; // Expecting query parameters for flexibility
     // const rfpNo="RFP123";
-    //console.log(rfpNo,userName);
+    ////console.log(rfpNo,userName);
     if (!rfpNo ) {
         return res.status(400).send("Missing RFP Number");
     }
@@ -668,7 +668,7 @@ router.get("/fetch-scoring-Overall", async(req, res) => {
         const sql = "SELECT * FROM overall_scoring  where RFP_No = ? and Bank_Id = ?";
         // const sql = "SELECT * FROM overall_scoring  where RFP_No = ?  and Bank_Id=?";
         const [result] = await db.query(sql, [rfpNo,bankId]);
-        //console.log(result)
+        ////console.log(result)
         res.send(result);
     }catch(error){
         console.error("Erro in Fetching data"+error);
@@ -934,9 +934,9 @@ router.get('/get-all-scores', async (req, res) => {
 
 router.post('/save-scores', async (req, res) => {
     const { commercialScores, functionalScores, overallScoring, rfp_no } = req.body;
-    //console.log(commercialScores)
-    //console.log(functionalScores)
-    //console.log(overallScoring)
+    ////console.log(commercialScores)
+    ////console.log(functionalScores)
+    ////console.log(overallScoring)
     // const connection = db; // Assuming `db` is your database connection
     // const query = util.promisify(connection.query).bind(connection); // Promisify `query`
 
@@ -1045,8 +1045,8 @@ router.post('/save-scores', async (req, res) => {
 //             return res.status(404).send("Bank name not found.");
 //         }
 
-//         //console.log("RFP No:", rfpNo);
-//         //console.log("Bank Name:", bankNameResult[0].entity_name);
+//         ////console.log("RFP No:", rfpNo);
+//         ////console.log("Bank Name:", bankNameResult[0].entity_name);
 
 //         // Fetch commercial scores data
 //         const query = `
@@ -1062,7 +1062,7 @@ router.post('/save-scores', async (req, res) => {
 //             return res.status(404).send("No commercial scores found for the provided RFP No.");
 //         }
 
-//         // //console.log("Fetched Commercial Scores:", commercial);
+//         // ////console.log("Fetched Commercial Scores:", commercial);
 
 //         let totalPercentageScore = 0;
 //         let validEntriesCount = 0;
@@ -1081,7 +1081,7 @@ router.post('/save-scores', async (req, res) => {
 //             } else if (Bank_Amount >= From3 && Bank_Amount <= To3) {
 //                 calculatedScore = Score3;
 //             } else {
-//                 //console.log(`Bank Amount out of range for entry ID: ${entry.id}`);
+//                 ////console.log(`Bank Amount out of range for entry ID: ${entry.id}`);
 //                 return;
 //             }
 
@@ -1096,7 +1096,7 @@ router.post('/save-scores', async (req, res) => {
 //         //     : 0;
 //         let averagePercentageScore =totalPercentageScore;
 
-//         //console.log(`Average Percentage Score: ${averagePercentageScore}`);
+//         ////console.log(`Average Percentage Score: ${averagePercentageScore}`);
         
 //         // Send response with both the data and calculated score
 //         res.json({ commercial, averagePercentageScore });
@@ -1215,7 +1215,7 @@ router.post('/save-scores', async (req, res) => {
 
 // Fetch Functional and Commercial Percentage in DashBoard
 router.post('/fetchComFunScores-dashBoard', async (req, res) => {
-    console.log("fetchComFunScores-dashBoard")
+    //console.log("fetchComFunScores-dashBoard")
     const { rfpNo, userName } = req.body;
 
     try {
@@ -1224,7 +1224,7 @@ router.post('/fetchComFunScores-dashBoard', async (req, res) => {
             `SELECT entity_name,user_id as id FROM superadmin_users WHERE super_user_email = ?`, 
             [userName]
         );
-        ////console.log(bankNameResult)
+        //////console.log(bankNameResult)
         const [rows] = await db.query(`select entity_name,email,admin_name,id from 
             vendor_admin_users where createdby= ?`, [userName]);  
        
@@ -1237,15 +1237,15 @@ router.post('/fetchComFunScores-dashBoard', async (req, res) => {
 
         const bankId = bankNameResult[0].id;
 
-        // //console.log("RFP No:", rfpNo);
-        // //console.log("Bank Name:", bankName);
+        // ////console.log("RFP No:", rfpNo);
+        // ////console.log("Bank Name:", bankName);
 
         const [vendors] = await db.query(`
             SELECT entity_name, email, admin_name, id 
             FROM vendor_admin_users 
             WHERE createdby = ? AND rfp_reference_no = ?;
         `, [userName, rfpNo]);
-        console.log(vendors)
+        //console.log(vendors)
         if (!vendors.length) {
            console.error("No vendors found.");
             return res.status(404).send("No vendors found.");
@@ -1262,7 +1262,7 @@ router.post('/fetchComFunScores-dashBoard', async (req, res) => {
             WHERE RFP_No = ? and Bank_Id = ? and Vendor_Id=?;
         `;
         const [commercialScores] = await db.query(commercialQuery, [rfpNo,bankId,vendor.id]);
-            console.log(commercialScores);
+            //console.log(commercialScores);
         if (!commercialScores || commercialScores.length === 0) {
             console.error("No commercial scores found for the provided RFP No.");
             return res.status(404).send("No commercial scores found for the provided RFP No.");
@@ -1318,8 +1318,8 @@ router.post('/fetchComFunScores-dashBoard', async (req, res) => {
         partlyAvailableScore = isPartlyAvailableChecked === 0 ? 0 : partlyAvailableScore;
         customizableScore = isCustomizableChecked === 0 ? 0 : customizableScore;
 
-        console.log("availableScore,partlyAvailableScore,customizableScore");
-        console.log(availableScore,partlyAvailableScore,customizableScore,mandatoryScore,optionalScore);
+        //console.log("availableScore,partlyAvailableScore,customizableScore");
+        //console.log(availableScore,partlyAvailableScore,customizableScore,mandatoryScore,optionalScore);
          
             const vendorId = vendor.id;
 
@@ -1353,15 +1353,15 @@ router.post('/fetchComFunScores-dashBoard', async (req, res) => {
             );
 
 
-            console.log(filteredData.length);
+            //console.log(filteredData.length);
             let totalScore = 0;
             let maximum = Math.max(availableScore,partlyAvailableScore,customizableScore);
             let total = maximum * mandatoryScore * filteredData.length;
-            console.log("Total Score : "+total)
+            //console.log("Total Score : "+total)
             filteredData.forEach(item => {
                 const isMandatory = item.Mandatory === "M" || 1;
                 const isOptional = item.Mandatory === "O"|| 1;
-                // console.log(item.A,item.C);
+                // //console.log(item.A,item.C);
                 if (item.A === 1 && isMandatory) {
                     totalScore += availableScore * mandatoryScore;
                 } else if (item.P === 1 && isMandatory) {
@@ -1379,8 +1379,8 @@ router.post('/fetchComFunScores-dashBoard', async (req, res) => {
             let percentage = ((totalScore/total) *100).toFixed(2)
             vendorScores.push({ vendorId, totalScore,percentage });
         }
-        console.log(vendorScores)
-        console.log(averagePercentageScore)
+        //console.log(vendorScores)
+        //console.log(averagePercentageScore)
         res.json({
             averagePercentageScore,
             functionalScores: vendorScores
@@ -1466,22 +1466,22 @@ router.post('/fetchAllScores', async (req, res) => {
 
 //APCN
 router.get('/fetchAPCN', async (req, res) => {
-    console.log("fetch APCN")
+    //console.log("fetch APCN")
     const { rfpNo, userName,userPower } = req.query;
-    console.log(rfpNo, userName )
+    //console.log(rfpNo, userName )
     
     try {
         let bankNameResult =[] ;
         if(userPower=="Vendor User"){
             const [createdby] = await db.query(`
             SELECT createdby FROM vendor_users_table WHERE email = ?`, [userName]);
-                console.log(createdby[0].createdby);
+                //console.log(createdby[0].createdby);
             
             // Fetch vendor_Id based on rfp_no and createdby
             const [vendor] = await db.query(`
                 SELECT createdby FROM vendor_admin_users WHERE rfp_reference_no = ? AND email = ?`, 
                 [rfpNo, createdby[0].createdby]);
-            console.log(vendor[0].createdby);
+            //console.log(vendor[0].createdby);
                 [bankNameResult] = await db.query(
                 `SELECT entity_name,user_id FROM superadmin_users WHERE super_user_email = ?`, 
                 vendor[0].createdby
@@ -1494,7 +1494,7 @@ router.get('/fetchAPCN', async (req, res) => {
         }
         // Fetch bank name
         
-        console.log(bankNameResult)
+        //console.log(bankNameResult)
         
       
         if (!bankNameResult || bankNameResult.length === 0) {
@@ -1511,8 +1511,8 @@ router.get('/fetchAPCN', async (req, res) => {
         `;
         const [functionalScores] = await db.query(functionalQuery, [rfpNo, bankNameResult[0].user_id]);
 
-        console.log("functionalScores");
-        console.log(functionalScores);
+        //console.log("functionalScores");
+        //console.log(functionalScores);
         res.json({
             functionalScores
         });
@@ -1526,7 +1526,7 @@ router.get('/fetchAPCN', async (req, res) => {
 // Dashboard Commercial and Other Scores
 router.post('/fetchDashboardMCO', async (req, res) => {
     const { userName,rfpNo } = req.body; // Accessing JSON data directly
-    console.log(userName,rfpNo );
+    //console.log(userName,rfpNo );
     // const { rfpNo, bankName } = req.query;
     // if (!rfpNo || !bankName) {
     //     return res.status(400).send("RFP_No and Bank_Name are required");
@@ -1547,13 +1547,13 @@ router.post('/fetchDashboardMCO', async (req, res) => {
     try {
         const [vendors] = await db.query(`select * from vendor_admin_users where rfp_reference_no= ?`, [rfpNo]);  
         const [bankName] = await db.query(`select entity_name, user_id from superadmin_users where super_user_email= ?`, [userName]);  
-        //console.log(rfpNo)
-        //console.log(bankName)
+        ////console.log(rfpNo)
+        ////console.log(bankName)
         // Fetch Overall Scores
         const  overallScores = `select others1_title,others2_title,others3_title from overall_scoring
          where rfp_no= ? and bank_id= ?`
         const [overall] = await db.query(overallScores,[rfpNo,bankName[0].user_id]);
-        console.log(overall);
+        //console.log(overall);
 
         let categories = [
             { category: "Implementation Score", benchmark: 5 },
@@ -1622,7 +1622,7 @@ router.post('/fetchDashboardMCO', async (req, res) => {
                 [row.others3_title]: row.Scoring_Items3_Score
             }));
         
-            console.log(result);
+            //console.log(result);
         }
         othersScoreVendor.push(result[0]);
         let commericalVendor = [];
@@ -1644,22 +1644,22 @@ router.post('/fetchDashboardMCO', async (req, res) => {
      WHERE cs.RFP_No = ?  and cs.Bank_Id = ?
      AND cpa.Vendor_Id = ?`;
       [commericalVendor]= await db.query(query1,[rfpNo,bankName[0].user_id,vendor.id]);
-        console.log(commericalVendor);
-        console.log("commericalVendor");
+        //console.log(commericalVendor);
+        //console.log("commericalVendor");
      for(let i=0; i<commericalVendor.length; i++){
      const { From1, To1, Score1, From2, To2, Score2, From3, To3, Score3,Bank_Amount, InternalPercent } = commericalVendor[i];
            
      if (Bank_Amount >= From1 && Bank_Amount <= To1) {
         calculatedScore = Score1;
-        console.log(`Bank_Amount falls in range [From1-To1], assigned Score1: ${Score1}`);
+        //console.log(`Bank_Amount falls in range [From1-To1], assigned Score1: ${Score1}`);
     } else if (Bank_Amount >= From2 && Bank_Amount <= To2) {
         calculatedScore = Score2;
-        console.log(`Bank_Amount falls in range [From2-To2], assigned Score2: ${Score2}`);
+        //console.log(`Bank_Amount falls in range [From2-To2], assigned Score2: ${Score2}`);
     } else if (Bank_Amount >= From3 && Bank_Amount <= To3) {
         calculatedScore = Score3;
-        console.log(`Bank_Amount falls in range [From3-To3], assigned Score3: ${Score3}`);
+        //console.log(`Bank_Amount falls in range [From3-To3], assigned Score3: ${Score3}`);
     } else {
-        console.log(`Bank_Amount does not fall in any range, calculatedScore remains 0`);
+        //console.log(`Bank_Amount does not fall in any range, calculatedScore remains 0`);
     }
     commericalVendor[i].calculatedScore = calculatedScore;
     }
@@ -1681,12 +1681,290 @@ router.post('/fetchDashboardMCO', async (req, res) => {
        
          
         const response = [commercial,comScoreVendor,othersScoreVendor,categories]
-        console.log(comScoreVendor)
+        //console.log(comScoreVendor)
         res.json(response);
     } catch (error) {
         console.error("Error fetching data:", error);
         res.status(500).send("Error fetching data from database.");
     }
 });
+
+
+// router.post('/fetchDashboardFunctional', async (req, res) => {
+//     const { userName,rfpNo } = req.body; // Accessing JSON data directly
+//   try {
+
+//      const [l1Rows] = await db.query('SELECT * FROM RFP_Saved_L1_Modules WHERE RFP_No = ?', [rfpNo]);
+        
+//         // Step 3: Iterate over each L1 record and build the nested structure for L2 and L3
+//         const modules = await Promise.all(l1Rows.map(async (l1Item) => {
+//           const { L1_Code, L1_Module_Description } = l1Item;
+    
+//           // Fetch related L2 modules for the current L1 module and specified RFP_No
+//           const [l2Rows] = await db.query('SELECT * FROM RFP_Saved_L2_Modules WHERE RFP_No = ? AND L2_Code LIKE ?', [rfpNo, `${L1_Code}%`]);
+    
+//           // For each L2, fetch related L3 modules and build L2-L3 structure
+//           const l2Modules = await Promise.all(l2Rows.map(async (l2Item) => {
+//             const { L2_Code, L2_Module_Description } = l2Item;
+    
+//             // Fetch related L3 modules for the current L2 module and specified RFP_No
+//             const [l3Rows] = await db.query('SELECT * FROM RFP_Saved_L3_Modules WHERE RFP_No = ? and L3_Code LIKE ?', [rfpNo,`${L2_Code}%`]);
+    
+//             // Map L3 data into a structured format
+//             const l3Modules = l3Rows.map(l3Item => ({
+//               code: l3Item.L3_Code,
+//               name: l3Item.L3_Module_Description
+//             }));
+    
+//             // Return L2 structure with nested L3 modules
+//             return {
+//               code: L2_Code,
+//               name: L2_Module_Description,
+//               l3: l3Modules
+//             };
+//           }));
+    
+//           // Return L1 structure with nested L2 (and L3) modules
+//           return {
+//             name: L1_Module_Description,
+//             code: L1_Code,
+//             l2: l2Modules
+//           };
+//         }));
+    
+//         // Combine module data and functional item data into one response
+//         const responseData = {
+//           modules, // L1, L2, L3 data
+//         };
+       
+
+// const functionalQuery = `
+// SELECT 
+//     isAvailableChecked, isPartlyAvailableChecked, isCustomizableChecked,
+//     availableScore, partlyAvailableScore, customizableScore, mandatoryScore, optionalScore 
+// FROM functional_scores 
+// WHERE RFP_No = ? AND Bank_Id = ?;
+// `;
+// const [functionalScores] = await db.query(functionalQuery, [rfpNo, bankNameResult[0].id]);
+// if (functionalScores.length==0) {
+//  console.error("No functional scores found.");
+// return res.status(404).send("No functional scores found.");
+// }
+
+// let {
+// isAvailableChecked,
+// isPartlyAvailableChecked,
+// isCustomizableChecked,
+// availableScore,
+// partlyAvailableScore,
+// customizableScore,
+// mandatoryScore,
+// optionalScore,
+// } = functionalScores[0];
+
+// availableScore = isAvailableChecked === 0 ? 0 : availableScore;
+// partlyAvailableScore = isPartlyAvailableChecked === 0 ? 0 : partlyAvailableScore;
+// customizableScore = isCustomizableChecked === 0 ? 0 : customizableScore;
+
+// //console.log("availableScore,partlyAvailableScore,customizableScore");
+// //console.log(availableScore,partlyAvailableScore,customizableScore,mandatoryScore,optionalScore);
+
+// const vendorId = vendor.id;
+
+// const functionalItemQuery = `
+//     SELECT 
+//         d.id,d.Module_Code, d.F1_Code,d.F2_Code,d.New_Code, d.Mandatory, d.deleted, d.Level, 
+//         v.Vendor_Id, v.A, v.P, v.C, v.N, 
+//         v.stage AS vendor_stage, v.Level AS vendor_level, v.Status AS vendor_status 
+//     FROM RFP_FunctionalItem_draft d 
+//     LEFT JOIN RFP_FunctionalItem_Vendor v 
+//         ON d.id = v.rfp_functionalitem_draft_id AND v.Status IS NOT NULL  
+//     WHERE d.RFP_No = ? AND d.F1_Code != "00" AND v.Vendor_Id = ? AND d.Bank_Id = ? AND v.Status = "Completed";
+// `;
+// const [functionalItems] = await db.query(functionalItemQuery, [rfpNo, vendorId,bankNameResult[0].id]);
+// // const newval = functionalItems.filter()
+// // Step 1: Identify all parents (F2_Code ends with '00')
+// const parents = new Set(
+//     functionalItems.filter(item => item.F2_Code.endsWith("00"))
+//         .map(item => `${item.F1_Code}_${item.Module_Code}_${item.New_Code}`)
+// );
+
+// // Step 2: Identify parents that have children
+// const hasChildren = new Set(
+//     functionalItems.filter(item => !item.F2_Code.endsWith("00") && parents.has(`${item.F1_Code}_${item.Module_Code}_${item.New_Code}`))
+//         .map(item => `${item.F1_Code}_${item.Module_Code}_${item.New_Code}`)
+// );
+
+// // Step 3: Filter out parents that have children
+// const filteredData = functionalItems.filter(item =>
+//     !(item.F2_Code.endsWith("00") && hasChildren.has(`${item.F1_Code}_${item.Module_Code}_${item.New_Code}`))
+// );
+//     let vendorScores = [];
+//     //console.log(responseData);
+//     for (const l1 of responseData.modules) { // Iterate through all entries in `result`
+//       // const { rfp_no } = res;
+//       let vendorScoresl1 = [];
+//       for (const l2 of l1) { // Process each `l1` (module_name)
+//         const l2Codes = l2.code || [];
+//         let vendorScoresl2 = [];
+//         if (l2Codes.length > 0) {
+          
+//         } else{
+//             let moduledata = filteredData.filter(item => item.Module_Code.starwith(l2.code) );
+
+//             let totalScoreA = 0;
+//             let totalScoreP = 0;
+//             let totalScoreC = 0;
+// // let maximum = Math.max(availableScore,partlyAvailableScore,customizableScore);
+// // let total = maximum * mandatoryScore * filteredData.length;
+// moduledata.forEach(item => {
+//     const isMandatory = item.Mandatory === "M" || 1;
+//     const isOptional = item.Mandatory === "O"|| 1;
+//     // //console.log(item.A,item.C);
+//     if (item.A === 1 && isMandatory) {
+//         totalScoreA += availableScore * mandatoryScore;
+//     } else if (item.P === 1 && isMandatory) {
+//         totalScoreP += partlyAvailableScore * mandatoryScore;
+//     } else if (item.C === 1 && isMandatory) {
+//         totalScoreC += customizableScore * mandatoryScore;
+//     } else if (item.A === 1 && isOptional) {
+//         totalScoreA += availableScore * optionalScore;
+//     } else if (item.P === 1 && isOptional) {
+//         totalScoreP += partlyAvailableScore * optionalScore;
+//     } else if (item.C === 1 && isOptional) {
+//         totalScoreC += customizableScore * optionalScore;
+//     }
+// });
+//     vendorScoresl2.push({l2Codes, totalScoreA, totalScoreP, totalScoreC });
+// // //console.log(totalScore)
+//         }
+//         vendorScoresl1.push(vendorScoresl2);
+//     }
+//     vendorScores.push(vendorScoresl1);
+//     }
+//    //console.log(vendorScores)
+// //console.log(filteredData.length);
+// res.json({
+// });
+// } catch (error) {
+//     console.error("Error fetching data:", error);
+//     res.status(500).send("Error fetching data from database.");
+// }
+// });
+
+router.post('/fetchDashboardFunctional', async (req, res) => {
+    const { userName, rfpNo } = req.body;
+    
+    try {
+        // Fetch L1 Modules
+        const [l1Rows] = await db.query('SELECT * FROM RFP_Saved_L1_Modules WHERE RFP_No = ?', [rfpNo]);
+
+        // Fetch L2 and L3 modules in bulk to reduce DB calls
+        const [l2Rows] = await db.query('SELECT * FROM RFP_Saved_L2_Modules WHERE RFP_No = ?', [rfpNo]);
+        const [l3Rows] = await db.query('SELECT * FROM RFP_Saved_L3_Modules WHERE RFP_No = ?', [rfpNo]);
+
+        // Structure modules
+        const modules = l1Rows.map(l1Item => {
+            const l2Modules = l2Rows
+                .filter(l2 => l2.L2_Code.startsWith(l1Item.L1_Code))
+                .map(l2Item => ({
+                    code: l2Item.L2_Code,
+                    name: l2Item.L2_Module_Description,
+                    l3: l3Rows
+                        .filter(l3 => l3.L3_Code.startsWith(l2Item.L2_Code))
+                        .map(l3Item => ({
+                            code: l3Item.L3_Code,
+                            name: l3Item.L3_Module_Description
+                        }))
+                }));
+
+            return {
+                code: l1Item.L1_Code,
+                name: l1Item.L1_Module_Description,
+                l2: l2Modules
+            };
+        });
+
+        // Fetch functional scores
+        const [bankNameResult] = await db.query(`select entity_name, user_id as id from superadmin_users where super_user_email= ?`, [userName]);   
+        if (!bankNameResult.length) return res.status(404).send("Bank not found");
+        
+        const [functionalScores] = await db.query(
+            'SELECT * FROM functional_scores WHERE RFP_No = ? AND Bank_Id = ?', 
+            [rfpNo, bankNameResult[0].id]
+        );
+        if (!functionalScores.length) return res.status(404).send("No functional scores found.");
+
+        let {
+            isAvailableChecked,
+            isPartlyAvailableChecked,
+            isCustomizableChecked,
+            availableScore,
+            partlyAvailableScore,
+            customizableScore,
+            mandatoryScore,
+            optionalScore
+        } = functionalScores[0];
+
+        // Adjust scores based on availability checks
+        availableScore = isAvailableChecked ? availableScore : 0;
+        partlyAvailableScore = isPartlyAvailableChecked ? partlyAvailableScore : 0;
+        customizableScore = isCustomizableChecked ? customizableScore : 0;
+
+        // Fetch functional items and vendor scores
+        const vendorId = 8; // Assume vendor ID is determined earlier
+        const [functionalItems] = await db.query(
+            `SELECT d.*, v.Vendor_Id, v.A, v.P, v.C, v.N FROM RFP_FunctionalItem_draft d 
+            LEFT JOIN RFP_FunctionalItem_Vendor v ON d.id = v.rfp_functionalitem_draft_id 
+            WHERE d.RFP_No = ? AND v.Vendor_Id = ? AND d.Bank_Id = ? AND v.Status = "Completed"`,
+            [rfpNo, vendorId, bankNameResult[0].id]
+        );
+        
+        // Process functional items
+        const parents = new Set(functionalItems.filter(item => item.F2_Code.endsWith("00"))
+            .map(item => `${item.F1_Code}_${item.Module_Code}_${item.New_Code}`));
+
+        const hasChildren = new Set(functionalItems.filter(item => !item.F2_Code.endsWith("00") && parents.has(`${item.F1_Code}_${item.Module_Code}_${item.New_Code}`))
+            .map(item => `${item.F1_Code}_${item.Module_Code}_${item.New_Code}`));
+
+        const filteredData = functionalItems.filter(item =>
+            !(item.F2_Code.endsWith("00") && hasChildren.has(`${item.F1_Code}_${item.Module_Code}_${item.New_Code}`))
+        );
+        // console.log(filteredData)
+        // Calculate vendor scores
+        let vendorScores = modules.map(l1 => ({
+            code: l1.code,
+            name: l1.name,
+            l2: l1.l2.map(l2 => {
+                const moduleData = filteredData.filter(item => item.Module_Code.startsWith(l2.code));
+                // console.log(moduleData)
+                let totalScoreA = 0, totalScoreP = 0, totalScoreC = 0;
+                
+                moduleData.forEach(item => {
+                    const isMandatory = item.Mandatory === "M" ||  item.Mandatory === 1;
+                    const isOptional = item.Mandatory === "O" ||  item.Mandatory === 0;
+                    
+                    if (item.A === 1 && isMandatory) totalScoreA += availableScore * mandatoryScore;
+                    if (item.P === 1 && isMandatory) totalScoreP += partlyAvailableScore * mandatoryScore;
+                    if (item.C === 1 && isMandatory) totalScoreC += customizableScore * mandatoryScore;
+                    if (item.A === 1 && isOptional) totalScoreA += availableScore * optionalScore;
+                    if (item.P === 1 && isOptional) totalScoreP += partlyAvailableScore * optionalScore;
+                    if (item.C === 1 && isOptional) totalScoreC += customizableScore * optionalScore;
+                });
+                
+                return { code: l2.code, totalScoreA, totalScoreP, totalScoreC };
+            })
+        }));
+
+        res.json({ modules, vendorScores, filteredData });
+    } catch (error) {
+        console.error("Error fetching data:", error.message);
+        res.status(500).send("Error fetching data from database.");
+    }
+});
+
+
+
+
 
 module.exports = router;

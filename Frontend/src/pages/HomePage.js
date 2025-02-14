@@ -3,19 +3,19 @@ import { AppContext } from "./../context/AppContext";
 
 import RfpForm from "../components/Sections/RfpForm";
 import Sidebar from "./Sidebar"; 
-import AddUserForm from "./AddUserForm"; 
+import AddUserForm from "./Bank_Admin/AddUserForm"; 
 import VendorQuery from "./VendorQuery";
 import RFPListTable from "./Vendor/RFPListTable";
-import AssignUsers from "./AssignUsers";
-import VendorAdmin from "./VendorAdmin";
-import ViewModifyUserTable from "./ViewModifyUserTable";
+import AssignUsers from "./Bank_Admin/AssignUsers";
+import VendorAdmin from "./Bank_Admin/VendorAdmin";
+import ViewModifyUserTable from "./Bank_Admin/ViewModifyUserTable";
 import GlobalUserHome from "./GlobalAdmin/GlobalUserHome";
 import ModifySuperUser from "./GlobalAdmin/ModifySuperUser";
 import UploadFile from "./GlobalAdmin/UploadFile";
 import Reports from "./GlobalAdmin/Reports";
 import ViewAssignedRFPs from "./User/ViewAssignedRFPs"
 import SubmitedRFPs from "./User/SubmitedRFPs";
-import FinalEvaluation from "./FinalEvaluation";
+import FinalEvaluation from "./Bank_Admin/FinalEvaluation.js";
 import ScoringDashboard from "./Dashboard/Dashboard.js";
 import RfpScoringCriteria from "../ScoringCriteria/RfpScoringCriteria";
 import RFPVendorTable from "../components/RFP_Table/RFPVendorTable"
@@ -23,23 +23,6 @@ import "./combinedpages.css";
 import { fetchUsers } from '../services/loadApis';
 import RFPReqTable from "../components/RFP_Table/RFPReqTable";
 // import {fetchUsers} from '../services/loadApis';
-
-
-// const Header = () => {
-//   const { userPower, sidebarValue, moduleData } = useContext(AppContext);
-//   // console.log(moduleData.entityName)
-//   return (
-//     <div className="header">
-//       <h1>
-//         {moduleData ? moduleData.entityName : ""}
-//       </h1>
-//       <h2>{`${userPower} Module`}</h2>
-//     </div>
-//   );
-// };
-
-
-
 
 
 

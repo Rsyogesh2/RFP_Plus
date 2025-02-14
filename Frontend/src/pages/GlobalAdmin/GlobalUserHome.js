@@ -1,6 +1,5 @@
 import React, { useRef, useState, useContext } from 'react';
 import RfpForm from '../../components/Sections/RfpForm';
-import VendorAdmin from '../VendorAdmin';
 import './AddSuperUser.css';
 import './UserManagement.css';
 

@@ -71,9 +71,15 @@ const Login = ({ onLogin }) => {
           if(rolesPer.length===0){
             setRoles(rolesResult.roles);
           } else{
+            console.log(rolesPer)
             setRoles(rolesPer);
           }
         } else {
+          console.log(rolesResult.roles);
+          if(rolesResult.roles[0]==="Super Admin"){
+            // setRoles(rolesResult.roles);
+
+          }
           setRoles(rolesResult.roles);
         }
         
@@ -145,7 +151,7 @@ const Login = ({ onLogin }) => {
             <select id="role" value={selectedRole} onChange={handleRoleSelect}>
               <option value="" disabled>-- Select a Role --</option>
               {roles.map((role, index) => (
-                <option key={index} value={role}>{role}</option>
+                <option key={index} value={role}>{role=="Super Admin"?"Bank Admin":role}</option>
               ))}
             </select>
             <button onClick={handleNavigateToHome} className="home-btn">Go to Home</button>

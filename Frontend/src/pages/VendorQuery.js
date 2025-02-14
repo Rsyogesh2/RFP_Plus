@@ -245,84 +245,10 @@ const constructPayload = (action, data = {}) => {
 
 console.log(determineLevel())
 
-
-//   const getNextLevel = () => {
-//     if (userRole === "Maker") return "Authorizer";
-//     if (userRole === "Authorizer") return "Reviewer";
-//     if (userRole === "Reviewer") return "Vendor Admin";
-//     if (userRole === "Vendor Admin") return "Super Admin";
-//     return "Unknown";
-//   };
-//   const currentLevel =()=>{
-//     return userPower === "Vendor User" && userRole === "Maker" ? 1 : userPower === "Vendor User" 
-//         && userRole === "Authorizer" ? 2 : userPower === "Vendor User" && userRole === "Viewer" ? 3 :
-//         userPower === "Vendor Admin" || userRole === "Vendor Admin" ? 4:5;
-//   }
-//   const constructPayload = (action, data) => {
-//     let payload = {
-//         rfp_no: data.rfp_no,
-//         rfp_title: data.rfp_title,
-//         vendor_name: data.vendor_name,
-//         bank_name: data.bank_name,
-//         created_by: data.userName,
-//         rows_data: data.rows,
-//         level: userPower === "Vendor User" && userRole === "Maker" ? 2 : userPower === "Vendor User" 
-//         && userRole === "Authorizer" ? 3 : userPower === "Vendor User" && userRole === "Viewer" ? 4 : 1,
-//         comments: data.comments || "",
-//         priority: data.priority || "Medium",
-//         handled_by: [{ name: data.userName, role: userRole }],
-//         attachments: data.attachments || null,
-//         action_log: `${action} by ${data.userName} on ${new Date().toISOString()}`,
-//     };
-
-//     if (action === "Save as Draft") {
-//         payload.stage = "Draft";
-//         payload.status = "Draft";
-//         payload.assigned_to = null;
-//     } else if (action === "Submit") {
-//         // payload.stage = userPower === "Vendor User" && userRole === "Maker" ? "Pending_Authorizer" 
-//         // : userPower === "Vendor User" && userRole === "Authorizer" ? "Pending_Reviewer" 
-//         // : userPower === "Vendor User" && userRole === "Viewer" ? "Pending_Vendor_Admin":"Pending_Super_Admin";
-//         payload.stage = "Vendor";
-//         payload.status = "Pending_Authorization";
-//         payload.assigned_to = data.assignedTo || null;
-//     } else if (action === "Approve" && userRole === "Authorizer") {
-//         payload.stage = "Vendor";
-//         payload.status = "Pending_Review";
-//         payload.assigned_to = data.assignedTo || null;
-//     }  else if (action === "Approve" && userRole === "Viewer") {
-//       payload.stage = "Vendor";
-//       payload.status = "Pending_Vendor_Admin";
-//       payload.assigned_to = data.assignedTo || null;
-//     } else if (action === "Submit to Bank") {
-//       payload.stage = "Bank";
-//       payload.status = "Pending_Super_Admin";
-//       payload.assigned_to = data.assignedTo || null;
-//   } else if (action === "Reject") {
-//         payload.stage = "Rejected";
-//         payload.status = "Rejected";
-//         payload.assigned_to = null;
-//     }
-
-//     return payload;
-// };
-
   const saveAsDraft = async (action) => {
     let payload = constructPayload(action);
     console.log(payload);
-    // const payload = {
-    //   rfpNo: sidebarValue[0]?.rfp_no,
-    //   rfpTitle: sidebarValue[0]?.rfp_title,
-    //   vendorName: sidebarValue[0]?.entity_name,
-    //   bankName: "Bank Name",
-    //   createdBy: userName,
-    //   stage: getNextLevel(),
-    //   level: getNextLevel(),
-    //   rows,
-    //   stageNumber: 2,
-    // };
-    
-
+   
     try {
       const response = await fetch(`${API_URL}/api/vendorQuery-save-draft`, {
         method: "POST",
