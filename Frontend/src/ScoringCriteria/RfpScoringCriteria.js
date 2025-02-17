@@ -302,7 +302,7 @@ function RfpScoringCriteria() {
     return (
         <div className="rfp-container">
             <header className="rfp-header">
-                <h2>RFP SCORING CRITERIA</h2>
+                <h3>RFP SCORING CRITERIA</h3>
                 <div><h3>{`${sidebarValue[0].rfp_no} - ${sidebarValue[0].rfp_title}`}</h3></div>
             </header>
             <div className='total-score'>
@@ -576,8 +576,6 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
                     </tr>
                 </tbody>
             </table>
-            <button onClick={saveData}>Save Data</button>
-            <button onClick={fetchData}>Fetch Data</button>
         </div>
     );
 }

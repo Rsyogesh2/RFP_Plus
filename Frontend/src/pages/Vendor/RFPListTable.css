@@ -71,8 +71,8 @@
   }
   
   .vendor-query-container button:hover {
-    background-color: #025C49;
-    color:white;
+    /* background-color: #025C49; */
+    color:#013F2F;
     transform: translateY(-2px);
   }
   
@@ -111,3 +111,10 @@
     }
   }
   
+
+.vendor-query-table button {
+    max-width: 82px; /* Adjust as needed */
+    white-space: wrap; /* Prevents text wrapping */
+    overflow: hidden;
+    /* text-overflow: ellipsis; */
+}

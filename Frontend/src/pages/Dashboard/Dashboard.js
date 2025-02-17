@@ -13,6 +13,7 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
     const [savedScores, setSavedScores] = useState([]);
     const [comVendorScores, setComVendorScores] = useState([]);
     const [functionalScore, setFunctionalScore] = useState([]);
+    const [vendorFunScore, setVendorFunScore] = useState([]);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const { userName } = useContext(AppContext); // Users load in the table
 
@@ -242,6 +243,7 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
                 console.log(data.modules);
                 
                 setFunctionalScore(data.modules[1]);
+                setVendorFunScore(data.vendorScores[1]);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -333,7 +335,7 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
             <br />
             <div className="module-wise">
             <Collapsible title="Functional Scores">
-            <MFunctional values={functionalScore} />
+            <MFunctional values={functionalScore} funVendor={vendorFunScore} />
              </Collapsible>
             <Collapsible title="Commercial Scores">
             <Commercial values={commercialValue} comVendor={comVendorScores}/>

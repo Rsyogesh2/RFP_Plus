@@ -543,10 +543,12 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                     <td>
                         {item.Modified_Time && (
                             <p style={{
-                                fontSize: '11px', wordWrap: 'break-word',
+                                fontSize: '10px', wordWrap: 'break-word',
                                 whiteSpace: 'normal',
                                 overflow: 'hidden',
-                                textOverflow: 'clip'
+                                textOverflow: 'clip',
+                                margin: '-2px 2px',
+                                fontWeight: 'semi-bold'
                             }}
                             >
                                 {formattedDate} </p>)}
@@ -703,7 +705,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                     <span>&nbsp;&nbsp; RFP Title: {rfpTitle||sidebarValue && sidebarValue[0]?.rfp_title}</span>
                 </div>
             </div>
-            <div className="labels">
+            <div className="labels-header">
                 <span>M-Mandatory | O-Optional </span>
                 <span>{Number(FItem?.[0]?.Level)>4 && Number(FItem?.[0]?.vendor_level)!==4?"Vendor Level":
                 Number(FItem?.[0]?.Level)===1?"Maker Stage": Number(FItem?.[0]?.Level)===2?"Authorizer Stage":

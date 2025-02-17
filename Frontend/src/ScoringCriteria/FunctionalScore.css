@@ -1,15 +1,5 @@
-/* .functional-score {
-    width: 300px;
-     border: 1px solid #A9A9A9; 
-    padding: 1rem;
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-} */
-
 .functional-score h3 {
-    font-size: 1.2rem;
+    font-size: 1rem;
     color: #005b99;
     text-align: center;
     margin-bottom: 1rem;

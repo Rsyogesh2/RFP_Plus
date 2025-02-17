@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useReducer } from 'react';
 import './RFPVendorTable.css'; // Import the CSS file
 // import {handleFetch,fetchModuleData} from '../../services/Apis'
 import { fetchModuleandFitemData } from '../../services/Apis'
@@ -12,7 +12,23 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
 
     const [itemData, setItemData] = useState([]);
     const [APCN, setAPCN] = useState({ isAvailableChecked: false, isPartlyAvailableChecked: false, isCustomizableChecked: false });
-    const [FItem, setFItem] = useState([]);
+    
+    const fItemReducer = (state, action) => {
+        switch (action.type) {
+            case "UPDATE_ITEM":
+                return state.map(item =>
+                    item.F2_Code === action.payload.F2_Code
+                        ? { ...item, SelectedOption: action.payload.value }
+                        : item
+                );
+            default:
+                return state;
+        }
+    };
+    
+    const [FItem, dispatchFItem] = useReducer(fItemReducer, []);
+    
+
     const [data, setdata] = useState([]);
     const [valueL1, setValueL1] = useState(null);
     const { moduleData, userName, userRole, userPower, sidebarValue } = useContext(AppContext); // Access shared state
@@ -20,22 +36,67 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
     const [file, setFile] = useState(null);
     const [fileURL, setFileURL] = useState("");
 
-    const handleFileChange = (event) => {
+    const handleFileChange = (event, moduleCode, l2Code, l3Code) => {
         const uploadedFile = event.target.files[0];
-        if (uploadedFile) {
-            setFile(uploadedFile);
-            setFileURL(URL.createObjectURL(uploadedFile));
-        }
+        if (!uploadedFile) return;
+
+        setItemData(prevItemData =>
+            prevItemData.map(item =>
+                item.code === moduleCode
+                    ? {
+                        ...item,
+                        l2: item.l2.map(l2 =>
+                            l2.code === l2Code
+                                ? {
+                                    ...l2,
+                                    l3: l2.l3.map(l3 =>
+                                        l3.code === l3Code
+                                            ? { ...l3, file: uploadedFile, fileURL: URL.createObjectURL(uploadedFile) }
+                                            : l3
+                                    )
+                                }
+                                : l2
+                        )
+                    }
+                    : item
+            )
+        );
     };
 
-    const handleDownload = () => {
+    const removeFile = (moduleCode, l2Code, l3Code) => {
+        setItemData(prevItemData =>
+            prevItemData.map(item =>
+                item.code === moduleCode
+                    ? {
+                        ...item,
+                        l2: item.l2.map(l2 =>
+                            l2.code === l2Code
+                                ? {
+                                    ...l2,
+                                    l3: l2.l3.map(l3 =>
+                                        l3.code === l3Code
+                                            ? { ...l3, file: null, fileURL: null }
+                                            : l3
+                                    )
+                                }
+                                : l2
+                        )
+                    }
+                    : item
+            )
+        );
+    };
+
+
+    const handleDownload = (fileData) => {
         const link = document.createElement("a");
-        link.href = fileURL;
-        link.download = file.name;
+        link.href = URL.createObjectURL(fileData);
+        link.download = fileData.name;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     };
+    
     // const handleFileChange = async (event) => {
     //     const selectedFile = event.target.files[0];
 
@@ -114,7 +175,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
             fetchArray();
             setValueL1(l1.l1module);
         }
-    }, [l1,moduleData]);  // Only trigger fetch when `data` changes
+    }, [l1, moduleData]);  // Only trigger fetch when `data` changes
     const filterModule = (data) => {
         const data1 = data.itemDetails.l1[0].filter(m => m.code === l1.l1module);
         setItemData(data1);
@@ -484,7 +545,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     <div>
                         {itemData.map((item, index1) => {
                             return (
-                                <div key={index1} className='level1'>
+                                <div key={item.code} className='level1'>
 
                                     <span className='l1'> {index1 + 1 + ". "}{item.name} </span>
                                     {item.l2.map((l2, index2) => {
@@ -501,20 +562,23 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                                                                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                                                                     <span className='l3'>{(index1 + 1) + "." + (Number(index2) + 1) + "." + (Number(index) + 1)}{" " + l3.name}</span>
                                                                     <div className="mini-file-uploader">
-                                                                        {!file ? (
+                                                                        {!l3.file ? (
                                                                             <label className="mini-upload-btn">
-                                                                                <input type="file" onChange={handleFileChange} hidden />
+                                                                                <input
+                                                                                    type="file"
+                                                                                    onChange={(e) => handleFileChange(e, item.code, l2.code, l3.code)}
+                                                                                    hidden
+                                                                                />
                                                                                 📂
                                                                             </label>
                                                                         ) : (
                                                                             <div className="mini-file-actions">
-                                                                                <button className="mini-action-btn" onClick={() => window.open(fileURL, "_blank")}>👁</button>
-                                                                                <button className="mini-action-btn" onClick={handleDownload}>⬇️</button>
-                                                                                <button className="mini-action-btn" onClick={() => setFile(null)}>🔄</button>
+                                                                                <button className="mini-action-btn" onClick={() => window.open(l3.fileURL, "_blank")}>👁 View</button>
+                                                                                <button className="mini-action-btn" onClick={() => handleDownload(l3.file)}>⬇ Download</button>
+                                                                                <button className="mini-action-btn" onClick={() => removeFile(item.code, l2.code, l3.code)}>🗑 Remove</button>
                                                                             </div>
                                                                         )}
                                                                     </div>
-
                                                                 </div>
 
                                                                 {/* <Tables l2={l2} index1={index1} f1={"f1"} index={index} /> */}
@@ -574,7 +638,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                 </button>
             )} */}
             {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.vendor_level) === 5 && (
-                <button onClick={() => handleSave(constructPayload("Save as Draft", {action:"Save as Draft"}))}>
+                <button onClick={() => handleSave(constructPayload("Save as Draft", { action: "Save as Draft" }))}>
                     Save as Draft
                 </button>
             )}

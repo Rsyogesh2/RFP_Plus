@@ -41,7 +41,7 @@ section {
 
 .overall-scoring h2,
 .commercial-score h2 {
-    font-size: 1.2rem;
+    font-size: 1rem;
     color: #005b99;
     text-align: center;
     margin-bottom: 1rem;
@@ -49,7 +49,7 @@ section {
 
 .overall-scoring th,
 .commercial-score th {
-    font-size: 1.2rem;
+    font-size: 0.9rem;
     color: #005b99;
     text-align: center;
     margin-bottom: 1rem;
@@ -122,8 +122,7 @@ th, td {
     padding: 0.3rem;
     border: none;
     border-bottom: 1px solid #A9A9A9;
-    font-style: italic;
-    color: #666;
+    color: #474747;
     box-sizing: border-box; /* Include padding and borders in width calculation */
 }
 

@@ -71,8 +71,9 @@ const Table = ({ data, headers }) => (
   </table>
 );
 
-const MFunctional = ({values}) => {
+const MFunctional = ({values, funVendor}) => {
   useEffect(() => {
+    console.log(funVendor.l2);
     console.log(values.l2.map((l2) => ({ modules: l2.name })));
   }, [values]);
   return (
