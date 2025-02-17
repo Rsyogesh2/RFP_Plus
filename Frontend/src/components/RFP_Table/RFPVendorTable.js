@@ -12,21 +12,22 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
 
     const [itemData, setItemData] = useState([]);
     const [APCN, setAPCN] = useState({ isAvailableChecked: false, isPartlyAvailableChecked: false, isCustomizableChecked: false });
+    const [FItem, setFItem] = useState([]);
+
+    // const fItemReducer = (state, action) => {
+    //     switch (action.type) {
+    //         case "UPDATE_ITEM":
+    //             return state.map(item =>
+    //                 item.F2_Code === action.payload.F2_Code
+    //                     ? { ...item, SelectedOption: action.payload.value }
+    //                     : item
+    //             );
+    //         default:
+    //             return state;
+    //     }
+    // };
     
-    const fItemReducer = (state, action) => {
-        switch (action.type) {
-            case "UPDATE_ITEM":
-                return state.map(item =>
-                    item.F2_Code === action.payload.F2_Code
-                        ? { ...item, SelectedOption: action.payload.value }
-                        : item
-                );
-            default:
-                return state;
-        }
-    };
-    
-    const [FItem, dispatchFItem] = useReducer(fItemReducer, []);
+    // const [FItem, dispatchFItem] = useReducer(fItemReducer, []);
     
 
     const [data, setdata] = useState([]);
