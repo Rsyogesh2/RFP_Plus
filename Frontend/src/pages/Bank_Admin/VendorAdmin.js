@@ -206,7 +206,7 @@ const VendorAdmin = () => {
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group date-group">
           <label htmlFor="validFrom">Valid From:</label>
           <input
             id="validFrom"
@@ -214,7 +214,10 @@ const VendorAdmin = () => {
             value={formData.validFrom}
             onChange={handleChange}
           />
-          <span> To </span>
+        </div>
+
+        <div className="form-group date-group">
+          <label htmlFor="validTo">Valid To:</label>
           <input
             id="validTo"
             type="date"

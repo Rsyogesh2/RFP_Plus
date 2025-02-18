@@ -531,8 +531,8 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         <div className="rfp-table">
             <div className="header">
                 <div className="title">
-                    <span>RFP No: {sidebarValue && sidebarValue[0]?.rfp_no}</span>
-                    <span>&nbsp;&nbsp; RFP Title: {sidebarValue && sidebarValue[0]?.rfp_title}</span>
+                    <span>RFP No: { rfpNo ||sidebarValue && sidebarValue[0]?.rfp_no}</span>
+                    <span>&nbsp;&nbsp; RFP Title: { rfpTitle || sidebarValue && sidebarValue[0]?.rfp_title}</span>
                 </div>
                 <div className="labels">
                     <span>M-Mandatory | O-Optional</span>

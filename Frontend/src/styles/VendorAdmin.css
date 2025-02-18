@@ -1,144 +1,168 @@
 .vendor-admin-container {
-    padding: 0px 40px;
-    /* width: 80%;  */
-    background-color: #ffffff;
-    border-radius: 10px;/* Softer shadow */
-    font-family: 'Arial', sans-serif;
-  }
-  
-  .vendor-admin-container h4 {
-    margin-bottom: 30px;
-    color: #02735E;
-    font-size: 28px;
-    font-weight: bold;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  
+  padding: 5px 10px;  /* ✅ Reduced padding */
+  background-color: #ffffff;
+  border-radius: 8px; /* ✅ Smaller border radius */
+  font-family: 'Arial', sans-serif;
+}
+
+/* Reduced Heading Size */
+.vendor-admin-container h4 {
+  margin-bottom: 20px;
+  color: #02735E;
+  font-size: 22px;  /* ✅ Smaller heading */
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* Reduced Form Layout */
+.vendor-admin-container form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px 20px; /* ✅ Smaller gaps */
+}
+
+/* Smaller Form Fields */
+.vendor-admin-container .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Smaller Labels */
+.vendor-admin-container label {
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+  font-size: 12px;  /* ✅ Reduced label size */
+}
+
+/* Smaller Inputs, Selects, and Textareas */
+.vendor-admin-container input,
+.vendor-admin-container select,
+.vendor-admin-container textarea {
+  padding: 8px 10px;  /* ✅ Reduced padding */
+  border: 1px solid #ddd;
+  border-radius: 4px; /* ✅ Smaller border radius */
+  font-size: 13px; /* ✅ Smaller font */
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+  width: 100%;  /* ✅ Full width */
+}
+
+/* Focus Effects */
+.vendor-admin-container input:focus,
+.vendor-admin-container select:focus,
+.vendor-admin-container textarea:focus {
+  border-color: #02735E;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(2, 115, 94, 0.3); /* ✅ Softer focus */
+}
+
+/* Placeholder Styling */
+.vendor-admin-container input::placeholder,
+.vendor-admin-container select::placeholder,
+.vendor-admin-container textarea::placeholder {
+  color: #bbb;
+  font-style: italic;
+  font-size: 12px;  /* ✅ Smaller placeholders */
+}
+
+/* Button Group */
+.vendor-admin-container .button-group {
+  grid-column: span 3;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;  /* ✅ Reduced margin */
+}
+
+/* Reduced Button Size */
+.vendor-admin-container button {
+  padding: 8px 14px; /* ✅ Reduced button padding */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px; /* ✅ Smaller font */
+  font-weight: 600;
+}
+
+/* Submit Button */
+.vendor-admin-container button.btn-submit {
+  background-color: #02735E;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.vendor-admin-container button.btn-submit:hover {
+  background-color: #025C49;
+  transform: scale(1.03);
+}
+
+/* Cancel Button */
+.vendor-admin-container button.btn-cancel {
+  background-color: #f0f0f0;
+  color: #333;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.vendor-admin-container button.btn-cancel:hover {
+  background-color: #ddd;
+  transform: scale(1.03);
+}
+
+/* 📌 Improved Responsiveness */
+@media (max-width: 992px) {
   .vendor-admin-container form {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Three equal columns */
-    gap: 5px 30px; /* Row gap: 25px, Column gap: 30px */
+      grid-template-columns: repeat(2, 1fr); /* ✅ 2 columns on medium screens */
+      gap: 10px 15px;
   }
-  
-  .vendor-admin-container .form-group {
-    display: flex;
-    flex-direction: column;
+
+  .vendor-admin-container h4 {
+      font-size: 20px;
   }
-  
-  .vendor-admin-container label {
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #333;
-    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .vendor-admin-container form {
+      grid-template-columns: 1fr; /* ✅ Single column on smaller screens */
   }
-  
+
+  .vendor-admin-container {
+      padding: 10px;
+  }
+
+  .vendor-admin-container h4 {
+      font-size: 18px;
+  }
+
   .vendor-admin-container input,
   .vendor-admin-container select,
   .vendor-admin-container textarea {
-    padding: 12px 14px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 15px;
-    background-color: #f9f9f9;
-    transition: all 0.3s ease;
-    width: 90%;
+      font-size: 12px;
+      padding: 7px;
   }
-  
-  .vendor-admin-container textarea {
-    resize: none;
-    min-height: 90px;
-  }
-  
-  .vendor-admin-container input:focus,
-  .vendor-admin-container select:focus,
-  .vendor-admin-container textarea:focus {
-    border-color: #02735E;
-    background-color: #fff;
-    box-shadow: 0 0 8px rgba(2, 115, 94, 0.4); /* Soft green focus */
-  }
-  
-  .vendor-admin-container input::placeholder,
-  .vendor-admin-container select::placeholder,
-  .vendor-admin-container textarea::placeholder {
-    color: #bbb; /* Subtle placeholder color */
-    font-style: italic;
-  }
-  
-  .vendor-admin-container .button-group {
-    grid-column: span 3; /* Spans all three columns */
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
-  }
-  
+
   .vendor-admin-container button {
-    padding: 12px 18px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
+      font-size: 12px;
+      padding: 7px 10px;
   }
-  
-  .vendor-admin-container button.btn-submit {
-    background-color: #02735E;
-    color: #fff;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .vendor-admin-container button.btn-submit:hover {
-    background-color: #025C49;
-    transform: scale(1.05);
-  }
-  
-  .vendor-admin-container button.btn-cancel {
-    background-color: #f0f0f0;
-    color: #333;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .vendor-admin-container button.btn-cancel:hover {
-    background-color: #ddd;
-    transform: scale(1.05);
-  }
-  
-  /* Improved Responsiveness */
-  @media (max-width: 992px) {
-    .vendor-admin-container form {
-      grid-template-columns: repeat(2, 1fr); /* Two columns on medium screens */
-      gap: 20px 20px;
-    }
-  
-    .vendor-admin-container h4 {
-      font-size: 24px;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .vendor-admin-container form {
-      grid-template-columns: 1fr; /* Single column on smaller screens */
-    }
-  
-    .vendor-admin-container {
-      padding: 20px;
-    }
-  
-    .vendor-admin-container h4 {
-      font-size: 22px;
-    }
-  
-    .vendor-admin-container input,
-    .vendor-admin-container select,
-    .vendor-admin-container textarea {
-      font-size: 14px;
-      padding: 10px;
-    }
-  
-    .vendor-admin-container button {
-      font-size: 14px;
-      padding: 10px 14px;
-    }
-  }
-  
+}
+
+/* Ensure date inputs are stacked vertically */
+.vendor-admin-container .form-group.date-group {
+  display: flex;
+  flex-direction: column;  /* ✅ Stack inputs vertically */
+}
+
+/* Reduce the size of the textarea */
+.vendor-admin-container textarea {
+  width: 100%; /* ✅ Ensures it fits within its column */
+  max-width: 95%; /* ✅ Prevents expanding beyond the form */
+  min-height: 50px; /* ✅ Reduce height */
+  max-height: 100px; /* ✅ Prevents it from growing too much */
+  padding: 8px 10px; /* ✅ Smaller padding */
+  font-size: 13px; /* ✅ Reduce font size */
+  resize: vertical; /* ✅ Allows resizing but only vertically */
+}
+
+

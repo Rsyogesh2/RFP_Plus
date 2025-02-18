@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AppContext } from "./../../context/AppContext";
 import './../AssignUsers.css'
+ import './../combinedpages2.css';
 
 
 const AssignUsers = () => {

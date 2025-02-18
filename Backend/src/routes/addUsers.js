@@ -4,6 +4,7 @@ const router = express.Router();
 const db = require('../config/db');
 const bcrypt = require('bcryptjs')
 
+const {sendActivationEmail} = require('./mailer');
 
 // router.post('/addSuperUser', async (req, res) => {
 //     const { newUser, assignModule } = req.body;
@@ -458,7 +459,7 @@ router.post('/addUser', async (req, res) => {
           //console.log("User created!");
       });
       }
-     
+      sendActivationEmail(email, user_name);
     } catch (err) {
       console.error('Error adding user:', err.message);
       res.status(500).json({ success: false, error: 'Failed to add user' });

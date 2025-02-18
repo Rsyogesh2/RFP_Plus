@@ -30,6 +30,7 @@
 
 .collapsible-header:hover {
   background: linear-gradient(135deg, #1a252f, #3b5a8a);
+  color: white !important;
   padding: 18px;
 }
 

@@ -15,6 +15,7 @@ import Login from "./Login/GlobalAdminLogin";
 // import UserLogin from "./Login/UserLogin";
 import { AppProvider } from './context/AppContext';
 import ResetPassword from "./Login/ResetPassword"; // Reset password component
+import ActivateAccount from "./Login/ActivateAccount.js";
 
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
                 element={<Login onLogin={handleLogin} />}
               />
               <Route path="/reset-password" element={<ResetPassword />} /> {/* Reset Password Page */}
+              <Route path="/activate-account" element={<ActivateAccount />} /> {/* Reset Password Page */}
            
               {/* Protected Routes */}
               <Route

@@ -8,7 +8,7 @@
 
 /* Form Header */
 .assign-users-container h4 {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   margin-bottom: 20px;
   color: #333333;
   border-bottom: 2px solid #4caf50;
@@ -25,11 +25,11 @@
 
 .assign-users-container select {
   width: 100%;
-  padding: 10px;
-  font-size: 1rem;
+  padding: 6px;
+  font-size: 0.9rem;
   border: 1px solid #ddd;
   border-radius: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   transition: border-color 0.3s ease;
 }
 
@@ -40,19 +40,19 @@
 
 /* Reference Details */
 .reference-details p {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #555;
   background-color: #f9f9f9;
   padding: 10px;
   border-radius: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 /* Table Styles */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   background-color: #f9f9f9;
   border-radius: 5px;
   overflow: hidden;
@@ -66,7 +66,7 @@ thead {
 thead th {
   padding: 12px;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 tbody tr {
@@ -78,8 +78,8 @@ tbody tr:hover {
 }
 
 tbody td {
-  padding: 10px;
-  font-size: 0.9rem;
+  padding: 5px;
+  font-size: 0.8rem;
   color: #333;
 }
 
@@ -92,7 +92,7 @@ input[type="date"] {
 
 input[type="date"] {
   padding: 5px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   transition: border-color 0.3s ease;

@@ -2106,12 +2106,6 @@ router.get('/loadContents-initial', async (req, res) => {
               if(userRole=="Maker"){
 
                 // Product Filter Code
-                let prod = `select products from RFP_Creation where RFP_No=?`
-                let [products] = await db.query(prod,res.rfp_no);
-                let prodCode = products[0].products.map(item => item.subItemCode);
-                console.log("prodCode");
-                // prodCode.push(null)
-                console.log(prodCode);
                 
                 queryString2 = `
                     SELECT requirement AS name, RFP_Title, RFP_No, Module_Code, F1_Code, F2_Code, New_Code, Mandatory, Comments, 
@@ -2137,17 +2131,33 @@ router.get('/loadContents-initial', async (req, res) => {
             
             // Query 2: Fetch unmatched values only if necessary
             if (unmatchedModuleCodes.length > 0 || results2.length==0) {
+              let prod = `select products from RFP_Creation where RFP_No=?`
+                let [products] = await db.query(prod,res.rfp_no);
+                let prodCode = products[0].products.map(item => item.subItemCode);
+                console.log("prodCode");
+                // prodCode.push(null)
+                console.log(prodCode);
+
+                
+
+                // Ensure there are values in prodCode; otherwise, use a default invalid condition
+                const productPlaceholders = prodCode.length > 0 ? prodCode.map(() => '?').join(', ') : 'NULL';
+
+                // SQL Query with Dynamic Product Values
                 const queryString3 = `
                     SELECT Description AS name, Module_Code, F1_Code, F2_Code 
                     FROM RFP_FunctionalItems 
-                    WHERE Module_Code IN (${unmatchedModuleCodes.map(() => '?').join(', ')}) AND F1_Code!="00"
-                    
+                    WHERE Module_Code IN (${unmatchedModuleCodes.map(() => '?').join(', ')}) 
+                      AND F1_Code != "00"
+                      AND (Product IN (${productPlaceholders}) OR Product IS NULL OR Product = '')
                 `;
                 // And (Product IN (${prodCode.join(', ')}) OR Product IS NULL)
                 console.log(queryString3)
                 // Execute second query
-                const [results3] = await db.query(queryString3, unmatchedModuleCodes);
-                console.log("Unmatched Results from RFP_FunctionalItems:", results3);
+                const values = [...unmatchedModuleCodes, ...prodCode];
+
+                const [results3] = await db.query(queryString3, values);
+                // console.log("Unmatched Results from RFP_FunctionalItems:", results3);
                 const results4 = results3.map(item => ({
                   ...item,
                   Mandatory: item.Mandatory ?? true, // Set default if `Mandatory` is null

@@ -62,7 +62,7 @@
 
 /* Hover effects */
 .scoring-dashboard-table tbody tr:hover {
-    background: #d0e4f7;
+    background: #d0e4f7 !important;
     transition: background 0.3s ease;
 }
 
