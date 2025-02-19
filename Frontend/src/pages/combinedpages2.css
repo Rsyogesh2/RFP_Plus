@@ -231,11 +231,11 @@
     gap: 10px;
   }
   
-  .button-group-assign {
+  /* .button-group-assign {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
-  }
+  } */
   
   .button-group-assign button {
     padding: 12px 20px;

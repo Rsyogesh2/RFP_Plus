@@ -1,0 +1,287 @@
+private void callUpdateQueryRuleViolation(String strWI_Name, String velocityRuleReason) {
+		String velocityruleUpdateQuery = "update Ext_Credit_Card set Velocity_Reason='" + velocityRuleReason
+				+ "' where LocalWorkitemName='" + strWI_Name + "'";
+		boolean velocityUpdate = CabinetCall.setData(velocityruleUpdateQuery);
+		CustomLogger.ProcessLog("PL_RISKASSESSMENT", "velocityruleUpdateQuery:" + velocityruleUpdateQuery);
+		if (velocityUpdate) {
+			CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Invlaid Velocity Update Query Success");
+		} else {
+			CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Update failure.");
+			String velocityUpdateQuery = "update Ext_Credit_Card set ScreenEligibility='Fail', Description='Risk Assessment Query Failure.' where LocalWorkitemName='"
+					+ strWI_Name + "'";
+			boolean velocityUpdateResult = CabinetCall.setData(velocityUpdateQuery);
+			CustomLogger.ProcessLog("PL_RISKASSESSMENT", "velocityUpdateQuery:  " + velocityUpdateQuery
+					+ " velocityUpdateResult Update Result :  " + velocityUpdateResult);
+		}
+	}
+		
+
+	private void fetchVelocityRule(String strWI_Name, String employerName, String employerNameOther, String dsaID,
+	        String constVelocityRuleACount, String constVelocityRuleBCount, String constVelocityRuleCCount) {
+	    
+	    String brokerIDsplitValue = "";
+	    String overallVelocityRuleReason = "";
+	    
+	    // Determine the final employer name
+	    String finalEmployerName = employerName.equalsIgnoreCase("Others") ? employerNameOther : employerName;
+	    CustomLogger.ProcessLog("PL_RISKASSESSMENT", "finalEmployerName:" + finalEmployerName);
+        //self,social media,ISE-021,Td-003....
+	    // Extract brokerID from dsaID if a hyphen is present
+	    if (dsaID.contains("-")) {
+	        CustomLogger.ProcessLog("PL_RISKASSESSMENT", "The string contains a hyphen.");
+	        String[] brokerIDsplit = dsaID.split("-");
+	        brokerIDsplitValue = brokerIDsplit[0];
+	        CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Final BrokerID: " + brokerIDsplitValue);
+	    }
+	 // Escape single quotes to prevent SQL injection
+	    String sanitizedDsaID = dsaID.replace("'", "''");
+	    String sanitizedEmployerName = finalEmployerName.replace("'", "''");
+	    String sanitizedBrokerIDsplitValue = brokerIDsplitValue.replace("'", "''");
+
+	    String velocityQuery = "WITH WorkItems AS (" +
+	            "    SELECT DISTINCT " +
+	            "        e.LocalWorkitemName, " +
+	            "        TRIM(COALESCE(e.CD_DSAID, '')) AS CD_DSAID, " +
+	            "        e.BD_EmployerName, " +
+	            "        e.BD_EmployerOther, " +
+	            "        e.CD_EmiratesID, e.CD_FirstName, e.CD_MiddleName, e.CD_LastName, e.Curr_WS, e.CURR_ENTRYDATE " +
+	            "    FROM EXT_Credit_Card e " +
+	            "    WHERE e.LocalWorkitemName IN ( " +
+	            "        SELECT processinstanceid FROM WFInstrumentTable WITH (NOLOCK) " +
+	            "        WHERE ProcessName = 'Credit_Card' AND CAST(Createddatetime AS DATE) >= GETDATE() - 30 " +
+	            "    ) " +
+	            "    AND TRIM(COALESCE(e.CD_DSAID, '')) NOT IN ('Social Media', 'Self') " +
+	            "    AND e.Curr_WS != 'discard' " +
+
+	            "    UNION ALL " +
+
+	            "    SELECT DISTINCT " +
+	            "        e.LocalWorkitemName, " +
+	            "        TRIM(COALESCE(e.CD_DSAID, '')) AS CD_DSAID, " +
+	            "        e.BD_CurrentEmployerName AS BD_EmployerName, " +
+	            "        e.BD_CurrentmplouerOther AS BD_EmployerOther, " +
+	            "        e.CD_EmiratesID, e.CD_FirstName, e.CD_MiddleName, e.CD_LastName, e.Curr_WS, e.CURR_ENTRYDATE " +
+	            "    FROM EXT_PersonalLoans e " +
+	            "    WHERE e.LocalWorkitemName IN ( " +
+	            "        SELECT processinstanceid FROM WFInstrumentTable WITH (NOLOCK) " +
+	            "        WHERE ProcessName = 'PL' AND CAST(Createddatetime AS DATE) >= GETDATE() - 30 " +
+	            "    ) " +
+	            "    AND TRIM(COALESCE(e.CD_DSAID, '')) NOT IN ('Social Media', 'Self') " +
+	            "    AND e.Curr_WS != 'discard' " +
+	            ") " +
+
+	            "SELECT " +
+	            "    w.LocalWorkitemName, w.CD_DSAID, w.BD_EmployerName, w.BD_EmployerOther, " +
+	            "    w.CD_EmiratesID, w.CD_FirstName, w.CD_MiddleName, w.CD_LastName, w.Curr_WS, w.CURR_ENTRYDATE, " +
+
+	            "    COUNT(CASE WHEN w.CD_DSAID = '" + sanitizedDsaID + "' " +
+	            "        AND (LOWER(w.BD_EmployerName) LIKE LOWER('%" + sanitizedEmployerName + "%') " +
+	            "        OR LOWER(w.BD_EmployerOther) LIKE LOWER('%" + sanitizedEmployerName + "%')) " +
+	            "        THEN 1 ELSE NULL END) AS velocityRuleAcountValue, " +
+
+	            "    COUNT(CASE WHEN w.CD_DSAID " + 
+	            (brokerIDsplitValue.isEmpty() ? "= '" + sanitizedBrokerIDsplitValue + "'" : "LIKE '" + sanitizedBrokerIDsplitValue + "%'") + 
+	            "        AND (LOWER(w.BD_EmployerName) LIKE LOWER('%" + sanitizedEmployerName + "%') " +
+	            "        OR LOWER(w.BD_EmployerOther) LIKE LOWER('%" + sanitizedEmployerName + "%')) " +
+	            "        THEN 1 ELSE NULL END) AS velocityRuleBcountValue, " +
+
+	            "    COUNT(CASE WHEN (LOWER(w.BD_EmployerName) LIKE LOWER('%" + sanitizedEmployerName + "%') " +
+	            "        OR LOWER(w.BD_EmployerOther) LIKE LOWER('%" + sanitizedEmployerName + "%')) " +
+	            "        THEN 1 ELSE NULL END) AS velocityRuleCcountValue, " +
+
+	            "    CASE WHEN w.CD_DSAID = '" + sanitizedDsaID + "' " +
+	            "        AND (LOWER(w.BD_EmployerName) LIKE LOWER('%" + sanitizedEmployerName + "%') " +
+	            "        OR LOWER(w.BD_EmployerOther) LIKE LOWER('%" + sanitizedEmployerName + "%')) " +
+	            "        THEN 'Yes' ELSE 'No' END AS Velocity_A, " +
+
+	            "    CASE WHEN w.CD_DSAID " + 
+	            (brokerIDsplitValue.isEmpty() ? "= '" + sanitizedBrokerIDsplitValue + "'" : "LIKE '" + sanitizedBrokerIDsplitValue + "%'") + 
+	            "        AND (LOWER(w.BD_EmployerName) LIKE LOWER('%" + sanitizedEmployerName + "%') " +
+	            "        OR LOWER(w.BD_EmployerOther) LIKE LOWER('%" + sanitizedEmployerName + "%')) " +
+	            "        THEN 'Yes' ELSE 'No' END AS Velocity_B, " +
+
+	            "    CASE WHEN (LOWER(w.BD_EmployerName) LIKE LOWER('%" + sanitizedEmployerName + "%') " +
+	            "        OR LOWER(w.BD_EmployerOther) LIKE LOWER('%" + sanitizedEmployerName + "%')) " +
+	            "        THEN 'Yes' ELSE 'No' END AS Velocity_C " +
+
+	            "FROM WorkItems w " +
+	            "GROUP BY " +
+	            "    w.LocalWorkitemName, w.CD_DSAID, w.BD_EmployerName, w.BD_EmployerOther, " +
+	            "    w.CD_EmiratesID, w.CD_FirstName, w.CD_MiddleName, w.CD_LastName, w.Curr_WS, w.CURR_ENTRYDATE " +
+	            "HAVING " +
+	            "    COUNT(CASE WHEN w.CD_DSAID = '" + sanitizedDsaID + "' " +
+	            "        AND (LOWER(w.BD_EmployerName) LIKE LOWER('%" + sanitizedEmployerName + "%') " +
+	            "        OR LOWER(w.BD_EmployerOther) LIKE LOWER('%" + sanitizedEmployerName + "%')) " +
+	            "        THEN 1 ELSE NULL END) > 0 " +
+
+	            "    OR COUNT(CASE WHEN w.CD_DSAID " + 
+	            (brokerIDsplitValue.isEmpty() ? "= '" + sanitizedBrokerIDsplitValue + "'" : "LIKE '" + sanitizedBrokerIDsplitValue + "%'") +
+	            "        AND (LOWER(w.BD_EmployerName) LIKE LOWER('%" + sanitizedEmployerName + "%') " +
+	            "        OR LOWER(w.BD_EmployerOther) LIKE LOWER('%" + sanitizedEmployerName + "%')) " +
+	            "        THEN 1 ELSE NULL END) > 0 " +
+
+	            "    OR COUNT(CASE WHEN (LOWER(w.BD_EmployerName) LIKE LOWER('%" + sanitizedEmployerName + "%') " +
+	            "        OR LOWER(w.BD_EmployerOther) LIKE LOWER('%" + sanitizedEmployerName + "%')) " +
+	            "        THEN 1 ELSE NULL END) > 0;";
+	    CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Velocity Rule Query:" + velocityQuery);
+	    String strOutputXml = CabinetCall.getData(velocityQuery, "16");
+	    CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Velocity Rule Query OutputXml:" + strOutputXml);
+	    
+	    DMSXmlResponse xmlResponse = new DMSXmlResponse(strOutputXml);
+	    DMSXmlList xmlList = xmlResponse.createList("DataList", "Data");
+	    
+	    // Parse constant thresholds
+	    int thresholdA = Integer.parseInt(constVelocityRuleACount);
+	    int thresholdB = Integer.parseInt(constVelocityRuleBCount);
+	    int thresholdC = Integer.parseInt(constVelocityRuleCCount);
+	    CustomLogger.ProcessLog("PL_RISKASSESSMENT", "thresholdA:" + thresholdA + " thresholdB:" +thresholdB + " thresholdC:" +thresholdC);
+	    // First pass: accumulate totals and store records for a second pass
+	    List<VelocityRule_model> recordList = new ArrayList<>();
+	    int totalA = 0, totalB = 0, totalC = 0;
+	    CustomLogger.ProcessLog("PL_RISKASSESSMENT", "TotalA:" + totalA + " TotalB:" +totalB + " TotalC:" +totalC);
+	    while (xmlList.hasMoreElements()) {	    	
+	    	CustomLogger.ProcessLog("PL_RISKASSESSMENT", "While Started.."); 
+	        VelocityRule_model velocityrule = new VelocityRule_model();
+	        velocityrule.velWI_Name = xmlList.getVal("Value1");
+	        velocityrule.velDsaid = xmlList.getVal("Value2");
+	        velocityrule.velEmployerName = xmlList.getVal("Value3");
+	        velocityrule.velEmployerNameOther = xmlList.getVal("Value4");
+	        velocityrule.velEmiratesID = xmlList.getVal("Value5");
+	        velocityrule.velFullCustName = xmlList.getVal("Value6") + " " +
+	                              xmlList.getVal("Value7") + " " +
+	                              xmlList.getVal("Value8");
+	        velocityrule.velCurrWS = xmlList.getVal("Value9");
+	        velocityrule.velCurrDate = xmlList.getVal("Value10");
+	        
+	        try {
+	        	if(velocityrule.velWI_Name.contains("Credit_Card")) {
+	            velocityrule.ruleACount = Integer.parseInt(xmlList.getVal("Value11"));
+	            velocityrule.ruleBCount = Integer.parseInt(xmlList.getVal("Value12"));
+	            velocityrule.ruleCCount = Integer.parseInt(xmlList.getVal("Value13"));
+	            	}
+	        	} catch (NumberFormatException e) {
+	            CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Invalid numeric count values, skipping record.");
+	            xmlList.skip();
+	            continue;
+	        }
+	        
+	        velocityrule.velocityAIndicator = xmlList.getVal("Value14"); // expected "1" or "0"
+	        velocityrule.velocityBIndicator = xmlList.getVal("Value15");
+	        velocityrule.velocityCIndicator = xmlList.getVal("Value16");
+	        
+	        totalA += velocityrule.ruleACount;
+	        totalB += velocityrule.ruleBCount;
+	        totalC += velocityrule.ruleCCount;
+	        
+	        recordList.add(velocityrule);
+	        xmlList.skip();
+	        CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Ehilw Ended... ");
+	    }
+	    
+	    CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Total Rule A Count: " + totalA);
+	    CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Total Rule B Count: " + totalB);
+	    CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Total Rule C Count: " + totalC);
+	    
+	    // Second pass: for each record, attach the rule description based on overall thresholds and the record’s indicators.
+	    for (VelocityRule_model velocityrule : recordList) {
+	        String recordRuleDescription = "";
+	        
+	        if (totalA >= thresholdA && (velocityrule.velocityAIndicator.equals("1") || velocityrule.velocityAIndicator.equalsIgnoreCase("Yes"))) {
+	            recordRuleDescription += "Velocity Rule-A";
+	        }
+	        if (totalB >= thresholdB && (velocityrule.velocityBIndicator.equals("1") || velocityrule.velocityBIndicator.equalsIgnoreCase("Yes"))) {
+	            if (!recordRuleDescription.isEmpty()) {
+	                recordRuleDescription = recordRuleDescription.concat("\nVelocity Rule-B");
+	            } else {
+	                recordRuleDescription = "Velocity Rule-B";
+	            }
+	        }
+	        if (totalC >= thresholdC && (velocityrule.velocityCIndicator.equals("1") || velocityrule.velocityCIndicator.equalsIgnoreCase("Yes"))) {
+	            if (!recordRuleDescription.isEmpty()) {
+	                recordRuleDescription = recordRuleDescription.concat("\nVelocity Rule-C");
+	            } else {
+	                recordRuleDescription = "Velocity Rule-C";
+	            }
+	        }
+	        
+	        // For each record that is violating one or more rules, process that record
+	        if (!recordRuleDescription.isEmpty()) {
+	            // Use the record’s final employer name (if "Others", then use the alternative)
+	        	String recFinalEmployerName = velocityrule.velEmployerName.equalsIgnoreCase("Others")
+						? velocityrule.velEmployerNameOther
+						: velocityrule.velEmployerName;
+				if (velocityrule.velWI_Name.contains("Credit_Card")) {
+
+					callInsertQueryCCPrevCases(recordRuleDescription, strWI_Name, velocityrule.velWI_Name,
+							velocityrule.velEmiratesID, velocityrule.velFullCustName, velocityrule.velCurrDate,
+							velocityrule.velCurrWS, recFinalEmployerName, velocityrule.velDsaid);
+				} else if (velocityrule.velWI_Name.contains("PF")) {
+					callInsertQueryPLPrevCases(recordRuleDescription, strWI_Name, velocityrule.velWI_Name,
+							velocityrule.velEmiratesID, velocityrule.velFullCustName, velocityrule.velCurrDate,
+							velocityrule.velCurrWS, recFinalEmployerName, velocityrule.velDsaid);
+				}
+	        }
+	    }
+	    
+	    // Optionally build an overall violation reason based on aggregated totals
+	    if (totalA >= thresholdA) {
+	        overallVelocityRuleReason = "Velocity Rule A - 3 or more Applications with Same Company Name and Same Agent within 30 days";
+	    }
+	    if (totalB >= thresholdB) {
+	        if (!overallVelocityRuleReason.isEmpty()) {
+	            overallVelocityRuleReason = overallVelocityRuleReason.concat("\nVelocity Rule B - 4 or more Applications with Same Company Name and Same Broker within 30 days");
+	        } else {
+	            overallVelocityRuleReason = "Velocity Rule B - 4 or more Applications with Same Company Name and Same Broker within 30 days";
+	        }
+	    }
+	    if (totalC >= thresholdC) {
+	        if (!overallVelocityRuleReason.isEmpty()) {
+	            overallVelocityRuleReason = overallVelocityRuleReason.concat("\nVelocity Rule C - 3 or more Applications with Same Company Name within 30 days");
+	        } else {
+	            overallVelocityRuleReason = "Velocity Rule C - 3 or more Applications with Same Company Name within 30 days";
+	        }
+	    }
+	    
+	    CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Overall Velocity Rule Reason: " + overallVelocityRuleReason);
+	    callUpdateQueryRuleViolation(strWI_Name, overallVelocityRuleReason);
+	}
+
+
+	private void callInsertQueryPLPrevCases(String recordRuleDescription, String strWI_Name, String velWI_Name,
+			String velEmiratesID, String velFullCustName, String velCurrDate, String velCurrWS,
+			String recFinalEmployerName, String velDsaid) {
+		// TODO Auto-generated method stub
+		String plPrevCasesInsertQuery = "INSERT INTO CX_Prev_VelocityRule_PL(C_RuleDescription,C_WIName,C_Prev_WiName,C_EID,C_FullName,C_DateOfApplication,C_CurrentStage,C_CompanyName,C_AgentName) VALUES('"
+				+ recordRuleDescription + "','" + strWI_Name + "','" + velWI_Name + "','" + velEmiratesID + "','"
+				+ velFullCustName + "'," + "'" + velCurrDate + "','" + velCurrWS + "','" + recFinalEmployerName + "','"
+				+ velDsaid + "')";
+
+		CustomLogger.ProcessLog("PL_RISKASSESSMENT", "plPrevCasesInsertQuery:" + plPrevCasesInsertQuery);
+		boolean fetchPrevCasesPL = CabinetCall.setData(plPrevCasesInsertQuery);
+		if (fetchPrevCasesPL) {
+			CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Fetch Previous Cases Query Success.");
+		} else {
+			CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Update failure.");
+		}
+		
+	}
+
+	private  void callInsertQueryCCPrevCases(String ruleDescription, String strWI_Name, String velWI_Name,
+			String velEmiratesID, String velFullCustName, String velCurrDate, String velCurrWS,
+			String velFinalEmployerName, String velDsaid) {
+		
+		String ccPrevCasesInsertQuery = "INSERT INTO CX_CC_VelocityRule(C_RuleDescription,C_WIName,C_Prev_WiName,C_EID,C_FullName,C_DateOfApplication,C_CurrentStage,C_CompanyName,C_AgentName) VALUES('"
+				+ ruleDescription + "','" + strWI_Name + "','" + velWI_Name + "','" + velEmiratesID + "','"
+				+ velFullCustName + "'," + "'" + velCurrDate + "','" + velCurrWS + "','" + velFinalEmployerName + "','"
+				+ velDsaid + "')";
+
+		CustomLogger.ProcessLog("PL_RISKASSESSMENT", "ccPrevCasesInsertQuery:" + ccPrevCasesInsertQuery);
+		boolean fetchPrevCasesCC = CabinetCall.setData(ccPrevCasesInsertQuery);
+		if (fetchPrevCasesCC) {
+			CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Fetch Previous Cases Query Success.");
+		} else {
+			CustomLogger.ProcessLog("PL_RISKASSESSMENT", "Update failure.");
+		}
+
+	}
+}
