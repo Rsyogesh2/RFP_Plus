@@ -16,7 +16,8 @@ import Login from "./Login/GlobalAdminLogin";
 import { AppProvider } from './context/AppContext';
 import ResetPassword from "./Login/ResetPassword"; // Reset password component
 import ActivateAccount from "./Login/ActivateAccount.js";
-
+// import { ToastContainer } from "react-toastify";
+import { GlobalAlertProvider } from "./context/GlobalAlertContext.js";
 
 function App() {
   const [authState, setAuthState] = useState({
@@ -58,6 +59,7 @@ function App() {
   return (
     <AppProvider>
       <PopupManager>
+      <GlobalAlertProvider>
         <Router>
           <div>
           {authState.isAuthenticated && (
@@ -116,6 +118,7 @@ function App() {
             </Routes>
           </div>
         </Router>
+        </GlobalAlertProvider>
       </PopupManager>
     </AppProvider>
   );

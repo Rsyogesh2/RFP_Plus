@@ -645,7 +645,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
             )}
             {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.vendor_level) === 5 && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
-                    Submit
+                    Submit to Authorizer
                 </button>
             )}
             {userPower === "Vendor Admin" && FItem?.every(item => Number(item?.vendor_level) === 7) && (

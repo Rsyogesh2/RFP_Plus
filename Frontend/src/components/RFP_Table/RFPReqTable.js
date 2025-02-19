@@ -797,7 +797,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
             )}
             {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Level) ===1 && (
                 <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
-                    Submit
+                    Submit to Authorizer
                 </button>
             )}
             {userPower === "Super Admin" && FItem?.every(item => Number(item?.Level) === 3) && (

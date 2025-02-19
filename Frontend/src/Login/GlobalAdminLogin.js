@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AppContext } from "./../context/AppContext";
 import "./GlobalAdminLogin.css";
 import ForgotPassword from './ForgotPassword'; // Import the Forgot Password component
+// import { showToast } from "./../components/utils/PopupService";
+// import { ToastContainer } from "react-toastify";
 
 const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
@@ -36,7 +38,7 @@ const Login = ({ onLogin }) => {
     console.log("Login response:", result);
     
     if (response.ok) {
-      alert("Login successful!");
+      window.showPopup("Success!", "Action was successful!", "success")
       localStorage.setItem("token", result.token); // Store the JWT
       setUserName(credentials.username);
       if(credentials.username=="GlobalUser"){
@@ -161,6 +163,7 @@ const Login = ({ onLogin }) => {
        ): (
         <ForgotPassword /> // Show the Forgot Password component
     )}
+    {/* <ToastContainer /> */}
     </div>
   );
 };

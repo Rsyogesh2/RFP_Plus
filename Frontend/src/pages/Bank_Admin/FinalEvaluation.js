@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "./../../context/AppContext";
-import './../combinedpages2.css';
+import './../FinalEvaluation.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -141,13 +141,14 @@ const handleDropdownChange = (table, value, score) => {
 };
 
   return (
-    <div className="rfp-page">
+    <div className="finaleva-page">
+       
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
         <h3>Final Evaluation</h3>
       </div>
-
+      
       {/* Input fields for RFP No and Bank Name */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
+      <div className="input-container" style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
         <select
          onChange={handleDropdownChangeVendor}
           style={{
@@ -167,10 +168,14 @@ const handleDropdownChange = (table, value, score) => {
           style={{
             padding: "10px",
             height: "40px",
-            boxSizing: "border-box"
+            boxSizing: "border-box",
+            fontSize: "14px",
           }}
         >
+          <span>
           Fetch Data
+          </span>
+          
         </button>
       </div>
 
@@ -190,7 +195,7 @@ const handleDropdownChange = (table, value, score) => {
       {/* Collapsible Section with 6 Dropdowns */}
       <CollapsibleSection1 sections={sections} savedScores={savedScores} onDropdownChange={handleDropdownChange} />
 
-      <button style={{marginTop:"15px"}}onClick={saveDataToBackend}>Save Data</button>
+      <button style={{marginTop:"15px",color:"white"}}onClick={saveDataToBackend}>Save Data</button>
     </div>
   );
 };

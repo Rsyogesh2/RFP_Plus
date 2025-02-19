@@ -1,46 +1,153 @@
-.rfp-page {
-    width: 600px;
-    margin: 20px auto;
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+/* === Global Container === */
+.finaleva-page {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+/* === Page Title === */
+.finaleva-page h3 {
+  font-size: 22px;
+  font-weight: bold;
+  color: #02735E;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+/* === Vendor Selection & Fetch Button === */
+/* Select & Button Container */
+.finaleva-page .input-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* ✅ Adds spacing between elements */
+}
+
+/* Make select 85% width */
+.finaleva-page select {
+  flex: 8.5; /* ✅ Takes 85% of space */
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background: #fff;
+}
+
+/* Make button 15% width */
+.finaleva-page button {
+  flex: 1.5; /* ✅ Takes 15% of space */
+  /* background: #02735E  !important; */
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  margin-bottom: 16px;
+}
+
+.finaleva-page button span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+}
+.finaleva-page button:hover {
+  background: #025C49;
+}
+
+/* === Collapsible Sections === */
+.collapsible-section {
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+/* === Collapsible Header (Clickable) === */
+.section-header {
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #325496;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.3s ease;
+}
+
+.section-header:hover {
+  /* background: #e0e0e0; */
+}
+
+/* === Collapsible Content === */
+.section-content {
+  padding: 15px;
+  background: #fff;
+}
+
+/* === Dropdown Fields & Inputs === */
+.section-content select,
+.section-content input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border 0.3s ease;
+}
+
+.section-content select:focus,
+.section-content input:focus {
+  border-color: #02735E;
+  box-shadow: 0 0 4px rgba(2, 115, 94, 0.3);
+}
+
+/* === Readonly Score Input === */
+.section-content input[readonly] {
+  background: #f9f9f9;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* === Save Button === */
+.finaleva-page button:last-child {
+  display: block;
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  font-size: 16px;
+  background: #4CAF50;
+  border-radius: 5px;
+  transition: background 0.3s ease;
+}
+
+.finaleva-page button:last-child:hover {
+  background: #3e8e41;
+}
+
+/* === Responsive Styles === */
+@media (max-width: 768px) {
+  .finaleva-page {
+    padding: 15px;
   }
-  
+
   .section-header {
-    background-color: #4f81bd;
-    color: white;
+    font-size: 14px;
+  }
+
+  .section-content select,
+  .section-content input {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .finaleva-page button {
+    font-size: 14px;
     padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-bottom: 5px;
   }
-  
-  .section-content {
-    background-color: #eef1f7;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  .section-content ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .section-content li {
-    padding: 5px 0;
-    border-bottom: 1px solid #ccc;
-  }
-  
-  .section-content li:last-child {
-    border-bottom: none;
-  }
-  
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
+}
