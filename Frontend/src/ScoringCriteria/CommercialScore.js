@@ -30,24 +30,48 @@ const CommercialScore = ({ onUpdate, data }) => {
     );
 
     // Initialize state from `data`
+    // useEffect(() => {
+    //     if (data && Array.isArray(data) && data.length > 0) {
+    //         const formattedData = data.map((item) => ({
+    //             CommercialPattern: item.CommercialPattern || "",
+    //             InternalPercent: parseFloat(item.InternalPercent) || 0,
+    //             From1: item.From1 || "",
+    //             To1: item.To1 || "",
+    //             Score1: item.Score1 || "0",
+    //             From2: item.From2 || "",
+    //             To2: item.To2 || "",
+    //             Score2: item.Score2 || "0",
+    //             From3: item.From3 || "",
+    //             To3: item.To3 || "",
+    //             Score3: item.Score3 || "0",
+    //         }));
+    //         setValues(formattedData);
+    //     }
+    // }, [data]);
+
     useEffect(() => {
         if (data && Array.isArray(data) && data.length > 0) {
-            const formattedData = data.map((item) => ({
-                CommercialPattern: item.CommercialPattern || "",
-                InternalPercent: parseFloat(item.InternalPercent) || 0,
-                From1: item.From1 || "",
-                To1: item.To1 || "",
-                Score1: item.Score1 || "0",
-                From2: item.From2 || "",
-                To2: item.To2 || "",
-                Score2: item.Score2 || "0",
-                From3: item.From3 || "",
-                To3: item.To3 || "",
-                Score3: item.Score3 || "0",
-            }));
-            setValues(formattedData);
+            setValues((prevValues) => {
+                // Only update state if new data is different to prevent infinite re-renders
+                const formattedData = data.map((item) => ({
+                    CommercialPattern: item?.CommercialPattern ?? "",
+                    InternalPercent: parseFloat(item?.InternalPercent) || 0,
+                    From1: item?.From1 ?? "",
+                    To1: item?.To1 ?? "",
+                    Score1: item?.Score1 ?? "0",
+                    From2: item?.From2 ?? "",
+                    To2: item?.To2 ?? "",
+                    Score2: item?.Score2 ?? "0",
+                    From3: item?.From3 ?? "",
+                    To3: item?.To3 ?? "",
+                    Score3: item?.Score3 ?? "0",
+                }));
+    
+                return JSON.stringify(prevValues) === JSON.stringify(formattedData) ? prevValues : formattedData;
+            });
         }
     }, [data]);
+    
 
     // Handle input changes
     const handleInputChange = (rowIndex, field, value) => {
@@ -96,7 +120,7 @@ const CommercialScore = ({ onUpdate, data }) => {
                             key={index}
                             placeholder={placeholder}
                             rowIndex={index}
-                            rowData={values[index]}
+                            rowData={values[index] ?? {}}
                             onInputChange={handleInputChange}
                         />
                     ))}
@@ -121,7 +145,7 @@ const CommercialScore = ({ onUpdate, data }) => {
     );
 };
 
-const CommercialScoreRow = ({ placeholder, rowIndex, rowData, onInputChange }) => {
+const CommercialScoreRow = ({ placeholder, rowIndex, rowData = {}, onInputChange }) => {
     const handleChange = (field, value) => {
         onInputChange(rowIndex, field, value);
     };
