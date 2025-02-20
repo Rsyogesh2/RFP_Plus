@@ -16,7 +16,7 @@ private void callUpdateQueryRuleViolation(String strWI_Name, String velocityRule
 	}
 		
 
-	private void fetchVelocityRule(String strWI_Name, String employerName, String employerNameOther, String dsaID,
+private void fetchVelocityRule(String strWI_Name, String employerName, String employerNameOther, String dsaID,
 	        String constVelocityRuleACount, String constVelocityRuleBCount, String constVelocityRuleCCount) {
 	    
 	    String brokerIDsplitValue = "";

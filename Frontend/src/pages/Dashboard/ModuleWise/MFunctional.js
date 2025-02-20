@@ -78,26 +78,57 @@ const MFunctional = ({values, funVendor}) => {
   }, [values]);
   return (
     <div className="modulewise-container">
-      <h2>Final Score – Module-wise</h2>
-      <div className="score-section">
-        <div>
-          <h3>Functional Score</h3>
-          <Table
-            data={values.l2.map((l2) => ({ modules: l2.name }))}
-            headers={["Functional Requirement", "Benchmark Score"]}
-          />
-        </div>
-        {vendors.map((vendor, index) => (
+    <h2>Final Score – Module-wise</h2>
+    <select>
+          <option value="L2">L2</option>
+    </select>
+    <div className="score-section">
+      <div>
+        <h3>Functional Score</h3>
+        
+        <Table
+          data={values.l2.map(l2Item => {
+            const matchedItem = funVendor.l2.find(funItem => funItem.code === l2Item.code) || {};
+            return { 
+              modules: l2Item.name, 
+              "Benchmark Score": matchedItem.totalScoreAll || 0  // ✅ Show `totalScoreAll` in 2nd column
+            };
+          })}
+          headers={["Functional Requirement", "Benchmark Score"]}
+        />
+      </div>
+  
+      {vendors.map((vendor, index) => {
+        // Ensure `funVendor.l2` is sorted based on `values.l2` using `code`
+        const sortedFunVendorL2 = values.l2.map(l2Item => {
+          const matchedItem = funVendor.l2.find(funItem => funItem.code === l2Item.code) || {};
+          
+          // Exclude `code` and `totalScoreAll` from the second table
+          const { code, totalScoreAll, ...rest } = matchedItem;
+  
+          // Calculate Total Score (Sum of A, P, C)
+          const totalScore = (rest.totalScoreA || 0) + (rest.totalScoreP || 0) + (rest.totalScoreC || 0);
+  
+          const percentage = totalScoreAll && totalScoreAll > 0 
+          ? ((totalScore / totalScoreAll) * 100).toFixed(2) + "%"  // ✅ Format percentage with 2 decimal places
+          : "0%";  // ✅ If totalScoreAll is 0 or undefined, show "0%"
+
+        return { ...rest, "Total Score": totalScore, "%": percentage };
+        });
+  
+        return (
           <div key={index}>
             <h3>{vendor.name} - Score</h3>
             <Table
-              data={[...vendor.availability, vendor.total]}
-              headers={["A", "P", "C", "N", "Total Score", "%"]}
+              data={sortedFunVendorL2}
+              headers={["A", "P", "C", "Total Score", "%"]}
             />
           </div>
-        ))}
-      </div>
+        );
+      })}
     </div>
+  </div>
+  
   );
 };
 

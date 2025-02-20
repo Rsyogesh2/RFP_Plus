@@ -1939,7 +1939,7 @@ router.post('/fetchDashboardFunctional', async (req, res) => {
                 const moduleData = filteredData.filter(item => item.Module_Code.startsWith(l2.code));
                 // console.log(moduleData)
                 let totalScoreA = 0, totalScoreP = 0, totalScoreC = 0;
-                
+                let totalScoreAll = 0;
                 moduleData.forEach(item => {
                     const isMandatory = item.Mandatory === "M" ||  item.Mandatory === 1;
                     const isOptional = item.Mandatory === "O" ||  item.Mandatory === 0;
@@ -1950,9 +1950,10 @@ router.post('/fetchDashboardFunctional', async (req, res) => {
                     if (item.A === 1 && isOptional) totalScoreA += availableScore * optionalScore;
                     if (item.P === 1 && isOptional) totalScoreP += partlyAvailableScore * optionalScore;
                     if (item.C === 1 && isOptional) totalScoreC += customizableScore * optionalScore;
+                    totalScoreAll += availableScore * mandatoryScore;
                 });
                 
-                return { code: l2.code, totalScoreA, totalScoreP, totalScoreC };
+                return { code: l2.code, totalScoreA, totalScoreP, totalScoreC ,totalScoreAll};
             })
         }));
 
