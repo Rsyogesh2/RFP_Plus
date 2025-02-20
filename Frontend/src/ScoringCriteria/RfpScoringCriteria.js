@@ -50,10 +50,10 @@ function RfpScoringCriteria() {
                     implementationScore: data.sections[0]?.data || [],
                     siteScore: data.sections[1]?.data || [],
                     referenceScore: data.sections[2]?.data || [],
-                    others1Score: data.sections[3]?.data || [],
-                    others2Score: data.sections[4]?.data || [],
-                    others3Score: data.sections[5]?.data || []
-                });
+                    [data.overallScoring?.[0]?.others1Title ?? "others1Score"]: data.sections?.[3]?.data ?? [],
+                    [data.overallScoring?.[0]?.others2Title ?? "others2Score"]: data.sections?.[4]?.data ?? [],
+                    [data.overallScoring?.[0]?.others3Title ?? "others3Score"]: data.sections?.[5]?.data ?? []
+                    });
 
                 setOthersTitles({
                     others1Title: data.overallScoring[0]?.others1Title || 'No value',
@@ -381,9 +381,9 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
     });
 
     const [othersTitles, setOthersTitles] = useState({
-        others1Title: "Others 1 (Specify)",
-        others2Title: "Others 2 (Specify)",
-        others3Title: "Others 3 (Specify)"
+        others1Title: "",
+        others2Title: "",
+        others3Title: ""
     });
 
     const totalSum = Object.values(values)
@@ -432,7 +432,8 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
     };
 
     const handleNameChange = (event, titleField) => {
-        const newTitle = event.target.value.trim() || `Others ${titleField.split('others')[1]} (Specify)`;
+        const newTitle = event.target.value.trim() || "";
+        // const newTitle = event.target.value.trim() || `Others ${titleField.split('others')[1]} (Specify)`;
         setOthersTitles((prevTitles) => ({
             ...prevTitles,
             [titleField + "Title"]: newTitle,
@@ -556,7 +557,7 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
                                     type="text"
                                     placeholder={`Others ${index + 1} (Specify)`}
                                     className="item-input"
-                                    // value={othersTitles[field + "Title"]}
+                                    value={othersTitles[field + "Title"] || values[field + "Title"]}
                                     onChange={(e) => handleNameChange(e, field)}
                                 />
                             </td>
