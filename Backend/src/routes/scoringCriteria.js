@@ -790,10 +790,10 @@ router.post('/save-all-scores', async (req, res) => {
             `;
             const values = [
                 overallScoring.functionalItems,
-                overallScoring.commercials,
-                overallScoring.implementationModel,
-                overallScoring.installations,
-                overallScoring.siteVisit,
+                overallScoring.commercials || 0,
+                overallScoring.implementationModel || 0,
+                overallScoring.installations || 0,
+                overallScoring.siteVisit || 0,
                 overallScoring.others1Title,
                 overallScoring.others1,
                 overallScoring.others2Title,
@@ -816,22 +816,32 @@ router.post('/save-all-scores', async (req, res) => {
                 "Scoring_Items2",
                 "Scoring_Items3"
             ];
-
+        
             for (let index = 0; index < tables.length; index++) {
                 const table = tables[index];
                 const sectionData = sections[index]?.data;
-
-                if (!sectionData) continue;
-
+        
+                if (!sectionData || sectionData.length === 0) continue;
+        
+                // Filter valid rows where both `text` and `score` exist
+                const validData = sectionData.filter(item => item.text && item.score !== undefined && item.score !== null);
+        
+                if (validData.length === 0) continue; // Skip if no valid data
+        
+                // Generate VALUES placeholders dynamically
+                const valuesPlaceholder = validData.map(() => "(?, ?, ?, ?, ?, ?)").join(", ");
+        
                 const query = `
                     INSERT INTO ${table} 
                     (Implementation_Model, Score, RFP_No, Bank_Id, Bank_Name, Created_By) 
-                    VALUES ? 
+                    VALUES ${valuesPlaceholder}
                     ON DUPLICATE KEY UPDATE 
                     Score = VALUES(Score),
                     Created_By = VALUES(Created_By);
                 `;
-                const values = sectionData.map(item => [
+        
+                // Flatten the values array for `db.query`
+                const values = validData.flatMap(item => [
                     item.text,
                     item.score,
                     rfpNo,
@@ -839,9 +849,11 @@ router.post('/save-all-scores', async (req, res) => {
                     bankName,
                     userName
                 ]);
-                await db.query(query, [values]);
+        
+                await db.query(query, values);
             }
         }
+        
 
         res.status(200).send({ message: 'All data saved successfully!' });
     } catch (error) {

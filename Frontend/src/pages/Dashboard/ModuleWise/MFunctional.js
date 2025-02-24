@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
 import "./MFunctional.css";
 import { use } from "react";
 
@@ -71,17 +71,37 @@ const Table = ({ data, headers }) => (
   </table>
 );
 
-const MFunctional = ({values, funVendor}) => {
+const MFunctional = ({values1, funVendor1}) => {
+
+  const [values, setValues] = useState({ l2: [] });
+  const [funVendor, setFunVendor] = useState({ l2: [] });
+  const [selectedIndex, setSelectedIndex] = useState(1); // Default to index 1
+
+  // Update values and funVendor based on the selected dropdown option
   useEffect(() => {
-    console.log(funVendor.l2);
-    console.log(values.l2.map((l2) => ({ modules: l2.name })));
-  }, [values]);
+    console.log(funVendor1, values1);
+
+    if (Array.isArray(values1) && values1[selectedIndex]) {
+      setValues(values1[selectedIndex]); // ✅ Update based on selection
+    }
+
+    if (Array.isArray(funVendor1) && funVendor1[selectedIndex]) {
+      setFunVendor(funVendor1[selectedIndex]); // ✅ Update based on selection
+    }
+  }, [values1, funVendor1, selectedIndex]); // ✅ Runs when selectedIndex changes
+
   return (
     <div className="modulewise-container">
     <h2>Final Score – Module-wise</h2>
-    <select>
-          <option value="L2">L2</option>
-    </select>
+    <select onChange={(e) => setSelectedIndex(Number(e.target.value))}>
+        <option value="">Select</option>
+        {values1 &&
+          values1.map((value, index) => (
+            <option key={index} value={index}> {/* ✅ Pass index as value */}
+              {value.name}
+            </option>
+          ))}
+      </select>
     <div className="score-section">
       <div>
         <h3>Functional Score</h3>

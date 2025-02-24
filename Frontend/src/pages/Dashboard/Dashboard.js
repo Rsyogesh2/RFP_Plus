@@ -242,8 +242,8 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
                 console.log(data);
                 console.log(data.modules);
                 
-                setFunctionalScore(data.modules[1]);
-                setVendorFunScore(data.vendorScores[1]);
+                setFunctionalScore(data.modules);
+                setVendorFunScore(data.vendorScores);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -335,7 +335,7 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
             <br />
             <div className="module-wise">
             <Collapsible title="Functional Scores">
-            <MFunctional values={functionalScore} funVendor={vendorFunScore} />
+            <MFunctional values1={functionalScore} funVendor1={vendorFunScore} />
              </Collapsible>
             <Collapsible title="Commercial Scores">
             <Commercial values={commercialValue} comVendor={comVendorScores}/>

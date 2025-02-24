@@ -43,7 +43,9 @@ const Login = ({ onLogin }) => {
       setUserName(credentials.username);
       if(credentials.username=="GlobalUser"){
         setName("GlobalUser");
-      } else{
+      } else if(credentials.username=="AdminUser"){
+        setName("AdminUser");
+      } else {
         setName(result.Name.user_name);
       }
       // Fetch roles for the user
