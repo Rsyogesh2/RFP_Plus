@@ -1,5 +1,5 @@
 .modulewise-container {
-  padding: 20px;
+  padding: 10px; /* Reduce padding */
   font-family: Arial, sans-serif;
   width: 100%;
 }
@@ -7,44 +7,45 @@
 /* Align tables in a row */
 .score-section {
   display: flex;
-  gap: 10px; /* Reduce space between tables */
+  gap: 5px; /* Reduce space between tables */
   align-items: flex-start;
-  justify-content: flex-start; /* Align items to the start */
-  flex-wrap: nowrap; /* No wrapping, keep in the same row */
-  overflow-x: auto; /* Enable horizontal scrolling if needed */
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  overflow-x: auto; /* Allow horizontal scrolling */
 }
 
 /* Style for all tables */
 .styled-table {
-  width: 60%; /* Reduce width to prevent overflow */
+  width: 40%; /* Reduce width */
   border-collapse: collapse;
   margin-top: 0px;
   background: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Softer shadow */
+  font-size: 12px; /* Reduce font size */
 }
 
 .styled-table th,
 .styled-table td {
-  padding: 8px; /* Reduce padding */
+  padding: 5px; /* Reduce padding */
   border: 1px solid #ddd;
   text-align: center;
 }
 
 .styled-table th {
   background: #2c3e50;
-  color: white;
-  font-size: 10px; /* Reduce font size */
+  color: #ffffff;
+  font-size: 11px !important; /* Reduce font size */
 }
 
- h3 {
+h3 {
   text-align: center;
   color: #333;
-  font-size: 1px;
+  font-size: 12px; /* Increase from 1px for visibility */
 }
 
 .vendor-tables {
   display: flex;
-  gap: 13px; /* Reduce space between tables */
-  justify-content: flex-start; /* Align items to the start */
+  gap: 7px; /* Reduce space between tables */
+  justify-content: flex-start;
   flex-wrap: nowrap;
 }

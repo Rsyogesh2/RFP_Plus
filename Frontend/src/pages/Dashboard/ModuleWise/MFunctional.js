@@ -93,7 +93,18 @@ const MFunctional = ({values1, funVendor1}) => {
   return (
     <div className="modulewise-container">
     <h2>Final Score – Module-wise</h2>
-    <select onChange={(e) => setSelectedIndex(Number(e.target.value))}>
+    <select onChange={(e) => setSelectedIndex(Number(e.target.value))}
+       style={{
+        // width: "100%",
+        padding: "5px",
+        fontSize: "14px",
+        border: "2px solid #ddd",
+        borderRadius: "4px",
+        background: "#fff",
+        color: "#333",
+        cursor: "pointer",
+        transition: "border-color 0.3s ease",
+      }}>
         <option value="">Select</option>
         {values1 &&
           values1.map((value, index) => (
@@ -104,7 +115,7 @@ const MFunctional = ({values1, funVendor1}) => {
       </select>
     <div className="score-section">
       <div>
-        <h3>Functional Score</h3>
+        <h2>Functional Score</h2>
         
         <Table
           data={values.l2.map(l2Item => {
@@ -138,7 +149,7 @@ const MFunctional = ({values1, funVendor1}) => {
   
         return (
           <div key={index}>
-            <h3>{vendor.name} - Score</h3>
+            <h2>{vendor.name} - Score</h2>
             <Table
               data={sortedFunVendorL2}
               headers={["A", "P", "C", "Total Score", "%"]}

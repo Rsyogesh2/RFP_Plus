@@ -83,7 +83,7 @@ const MOthers = ({ values, othersVendor }) => {
               <h3>{vendor.name}</h3>
               <Table
                 data={transformVendorData(othersVendor[index])}
-                headers={["Vendor Score", "Percentage %"]}
+                headers={["Vendor Score", "%"]}
               />
             </div>
           ))}

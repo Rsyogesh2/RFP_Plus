@@ -207,13 +207,44 @@ export default FinalEvaluation;
 const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectedScores, setSelectedScores] = useState({}); // To store scores dynamically
+  const [selectedValues, setSelectedValues] = useState({}); // To store scores dynamically
+  
+  useEffect(() => {
+    console.log(sections);
+    console.log(savedScores);
+    if (savedScores && savedScores.length > 0) {
+      const firstEntry = savedScores[0]; // Get the first object from the array
+      const initialValues = {};
+      const initialScores = {};
+    
+      Object.keys(firstEntry).forEach((key) => {
+        if (key.endsWith("_Name")) {
+          const trimmedKey = key.replace("_Name", ""); // Remove "_Name" suffix
+          const scoreKey = trimmedKey + "_Score"; // Match corresponding score key
+      
+          initialValues[trimmedKey] = firstEntry[key] || ""; // Dropdown values
+          initialScores[trimmedKey] = firstEntry[scoreKey] || ""; // Scores
+      }
+      
+      });
+    
+      console.log(initialValues); // Debugging
+      console.log(initialScores); // Debugging
+    
+      setSelectedValues(initialValues);
+      setSelectedScores(initialScores);
+    }
+    
+  }, [savedScores,sections]);
 
   // Handling dropdown selection and score display
   const handleSelectionChange = (tableName, value) => {
     const selectedItem = sections[tableName].find(item => item[0] === value);
     console.log(selectedItem)
     const score = selectedItem ? selectedItem[1] : ""; // Fetch score if available
+    setSelectedValues(prev => ({ ...prev, [tableName]: value })); // Update dropdown selection
     setSelectedScores(prev => ({ ...prev, [tableName]: score }));
+
     onDropdownChange(tableName, value,score); // Propagate selection change upwards
   };
 
@@ -237,7 +268,8 @@ const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
                 {/* Dropdown */}
                 <select
                   onChange={(e) => handleSelectionChange(tableName, e.target.value)}
-                  defaultValue=""
+                 
+                  value={selectedValues[tableName] || ""}
                   style={{ flex: 4 }}
                 >
                   <option value="" disabled>Select an option</option>

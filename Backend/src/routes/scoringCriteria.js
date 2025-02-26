@@ -253,6 +253,11 @@ router.post('/fetchScores', async (req, res) => {
         "Scoring_Items2",
         "Scoring_Items3"
     ];
+    const tableMappings = {
+        Implementation_Score: "Implementation",
+        No_of_Sites_Score: "No_of_Sites"
+        // Other table mappings can be added here if needed
+    };
 
     let scores = {};
     try {
@@ -266,8 +271,15 @@ router.post('/fetchScores', async (req, res) => {
             const query = `SELECT Implementation_Model,Score  FROM ${table} WHERE RFP_No = ? `;
             const [rows] = await db.query(query, rfpNo[0].rfp_reference_no);
             
-            if(rows.length>0){
-                scores[table] = rows.map(row => [row.Implementation_Model,row.Score]);
+            // if(rows.length>0){
+            //     scores[table] = rows.map(row => [row.Implementation_Model,row.Score]);
+            // }
+            const renamedKey = tableMappings[table] || table; // Rename if mapping exists
+
+            if (rows.length > 0) {
+                scores[renamedKey] = rows.map(row => [row.Implementation_Model, row.Score]);
+            } else {
+                scores[renamedKey] = []; // Ensure consistency
             }
            
         }
@@ -805,7 +817,7 @@ router.post('/save-all-scores', async (req, res) => {
             ];
             await db.query(query, values);
         }
-
+        
         // Handle Sections
         if (sections && sections.length > 0) {
             const tables = [
