@@ -52,6 +52,7 @@ const MOthers = ({ values, othersVendor }) => {
       setOtherScores(values);
     }
     console.log(values);
+    console.log(othersVendor);
   }, [values]);
 
   // Transform othersVendor object into an array of objects with percentage calculation
