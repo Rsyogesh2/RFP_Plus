@@ -7,7 +7,7 @@ import Button from '../Buttons/Button.js';
 import ModuleList from './ModuleList.js';
 import { AppContext } from '../../context/AppContext';
 
-const RfpForm = ({ user }) => {
+const RfpForm = ({ user, refresh  }) => {
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     
   const childRef = useRef();
@@ -53,7 +53,18 @@ const RfpForm = ({ user }) => {
     });
   
     if (response.ok) {
-      alert("RFP Created");
+      alert("RFP succesfully created");
+      refresh();
+    //    // Reset form fields
+    // setRfpDetails({ rfpNo: "", rfpTitle: "", modules: [] });
+
+    // // Clear checkboxes
+    // if (childRef.current) {
+    //   childRef.current.clearSelection();
+    // }
+    // if (productRef.current) {
+    //   productRef.current.clearSelection();
+    // }
     } else {
       alert("RFP Not Created, Duplicate RFP Creation");
     }

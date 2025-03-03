@@ -129,6 +129,10 @@ const AssignUsers = () => {
 
   }, [usersList]);
   const handleFieldChange = (idx, field, value) => {
+    if (rfpNo===""||rfpNo===null||rfpNo===undefined) {
+      alert("Please select the RFP Reference Number.");
+      return false; // Prevent further execution
+    }
     // Update the specific user's data
     const updatedUsers = [...assignedUsers];
     updatedUsers[idx] = {

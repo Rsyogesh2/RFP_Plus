@@ -29,6 +29,34 @@ const AddUserForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+     // Validation messages from the image
+  const validationMessages = {
+    email: "Enter the correct Email id",
+    mobile: "Enter the correct Mobile number",
+    empty: "Please enter the details",
+  };
+
+  // Check if any field is empty
+  if (!formData.user_name || !formData.designation || !formData.email || !formData.mobile) {
+    alert(validationMessages.empty);
+    return;
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(formData.email)) {
+    alert(validationMessages.email);
+    return;
+  }
+
+  // Validate mobile number (numeric and valid length)
+  const mobileRegex = /^[0-9]{10}$/;
+  if (!mobileRegex.test(formData.mobile)) {
+    alert(validationMessages.mobile);
+    return;
+  }
+
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const newId = id !== "" ? id : usersList.length > 0 
       ? Math.max(...usersList.map(user => user.user_no)) + 1 

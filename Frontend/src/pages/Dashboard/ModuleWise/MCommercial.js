@@ -43,31 +43,42 @@ const Table = ({ data, headers }) => (
 const Commercial = ({ values, comVendor }) => {
   useEffect(() => {
     console.log(values);
+    console.log(comVendor);
   }, [values]);
 
   const transformVendorData = (vendorData) => {
     if (!vendorData) return [];
-    return vendorData.map((item) => {
-      const commercialPatternKey = Object.keys(item)[0];
-      if (!commercialPatternKey) return item;
-
-      const benchmark = values.find(value => value.CommercialPattern.replace(/\s+/g, '').toLowerCase() === commercialPatternKey.replace(/\s+/g, '').toLowerCase())?.MaxScore || 0;
-      const internalPercent = values.find(value => value.CommercialPattern.replace(/\s+/g, '').toLowerCase() === commercialPatternKey.replace(/\s+/g, '').toLowerCase())?.InternalPercent || 0;
-      // const benchmark = values.find(value => console.log(value.CommercialPattern.replace(/\s+/g, '').toLowerCase() === commercialPatternKey.replace(/\s+/g, '').toLowerCase()));
-      // const benchmark = values.find(value => console.log(value.CommercialPattern.replace(/\s+/g, '').toLowerCase() === commercialPatternKey.replace(/\s+/g, '').toLowerCase()));
-      console.log(benchmark);
-      // const internalPercent = values.find(value => value.CommercialPattern === item.CommercialPattern)?.InternalPercent || 1;
-      const vendorScore = typeof item === 'object' ? Object.values(item)[0] : item;
-      const percentage = ((vendorScore / benchmark) * internalPercent).toFixed(2);
-      
-      return { ...item, percentage: isNaN(percentage) ? "0%" : `${percentage}%` };
-    }).sort((a, b) => {
-      if (a.CommercialPattern && b.CommercialPattern) {
-        return a.CommercialPattern.localeCompare(b.CommercialPattern);
+  
+    return values.map((benchmarkItem, index) => {
+      const benchmarkKey = benchmarkItem.CommercialPattern.replace(/\s+/g, "").toLowerCase();
+  
+      const vendorItem = vendorData.find((item) => {
+        const commercialPatternKey = Object.keys(item)[0].replace(/\s+/g, "").toLowerCase();
+        return benchmarkKey === commercialPatternKey;
+      });
+  
+      // console.log(`Row ${index + 1}:`);
+      // console.log("Benchmark Item:", benchmarkItem);
+      // console.log("Matching Vendor Item:", vendorItem);
+  
+      if (!vendorItem) {
+        console.warn(`No match found for ${benchmarkItem.CommercialPattern}`);
+        return { VendorScore: "-", Percentage: "-" };
       }
-      return 0;
+  
+      const vendorScore = Object.values(vendorItem)[0];
+      const percentage = ((vendorScore / benchmarkItem.MaxScore) * benchmarkItem.InternalPercent).toFixed(2);
+  
+      // console.log("Vendor Score:", vendorScore);
+      // console.log("Calculated Percentage:", percentage + "%");
+  
+      return {
+        VendorScore: vendorScore,
+        Percentage: isNaN(percentage) ? "0%" : `${percentage}%`,
+      };
     });
   };
+  
 
   return (
     <div className="modulewise-container">

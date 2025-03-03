@@ -228,8 +228,8 @@ const constructPayload = (action, data = {}) => {
         bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
         vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
         created_by: userName,
-        level: userPower === "User" && data.action === "Back to Maker" ? 1
-        : userPower === "Vendor User" && data.action === "Back to Maker" ? 5: determineLevel(),
+        level: userPower === "User" && data.action === ("Back to Maker"|| data.action === "Save as Draft") ? 1
+        : userPower === "Vendor User" && (data.action === "Back to Maker"|| data.action === "Save as Draft") ? 5: determineLevel(),
         Comments: data.comments || "",
         Priority: data.priority || "Medium",
         Handled_by: [{ name: userName, role: userRole }],
@@ -274,7 +274,10 @@ console.log(determineLevel())
     const fetchData = async () => {
       await fetchVendorQueries();
     };
-    fetchData();
+    if( userPower==="Vendor User" || userPower==="Vendor Admin" || userPower==="User"){
+      fetchData();
+    }
+    // fetchData();
     if (!moduleData || !moduleData.itemDetails) {
       // return <p>Loading...</p>; // Or show a default message instead of breaking
     }    
@@ -338,32 +341,35 @@ console.log(determineLevel())
       <>
           <h3>{`${rfpNo || sidebarValue[0].rfp_no} - ${rfpTitle || sidebarValue[0].rfp_title}`}</h3>
         </>
-      <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-              <select
-               onChange={handleDropdownChangeVendor}
-                style={{
-                  width: "80%",
-                  padding: "10px",
-                  height: "40px",
-                  boxSizing: "border-box"
-                }}
-              >
-                <option>Select Vendor</option>
-                {vendorNames && vendorNames.map((vName, index) => (
-                  <option key={index} value={index}>{vName.entity_name}</option>
-                ))}
-              </select>
-              <button
-                onClick={fetchData}
-                style={{
-                  padding: "10px",
-                  height: "40px",
-                  boxSizing: "border-box"
-                }}
-              >
-                Fetch Data
-              </button>
-            </div>
+        {userPower==="Super Admin" && (
+           <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
+           <select
+            onChange={handleDropdownChangeVendor}
+             style={{
+               width: "80%",
+               padding: "10px",
+               height: "40px",
+               boxSizing: "border-box"
+             }}
+           >
+             <option>Select Vendor</option>
+             {vendorNames && vendorNames.map((vName, index) => (
+               <option key={index} value={index}>{vName.entity_name}</option>
+             ))}
+           </select>
+           <button
+             onClick={fetchData}
+             style={{
+               padding: "10px",
+               height: "40px",
+               boxSizing: "border-box"
+             }}
+           >
+             Fetch Data
+           </button>
+         </div>
+        )}
+     
       <table className="vendor-query-table">
         <thead>
           <tr>
@@ -371,7 +377,7 @@ console.log(determineLevel())
             <th>RFP Reference</th>
             <th>Existing Details</th>
             <th>Clarification Needed</th>
-            {rows.some(row => row.clarificationGiven) && <th>Clarification Given</th>}
+            {(rows.some(row => row.clarificationGiven) || userPower=="Super Admin") && <th>Clarification Given</th>}
           </tr>
         </thead>
         <tbody>
@@ -457,7 +463,7 @@ console.log(determineLevel())
                   row.clarification
                 )}
               </td>
-              {row.clarificationGiven && (
+              {(row.clarificationGiven || userPower=="Super Admin")  && (
                 <td>
                   {userRole === "Authorizer" ? (
                     <input

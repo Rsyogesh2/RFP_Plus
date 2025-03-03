@@ -85,6 +85,7 @@ const saveDataToBackend = async () => {
   }
 };
 const saveOrUpdateScores = async () => {
+  console.log(rfpNo, selectedVendor, selectedValues);
   if (!rfpNo || !selectedVendor || Object.keys(selectedValues).length === 0) {
       alert("Please fill all fields before saving.");
       return;

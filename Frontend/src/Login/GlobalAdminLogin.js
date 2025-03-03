@@ -38,7 +38,13 @@ const Login = ({ onLogin }) => {
     console.log("Login response:", result);
     
     if (response.ok) {
-      window.showPopup("Success!", "Action was successful!", "success")
+      console.log(result.Name.active_flag);
+      if (result.Name.active_flag === "Inactive") {
+        console.log("Condition passed! Now showing popup...");
+        window.showPopup("Success!", "User is Inactive!", "success");
+        return
+      }
+      window.showPopup("Success!", "Login successful!", "success")
       localStorage.setItem("token", result.token); // Store the JWT
       setUserName(credentials.username);
       if(credentials.username=="GlobalUser"){

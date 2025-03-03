@@ -27,8 +27,13 @@ import RFPReqTable from "../components/RFP_Table/RFPReqTable";
 
 
 const CreateRFPForm = () => {
+  const [formKey, setFormKey] = useState(0);
+
+  const refreshForm = () => {
+    setFormKey(prevKey => prevKey + 1); // Change key to force re-render
+  };
   return (
-    <RfpForm user="Super Admin" />
+    <RfpForm key={formKey} user="Super Admin" refresh={refreshForm} />
   );
 };
 

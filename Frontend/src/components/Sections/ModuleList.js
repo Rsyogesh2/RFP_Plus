@@ -126,8 +126,13 @@ const ModuleList = forwardRef(({title,url},ref) => {
         alert("RFP getCheckedItems");
        
     };
+    // Function to clear selection
+  const clearSelection = () => {
+    setModuleData([]); // Reset the selected items state
+  };
     useImperativeHandle(ref, () => ({
         getCheckedItems,
+        clearSelection,  // Exposing the clearSelection method
       }));
     // const fetchItemsDetails = async (checkedItems) => {
     //     try {

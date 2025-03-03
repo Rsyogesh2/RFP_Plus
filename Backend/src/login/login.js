@@ -31,13 +31,13 @@ router.post("/api/login", async (req, res) => {
       // Use the promise-based `execute` method
       const [results] = await db.execute(query, [username]);
       if(results[0].Role=="Super Admin"){
-        [names] = await db.execute("SELECT super_user_name as user_name FROM superadmin_users WHERE super_user_email = ?", [username]);
+        [names] = await db.execute("SELECT super_user_name as user_name,active_flag FROM superadmin_users WHERE super_user_email = ?", [username]);
       } else if(results[0].Role=="Vendor Admin"){
-        [names] = await db.execute("SELECT admin_name as user_name FROM vendor_admin_users WHERE email = ?", [username]);
+        [names] = await db.execute("SELECT admin_name as user_name,active_flag FROM vendor_admin_users WHERE email = ?", [username]);
       } else  if(results[0].Role=="User"){
-        [names] = await db.execute("SELECT user_name FROM Users_Table WHERE email = ?", [username]);
+        [names] = await db.execute("SELECT user_name,active_flag FROM Users_Table WHERE email = ?", [username]);
       } else if(results[0].Role=="Vendor User"){
-        [names] = await db.execute("SELECT user_name FROM vendor_users_table WHERE email = ?", [username]);
+        [names] = await db.execute("SELECT user_name,active_flag FROM vendor_users_table WHERE email = ?", [username]);
       }
        
       // console.log(results.Role);

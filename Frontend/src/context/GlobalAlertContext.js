@@ -30,6 +30,7 @@ export const GlobalAlertProvider = ({ children }) => {
       color: "#222", // Dark text
       confirmButtonColor: "#0d6efd", // Blue confirm button (Bootstrap primary color)
       iconColor: "#0d6efd", // Blue icon color
+       width: "400px",
       customClass: {
         popup: "custom-popup",
       },

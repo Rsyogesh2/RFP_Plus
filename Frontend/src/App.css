@@ -317,3 +317,9 @@ body {
     padding: 8px 12px;
   }
 }
+
+.custom-popup {
+  font-size: 14px; /* Reduce font size */
+  padding: 10px; /* Reduce padding */
+  max-width: 90%; /* Ensure adaptability */
+}

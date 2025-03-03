@@ -43,7 +43,7 @@ export default sendCheckedItems;
 //         console.error('Error saving data:', error);
 //     }
 // };
-export const handleSave = async (payload,userPower="User") => {
+export const handleSave = async (payload,userPower="User", msg="Data Saved Successfully") => {
     console.log(payload);
     let response;
     try {
@@ -75,7 +75,7 @@ export const handleSave = async (payload,userPower="User") => {
          
 
         const data = await response.json();
-        alert("Data saved successfully");
+        alert(msg);
         console.log('Data saved successfully:', data);
     } catch (error) {
         alert("Error saving data");

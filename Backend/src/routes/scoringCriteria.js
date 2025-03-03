@@ -1684,6 +1684,7 @@ router.post('/fetchDashboardMCO', async (req, res) => {
         //console.log(`Bank_Amount falls in range [From3-To3], assigned Score3: ${Score3}`);
     } else {
         //console.log(`Bank_Amount does not fall in any range, calculatedScore remains 0`);
+        calculatedScore = 0;
     }
     commericalVendor[i].calculatedScore = calculatedScore;
     }

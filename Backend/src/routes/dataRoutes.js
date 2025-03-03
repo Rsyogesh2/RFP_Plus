@@ -301,7 +301,7 @@ router.get('/assignRFPUserDetails', async (req, res) => {
     console.log(data);
     console.log(parsedUsers);
     // parsedUsers.module_name to parsedUsers.selectedModules
-    data.l1.push({ name: "Others", code: 99, l2: [{ name: "Scoring Criteria", code: 9999 }] });
+    data.l1.push({ name: "Scoring Criteria", code: 99, l2: [{ name: "Scoring Criteria", code: 9999 }] });
     // { name: 'Vendor specifications', code: 97, l2: [Array] }
     // Consolidate Response
     res.status(200).json({
@@ -2887,7 +2887,8 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
       Action_log, 
       rows, 
       Status, 
-      Stage 
+      Stage,
+      
   } = req.body;
 
   // Basic validation for critical fields
@@ -2896,25 +2897,26 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
   }
 
   try {
-      const query = `
-      INSERT INTO VendorQuery 
-      (rfp_no, rfp_title, bank_name, vendor_name, created_by, level, Comments, Priority, 
-       Handled_by, Action_log, rows_data, Status, Stage)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-          rfp_title = VALUES(rfp_title),
-          bank_name = VALUES(bank_name),
-          vendor_name = VALUES(vendor_name),
-          level = VALUES(level),
-          Comments = VALUES(Comments),
-          Priority = VALUES(Priority),
-          Handled_by = VALUES(Handled_by),
-          Action_log = VALUES(Action_log),
-          rows_data = VALUES(rows_data),
-          Status = VALUES(Status),
-          Stage = VALUES(Stage),
-          updated_at = CURRENT_TIMESTAMP;
-      `;
+    const query = `
+    INSERT INTO VendorQuery 
+    (rfp_no, rfp_title, bank_name, vendor_name, created_by, level, Comments, Priority, 
+     Handled_by, Action_log, rows_data, Status, Stage, updated_at, updatedBy)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
+    ON DUPLICATE KEY UPDATE
+        rfp_title = VALUES(rfp_title),
+        bank_name = VALUES(bank_name),
+        vendor_name = VALUES(vendor_name),
+        level = VALUES(level),
+        Comments = VALUES(Comments),
+        Priority = VALUES(Priority),
+        Handled_by = VALUES(Handled_by),
+        Action_log = VALUES(Action_log),
+        rows_data = VALUES(rows_data),
+        Status = VALUES(Status),
+        Stage = VALUES(Stage),
+        updated_at = CURRENT_TIMESTAMP,
+        updatedBy = VALUES(updatedBy);
+`;
 
       await db.execute(query, [
           rfp_no,
@@ -2929,7 +2931,8 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
           Action_log || "",
           JSON.stringify(rows || []),
           Status || "Draft",
-          Stage || "Initiated"
+          Stage || "Initiated",
+          created_by
       ]);
 
       res.status(200).send({ message: 'Draft saved or updated successfully!' });

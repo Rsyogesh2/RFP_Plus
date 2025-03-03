@@ -5,7 +5,7 @@ import { AppContext } from '../../context/AppContext';
 import Button from '../Buttons/Button.js';
 import { handleSave } from '../../services/Apis'
 
-const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
+const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     const [name, setName] = useState(null); // Initially, no data
@@ -76,7 +76,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                 // setModuleData(data);
                 // filterModule(moduleData);
                 // console.log(data.itemDetails.l1);
-                setItemData(moduleData.modules); 
+                setItemData(moduleData.modules);
                 // setFItem(moduleData.functionalItemDetails);
                 // setSidebarValue(data.itemDetails);
                 setFItem(moduleData.fitems);
@@ -86,21 +86,21 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
             }
 
         }
-        if(l1=="Super Admin"){
+        if (l1 == "Super Admin") {
             fetchArray1();
         } else if (l1?.l1module !== "" && valueL1 !== l1?.l1module) {
             fetchArray();
             setValueL1(l1.l1module);
-        }  
-    }, [l1,itemData]);
+        }
+    }, [l1, itemData]);
 
 
     const filterModule = (data) => {
         // if(l1=="Super Admin"){
         //     setItemData(data);
         // }else{
-            const data1 = data.itemDetails.l1[0].filter(m => m.code === l1.l1module);
-            setItemData(data1);
+        const data1 = data.itemDetails.l1[0].filter(m => m.code === l1.l1module);
+        setItemData(data1);
         // }
     }
 
@@ -163,7 +163,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
             payload.stage = "Draft";
             payload.Status = "Bank_Pending_Maker";
             payload.assigned_to = null;
-        } else if (["Submit", "Approve", "Submit to Bank","Finalize the RFP"].includes(action)) {
+        } else if (["Submit", "Approve", "Submit to Bank", "Finalize the RFP"].includes(action)) {
             console.log(nextStatus())
             payload.Status = nextStatus();
             payload.assigned_to = data.assignedTo || null;
@@ -171,7 +171,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
             payload.stage = "Rejected";
             payload.Status = "Rejected";
             payload.assigned_to = null;
-        } else if (action === "Back to Maker"){
+        } else if (action === "Back to Maker") {
             payload.stage = "Draft";
             payload.Status = "Bank_Pending_Maker";
             payload.assigned_to = null;
@@ -193,13 +193,13 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
             bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
             vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
             created_by: userName,
-            level: userPower === "User" && data.action === "Back to Maker" ? 1:userPower === "User" && data.action === "Save as Draft"?1
-            : userPower === "Vendor User" && data.action === "Back to Maker" ? 5: determineLevel(),
+            level: userPower === "User" && data.action === "Back to Maker" ? 1 : userPower === "User" && data.action === "Save as Draft" ? 1
+                : userPower === "Vendor User" && data.action === "Back to Maker" ? 5 : determineLevel(),
             Comments: data.comments || "",
             Priority: data.priority || "Medium",
             Handled_by: [{ name: userName, role: userRole }],
             Action_log: `${action} by ${userName} on ${new Date().toISOString()}`,
-            userPower:userPower,
+            userPower: userPower,
         };
 
         payload = adjustStageAndStatus(payload, action, data);
@@ -431,7 +431,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                             <input
                                 type="radio"
                                 name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-Mandatory`}
-                                checked={item.Mandatory === 1 || item.Mandatory===true}
+                                checked={item.Mandatory === 1 || item.Mandatory === true}
                                 onChange={() => handleMandatoryChange(true, item, TableIndex, parentIndex, subIndex, index)}
                             />
                         }
@@ -441,7 +441,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                             <input
                                 type="radio"
                                 name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}-Mandatory`}
-                                checked={item.Mandatory === 0 || item.Mandatory===false}
+                                checked={item.Mandatory === 0 || item.Mandatory === false}
                                 onChange={() => handleMandatoryChange(false, item, TableIndex, parentIndex, subIndex, index)}
                             />
                         }
@@ -489,21 +489,23 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
     const readHierarchy = (levelData, levelType, paddingLeft = 10, TableIndex = null, parentIndex = null, subIndex = null, indexval) => {
         // console.log('Rendering level:', levelType, 'with data', levelData, TableIndex, parentIndex, " subIndex " + subIndex, "  indexval " + indexval);
 
-        if (!levelData || !Array.isArray(levelData) || (levelData[0].deleted && levelData[0].Level===4)) return console.log("its empty"); // Ensure levelData is defined and an array
+        if (!levelData || !Array.isArray(levelData) || (levelData[0].deleted && levelData[0].Level === 4)) return console.log("its empty"); // Ensure levelData is defined and an array
 
         return levelData.map((item, index) => {
             const date = new Date(item.Modified_Time);
             const formattedDate = date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
             // console.log(formattedDate);
-           
+
 
             return (
                 <tr key={`${item.Module_Code}-${item.F2_Code}-${index}`} id={`${item.Module_Code}-${item.F2_Code}-${index}`}>
 
-                    <td style={{ fontWeight: 'normal', 
-                            whiteSpace: 'normal',  // Enables text wrapping
-                            wordWrap: 'break-word',  // Breaks long words
-                           paddingLeft: `${paddingLeft}px` }}>
+                    <td style={{
+                        fontWeight: 'normal',
+                        whiteSpace: 'normal',  // Enables text wrapping
+                        wordWrap: 'break-word',  // Breaks long words
+                        paddingLeft: `${paddingLeft}px`
+                    }}>
                         <span style={{
                             // fontWeight: levelType === 'f1' ? 300 : 'normal',
                             textDecoration: item.deleted ? 'line-through' : 'none'
@@ -531,14 +533,14 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                     </td>
 
                     <td>
-                        <p  style={{
-                                fontSize: '12px',
-                                fontWeight: 'normal',
-                                wordWrap: 'break-word',
-                                whiteSpace: 'normal',
-                                overflow: 'hidden',
-                                textOverflow: 'clip'
-                            }}>{item.Comments || ''}</p>
+                        <p style={{
+                            fontSize: '12px',
+                            fontWeight: 'normal',
+                            wordWrap: 'break-word',
+                            whiteSpace: 'normal',
+                            overflow: 'hidden',
+                            textOverflow: 'clip'
+                        }}>{item.Comments || ''}</p>
                     </td>
                     <td>
                         {item.Modified_Time && (
@@ -618,7 +620,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
         return (
             <table className="item-table">
                 <colgroup>
-                    {userRole === "Maker" &&  (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1) && <col style={{ width: "8%" }} />}
+                    {userRole === "Maker" && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1) && <col style={{ width: "8%" }} />}
                     <col style={{ width: "60%" }} />
                     <col style={{ width: "0%" }} />
                     <col style={{ width: "0.1%" }} />
@@ -662,13 +664,13 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
 
                             return (
                                 <React.Fragment key={item.code || index}>
-                                    {userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1) 
+                                    {userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1)
                                         ? renderHierarchy([item], 'f1', 10, index1, index, indexval)
                                         : readHierarchy([item], 'f1', 10, index1, index, indexval)}
 
                                     {f2items.map((level2, subIndex) => (
                                         <React.Fragment key={level2.code || subIndex}>
-                                            {userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1) 
+                                            {userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1)
                                                 ? renderHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)
                                                 : readHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)}
                                         </React.Fragment>
@@ -679,7 +681,7 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
                     ) : (
                         <React.Fragment>
                             {newItems ? (
-                                userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1) 
+                                userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1)
                                     ? renderHierarchy([newItems], 'f1', 10, index1)
                                     : readHierarchy([newItems], 'f1', 10, index1)
                             ) : (
@@ -694,22 +696,22 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
         );
     };
 
-    
-    
+
+
 
     return (
         <div className="rfp-table">
             <div className="header">
                 <div className="title">
-                    <span>RFP No: {rfpNo||sidebarValue && sidebarValue[0]?.rfp_no}</span>
-                    <span>&nbsp;&nbsp; RFP Title: {rfpTitle||sidebarValue && sidebarValue[0]?.rfp_title}</span>
+                    <span>RFP No: {rfpNo || sidebarValue && sidebarValue[0]?.rfp_no}</span>
+                    <span>&nbsp;&nbsp; RFP Title: {rfpTitle || sidebarValue && sidebarValue[0]?.rfp_title}</span>
                 </div>
             </div>
             <div className="labels-header">
                 <span>M-Mandatory | O-Optional </span>
-                <span>{Number(FItem?.[0]?.Level)>4 && Number(FItem?.[0]?.vendor_level)!==4?"Vendor Level":
-                Number(FItem?.[0]?.Level)===1?"Maker Stage": Number(FItem?.[0]?.Level)===2?"Authorizer Stage":
-                Number(FItem?.[0]?.Level)===3?"Reviewer Stage":""} </span>
+                <span>{Number(FItem?.[0]?.Level) > 4 && Number(FItem?.[0]?.vendor_level) !== 4 ? "Vendor Level" :
+                    Number(FItem?.[0]?.Level) === 1 ? "Maker Stage" : Number(FItem?.[0]?.Level) === 2 ? "Authorizer Stage" :
+                        Number(FItem?.[0]?.Level) === 3 ? "Reviewer Stage" : ""} </span>
             </div>
             <div className="module-header">
                 {itemData && itemData.length > 0 && (
@@ -778,30 +780,36 @@ const RFPReqTable = ({ l1,rfpNo="",rfpTitle="",action="" }) => {
 
             {/* Show Submit button only for Authorizer or Reviewer */}
             {/* {(userRole === "Authorizer" || userRole === "Reviewer") && ( */}
-            {(userRole === "Authorizer") && Number(FItem?.[0]?.Level) ===2 && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
-                    Authorize
-                </button>
-            )}
-            {(userRole === "Authorizer") && Number(FItem?.[0]?.Level) ===2 && (
-                <button onClick={() => handleSave(constructPayload("Back to Maker", {action:"Back to Maker"}))}>
-                    Back to Maker
-                </button>
+            {(userRole === "Authorizer") && Number(FItem?.[0]?.Level) === 2 && (
+                <>
+                    <button className="submitbtn"
+                        onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Authorized Successfully")}>
+                        Authorize
+                    </button>
+                    <button
+                        onClick={() => handleSave(constructPayload("Back to Maker", { action: "Back to Maker" }), userPower, "RFP Sent Back to Maker")}>
+                        Back to Maker
+                    </button>
+                </>
             )}
 
             {/* Optional Save as Draft button for Maker */}
-            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Level) ===1 && (
-                <button onClick={() => handleSave(constructPayload("Save as Draft", {action:"Save as Draft"}))}>
-                    Save as Draft
-                </button>
+            {userRole === "Maker" && (FItem?.[0]?.Level === undefined || Number(FItem?.[0]?.Level) === 1) && (
+                <>
+                    <button
+                        onClick={() => handleSave(constructPayload("Save as Draft", { action: "Save as Draft" }), userPower, "RFP Saved as Draft")}>
+                        Save as Draft
+                    </button>
+                    <button className="submitbtn"
+                        onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Submitted to Authorizer")}>
+                        Submit to Authorizer
+                    </button>
+                </>
             )}
-            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.Level) ===1 && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
-                    Submit to Authorizer
-                </button>
-            )}
+
             {userPower === "Super Admin" && FItem?.every(item => Number(item?.Level) === 3) && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Finalize the RFP", {}))}>
+                <button className="submitbtn"
+                    onClick={() => handleSave(constructPayload("Finalize the RFP", {}), userPower, "RFP Finalized Successfully")}>
                     Finalize the RFP
                 </button>
             )}

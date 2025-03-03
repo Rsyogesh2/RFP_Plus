@@ -37,7 +37,7 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       { label: "Create RFP", section: "Create RFP", icon: <FaFileAlt /> },
       { label: "Assign Users", section: "Assign Users", icon: <FaUserTag /> },
       { label: "Vendor Admin", section: "Vendor Admin", icon: <FaUserShield /> },
-      { label: "Reports", section: "Reports", icon: <FaChartLine /> },
+      // { label: "Reports", section: "Reports", icon: <FaChartLine /> },
       { label: "View RFP Table", section: "View RFP Table", icon: <FaTable /> },
     ], // { label: "View RFPs", section: "View RFPs" },
       // { label: "Vendor Query Submission", section: "Vendor Query Submission" },
