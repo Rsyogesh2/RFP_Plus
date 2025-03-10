@@ -58,16 +58,23 @@ const MOthers = ({ values, othersVendor }) => {
   // Transform othersVendor object into an array of objects with percentage calculation
   const transformVendorData = (vendorData) => {
     if (!vendorData) return [];
+  
     return Object.entries(vendorData).map(([key, value]) => {
-      const benchmark = otherScores.find(score => score.category.replace(/\s+/g, '_').toLowerCase() || score.category.replace(/\s+/g, '').toLowerCase() === key.toLowerCase())?.benchmark || 0;
-      let percentage = ((value / benchmark) * 100).toFixed(2);
-      console.log(key, value, benchmark, percentage);
-      if(benchmark==0) {
-        percentage = 0;
-      }
-      return { [key]: value, percentage: `${percentage}%` };
+      const matchedScore = otherScores.find(score => {
+        const normalizedCategory = score.category.replace(/\s+/g, "_").toLowerCase();
+        const normalizedKey = key.replace(/\s+/g, "_").toLowerCase();
+        return normalizedCategory === normalizedKey;
+      });
+  
+      const benchmark = matchedScore ? matchedScore.benchmark : 0;
+      let percentage = benchmark ? ((value / benchmark) * 100).toFixed(2) : "0";
+  
+      console.log(`Matching Key: ${key}, Vendor Score: ${value}, Benchmark: ${benchmark}, Percentage: ${percentage}%`);
+  
+      return { VendorScore: value, Percentage: `${percentage}%` };
     });
   };
+  
 
   return (
     <div className="modulewise-container">

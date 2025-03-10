@@ -48,7 +48,7 @@ const VendorQuery = ({ rfpNo = "" ,rfpTitle=""}) => {
         url = "api/vendorQuery-fetch-admin";
         // level = "Bank";
       } else {
-        url = "api/vendorQuery-fetch-admin";
+        url = "api/vendorQuery-fetch";
         // level = "Unknown";
       }
 
@@ -74,7 +74,7 @@ const VendorQuery = ({ rfpNo = "" ,rfpTitle=""}) => {
       //getSavedModule
       if (response.ok) {
         let combinedRowsData;
-        if(userPower==="Vendor User"){
+        if(userPower==="Vendor User" ||  userPower==="User"){
            combinedRowsData = data.data.rowsData || [];
            if(userRole==="Authorizer"){
             const response = await fetch(`${API_URL}/api/getSavedModule`, {
@@ -228,12 +228,13 @@ const constructPayload = (action, data = {}) => {
         bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
         vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
         created_by: userName,
-        level: userPower === "User" && data.action === ("Back to Maker"|| data.action === "Save as Draft") ? 1
-        : userPower === "Vendor User" && (data.action === "Back to Maker"|| data.action === "Save as Draft") ? 5: determineLevel(),
+        level: userPower === "User" && (action === "Back to Maker"|| action === "Save as Draft") ? 1
+        : userPower === "Vendor User" && (action === "Back to Maker"|| action === "Save as Draft") ? 5: determineLevel(),
         Comments: data.comments || "",
         Priority: data.priority || "Medium",
         Handled_by: [{ name: userName, role: userRole }],
         Action_log: `${action} by ${userName} on ${new Date().toISOString()}`,
+        userPower,
         rows
     };
 
@@ -282,13 +283,13 @@ console.log(determineLevel())
       // return <p>Loading...</p>; // Or show a default message instead of breaking
     }    
     try {
-      if(userPower=="Vendor User"){
-        if(userRole==="Authorizer" || userRole==="Reviewer"){
-          // console.log(modules);
-          setOptions(flattenHierarchy(modules.modules));
-        } else{
+      if(userPower=="Vendor User" || userPower=="User"){
+        // if(userRole==="Authorizer" || userRole==="Reviewer"){
+        //   // console.log(modules);
+        //   setOptions(flattenHierarchy(modules.modules));
+        // } else{
           setOptions(flattenHierarchy(moduleData?.itemDetails?.l1 ? moduleData.itemDetails.l1[0] : [])); 
-        }
+        // }
         
       } else{
         console.log(moduleData.modules)
@@ -316,19 +317,35 @@ console.log(determineLevel())
   };
     const fetchData = async () => {
         try {
-            const response = await fetch(`${API_URL}/fetchScores`, {
+            const response = await fetch(`${API_URL}/api/vendorQuery-fetch-admin`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({selectedVendor,userName,rfpNo})
+                body: JSON.stringify({
+                  rfpNo: rfpNo || sidebarValue?.[0]?.rfp_no || "",
+                  bankName: userPower === "Super Admin" ? sidebarValue[0]?.entity_name || '' : '',
+                  vendorName: userPower === "Super Admin" ? "" : sidebarValue[0]?.entity_name || '',
+                  
+                  userRole,
+                  userName,
+                  userPower,
+                  selectedVendor
+                })
             });
             const data = await response.json();
             console.log(data)
+            let combinedRowsData
+            if(userPower==="Super Admin" || userPower==="Vendor Admin"){
+              combinedRowsData = data.data?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
+           }
+           console.log(combinedRowsData);
+           // console.log(combinedRowsData)
+           setRows(combinedRowsData || []);
             // setSections(data[1]);
             // setCommercialValue(data[0]);
         } catch (error) {
-            console.error('Error fetching data:', error);
+          alert(error || "Failed to fetch data");
         }
     };
 
@@ -377,7 +394,7 @@ console.log(determineLevel())
             <th>RFP Reference</th>
             <th>Existing Details</th>
             <th>Clarification Needed</th>
-            {(rows.some(row => row.clarificationGiven) || userPower=="Super Admin") && <th>Clarification Given</th>}
+            {(rows.some(row => row.clarificationGiven) || userPower === "Super Admin" || userPower === "User") && <th>Clarification Given</th>}
           </tr>
         </thead>
         <tbody>
@@ -385,7 +402,7 @@ console.log(determineLevel())
             <tr key={index}>
               <td>{index + 1}</td>
               <td>
-                {userRole === "Maker" ? (
+                {userRole === "Maker" && userPower==="Vendor User" ? (
                   <TreeSelect
                     treeData={options}
                     value={row.treeValue}
@@ -418,7 +435,7 @@ console.log(determineLevel())
                 )}
               </td>
               <td>
-                {userRole === "Maker" ? (
+                {userRole === "Maker" && userPower==="Vendor User" ? (
                   <textarea
                     type="text"
                     maxLength="400"
@@ -441,7 +458,7 @@ console.log(determineLevel())
                 )}
               </td>
               <td>
-                {userRole === "Maker" ? (
+                {userRole === "Maker" && userPower==="Vendor User" ? (
                   <textarea
                     type="text"
                     maxLength="400"
@@ -463,9 +480,9 @@ console.log(determineLevel())
                   row.clarification
                 )}
               </td>
-              {(row.clarificationGiven || userPower=="Super Admin")  && (
+              {(row.clarificationGiven || userPower === "Super Admin" || userPower === "User")  && (
                 <td>
-                  {userRole === "Authorizer" ? (
+                  {userRole === "Maker" && userPower==="User"? (
                     <input
                       type="text"
                       maxLength="400"
@@ -482,13 +499,13 @@ console.log(determineLevel())
         </tbody>
       </table>
 
-      {userRole === "Maker" && (
+      {userRole === "Maker" && userPower === "Vendor User" && (
         <button className="add-row-button" onClick={addRow}>Add Row</button>
       )}
 
-      {userPower === "Vendor User" && (
+      {(userPower === "Vendor User" ||userPower === "User") && (
         <div className="save-button-container">
-          {userRole==="Maker" && <button className="save-btn" onClick={()=>{saveAsDraft("Save as Draft")}}>Save as Draft</button>}
+          {userRole==="Maker" && <button className="save-btn" onClick={()=>{saveAsDraft("Save as Draft",{ action: "Save as Draft" })}}>Save as Draft</button>}
           <button className="submit-btn"
             onClick={() => {
               if (window.confirm("Are you sure you want to submit the query?")) {
@@ -508,6 +525,19 @@ console.log(determineLevel())
             }}
           >
             Submit the Query
+          </button>
+        </div>
+      )}
+      {( userPower === "Super Admin") && (
+        <div className="save-button-container">
+          <button className="submit-btn"
+            onClick={() => {
+              if (window.confirm("Are you sure you want to submit the query?")) {
+                saveAsDraft("Submit");
+              }
+            }}
+          >
+            Submit the Maker
           </button>
         </div>
       )}

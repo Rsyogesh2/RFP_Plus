@@ -5,8 +5,13 @@ import { AppContext } from "../../context/AppContext";
 import logo from "./rfp-logo.jpeg";
        
 const Navbar = ({ handleLogout }) => {
-    const { name,userRole,userPower,sidebarValue,moduleData } = useContext(AppContext);
-      
+    const { name,userRole,userPower,sidebarValue,moduleData,setRfpNumber } = useContext(AppContext);
+    const handleClearAndLogout = () => {
+      setRfpNumber(""); // Clear RFP Number first
+      setTimeout(() => {
+        handleLogout(); // Then call logout
+      }, 0); 
+    };
   return (
     <nav className="navbar">
       <ul className="navbar-menu">
@@ -30,7 +35,7 @@ const Navbar = ({ handleLogout }) => {
     <span className="navbar-username"></span>
 
     {/* Logout Button */}
-    <button className="logout-btn" onClick={handleLogout}>
+    <button className="logout-btn" onClick={handleClearAndLogout}>
       Logout
     </button>
   </div>

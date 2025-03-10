@@ -1988,7 +1988,7 @@ router.get('/getSavedFItems', async (req, res) => {
 router.get('/loadContents-initial', async (req, res) => {
   try {
     console.log("loadContents-initial");
-    const { userName, userPower, userRole } = req.query;// Destructure checkedItems from request body
+    const { userName, userPower, userRole, rfpNumber } = req.query;// Destructure checkedItems from request body
     var fItems = [];
     let qustring;
     if (userRole == "Maker") {
@@ -2021,8 +2021,8 @@ router.get('/loadContents-initial', async (req, res) => {
         `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
    module_name, rfp_no 
    FROM User_Modules_Assignment 
-          WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring}`,
-        [userDetails[0].user_name, userDetails[0].createdby]
+          WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring} and rfp_no=?`,
+        [userDetails[0].user_name, userDetails[0].createdby, rfpNumber]
       );
       //console.log("User Modules Assignment:", result);
       // console.log(result)
@@ -2042,8 +2042,8 @@ router.get('/loadContents-initial', async (req, res) => {
         `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
           module_name, rfp_no 
           FROM VendorUser_Modules_Assignment 
-          WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring}`,
-        [userDetails[0].user_name, userDetails[0].createdby]
+          WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring} and rfp_no=?`,
+        [userDetails[0].user_name, userDetails[0].createdby, rfpNumber]
       );
       console.log("Vendor User Modules Assignment:", result);
 
@@ -2685,7 +2685,7 @@ router.get('/loadContents-superAdmin', async (req, res) => {
     let result1;
     if (userPower == "Super Admin") {
       [userDetails] = await db.query(
-        `SELECT super_user_name, entity_Name FROM superadmin_users WHERE super_user_email = ?`,
+        `SELECT super_user_name, entity_Name, valid_from, valid_to FROM superadmin_users WHERE super_user_email = ?`,
         [userName]
       );
 
@@ -2707,7 +2707,7 @@ router.get('/loadContents-superAdmin', async (req, res) => {
 
     } else if (userPower == "Vendor Admin") {
       [userDetails] = await db.query(
-        `SELECT rfp_reference_no, entity_Name, admin_name, createdby FROM vendor_admin_users WHERE email = ?`,
+        `SELECT rfp_reference_no, entity_Name, admin_name, createdby, valid_from, valid_to FROM vendor_admin_users WHERE email = ?`,
         [userName]
       );
 
@@ -2760,7 +2760,7 @@ router.get('/loadContents-superAdmin', async (req, res) => {
     // Finalize response
     if (result1.length > 0) {
       // res.json({ success: true, rfps: result1, itemDetails: data , entityName:userDetails[0].entity_Name});
-      res.json({ success: true, rfps: result1, entityName:userDetails[0].entity_Name});
+      res.json({ success: true, rfps: result1, entityName:userDetails[0].entity_Name, userDetails});
     } else {
       res.status(404).json({ error: "No sub-items found for these modules" });
     }
@@ -2779,6 +2779,7 @@ router.get('/userItemsinSidebar', async (req, res) => {
     const userName = req.query.userName;// Destructure checkedItems from request body
     const userPower = req.query.userPower;// Destructure checkedItems from request body
     const userRole = req.query.userRole;// Destructure checkedItems from request body
+    const rfpNumber = req.query.rfpNumber;// Destructure checkedItems from request body
     // console.log("userRole :"+userRole);
     let qustring;
     if (userRole == "Maker") {
@@ -2808,8 +2809,8 @@ router.get('/userItemsinSidebar', async (req, res) => {
         `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
      module_name, rfp_no 
      FROM User_Modules_Assignment 
-     WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring} `,
-        [userDetails[0].user_name, userDetails[0].createdby]
+     WHERE user_name = ? AND createdby = ? and is_active='1' and ${qustring} and rfp_no=? `,
+        [userDetails[0].user_name, userDetails[0].createdby,rfpNumber]
       );
       //console.log("User Modules Assignment:", result);
       for (i = 0; i < result.length; i++) {
@@ -2839,8 +2840,8 @@ router.get('/userItemsinSidebar', async (req, res) => {
         `SELECT user_name, is_active, date_from, date_to, is_maker, is_authorizer, is_reviewer,
      module_name, rfp_no 
      FROM VendorUser_Modules_Assignment 
-     WHERE user_name = ? AND createdby = ? and is_active='1' `,
-        [userDetails[0].user_name, userDetails[0].createdby]
+     WHERE user_name = ? AND createdby = ? and is_active='1' and rfp_no=? `,
+        [userDetails[0].user_name, userDetails[0].createdby,rfpNumber]
       );
       //console.log("User Modules Assignment:", result);
       for (i = 0; i < result.length; i++) {
@@ -2888,6 +2889,7 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
       rows, 
       Status, 
       Stage,
+      userPower
       
   } = req.body;
 
@@ -2895,7 +2897,40 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
   if (!rfp_no || !rfp_title || !created_by) {
       return res.status(400).send({ message: 'Missing required fields: rfp_no, rfp_title, created_by' });
   }
+  let userDetails =[];
+  let adminDetails =[];
+  let bankNameResult =[];
+      if(userPower=="Vendor User"){
+        userDetails = await db.query(
+          `SELECT user_name, entity_Name, createdby FROM vendor_Users_table WHERE email = ?`,
+          [created_by]
+        );
+      }
+      let createdBy = userPower === "Vendor Admin" ? created_by : (userDetails.length > 0 ? userDetails[0].createdby : null);
 
+      if(userPower=="Vendor Admin"){
+      if (createdBy) {
+          adminDetails = await db.query(
+              `SELECT createdby FROM Vendor_Admin_users WHERE email = ?`, 
+              [createdBy]
+          );
+      }
+    }
+    if(userPower=="User"){
+      userDetails = await db.query(
+        `SELECT user_name, entity_Name, createdby FROM Users_table WHERE email = ?`,
+        [created_by]
+      );
+    }
+    let createdadmin = userPower === "Super Admin" ? created_by : (adminDetails.length > 0 ? adminDetails[0].createdby : userDetails[0].createdby); 
+
+     bankNameResult = await db.query(
+      `SELECT entity_Name,user_id as id FROM superadmin_users WHERE super_user_email = ?`, 
+      [createdadmin]
+  );
+   
+      console.log(userDetails);
+      console.log(bankNameResult);
   try {
     const query = `
     INSERT INTO VendorQuery 
@@ -2921,7 +2956,7 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
       await db.execute(query, [
           rfp_no,
           rfp_title,
-          bank_name || null,
+          bankNameResult[0].entity_Name || null,
           vendor_name || null,
           created_by,
           level || 1,
@@ -3201,7 +3236,7 @@ router.post('/vendorQuery-submit', async (req, res) => {
 
 router.post('/vendorQuery-fetch', async (req, res) => {
   console.log("vendorQuery-fetch");
-  const { rfpNo, vendorName, userName, userRole,  } = req.body;
+  const { rfpNo, vendorName, userName, userRole, userPower } = req.body;
   console.log(rfpNo, vendorName, userName ,userRole);
 
   if (!rfpNo || !vendorName || !userName) {
@@ -3211,10 +3246,13 @@ router.post('/vendorQuery-fetch', async (req, res) => {
   try {
     let query ;
     let rows;
+    let moduleCode =[];
+    let filteredData = [];
+    if(userPower=="Vendor User"){
     if(userRole=="Maker"){
        query = `
       SELECT * FROM VendorQuery
-      WHERE rfp_no = ? AND vendor_name = ? AND created_by = ?;
+      WHERE rfp_no = ? AND vendor_name = ? AND created_by = ? AND level = 5;
       `;
        [rows] = await db.execute(query, [rfpNo, vendorName, userName]);
       
@@ -3226,16 +3264,69 @@ router.post('/vendorQuery-fetch', async (req, res) => {
        [rows] = await db.execute(query, [rfpNo, vendorName]);
       
     }
+    } else if(userPower=="User"){
+
+    if(userRole=="Maker"){
+       query = `
+      SELECT * FROM VendorQuery
+      WHERE rfp_no = ?  AND level = 1;
+      `;
+       
+    } else if(userRole=="Authorizer"){
+        query = `
+      SELECT * FROM VendorQuery
+      WHERE rfp_no = ? AND level = 2 ;
+      `;
+      // WHERE rfp_no = ? AND vendor_name = ? AND level = 6 and Status="Vendor_Pending_Authorization";
+      
+        [rows] = await db.execute(query, [rfpNo]);
+    }
+    const [userDetails] = await db.query(
+      `SELECT user_name, entity_Name, createdby FROM Users_table WHERE email = ?`,
+      [userName]
+    );
+    const [userModules] = await db.query(
+      `SELECT 
+        module_name, rfp_no 
+        FROM User_Modules_Assignment 
+        WHERE user_name = ? AND createdby = ? and is_active='1' and rfp_no=?`,
+      [ userDetails[0].user_name, userDetails[0].createdby, rfpNo]
+    )
+    console.log("User Modules Assignment:", userModules[0].module_name);
+    // Extract main codes
+     moduleCode = userModules[0].module_name.flatMap(module => [module.code, ...module.l2module.map(l2 => l2.code)]);
+
+    console.log(moduleCode);
+  
+    }
+    // [rows] = await db.execute(query, [rfpNo]);
+     
+       console.log("rows")
        console.log(rows)
     if (rows.length > 0) {
       const result = rows[0];
+      const rowsData = rows
+      .map(row => row.rows_data) // Extract rows_data arrays
+      .filter(Boolean) // Remove any undefined or null rows_data
+      .flat(); // Flatten into a single array
+
+      console.log(rowsData);
+      // Convert inputValues to string since treeValue in data is a string
+     // Ensure result is an array before using map()
+      if (!Array.isArray(moduleCode)) {
+        console.error("Error: result is not an array", moduleCode);
+      } else {
+        filteredData = rowsData.filter(item => moduleCode.map(String).includes(item.treeValue));
+        console.log(filteredData);
+      }
+
 
       // Safely parse rows_data if it is a valid JSON string
-      let rowsData;
+      // let rowsData;
       try {
-        rowsData = typeof result.rows_data === "string"
-          ? JSON.parse(result.rows_data)
-          : result.rows_data; // Already an object
+        // rowsData = typeof result.rows_data === "string"
+        //   ? JSON.parse(result.rows_data)
+        //   : result.rows_data; // Already an object
       } catch (error) {
         console.error("Error parsing rows_data:", error);
         return res.status(500).send({ message: "Error parsing rows_data" });
@@ -3248,7 +3339,7 @@ router.post('/vendorQuery-fetch', async (req, res) => {
           stage: result.stage,
           createdBy: result.created_by,
           updatedAt: result.updated_at,
-          rowsData, // Parsed JSON
+          rowsData :userPower==="Vendor User"?rowsData:filteredData, // Parsed JSON
         },
       });
     } else {
@@ -3261,8 +3352,8 @@ router.post('/vendorQuery-fetch', async (req, res) => {
 });
 router.post('/vendorQuery-fetch-admin', async (req, res) => {
   console.log("vendorQuery-fetch-admin");
-  const { rfpNo, vendorName, bankName, level, userName, userPower, stage } = req.body;
-  console.log(rfpNo, userName, level,vendorName,bankName)
+  const { rfpNo, vendorName, bankName, level, userName, userPower, stage,selectedVendor } = req.body;
+  console.log(rfpNo, userName, level,vendorName,bankName,selectedVendor)
   // if (!rfpNo || !vendorName && !bankName) {
   //   return res.status(400).send({ message: "All fields (rfpNo, vendorName, bankName) are required" });
   // }
@@ -3275,16 +3366,16 @@ router.post('/vendorQuery-fetch-admin', async (req, res) => {
       query1 = `
       SELECT rows_data, rfp_title, stage, created_by, updated_at 
       FROM VendorQuery
-      WHERE rfp_no = ? ;
+      WHERE rfp_no = ? AND level = 7;
     `;
       val = [rfpNo]
     } else if (userPower == "Super Admin") {
       query1 = `
       SELECT rows_data, rfp_title, stage, created_by, updated_at 
       FROM VendorQuery
-      WHERE rfp_no = ?;
+      WHERE rfp_no = ? AND level = 4 and created_by =? ;
     `;
-      val = [rfpNo]
+      val = [rfpNo,selectedVendor.email]
     }
 
     const [rows1] = await db.execute(query1, val);

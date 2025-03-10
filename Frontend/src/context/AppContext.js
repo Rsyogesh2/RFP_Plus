@@ -15,12 +15,13 @@ export const AppProvider = ({ children }) => {
     const [sidebarValue, setSidebarValue] = useState(
        { rfp_no: "", module_name: [] }, // Default value to avoid undefined errors
     );
+    const [rfpNumber,setRfpNumber] = useState();
 
     return (
         <AppContext.Provider value={{ moduleData, setModuleData, usersList,
          setUsersList,userPower,setUserPower,assignModule,setAssignModule,
          userName, setUserName,sidebarValue, setSidebarValue, setUserRole,
-        userRole,globalFItems, setGlobalFItems,name, setName}}>
+        userRole,globalFItems, setGlobalFItems,name, setName,rfpNumber,setRfpNumber}}>
             {children}
         </AppContext.Provider>
     );

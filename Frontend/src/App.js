@@ -24,7 +24,6 @@ function App() {
     isAuthenticated: false,
     userType: null, // Could be "GlobalAdmin", "SuperUserAdmin", or "User"
   });
-  
 
   const handleLogin = (userType, credentials) => {
     console.log(`${userType} logged in`);

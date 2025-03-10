@@ -299,7 +299,7 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
                                 const weightedScore = (vendor.scores[rowIndex] * weightage[rowIndex]) / 100;
                                 return (
                                     <React.Fragment key={`vendor-body-${vendorIndex}-${rowIndex}`}>
-                                        <td className="score-cell"><span>{vendor.scores[rowIndex]}%</span>
+                                        <td className="score-cell"><span>{Number(vendor.scores[rowIndex]).toFixed(2)}%</span>
                                         </td>
                                         <td className="weighted-score-cell">
                                             <span>{weightedScore.toFixed(2)}%</span>

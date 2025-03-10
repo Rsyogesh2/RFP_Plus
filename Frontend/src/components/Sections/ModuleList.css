@@ -1,6 +1,6 @@
 .module-list {
     width: 300px;
-    margin: 0 auto;
+    margin: 0 3%;
     font-family: Arial, sans-serif;
     border-collapse: collapse;
 }
@@ -16,10 +16,11 @@ table {
     border-collapse: collapse;
 }
 
-th, td {
+.module-list th, td {
     padding: 8px;
     border: 1px solid #ccc;
     text-align: left;
+    font-size: 0.9rem !important;
 }
 
 .checkbox-cell {

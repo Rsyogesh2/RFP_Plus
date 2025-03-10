@@ -43,7 +43,7 @@ const ViewRFPs = () => {
   );
 };
 const SubmitRFPs = ({ action }) => {
-  const { userName, userPower, setModuleData, userRole } = useContext(AppContext);
+  const { userName, userPower, setModuleData, userRole,rfpNumber } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
@@ -77,7 +77,7 @@ const HomePage = ({ userType }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { usersList, setUsersList, userName, userPower, setModuleData, userRole } = useContext(AppContext);
+  const { usersList, setUsersList, userName, userPower, setModuleData, userRole, rfpNumber } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 
@@ -107,7 +107,7 @@ const HomePage = ({ userType }) => {
       console.log("userName " + userName)
       //23/11/2024
       try {
-        const queryParams = new URLSearchParams({ userName, userPower, userRole});
+        const queryParams = new URLSearchParams({ userName, userPower, userRole, rfpNumber});
         let url
         if (userPower == "User") {
           // if(userRole=="Maker"){
@@ -191,7 +191,7 @@ const HomePage = ({ userType }) => {
       case "View RFP":
         return <SubmitRFPs action="View RFP" />;
       case "Submit Query":
-        return <VendorQuery rfpNo={"RFP123"} rfpTitle={"title"}/>;
+        return <VendorQuery rfpNo={rfpNumber} rfpTitle={"title"}/>;
      case "View Vendor Assigned RFPs":
         return <RFPVendorTable />;
       case "Vendor Query":

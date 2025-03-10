@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import './RFPReqTable.css'; // Import the CSS file
 import { AppContext } from '../../context/AppContext';
 
@@ -12,9 +12,14 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
     // const [userRole, setUserRole] = useState("Maker"); // Initially, no data
     const [itemData, setItemData] = useState(null); // Initially, no data
     const [FItem, setFItem] = useState([]);
+    const inputFitem = useRef(null);
     const [newItem, setNewItem] = useState(null);
     const [valueL1, setValueL1] = useState(null);
     const [isEdit, setIsEdit] = useState(false);
+    // Function to add a new table
+    const [editableTable, setEditableTable] = useState(null); // Tracks the table being edited
+    const [tempName, setTempName] = useState(''); // Temporarily store the table name
+
     const { moduleData, setModuleData, userName, userPower, sidebarValue, userRole } = useContext(AppContext); // Access shared state
     // console.log(moduleData);
     console.log("userRole : " + userRole + "userPower :" + userPower)
@@ -104,7 +109,7 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         // }
     }
 
-
+    // For Flow Code
     const currentLevel = () => {
         console.log("vuserRole : " + userRole)
         switch (true) {
@@ -206,10 +211,10 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         console.log("Constructed Payload:", payload);
         return payload;
     };
-
-
     console.log(determineLevel())
+    //==================================================================================================//
 
+    // Function to handle the Table Modification
     const findIndexByObject = (obj) => {
         return FItem.findIndex(
             (item) =>
@@ -355,8 +360,9 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         setFItem(newData); // Update the state
         // }
     };
+    //==================================================================================================//
 
-
+    // Function to render the Rows of the Table
     const renderHierarchy = (levelData, levelType, paddingLeft = 10, TableIndex = null, parentIndex = null, subIndex = null, indexval) => {
         // console.log('Rendering level:', levelType, 'with data', levelData,TableIndex,parentIndex," subIndex "+subIndex,"  indexval "+indexval);
 
@@ -564,20 +570,11 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
             )
         });
     };
-
+    //==================================================================================================//
+    
+    // Function to render the Tables
     const Tables = (l2, index1, f1, index, indexval) => {
         // console.log("rendering Table");
-        // console.log(l2);
-
-        // Validate l2.l3
-        // const unMatchingCodes = l2?.l3?.map(l3 => l3.code) || [];
-
-        // const newItems = unMatchingCodes.map(code => ({
-        //     F2_Code: '1000',
-        //     F1_Code: `10`,
-        //     name: "Add here...",
-        //     Module_Code: code
-        // }));
         let newItems;
         if (userRole === "Maker") {
             newItems = {
@@ -594,12 +591,6 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                 Module_Code: l2.code
             };
         }
-
-
-        // console.log(FItem);
-        // console.log(newItems);
-        // console.log(newItems[index]);
-
 
         const matchingCodes = FItem?.filter(f => f?.Module_Code?.startsWith(l2.code)) || [];
         const f1items = matchingCodes
@@ -696,7 +687,60 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         );
     };
 
+    // Function to add a new table at the L2 level
+    const addTable = () => {
+        console.log("Adding Table");
+        console.log(itemData)
+        setItemData((prevData) =>
+            prevData.map((item) => {
+                const newColumnValue = item.l2.length > 0 
+                    ? Math.max(...item.l2.map((l) => l.newColumn || 9)) + 1 
+                    : 10;
+    
+                return {
+                    ...item,
+                    l2: [
+                        ...item.l2,
+                        {
+                            name: "", // Make name empty for editing
+                            code: item.code + "99",
+                            newCode: newColumnValue // Starts from 10 and increments
+                        }
+                    ]
+                };
+            })
+        );
+    
+        setEditableTable(itemData.length);
+        setTempName(""); // Reset temporary input field
+    };
+    
+    const handlel2Name = (e, itemIndex, tableIndex) => {
+        setTempName(e.target.value);
+    };
 
+
+    // Handle save action (Enter key or Save button)
+    const saveTableName = (itemIndex, tableIndex) => {
+        if (tempName.trim() === "") return; // Prevent empty name
+
+        setItemData((prevData) =>
+            prevData.map((item, idx) => {
+                if (idx === itemIndex) {
+                    return {
+                        ...item,
+                        l2: item.l2.map((table, tIdx) =>
+                            tIdx === tableIndex ? { ...table, name: tempName } : table
+                        )
+                    };
+                }
+                return item;
+            })
+        );
+
+        setEditableTable(null); // Exit edit mode
+        setTempName(""); // Reset temp storage
+    };
 
 
     return (
@@ -725,6 +769,22 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                                         return (
                                             <div key={l2.code} className='level2'>
                                                 <span className='l2'>{indexval + " " + l2.name}</span>
+                                                {/* Editable input for the first added table */}
+                                                { l2.name === "" ? (
+                                                    <>
+                                                        <input
+                                                            type="text"
+                                                            value={tempName}
+                                                            onChange={handlel2Name}
+                                                            placeholder="Enter Table Name"
+                                                            autoFocus
+                                                            onKeyDown={(e) => e.key === "Enter" && saveTableName(index1, index2)}
+                                                        />
+                                                        <button onClick={() => saveTableName(index1, index2)}>Save</button>
+                                                    </>
+                                                ) : (
+                                                    <span>{l2.name}</span>
+                                                )}
                                                 {l2.l3 && l2.l3.length > 0 ? (
                                                     <>
                                                         {l2.l3.map((l3, index) => (
@@ -745,41 +805,13 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                         })}
                     </div>
                 )}
+                {!editableTable && <button onClick={addTable} className="add-table-btn">
+                    Add Table
+                </button>
+}
             </div>
 
             {/* Show Submit button only for Authorizer or Reviewer */}
-            {/* {(userRole === "Authorizer" || userRole === "Reviewer") && (
-                <button onClick={() => handleSave({
-                    module: itemData,
-                    items: FItem,
-                    rfp_no: sidebarValue[0].rfp_no,
-                    rfp_title: sidebarValue[0].rfp_title,
-                    stage:"Viewer",
-                    userName,
-                    entity_Name:sidebarValue[0].entity_name,
-                })}>
-                    Submit
-                    
-                </button>
-            )} */}
-
-            {/* Optional Save as Draft button for Maker */}
-            {/* {userRole === "Maker" && (
-                 <button onClick={() => handleSave({
-                    module: itemData,
-                    items: FItem,
-                    rfp_no: sidebarValue[0].rfp_no,
-                    rfp_title: sidebarValue[0].rfp_title,
-                    stage:"Authorizer",
-                    userName,
-                    entity_Name:sidebarValue[0].entity_name,
-                })}>
-                    Save as Draft
-                </button>
-            )} */}
-
-            {/* Show Submit button only for Authorizer or Reviewer */}
-            {/* {(userRole === "Authorizer" || userRole === "Reviewer") && ( */}
             {(userRole === "Authorizer") && Number(FItem?.[0]?.Level) === 2 && (
                 <>
                     <button className="submitbtn"

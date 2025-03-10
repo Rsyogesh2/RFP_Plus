@@ -5,12 +5,12 @@ import { FaUserPlus, FaUsersCog, FaFileAlt, FaUserTag, FaUserShield, FaChartLine
 
 const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar }) => {
   const sidebarRef = useRef(null);
-  const { userPower, userName, sidebarValue, setSidebarValue,userRole } = useContext(AppContext);
+  const { userPower, userName, sidebarValue, setSidebarValue,userRole, rfpNumber } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     
   const fetchSidebarData = useCallback(async () => {
     try {
-      const queryParams = new URLSearchParams({ userName, userPower,userRole });
+      const queryParams = new URLSearchParams({ userName, userPower,userRole,rfpNumber });
       const response = await fetch(`${API_URL}/api/userItemsinSidebar?${queryParams}`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -113,7 +113,7 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       ];
   
       // Add "Vendor Query" if userPower is "Vendor User"
-      if (userPower === "Vendor User") {
+      if (userPower === "Vendor User" || userPower === "User") {
         subItems.push({ sublabel: "Vendor Query", section: "Vendor Query" });
       }
   

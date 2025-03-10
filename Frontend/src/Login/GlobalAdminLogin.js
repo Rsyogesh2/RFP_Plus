@@ -9,13 +9,15 @@ import ForgotPassword from './ForgotPassword'; // Import the Forgot Password com
 const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [roles, setRoles] = useState([]);
+  const [rfpnumbers, setRfpnumbers] = useState([]);
   const [selectedRole, setSelectedRole] = useState("");
-  const { setUserPower, setUserName,setUserRole, setName } = useContext(AppContext);
+  const { setUserPower, setUserName, setUserRole, setName, rfpNumber, setRfpNumber } = useContext(AppContext);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null); // Track selected index
 
-    const handleForgotPasswordClick = () => {
-        setShowForgotPassword(true); // Show the Forgot Password component
-    };
+  const handleForgotPasswordClick = () => {
+    setShowForgotPassword(true); // Show the Forgot Password component
+  };
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -27,7 +29,7 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     console.log("Logging in with credentials:", credentials);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
- 
+
     const response = await fetch(`${API_URL}/api/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -36,7 +38,7 @@ const Login = ({ onLogin }) => {
 
     const result = await response.json();
     console.log("Login response:", result);
-    
+
     if (response.ok) {
       console.log(result.Name.active_flag);
       if (result.Name.active_flag === "Inactive") {
@@ -47,9 +49,9 @@ const Login = ({ onLogin }) => {
       window.showPopup("Success!", "Login successful!", "success")
       localStorage.setItem("token", result.token); // Store the JWT
       setUserName(credentials.username);
-      if(credentials.username=="GlobalUser"){
+      if (credentials.username == "GlobalUser") {
         setName("GlobalUser");
-      } else if(credentials.username=="AdminUser"){
+      } else if (credentials.username == "AdminUser") {
         setName("AdminUser");
       } else {
         setName(result.Name.user_name);
@@ -65,35 +67,43 @@ const Login = ({ onLogin }) => {
       console.log("Roles response:", rolesResult);
 
       if (rolesResponse.ok) {
-        if(rolesResult.roles[0]==="User"||rolesResult.roles[0]==="Vendor User"){
-          
-          let rolesPer =[];
-          for(let rfps of rolesResult.results1){
-            if(rfps.isMaker==1){
+        if (rolesResult.roles[0] === "User" || rolesResult.roles[0] === "Vendor User") {
+
+          let rolesPer = [];
+          let rpfnos = [];
+          for (let rfps of rolesResult.results1) {
+            if (rfps.isMaker == 1) {
               rolesPer.push(`${rolesResult.roles} - Maker`)
-            } else if(rfps.isAuthorizer==1){
+            } else if (rfps.isAuthorizer == 1) {
               rolesPer.push(`${rolesResult.roles} - Authorizer`)
             } else {
               rolesPer.push(`${rolesResult.roles} - Reviewer`)
             }
+            rpfnos.push(rfps.rfpNo);
           }
-          
-          if(rolesPer.length===0){
+
+          if (rolesPer.length === 0) {
             setRoles(rolesResult.roles);
-          } else{
+          } else {
             console.log(rolesPer)
             setRoles(rolesPer);
           }
+          if (rpfnos.length === 0) {
+
+          } else {
+            console.log(rpfnos)
+            setRfpnumbers(rpfnos);
+          }
         } else {
           console.log(rolesResult.roles);
-          if(rolesResult.roles[0]==="Super Admin"){
+          if (rolesResult.roles[0] === "Super Admin") {
             // setRoles(rolesResult.roles);
 
           }
           setRoles(rolesResult.roles);
         }
-        
-        
+
+
       } else {
         alert(rolesResult.message || "Failed to fetch roles.");
       }
@@ -101,17 +111,29 @@ const Login = ({ onLogin }) => {
       alert(result.message);
     }
   };
-
   const handleRoleSelect = (e) => {
     console.log(e.target.value);
-    let val = e.target.value.split(" - ");
+    let val = e.target.value.includes(" - ") ? e.target.value.split(" - ") : [e.target.value, ""];
+
     setSelectedRole(val[0]);
     setUserPower(val[0]); // Set the selected role in context
-    setUserRole(val[1]);
+    setUserRole(val[1] || ""); // Prevent undefined
   };
 
+  const handleRFPSelect = (event) => {
+    const index = event.target.selectedIndex - 1; // Get index (excluding disabled option)
+    setRfpNumber(event.target.value);
+    setSelectedIndex(index >= 0 ? index : null); // Update selected index
+
+    if (index >= 0 && index < roles.length) {
+      setSelectedRole(roles[index]);
+      handleRoleSelect({ target: { value: roles[index] } }); // Pass a mock event with value
+    }
+  };
+
+
   const handleNavigateToHome = () => {
-    if (!selectedRole) {
+    if (!selectedRole && !rfpNumber) {
       // alert("Please select a role first.");
       return;
     }
@@ -121,57 +143,98 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login-page">
-       {!showForgotPassword ? (
-      <div className="login-container">
-        <h2 className="login-title">Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email address <span className="required">*</span></label>
-            <input
-              type="text"
-              name="username"
-              value={credentials.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Password <span className="required">*</span></label>
-            <input
-              type="password"
-              name="password"
-              value={credentials.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="login-options">
-            <label>
-              <input type="checkbox" name="rememberMe" />
-              Remember Me
-            </label>
-            <a href="#" className="forgot-password" onClick={handleForgotPasswordClick} >Forgot Password?</a>
-          </div>
-          <button type="submit" className="login-btn">LOGIN</button>
-        </form>
+      {!showForgotPassword ? (
+        <div className="login-container">
+          <h2 className="login-title">Login</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Email address <span className="required">*</span></label>
+              <input
+                type="text"
+                name="username"
+                value={credentials.username}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Password <span className="required">*</span></label>
+              <input
+                type="password"
+                name="password"
+                value={credentials.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="login-options">
+              <label>
+                <input type="checkbox" name="rememberMe" />
+                Remember Me
+              </label>
+              <a href="#" className="forgot-password" onClick={handleForgotPasswordClick} >Forgot Password?</a>
+            </div>
+            <button type="submit" className="login-btn">LOGIN</button>
+          </form>
 
-        {roles.length > 0 && (
-          <div className="role-selection">
+          {roles.length > 0 && (
+            <div className="role-selection">
+              {/* <label htmlFor="role">Select RFP No:</label>
+            <select id="role" value={rfpNumber} onChange={handleRFPSelect}>
+              <option value="" disabled>-- Select a Role --</option>
+              {rfpnumbers.map((role, index) => (
+                <option key={index} value={role}>{role=="Super Admin"?"Bank Admin":role}</option>
+              ))}
+            </select>
             <label htmlFor="role">Select Role:</label>
             <select id="role" value={selectedRole} onChange={handleRoleSelect}>
               <option value="" disabled>-- Select a Role --</option>
               {roles.map((role, index) => (
                 <option key={index} value={role}>{role=="Super Admin"?"Bank Admin":role}</option>
               ))}
-            </select>
-            <button onClick={handleNavigateToHome} className="home-btn">Go to Home</button>
-          </div>
-        )}
-      </div>
-       ): (
+            </select> */}
+              {/* First Dropdown (RFP No) */}
+              {/* First Dropdown (RFP No) */}
+              <label htmlFor="rfpNo" style={{ display: (roles[0] !== "Super Admin" &&  roles[0] !== "Vendor Admin") ? "block" : "none" }}>
+                Select RFP No:
+              </label>
+              <select
+                id="rfpNo"
+                value={rfpNumber}
+                onChange={handleRFPSelect}
+                style={{ display:(roles[0] !== "Super Admin" &&  roles[0] !== "Vendor Admin") ? "block" : "none" }}
+              >
+                <option value="" >-- Select RFP No --</option>
+                {rfpnumbers.map((role, index) => (
+                  <option key={index} value={role}>{role === "Super Admin" ? "Bank Admin" : role}</option>
+                ))}
+              </select>
+
+              {/* Second Dropdown (Role) */}
+              <label htmlFor="role" style={{ display: (roles[0] === "Super Admin" || roles[0] === "Vendor Admin") ? "block" : "none" }}>
+                Select Role:
+              </label>
+              <select
+                id="role"
+                value={selectedRole}
+                onChange={handleRoleSelect}
+                style={{ display: (roles[0] === "Super Admin" || roles[0] === "Vendor Admin") ? "block" : "none" }}
+              >
+                <option value="" >-- Select a Role --</option>
+                {roles.map((role, index) => (
+                  <option key={index} value={role}>
+                    {role === "Super Admin" ? "Bank Admin" : role}
+                  </option>
+                ))}
+              </select>
+              <button onClick={handleNavigateToHome} className="home-btn">Go to Home</button>
+            </div>
+          )}
+        </div>
+      ) : (
         <ForgotPassword /> // Show the Forgot Password component
-    )}
-    {/* <ToastContainer /> */}
+      )}
+      {/* <ToastContainer /> */}
     </div>
   );
 };

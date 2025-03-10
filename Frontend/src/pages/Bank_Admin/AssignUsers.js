@@ -18,8 +18,23 @@ const AssignUsers = () => {
   const [currentUserIndex, setCurrentUserIndex] = useState(null);
 
 
-  const { usersList, userName, userPower, setUsersList } = useContext(AppContext); // Users load in the table
-  console.log(usersList)
+  const { usersList, userName, userPower, setUsersList, moduleData } = useContext(AppContext); // Users load in the table
+  console.log(usersList);
+   // Function to convert ISO date to 'YYYY-MM-DD'
+const formatDate = (isoString) => {
+  return isoString ? isoString.split("T")[0] : ""; // Extract only 'YYYY-MM-DD' part
+};
+
+// Extract valid_from and valid_to in proper format
+const validFromDate = formatDate(moduleData?.userDetails?.[0]?.valid_from);
+const validToDate = formatDate(moduleData?.userDetails?.[0]?.valid_to);
+console.log(validFromDate);
+console.log(validToDate);
+  // Function to disable dates outside the range
+  const isDateOutOfRange = (date, minDate, maxDate) => {
+    return date < minDate || date > maxDate;
+  };
+
   const togglePopup = (idx) => {
     console.log(idx);
     if (!rfpModule?.l1?.length) {
@@ -310,13 +325,18 @@ const AssignUsers = () => {
                       <input
                         type="date"
                         value={formattedfromDate || ""}
+                        min={validFromDate} // Restricts earlier dates
+                        max={validToDate}   // Restricts later dates
                         onChange={(e) => handleFieldChange(idx, "fromDate", e.target.value)}
+                        
                       />
                     </td>
                     <td>
                       <input
                         type="date"
                         value={formattedtoDate || ""}
+                        min={validFromDate} // Setting the minimum date
+                        max={validToDate} // Setting the maximum date
                         onChange={(e) => handleFieldChange(idx, "toDate", e.target.value)}
                       />
                     </td>
