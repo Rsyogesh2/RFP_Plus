@@ -40,7 +40,7 @@ const Table = ({ data, headers }) => (
   </table>
 );
 
-const MOthers = ({ values, othersVendor }) => {
+const MOthers = ({ values, othersVendor, vendorNames }) => {
   const [otherScores, setOtherScores] = useState([
     { category: "Implementation Score", benchmark: 5 },
     { category: "No of Sites Score", benchmark: 5 },
@@ -88,7 +88,7 @@ const MOthers = ({ values, othersVendor }) => {
         <div className="vendor-tables">
           {vendors.map((vendor, index) => (
             <div key={index}>
-              <h3>{vendor.name}</h3>
+              <h3>{vendorNames[index]?.entity_name||vendor.name}</h3>
               <Table
                 data={transformVendorData(othersVendor[index])}
                 headers={["Vendor Score", "%"]}

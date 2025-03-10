@@ -221,15 +221,25 @@ router.post("/save-Overall-scoring", async(req, res) => {
 
 // Final Evaluation
 router.get('/fetchVendor', async (req, res) => {
-    const { userName,rfpNo } = req.query;
+    const { userName,rfpNo,userPower="" } = req.query;
     if (!userName ) {
         return res.status(400).send("userName is required");
     }
     try {        
+        if(userPower=="User"){
+        const [userNameAdmin] = await db.query(`select createdby from users_table where email= ?`, [userName] );
+        console.log(userNameAdmin[0].createdby,rfpNo)
+        console.log("userNameAdmin[0].createdby")
         const [rows] = await db.query(`select entity_name,email,admin_name,id from vendor_admin_users 
-            where createdby= ? AND rfp_reference_no=?`, [userName,rfpNo] );  
+            where createdby= ? AND rfp_reference_no=?`, [userNameAdmin[0].createdby,rfpNo] );  
         ////console.log(rows)
         res.json(rows);
+        }else{
+            const [rows] = await db.query(`select entity_name,email,admin_name,id from vendor_admin_users 
+                where createdby= ? AND rfp_reference_no=?`, [userName,rfpNo] );  
+            ////console.log(rows)
+            res.json(rows);
+        }
     } catch (error) {
         console.error("Error fetching data:", error);
         res.status(500).send("Error fetching data from database.");

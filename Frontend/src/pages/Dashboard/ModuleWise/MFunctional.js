@@ -71,7 +71,7 @@ const Table = ({ data, headers }) => (
   </table>
 );
 
-const MFunctional = ({values1, funVendor1}) => {
+const MFunctional = ({values1, funVendor1, vendorNames}) => {
 
   const [values, setValues] = useState({ l2: [] });
   const [funVendor, setFunVendor] = useState({ l2: [] });
@@ -149,7 +149,7 @@ const MFunctional = ({values1, funVendor1}) => {
   
         return (
           <div key={index}>
-            <h2>{vendor.name} - Score</h2>
+            <h2>{vendorNames[index]?.entity_name ||vendor.name} - Score</h2>
             <Table
               data={sortedFunVendorL2}
               headers={["A", "P", "C", "Total Score", "%"]}

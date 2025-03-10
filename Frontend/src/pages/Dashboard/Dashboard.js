@@ -14,6 +14,7 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
     const [comVendorScores, setComVendorScores] = useState([]);
     const [functionalScore, setFunctionalScore] = useState([]);
     const [vendorFunScore, setVendorFunScore] = useState([]);
+    const [vendorNames, setVendorNames] = useState([]);
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const { userName } = useContext(AppContext); // Users load in the table
 
@@ -49,7 +50,9 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
                 console.log("Fetched 1st Data:", data);
                 const vendorName = data[1];
                 const otherScores = data[0];
-                console.log(otherScores)
+                console.log(otherScores);
+                console.log(vendorName);
+                setVendorNames(vendorName);
                 // Update the last 6 scores safely
                 // setVendors(prevVendors =>
                 //     prevVendors.map((vendor, index) => ({
@@ -335,13 +338,13 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
             <br />
             <div className="module-wise">
             <Collapsible title="Functional Scores">
-            <MFunctional values1={functionalScore} funVendor1={vendorFunScore} />
+            <MFunctional values1={functionalScore} funVendor1={vendorFunScore} vendorNames={vendorNames} />
              </Collapsible>
             <Collapsible title="Commercial Scores">
-            <Commercial values={commercialValue} comVendor={comVendorScores}/>
+            <Commercial values={commercialValue} comVendor={comVendorScores} vendorNames={vendorNames}/>
             </Collapsible>
             <Collapsible title="Others Scores">
-             <MOthers values={sections} othersVendor={savedScores}/>
+             <MOthers values={sections} othersVendor={savedScores} vendorNames={vendorNames}/>
             </Collapsible>
             </div>
            

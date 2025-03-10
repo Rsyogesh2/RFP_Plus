@@ -40,7 +40,7 @@ const Table = ({ data, headers }) => (
   </table>
 );
 
-const Commercial = ({ values, comVendor }) => {
+const Commercial = ({ values, comVendor, vendorNames }) => {
   useEffect(() => {
     console.log(values);
     console.log(comVendor);
@@ -95,7 +95,7 @@ const Commercial = ({ values, comVendor }) => {
         <div className="vendor-tables">
           {vendors.map((vendor, index) => (
             <div key={index}>
-              <h3>{vendor.name}</h3>
+              <h3>{vendorNames[index]?.entity_name||vendor.name}</h3>
               <Table
                 data={comVendor && comVendor[index] ? transformVendorData(comVendor[index]) : []}
                 headers={["Vendor Score", "%"]}

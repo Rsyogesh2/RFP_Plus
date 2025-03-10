@@ -2889,8 +2889,8 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
       rows, 
       Status, 
       Stage,
-      userPower
-      
+      userPower,
+      selectedVendor={}
   } = req.body;
 
   // Basic validation for critical fields
@@ -2908,10 +2908,10 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
       }
       let createdBy = userPower === "Vendor Admin" ? created_by : (userDetails.length > 0 ? userDetails[0].createdby : null);
 
-      if(userPower=="Vendor Admin"){
+      if(userPower=="Vendor Admin" ){
       if (createdBy) {
           adminDetails = await db.query(
-              `SELECT createdby FROM Vendor_Admin_users WHERE email = ?`, 
+              `SELECT createdby,id FROM Vendor_Admin_users WHERE email = ?`, 
               [createdBy]
           );
       }
@@ -2924,7 +2924,7 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
     }
     let createdadmin = userPower === "Super Admin" ? created_by : (adminDetails.length > 0 ? adminDetails[0].createdby : userDetails[0].createdby); 
 
-     bankNameResult = await db.query(
+     [bankNameResult] = await db.query(
       `SELECT entity_Name,user_id as id FROM superadmin_users WHERE super_user_email = ?`, 
       [createdadmin]
   );
@@ -2932,6 +2932,16 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
       console.log(userDetails);
       console.log(bankNameResult);
   try {
+    if(userPower=="Super Admin" && level==10){
+      const query = `
+        INSERT INTO vendorqueryStage (Level, RFP_No, stage, Bank_ID, Vendor_ID)
+        VALUES (?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+            Level = VALUES(Level),
+            stage = VALUES(stage);
+    `;
+    await db.query(query, [level, rfp_no, "Completed", bankNameResult[0].id, selectedVendor.id]);
+    }
     const query = `
     INSERT INTO VendorQuery 
     (rfp_no, rfp_title, bank_name, vendor_name, created_by, level, Comments, Priority, 
@@ -2952,12 +2962,14 @@ router.post('/vendorQuery-save-draft', async (req, res) => {
         updated_at = CURRENT_TIMESTAMP,
         updatedBy = VALUES(updatedBy);
 `;
+      let bankName = userPower === "User" ? bank_name : bankNameResult[0].entity_Name; 
+      let vendorName = userPower === "User" ? selectedVendor.entity_name : vendor_name; 
 
       await db.execute(query, [
           rfp_no,
           rfp_title,
-          bankNameResult[0].entity_Name || null,
-          vendor_name || null,
+          bankName || null,
+          vendorName || null,
           created_by,
           level || 1,
           Comments || "",
@@ -3236,7 +3248,7 @@ router.post('/vendorQuery-submit', async (req, res) => {
 
 router.post('/vendorQuery-fetch', async (req, res) => {
   console.log("vendorQuery-fetch");
-  const { rfpNo, vendorName, userName, userRole, userPower } = req.body;
+  const { rfpNo, vendorName, userName, userRole, userPower,selectedVendor={} } = req.body;
   console.log(rfpNo, vendorName, userName ,userRole);
 
   if (!rfpNo || !vendorName || !userName) {
@@ -3263,24 +3275,37 @@ router.post('/vendorQuery-fetch', async (req, res) => {
       `;
        [rows] = await db.execute(query, [rfpNo, vendorName]);
       
-    }
+    }else if(userRole=="Reviewer"){
+      query = `
+     SELECT * FROM VendorQuery
+     WHERE rfp_no = ? AND vendor_name = ? AND level = 6 and Status="Vendor_Pending_Authorization";
+     `;
+      [rows] = await db.execute(query, [rfpNo, vendorName]);
+     
+   }
     } else if(userPower=="User"){
 
     if(userRole=="Maker"){
        query = `
       SELECT * FROM VendorQuery
-      WHERE rfp_no = ?  AND level = 1;
+      WHERE rfp_no = ?  AND level = 1 and vendor_name = ?;
       `;
        
     } else if(userRole=="Authorizer"){
         query = `
       SELECT * FROM VendorQuery
-      WHERE rfp_no = ? AND level = 2 ;
+      WHERE rfp_no = ? AND level = 2 and vendor_name = ?;
       `;
       // WHERE rfp_no = ? AND vendor_name = ? AND level = 6 and Status="Vendor_Pending_Authorization";
       
-        [rows] = await db.execute(query, [rfpNo]);
+       
+    }  else if(userRole=="Reviewer"){
+      query = `
+    SELECT * FROM VendorQuery
+    WHERE rfp_no = ? AND level = 3 and vendor_name = ?;
+    `;
     }
+    [rows] = await db.execute(query, [rfpNo, selectedVendor.entity_name]);
     const [userDetails] = await db.query(
       `SELECT user_name, entity_Name, createdby FROM Users_table WHERE email = ?`,
       [userName]
@@ -3362,23 +3387,63 @@ router.post('/vendorQuery-fetch-admin', async (req, res) => {
 
     let query1;
     var val;
+    let rows1;
+    let vqStatus =false;
+    let bankNameResult =[];
+    if(userPower=="Vendor Admin"){
+    const [vendorId] = await db.query(
+      `SELECT  id, createdby FROM Vendor_Admin_users WHERE email = ?`, 
+      [userName]
+    );
+     [bankNameResult] = await db.query(
+      `SELECT entity_name,user_id as id FROM superAdmin_users WHERE super_user_email = ?`, 
+      [vendorId[0].createdby]
+    );
+    const [vendorQueryStatus] = await db.query(
+      `Select level,stage from vendorqueryStage WHERE RFP_No = ? AND Bank_ID =? and Vendor_ID = ?`, [rfpNo,bankNameResult[0].id,vendorId[0].id]  
+    );
+    console.log(vendorQueryStatus);
+    console.log(bankNameResult[0].entity_name);
+    if(vendorQueryStatus.length>0){
+      vqStatus = true;
+    }
+    }
     if (userPower == "Vendor Admin") {
+      if(vqStatus){
+        query1 = `
+        SELECT rows_data, rfp_title, stage, created_by, updated_at,level
+        FROM VendorQuery
+        WHERE rfp_no = ? AND level = 10 and vendor_name = ? and bank_name = ?;
+      `;
+      console.log(rfpNo, vendorName, bankNameResult[0].entity_name)
+      val = [rfpNo, vendorName, bankNameResult[0].entity_name];
+      } else {
       query1 = `
-      SELECT rows_data, rfp_title, stage, created_by, updated_at 
+      SELECT rows_data, rfp_title, stage, created_by, updated_at
       FROM VendorQuery
       WHERE rfp_no = ? AND level = 7;
     `;
       val = [rfpNo]
+      }
     } else if (userPower == "Super Admin") {
+      query1 = `
+      SELECT rows_data, rfp_title, stage, created_by, updated_at 
+      FROM VendorQuery
+      WHERE rfp_no = ? AND level = 3 and vendor_name =? ;
+    `;
+      val = [rfpNo,selectedVendor.entity_name];
+      [rows1] = await db.execute(query1, val);
+      if( rows1.length == 0){
       query1 = `
       SELECT rows_data, rfp_title, stage, created_by, updated_at 
       FROM VendorQuery
       WHERE rfp_no = ? AND level = 4 and created_by =? ;
     `;
       val = [rfpNo,selectedVendor.email]
+      }
     }
 
-    const [rows1] = await db.execute(query1, val);
+     [rows1] = await db.execute(query1, val);
     console.log(rows1)
     if (rows1.length > 0) {
       // Combine data from all rows

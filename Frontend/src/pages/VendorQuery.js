@@ -9,8 +9,8 @@ const VendorQuery = ({ rfpNo = "" ,rfpTitle=""}) => {
   const [modules, setModules] = useState([]);
   const [vendorNames, setVendorNames] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
- 
-  const { userName, userPower, userRole, sidebarValue, moduleData = {} } = useContext(AppContext);
+  const [completeLevel, setCompleteLevel] = useState(1);
+  const { userName, userPower, userRole, sidebarValue, moduleData = {}, rfpNumber } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
    useEffect(() => {
@@ -20,7 +20,7 @@ const VendorQuery = ({ rfpNo = "" ,rfpTitle=""}) => {
                 //   return;
                 // }
                 try {
-                  const response = await fetch(`${API_URL}/fetchVendor?userName=${userName}&&rfpNo=${rfpNo}`);
+                  const response = await fetch(`${API_URL}/fetchVendor?userName=${userName}&&rfpNo=${rfpNo||rfpNumber}&&userPower=${userPower}`);
                   const data = await response.json();
                   setVendorNames(data);
                 } catch (error) {
@@ -96,6 +96,7 @@ const VendorQuery = ({ rfpNo = "" ,rfpTitle=""}) => {
            combinedRowsData = data.data?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
         }
         console.log(combinedRowsData);
+        setCompleteLevel(data.data[0].level?data.data[0].level:1);
         // console.log(combinedRowsData)
         setRows(combinedRowsData || []);
       } else {
@@ -229,13 +230,15 @@ const constructPayload = (action, data = {}) => {
         vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
         created_by: userName,
         level: userPower === "User" && (action === "Back to Maker"|| action === "Save as Draft") ? 1
-        : userPower === "Vendor User" && (action === "Back to Maker"|| action === "Save as Draft") ? 5: determineLevel(),
+        : userPower === "Vendor User" && (action === "Back to Maker"|| action === "Save as Draft") ? 5: 
+        userPower === "Super Admin" && action === "Completed"? 10: determineLevel(),
         Comments: data.comments || "",
         Priority: data.priority || "Medium",
         Handled_by: [{ name: userName, role: userRole }],
         Action_log: `${action} by ${userName} on ${new Date().toISOString()}`,
         userPower,
-        rows
+        rows,
+        selectedVendor,
     };
 
     payload = adjustStageAndStatus(payload, action, data);
@@ -275,7 +278,7 @@ console.log(determineLevel())
     const fetchData = async () => {
       await fetchVendorQueries();
     };
-    if( userPower==="Vendor User" || userPower==="Vendor Admin" || userPower==="User"){
+    if( userPower==="Vendor User" || userPower==="Vendor Admin" ){
       fetchData();
     }
     // fetchData();
@@ -316,8 +319,16 @@ console.log(determineLevel())
     }
   };
     const fetchData = async () => {
+        let url;
         try {
-            const response = await fetch(`${API_URL}/api/vendorQuery-fetch-admin`, {
+          if (userPower === "User") {
+            url = "api/vendorQuery-fetch";
+            
+          } else if (userPower === "Super Admin") {
+            url = "api/vendorQuery-fetch-admin";
+            
+          }
+            const response = await fetch(`${API_URL}/${url}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -326,7 +337,6 @@ console.log(determineLevel())
                   rfpNo: rfpNo || sidebarValue?.[0]?.rfp_no || "",
                   bankName: userPower === "Super Admin" ? sidebarValue[0]?.entity_name || '' : '',
                   vendorName: userPower === "Super Admin" ? "" : sidebarValue[0]?.entity_name || '',
-                  
                   userRole,
                   userName,
                   userPower,
@@ -338,6 +348,8 @@ console.log(determineLevel())
             let combinedRowsData
             if(userPower==="Super Admin" || userPower==="Vendor Admin"){
               combinedRowsData = data.data?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
+           } else  if(userPower==="Vendor User" ||  userPower==="User"){
+            combinedRowsData = data.data.rowsData || [];
            }
            console.log(combinedRowsData);
            // console.log(combinedRowsData)
@@ -358,7 +370,7 @@ console.log(determineLevel())
       <>
           <h3>{`${rfpNo || sidebarValue[0].rfp_no} - ${rfpTitle || sidebarValue[0].rfp_title}`}</h3>
         </>
-        {userPower==="Super Admin" && (
+        {(userPower==="Super Admin" || userPower==="User")&& (
            <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
            <select
             onChange={handleDropdownChangeVendor}
@@ -499,23 +511,24 @@ console.log(determineLevel())
         </tbody>
       </table>
 
-      {userRole === "Maker" && userPower === "Vendor User" && (
+      {userRole === "Maker" && userPower === "Vendor User" && completeLevel !==10 && (
         <button className="add-row-button" onClick={addRow}>Add Row</button>
       )}
 
-      {(userPower === "Vendor User" ||userPower === "User") && (
+      {(userPower === "Vendor User" ||userPower === "User") && completeLevel !==10 && (
         <div className="save-button-container">
           {userRole==="Maker" && <button className="save-btn" onClick={()=>{saveAsDraft("Save as Draft",{ action: "Save as Draft" })}}>Save as Draft</button>}
-          <button className="submit-btn"
+          {userRole!=="Reviewer" && <button className="submit-btn"
             onClick={() => {
               if (window.confirm("Are you sure you want to submit the query?")) {
                 saveAsDraft("Submit");
               }
             }}
           >Submit</button>
+    }
         </div>
       )}
-      {(userPower === "Vendor Admin" || userPower === "Super Admin") && (
+      {(userPower === "Vendor Admin" || userPower === "Super Admin") && completeLevel !==10 && (
         <div className="save-button-container">
           <button className="submit-btn"
             onClick={() => {
@@ -528,7 +541,7 @@ console.log(determineLevel())
           </button>
         </div>
       )}
-      {( userPower === "Super Admin") && (
+      {/* {( userPower === "Super Admin") && (
         <div className="save-button-container">
           <button className="submit-btn"
             onClick={() => {
@@ -538,6 +551,19 @@ console.log(determineLevel())
             }}
           >
             Submit the Maker
+          </button>
+        </div>
+      )} */}
+      {( userPower === "Super Admin") && completeLevel !==10 && (
+        <div className="save-button-container">
+          <button className="submit-btn"
+            onClick={() => {
+              if (window.confirm("Are you sure you want to submit the query?")) {
+                saveAsDraft("Completed");
+              }
+            }}
+          >
+            Submit the Query to Vendor
           </button>
         </div>
       )}
