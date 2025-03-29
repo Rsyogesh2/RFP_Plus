@@ -254,6 +254,9 @@ router.post('/fetchScores', async (req, res) => {
     // if (!rfpNo || !bankName) {
     //     return res.status(400).send("RFP_No and Bank_Name are required");
     // }
+    if (!rfpNo || !userName || !selectedVendor) {
+        return res.status(400).send("RFP_No and userName and selectedVendor are required");
+    }
 
     const tables = [
         "Implementation_Score",
@@ -556,13 +559,13 @@ try {
 `;
     // ✅ Updated values array to include calculated percentages
     const values = [
-        selectedValues.Implementation_Score?.value || '',
-        selectedValues.Implementation_Score?.score || 0,
-        percentageResults.Implementation_Score || "0%",
+        selectedValues.Implementation?.value || '',
+        selectedValues.Implementation?.score || 0,
+        percentageResults.Implementation || "0%",
         
-        selectedValues.No_of_Sites_Score?.value || '',
-        selectedValues.No_of_Sites_Score?.score || 0,
-        percentageResults.No_of_Sites_Score || "0%",
+        selectedValues.No_of_Sites?.value || '',
+        selectedValues.No_of_Sites?.score || 0,
+        percentageResults.No_of_Sites || "0%",
         
         selectedValues.Site_Reference?.value || '',
         selectedValues.Site_Reference?.score || 0,
@@ -584,6 +587,9 @@ try {
         bankName[0].id,
         selectedVendor.id
     ];
+    console.log("values", rfpNo,
+        bankName[0].id,
+        selectedVendor.id)
 
     // ✅ Execute query with percentage included
     await db.query(query, values);
@@ -1299,7 +1305,7 @@ router.post('/fetchComFunScores-dashBoard', async (req, res) => {
             //console.log(commercialScores);
         if (!commercialScores || commercialScores.length === 0) {
             console.error("No commercial scores found for the provided RFP No.");
-            return res.status(404).send("No commercial scores found for the provided RFP No.");
+            // return res.status(404).send("No commercial scores found for the provided RFP No.");
         }
 
         let totalPercentageScore = 0;
@@ -1946,13 +1952,17 @@ router.post('/fetchDashboardFunctional', async (req, res) => {
         partlyAvailableScore = isPartlyAvailableChecked ? partlyAvailableScore : 0;
         customizableScore = isCustomizableChecked ? customizableScore : 0;
 
+        const [vendors] = await db.query(`select entity_name,email,admin_name,id from vendor_admin_users 
+            where createdby= ? AND rfp_reference_no=?`, [userName,rfpNo] );  
+        let vendorScores=[];
         // Fetch functional items and vendor scores
-        const vendorId = 8; // Assume vendor ID is determined earlier
+        // const vendorId = 8; // Assume vendor ID is determined earlier
+        for (const vendor of vendors) {
         const [functionalItems] = await db.query(
             `SELECT d.*, v.Vendor_Id, v.A, v.P, v.C, v.N FROM RFP_FunctionalItem_draft d 
             LEFT JOIN RFP_FunctionalItem_Vendor v ON d.id = v.rfp_functionalitem_draft_id 
             WHERE d.RFP_No = ? AND v.Vendor_Id = ? AND d.Bank_Id = ? AND v.Status = "Completed"`,
-            [rfpNo, vendorId, bankNameResult[0].id]
+            [rfpNo, vendor.id, bankNameResult[0].id]
         );
         
         // Process functional items
@@ -1967,7 +1977,7 @@ router.post('/fetchDashboardFunctional', async (req, res) => {
         );
         // console.log(filteredData)
         // Calculate vendor scores
-        let vendorScores = modules.map(l1 => ({
+        let vendorScore = modules.map(l1 => ({
             code: l1.code,
             name: l1.name,
             l2: l1.l2.map(l2 => {
@@ -1991,8 +2001,9 @@ router.post('/fetchDashboardFunctional', async (req, res) => {
                 return { code: l2.code, totalScoreA, totalScoreP, totalScoreC ,totalScoreAll};
             })
         }));
-
-        res.json({ modules, vendorScores, filteredData });
+        vendorScores.push(vendorScore)
+         }
+        res.json({ modules, vendorScores });
     } catch (error) {
         console.error("Error fetching data:", error.message);
         res.status(500).send("Error fetching data from database.");

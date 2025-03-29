@@ -48,8 +48,10 @@ const ViewModifyUserTable = () => {
   };
 
   const handleDelete = async (userId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
-    if (!confirmDelete) return;
+    // const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+   
+    const confirmDelete = await window.showConfirm("Are you sure?", "This action cannot be undone.", "warning");
+  if (!confirmDelete) return;
   
     try {
       const response = await fetch(`${API_URL}/users/${userId}`, {

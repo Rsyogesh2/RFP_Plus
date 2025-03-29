@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect,useState,useRef } from "react";
 import "./MFunctional.css";
 import { use } from "react";
 
@@ -75,8 +75,15 @@ const MFunctional = ({values1, funVendor1, vendorNames}) => {
 
   const [values, setValues] = useState({ l2: [] });
   const [funVendor, setFunVendor] = useState({ l2: [] });
-  const [selectedIndex, setSelectedIndex] = useState(1); // Default to index 1
+  const [allVendorScores, setAllVendorScores] = useState({ l2: [] });
+  const [selectedIndex, setSelectedIndex] = useState(0); // Default to index 1
+  const vendorRef = useRef(null);
 
+  const scrollVendors = (scrollOffset) => {
+    if (vendorRef.current) {
+      vendorRef.current.scrollLeft += scrollOffset;
+    }
+  };
   // Update values and funVendor based on the selected dropdown option
   useEffect(() => {
     console.log(funVendor1, values1);
@@ -86,13 +93,35 @@ const MFunctional = ({values1, funVendor1, vendorNames}) => {
     }
 
     if (Array.isArray(funVendor1) && funVendor1[selectedIndex]) {
-      setFunVendor(funVendor1[selectedIndex]); // ✅ Update based on selection
+      // setFunVendor(funVendor1[0][selectedIndex]); // ✅ Update based on selection
+      setAllVendorScores(funVendor1);
+      const newArray = funVendor1.map(subArray => [subArray[selectedIndex]]);
+      console.log(newArray);
+      setFunVendor(newArray);
     }
   }, [values1, funVendor1, selectedIndex]); // ✅ Runs when selectedIndex changes
 
+  const transformArray = (data) => {
+    const grouped = {};
+  
+    // Flatten the nested array
+    const flatArray = data.flat();
+  
+    // Group by `code`
+    flatArray.forEach((item) => {
+      if (!grouped[item.code]) {
+        grouped[item.code] = [];
+      }
+      grouped[item.code].push(item);
+    });
+  
+    // Convert object to array
+    return Object.values(grouped);
+  };
+  
   return (
     <div className="modulewise-container">
-    <h2>Final Score – Module-wise</h2>
+    <h4>Final Score – Module-wise</h4>
     <select onChange={(e) => setSelectedIndex(Number(e.target.value))}
        style={{
         // width: "100%",
@@ -115,48 +144,75 @@ const MFunctional = ({values1, funVendor1, vendorNames}) => {
       </select>
     <div className="score-section">
       <div>
-        <h2>Functional Score</h2>
+        <h3>Functional Score</h3>
         
         <Table
-          data={values.l2.map(l2Item => {
-            const matchedItem = funVendor.l2.find(funItem => funItem.code === l2Item.code) || {};
-            return { 
-              modules: l2Item.name, 
-              "Benchmark Score": matchedItem.totalScoreAll || 0  // ✅ Show `totalScoreAll` in 2nd column
-            };
-          })}
+         data={values.l2.map((l2Item) => {
+          const matchedItem = funVendor.length > 0 && funVendor[0][0]?.l2 
+            ? funVendor[0][0].l2.find(funItem => funItem.code === l2Item.code) || {} 
+            : {}; 
+        
+          return { 
+            modules: l2Item.name, 
+            "Benchmark Score": matchedItem.totalScoreAll || 0  // ✅ Show `totalScoreAll` in 2nd column
+          };
+        })}        
           headers={["Functional Requirement", "Benchmark Score"]}
         />
       </div>
-  
-      {vendors.map((vendor, index) => {
+      <div className="vendor-container" style={{ position: "relative" }}>
+          <button className="scroll-btn left" onClick={() => scrollVendors(-200)}>←</button>
+
+          <div className="vendor-tables" ref={vendorRef}>
+
+      {funVendor.length>0 && funVendor.map((vendor, index) => {
+        let vendorScoreL2 =[]
         // Ensure `funVendor.l2` is sorted based on `values.l2` using `code`
         const sortedFunVendorL2 = values.l2.map(l2Item => {
-          const matchedItem = funVendor.l2.find(funItem => funItem.code === l2Item.code) || {};
-          
-          // Exclude `code` and `totalScoreAll` from the second table
-          const { code, totalScoreAll, ...rest } = matchedItem;
-  
-          // Calculate Total Score (Sum of A, P, C)
-          const totalScore = (rest.totalScoreA || 0) + (rest.totalScoreP || 0) + (rest.totalScoreC || 0);
-  
-          const percentage = totalScoreAll && totalScoreAll > 0 
-          ? ((totalScore / totalScoreAll) * 100).toFixed(2) + "%"  // ✅ Format percentage with 2 decimal places
-          : "0%";  // ✅ If totalScoreAll is 0 or undefined, show "0%"
-
-        return { ...rest, "Total Score": totalScore, "%": percentage };
+          console.log("L2 Item Code:", l2Item.code);
+          console.log("L2 Item Code:", index);
+          console.log("funVendor.length :", funVendor.length );
+          console.log("funVendor[index]?.l2:", funVendor[index][0].l2 );
+          if (funVendor.length > 0 && funVendor[index][0]?.l2) {
+            console.log("Checking in funVendor:", funVendor[index][0].l2);
+        
+            const matchedItem = funVendor[index][0].l2.find(funItem => {
+              console.log("Comparing:", funItem.code, "with", l2Item.code);
+              return funItem.code === l2Item.code; // ✅ Corrected condition
+            }) || {}; // If no match, return an empty object
+        
+            console.log("Matched Item:", matchedItem);
+        
+            // Exclude `code` and `totalScoreAll`
+            const { code, totalScoreAll, ...rest } = matchedItem;
+        
+            // Calculate Total Score (Sum of A, P, C)
+            const totalScore = (rest.totalScoreA || 0) + (rest.totalScoreP || 0) + (rest.totalScoreC || 0);
+        
+            const percentage = totalScoreAll && totalScoreAll > 0 
+              ? ((totalScore / totalScoreAll) * 100).toFixed(2) + "%"  // ✅ Format percentage with 2 decimal places
+              : "0%";  // ✅ If totalScoreAll is 0 or undefined, show "0%"
+            vendorScoreL2.push({ ...rest, "Total Score": totalScore, "%": percentage });
+            return vendorScoreL2;
+          }
+        
+          return {}; // Return empty object if no match
         });
-  
+        
+        console.log(sortedFunVendorL2)
         return (
           <div key={index}>
-            <h2>{vendorNames[index]?.entity_name ||vendor.name} - Score</h2>
+            <h3>{vendorNames[index]?.entity_name ||vendor.name} - Score</h3>
             <Table
-              data={sortedFunVendorL2}
+              data={sortedFunVendorL2[0] || []}
               headers={["A", "P", "C", "Total Score", "%"]}
             />
           </div>
         );
       })}
+       <button className="scroll-btn right" onClick={() => scrollVendors(200)}>→</button>
+        </div>
+      </div>
     </div>
   </div>
   

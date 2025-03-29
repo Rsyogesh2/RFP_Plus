@@ -24,7 +24,36 @@ const VendorAdmin = () => {
     validTo: "",
     activeFlag: "Active",
   });
+  const [vendors, setVendors] = useState([]);
+  const [editingVendor, setEditingVendor] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const { userName, userPower } = useContext(AppContext);
+  useEffect(() => {
+    async function fetchVendors() {
+      try {
+        const queryParams = new URLSearchParams({ userName }); // Pass userName as query param
+        const response = await fetch(`${API_URL}/api/vendor-list?${queryParams}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch vendor list");
+        }
+
+        const data = await response.json();
+        setVendors(data);
+      } catch (error) {
+        console.error("Error fetching vendors:", error.message);
+      }
+    }
+
+    if (userName) {
+      fetchVendors();
+    }
+  }, [userName]);
   useEffect(() => {
     async function assignRFP() {
       try {
@@ -44,7 +73,34 @@ const VendorAdmin = () => {
     }
     assignRFP()
   }, []);
-  // Handle input changes
+  const handleEdit = (vendor) => {
+    setFormData(vendor);
+    setEditingVendor(vendor);
+    setShowForm(!showForm); // Toggle form visibility
+  };
+  //
+  const handleNewVendor = () => {
+    setFormData({
+      rfpReferenceNo: "",
+      entityName: "",
+      entitySubName: "",
+      entityLandline: "",
+      entityAddress: "",
+      city: "",
+      pinCode: "",
+      country: "",
+      adminName: "",
+      designation: "",
+      email: "",
+      mobile: "",
+      validFrom: "",
+      validTo: "",
+      activeFlag: "Active",
+    });
+    setEditingVendor(null);
+    setShowForm(!showForm); // Toggle form visibility
+  };
+  //  Handle input changes
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
@@ -66,6 +122,24 @@ const VendorAdmin = () => {
       if (!response.ok) {
         throw new Error("Failed to save data");
       }
+      setFormData({
+        rfpReferenceNo: "",
+        entityName: "",
+        entitySubName: "",  
+        entityLandline: "",
+        entityAddress: "",
+        city: "",
+        pinCode: "",
+        country: "",
+        adminName: "",
+        designation: "",
+        email: "",
+        mobile: "",
+        validFrom: "",
+        validTo: "",
+        activeFlag: "Active",
+      });
+
 
       const result = await response.json();
       alert(result.message);
@@ -78,11 +152,58 @@ const VendorAdmin = () => {
 
   return (
     <div className="vendor-admin-container">
-      <h4>Vendor Admin</h4>
+      {/* <h4>Vendor Admin</h4> */}
+      <div className="vendor-list-container">
+      <h4>Vendor Admin List</h4>
+      <table className="vendor-table">
+        <thead>
+          <tr>
+            <th>RFP No</th>
+            <th>Entity Name</th>
+            <th>Admin Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Valid From</th>
+            <th>Valid To</th>
+            <th>Status</th>
+            <th>Modify</th>
+          </tr>
+        </thead>
+        <tbody>
+          {vendors.length > 0 ? (
+            vendors.map((vendor, index) => (
+              <tr key={index}>
+                <td>{vendor.rfpReferenceNo}</td>
+                <td>{vendor.entityName}</td>
+                <td>{vendor.adminName}</td>
+                <td>{vendor.email}</td>
+                <td>{vendor.mobile}</td>
+                <td>{new Date(vendor.validFrom).toLocaleDateString("en-GB")}</td>
+                <td>{new Date(vendor.validTo).toLocaleDateString()}</td>
+                <td>{vendor.active_flag}</td>
+                <td>
+                <button onClick={() => handleEdit(vendor)}>Modify</button>
+              </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8">No vendors found</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+    <button onClick={handleNewVendor} className="btn-new-vendor">New Vendor</button>
+     {/* Vendor Form - Show Only When Needed */}
+     <h4>{showForm && ( editingVendor ? "Edit Vendor" : "New Vendor")}</h4>
+
+     {showForm && (
       <form onSubmit={handleSubmit}>
+         
         <div className="form-group">
           <label htmlFor="rfpReferenceNo">RFP Reference No:</label>
-          <select id="rfpReferenceNo" value={formData.rfpReferenceNo} onChange={handleChange}>
+          <select id="rfpReferenceNo" value={formData.rfpReferenceNo} onChange={handleChange} disabled={ editingVendor !== null?  true: false}>
             <option value="">Select</option>
             {Array.isArray(rfpNo) && rfpNo.length > 0 ? (
               rfpNo.map((field) => (
@@ -97,13 +218,14 @@ const VendorAdmin = () => {
           </select>
         </div>
 
-        <div className="form-group">
+        <div className="form-group" >
           <label htmlFor="entityName">Entity Name:</label>
           <input
             id="entityName"
             type="text"
             value={formData.entityName}
             onChange={handleChange}
+            disabled={ editingVendor !== null?  true: false}
           />
         </div>
 
@@ -193,6 +315,7 @@ const VendorAdmin = () => {
             type="email"
             value={formData.email}
             onChange={handleChange}
+            disabled={ editingVendor !== null?  true: false}
           />
         </div>
 
@@ -239,6 +362,7 @@ const VendorAdmin = () => {
           <button type="reset" className="btn-cancel">CANCEL</button>
         </div>
       </form>
+      )}
     </div>
   );
 };

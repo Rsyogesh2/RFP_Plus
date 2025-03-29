@@ -8,7 +8,7 @@ import RFPVendorTable from "../../components/RFP_Table/RFPVendorTable";
 import "./RFPListTable.css";
 
 const RFPListTable = () => {
-  const actions = [
+  let actions = [
     "View RFP",
     "Final RFP",
     "Submitted RFP",
@@ -16,6 +16,7 @@ const RFPListTable = () => {
     "Final Evaluation",
     "Dashboard",
   ];
+
 
   const [data, setData] = useState([]);
   const [actionName, setActionName] = useState();
@@ -37,6 +38,10 @@ const RFPListTable = () => {
   const { moduleData, userRole, setModuleData, userName, userPower } =
     useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  actions = userPower === "Vendor Admin"
+    ? actions.filter(action => !["Final Evaluation", "Dashboard", "Final RFP"].includes(action))
+      // .concat("Submit RFP") // Add "Submit RFP"
+    : actions; // Keep all actions for other user roles
 
   useEffect(() => {
     setData(moduleData?.rfps || []);
@@ -68,28 +73,28 @@ const RFPListTable = () => {
       }));
       return;
     }
-    
+
     setSelectedRfpNo(rfpNo);
     setSelectedRfpTitle(rfpTitle);
-  //   const actionKey = action.toLowerCase().replace(/\s/g, ""); // Normalize key (e.g., "View RFP" -> "viewrfp")
+    //   const actionKey = action.toLowerCase().replace(/\s/g, ""); // Normalize key (e.g., "View RFP" -> "viewrfp")
 
-  // setActionName(action);
+    // setActionName(action);
 
-  // // Toggle: If it's already true, set it to false and return
-  // setVisibleState((prev) => {
-  //   const newState = { ...prev, [actionKey]: !prev[actionKey] };
+    // // Toggle: If it's already true, set it to false and return
+    // setVisibleState((prev) => {
+    //   const newState = { ...prev, [actionKey]: !prev[actionKey] };
 
-  //   // If turning off, stop execution
-  //   if (!newState[actionKey]) return newState;
+    //   // If turning off, stop execution
+    //   if (!newState[actionKey]) return newState;
 
-  //   // Otherwise, set selected RFP details and proceed with data fetching
-  //   setSelectedRfpNo(rfpNo);
-  //   setSelectedRfpTitle(rfpTitle);
+    //   // Otherwise, set selected RFP details and proceed with data fetching
+    //   setSelectedRfpNo(rfpNo);
+    //   setSelectedRfpTitle(rfpTitle);
 
-  //   return newState;
-  // });
+    //   return newState;
+    // });
 
-  // if (visibleState[actionKey]) return; // Stop execution if we just hid the component
+    // if (visibleState[actionKey]) return; // Stop execution if we just hid the component
 
 
     if (action === "Submitted RFP") {
@@ -113,20 +118,20 @@ const RFPListTable = () => {
         rfpNo,
         actionName: action,
       });
-      if(action=="View RFP"||action=="Final RFP"||action=="Sumbitted RFP"){
+      if (action == "View RFP" || action == "Final RFP" || action == "Sumbitted RFP") {
         let url = `${API_URL}/api/getSavedData?${queryParams}`;
         if (userPower === "User" || userPower === "Vendor User") {
           url = `${API_URL}/api/loadContents-initial?${queryParams}`;
         }
-  
+
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-  
+
         const data = await response.json();
         setModuleData((prevState) => ({ ...prevState, ...data }));
-    
+
       }
-      
+
       setVisibleState({
         vendor: false,
         viewrfp: action === "View RFP",
@@ -242,12 +247,25 @@ const RFPListTable = () => {
         </div>
       )}
 
-      {visibleState.vendorquery && <VendorQuery l1= "Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle}/>}
-      {visibleState.viewrfp && <RFPReqTable l1= "Super Admin" rfpNo={selectedRfpNo} action="View RFP" rfpTitle={selectedRfpTitle} />}
-      {visibleState.finalrfp && <RFPVendorTable l1= "Super Admin" rfpNo={selectedRfpNo} action="Final RFP" rfpTitle={selectedRfpTitle} />}
-      {visibleState.dashboard && <ScoringDashboard l1= "Super Admin" rfpNo={selectedRfpNo}  rfpTitle={selectedRfpTitle}/>}
-      {visibleState.finalevaluation && <FinalEvaluation l1= "Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
-      {visibleState.submitrfp && <RFPVendorTable l1= "Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
+      {visibleState.vendorquery && <VendorQuery l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
+
+      {visibleState.viewrfp && (
+        userPower === "Super Admin"
+          ? <RFPReqTable l1="Super Admin" rfpNo={selectedRfpNo} action="View RFP" rfpTitle={selectedRfpTitle} />
+          : <RFPVendorTable l1="Vendor Admin" rfpNo={selectedRfpNo} action="View RFP" rfpTitle={selectedRfpTitle} />
+      )}
+
+      {visibleState.finalrfp && <RFPVendorTable l1={userPower} rfpNo={selectedRfpNo} action="Final RFP" rfpTitle={selectedRfpTitle} />}
+
+      {visibleState.dashboard && <ScoringDashboard l1={userPower} rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
+
+      {visibleState.finalevaluation && <FinalEvaluation l1={userPower} rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}
+
+      {visibleState.submitrfp && (
+        userPower === "Super Admin"
+          ? <RFPVendorTable l1="Super Admin" rfpNo={selectedRfpNo} action="Submit RFP" rfpTitle={selectedRfpTitle} />
+          : <RFPVendorTable l1="Vendor Admin" action="Submit RFP" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />
+      )}
     </div>
   );
 };

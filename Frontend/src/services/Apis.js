@@ -43,11 +43,11 @@ export default sendCheckedItems;
 //         console.error('Error saving data:', error);
 //     }
 // };
-export const handleSave = async (payload,userPower="User", msg="Data Saved Successfully") => {
+export const handleSave = async (payload,userPower, msg="Data Saved Successfully") => {
     console.log(payload);
     let response;
     try {
-        if(userPower==="User"){
+        if(userPower==="User" || userPower==="Super Admin"){
             response = await fetch(`${API_URL}/api/insertFItem`, {
                 method: 'POST',
                 headers: {

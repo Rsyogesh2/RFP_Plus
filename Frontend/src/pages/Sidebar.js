@@ -46,18 +46,19 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       
     // ],
     "Global Admin": [
-      { label: "Add Super User", section: "Add Super User" },
-      { label: "Modify Super User", section: "Modify Super User" },
+      { label: "Add Super User", section: "Add Super User", icon: <FaUserPlus /> },
+      { label: "Modify Super User", section: "Modify Super User", icon: <FaUsersCog />  },
       { label: "Upload File", section: "Upload File" },
       { label: "Reports", section: "Reports" },
     ],
     "Vendor Admin": [
-      { label: "Add Vendor User", section: "Add Vendor User" },
-      { label: "View / Modify Vendor Users", section: "View / Modify Vendor Users" },
-      { label: "Assign Vendor Users", section: "Assign Vendor Users" },
+      { label: "Add Vendor User", section: "Add Vendor User", icon: <FaUserPlus /> },
+      { label: "View / Modify Vendor Users", section: "View / Modify Vendor Users", icon: <FaUsersCog />  },
+      { label: "Assign Vendor Users", section: "Assign Vendor Users", icon: <FaUserTag /> },
       { label: "View RFP", section: "View RFP" },
       { label: "Submit Query", section: "Submit Query" },
       { label: "Submit RFP", section: "Submit RFP" },
+      { label: "View RFP Table", section: "View RFP Table", icon: <FaTable /> },
     ],
   };
 

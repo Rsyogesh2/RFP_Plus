@@ -793,8 +793,8 @@ router.post('/api/vendor-admin', async (req, res) => {
                 creatorName
             );
      const [submited] =  await db.query(`select * from rfp_functionalitem_draft 
-      WHERE Level = 4 
-      AND Status = 'Bank_Pending_Admin' 
+      WHERE Level >= 4 
+      AND Status IN ('Bank_Pending_Admin', 'Vendor_Pending_Maker') 
       AND RFP_No = ?`,[rfpReferenceNo]);
       //and Bank_Id=?
       // console.log(submited)
@@ -809,27 +809,57 @@ router.post('/api/vendor-admin', async (req, res) => {
         }
         
     if(submited.length>0 && submited.length===assigned.length){
+    // Check if the vendor already exists
+    const [existingVendor] = await db.query(
+      `SELECT * FROM Vendor_Admin_Users 
+      WHERE rfp_reference_no = ? 
+      AND entity_name = ? 
+      AND email = ?`,
+      [rfpReferenceNo, entityName, email]
+    );
 
-    const query = `
-      INSERT INTO Vendor_Admin_Users (
-        rfp_reference_no, entity_name, entity_sub_name, entity_landline,
-        entity_address, city, pin_code, country, admin_name, designation,
-        email, mobile, valid_from, valid_to, active_flag, createdby
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
-    `;
-    const values = [
-      rfpReferenceNo, entityName, entitySubName, entityLandline,
-      entityAddress, city, pinCode, country, adminName, designation,
-      email, mobile, validFrom, validTo, activeFlag, creatorName
-    ];
+    if (existingVendor.length > 0) {
+  // If vendor exists, update the record
+      const updateQuery = `
+        UPDATE Vendor_Admin_Users 
+        SET entity_sub_name = ?, entity_landline = ?, entity_address = ?, 
+            city = ?, pin_code = ?, country = ?, admin_name = ?, 
+            designation = ?, mobile = ?, valid_from = ?, valid_to = ?, 
+            active_flag = ?, createdby = ?
+        WHERE rfp_reference_no = ? 
+        AND entity_name = ? 
+        AND email = ?
+      `;
+      const updateValues = [
+        entitySubName, entityLandline, entityAddress, city, pinCode, country, adminName,
+        designation, mobile, validFrom, validTo, activeFlag, creatorName,
+        rfpReferenceNo, entityName, email
+      ];
+
+      await db.query(updateQuery, updateValues);
+      res.status(200).json({ success: true, message: "Vendor Admin data updated successfully" });
+    } else {
+  // If vendor doesn't exist, insert new record
+      const query = `
+        INSERT INTO Vendor_Admin_Users (
+          rfp_reference_no, entity_name, entity_sub_name, entity_landline,
+          entity_address, city, pin_code, country, admin_name, designation,
+          email, mobile, valid_from, valid_to, active_flag, createdby
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
+      `;
+      const values = [
+        rfpReferenceNo, entityName, entitySubName, entityLandline,
+        entityAddress, city, pinCode, country, adminName, designation,
+        email, mobile, validFrom, validTo, activeFlag, creatorName
+      ];
 
     await db.query(query, values);
     await db.query(`UPDATE rfp_functionalitem_draft
       SET Status = 'Vendor_Pending_Maker',
       Level = 5,
       stage = 'Vendor'
-      WHERE Level = 4 
-      AND Status = 'Bank_Pending_Admin' 
+      WHERE Level >= 4 
+      AND Status  IN ('Bank_Pending_Admin', 'Vendor_Pending_Maker') 
       AND RFP_No = ?`,rfpReferenceNo);
 
     res.status(200).json({ success: true, message: "Vendor Admin data saved successfully" });
@@ -842,12 +872,40 @@ router.post('/api/vendor-admin', async (req, res) => {
       if (err) throw err;
           //console.log("User created!");
       });
+    }
     } else{
       res.send({message:"RFP Not Completed"});
     }
   } catch (err) {
     console.error("Error saving vendor admin data:", err.message);
     res.status(500).json({ success: false, error: "Failed to save vendor admin data" });
+  }
+});
+
+router.get("/api/vendor-list", async (req, res) => {
+  try {
+    const { userName } = req.query;
+
+    if (!userName) {
+      return res.status(400).json({ success: false, message: "User name is required" });
+    }
+
+    // Fetch vendor admin users related to the entity
+    const [vendors] = await db.query(
+      `SELECT rfp_reference_no as rfpReferenceNo, entity_name as entityName, admin_name as adminName, email, mobile, 
+       DATE_FORMAT(valid_from, '%Y-%m-%d') AS validFrom,
+      DATE_FORMAT(valid_to, '%Y-%m-%d') AS validTo, active_flag,entity_sub_name as entitySubName, entity_landline as entityLandline,
+        entity_address as entityAddress, city, pin_code as pinCode, country, designation
+       FROM Vendor_Admin_Users
+       WHERE createdby = ?`,
+      [userName]
+    );
+    console.log(vendors)
+
+    res.status(200).json(vendors);
+  } catch (err) {
+    console.error("Error fetching vendor list:", err.message);
+    res.status(500).json({ success: false, error: "Failed to fetch vendor list" });
   }
 });
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useRef } from "react";
 import "./MFunctional.css";
 
 const vendors = [
@@ -21,6 +21,11 @@ const vendors = [
 
 const Table = ({ data, headers }) => (
   <table className="styled-table">
+    <colgroup>
+    <col style={{ width: "auto",height:"20px" }} />   {/* Commercial Score - auto width */}
+    <col style={{ width: "20px",height:"20px" }} />  {/* Benchmark Score - fixed width */}
+    <col style={{ width: "auto",height:"20px" }} />   {/* % - auto width */}
+    </colgroup>
     <thead>
       <tr>
         {headers.map((header, index) => (
@@ -41,6 +46,13 @@ const Table = ({ data, headers }) => (
 );
 
 const Commercial = ({ values, comVendor, vendorNames }) => {
+  const vendorRef = useRef(null);
+
+  const scrollVendors = (scrollOffset) => {
+    if (vendorRef.current) {
+      vendorRef.current.scrollLeft += scrollOffset;
+    }
+  };
   useEffect(() => {
     console.log(values);
     console.log(comVendor);
@@ -88,9 +100,14 @@ const Commercial = ({ values, comVendor, vendorNames }) => {
           <h3>Commercial Score</h3>
           <Table
             data={values}
-            headers={["Commercial Score", "Benchmark Score", "Internal %"]}
+            headers={["Commercial Score", "Benchmark Score", "%"]}
           />
         </div>
+
+        <div className="vendor-container">
+          <button className="scroll-btn left" onClick={() => scrollVendors(-200)}>←</button>
+
+          <div className="vendor-tables" ref={vendorRef}>
 
         <div className="vendor-tables">
           {vendors.map((vendor, index) => (
@@ -98,10 +115,13 @@ const Commercial = ({ values, comVendor, vendorNames }) => {
               <h3>{vendorNames[index]?.entity_name||vendor.name}</h3>
               <Table
                 data={comVendor && comVendor[index] ? transformVendorData(comVendor[index]) : []}
-                headers={["Vendor Score", "%"]}
+                headers={["Score", "%"]}
               />
             </div>
           ))}
+        </div>
+          <button className="scroll-btn right" onClick={() => scrollVendors(200)}>→</button>
+          </div>
         </div>
       </div>
     </div>

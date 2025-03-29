@@ -224,8 +224,8 @@ const adjustStageAndStatus = (payload, action, data) => {
 const constructPayload = (action, data = {}) => {
 
     let payload = {
-        rfp_no: sidebarValue[0]?.rfp_no || '',
-        rfp_title: sidebarValue[0]?.rfp_title || '',
+        rfp_no: rfpNo || sidebarValue[0]?.rfp_no || '',
+        rfp_title: rfpTitle || sidebarValue[0]?.rfp_title || '',
         bank_name: userPower === "User" ? sidebarValue[0]?.entity_name || '' : '',
         vendor_name: userPower === "User" ? "" : sidebarValue[0]?.entity_name || '',
         created_by: userName,
@@ -238,7 +238,7 @@ const constructPayload = (action, data = {}) => {
         Action_log: `${action} by ${userName} on ${new Date().toISOString()}`,
         userPower,
         rows,
-        selectedVendor,
+        selectedVendor:selectedVendor || "",
     };
 
     payload = adjustStageAndStatus(payload, action, data);
@@ -520,7 +520,7 @@ console.log(determineLevel())
           {userRole==="Maker" && <button className="save-btn" onClick={()=>{saveAsDraft("Save as Draft",{ action: "Save as Draft" })}}>Save as Draft</button>}
           {userRole!=="Reviewer" && <button className="submit-btn"
             onClick={() => {
-              if (window.confirm("Are you sure you want to submit the query?")) {
+              if (window.showConfirm("Are you sure you want to submit the query?", "This action cannot be undone.", "warning")) {
                 saveAsDraft("Submit");
               }
             }}

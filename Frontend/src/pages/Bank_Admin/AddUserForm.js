@@ -154,7 +154,7 @@ const AddUserForm = () => {
             onChange={handleChange}
           />
         </div>
-        <div>
+        {/* <div>
           <label>Active Flag:</label>
           <select
             name="active_flag"
@@ -164,7 +164,7 @@ const AddUserForm = () => {
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
-        </div>
+        </div> */}
         <div className="buttons">
           <button type="submit">Submit</button>
           <button

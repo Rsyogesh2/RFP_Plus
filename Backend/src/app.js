@@ -62,103 +62,6 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-// Catch-all to serve React frontend for any route
-// app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-// });
-// app.use('/api', dataRoutes);
-
-// let transporter = nodemailer.createTransport({
-//   service: 'gmail',
-//   auth: {
-//     user: 'bcaboy27@gmail.com',
-//     pass: '3years?waste!'  // Use App Password if 2FA is enabled
-//   }
-// });
-
-// // Test the connection to the server without sending an email
-// transporter.verify((error, success) => {
-//   if (error) {
-//     console.log('Error: ', error);
-//   } else {
-//     console.log('Server is ready to take messages');
-//   }
-// });
-
-
-// Nodemailer transporter (replace with your email credentials)
-// const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//       user: 'bcaboy27@gmail.com',
-//       pass: '3Years?waste!'
-  
-//     }
-//   });
-  
-//   // Generate OTP
-//   function generateOTP() {
-//     return Math.floor(100000 + Math.random() * 900000);
-//   }
-  
-//   // Send OTP via email
-//   async function sendOTP(email) {
-//     const otp = generateOTP();
-//     const mailOptions = {
-//       from: 'Yogesh <yogesh@infocuzbpm.com>',
-//       to: email,
-//       subject: 'Your OTP',
-//       text: `Your OTP is: ${otp}`
-//     };
-  
-//     try {
-//       await transporter.sendMail(mailOptions);
-//       return otp;
-//     } catch (error) {
-//       console.error('Error sending OTP:', error);   
-  
-//       throw new Error('Failed to send OTP');
-//     }
-//   }
-  
-//   // API endpoint to send OTP
-//   app.post('/send-otp', async (req, res) => {
-//     const { email } = req.body;
-  
-//     try {
-//       // Check if user exists in the database (optional)
-//       // ...
-  
-//       const otp = await sendOTP(email);
-  
-//       // Store OTP in the database (e.g., with a time limit)
-//       await db.query('INSERT INTO otp_codes (user_id, otp, expires_at) VALUES (?, ?, NOW() + INTERVAL 10 MINUTE)', [/* user_id */, otp]);
-  
-//       res.json({ message: 'OTP sent successfully' });
-//     } catch (error) {
-//       res.status(500).json({ error: error.message });
-//     }
-//   });
-  
-//   // API endpoint to verify OTP
-//   app.post('/verify-otp', async (req, res) => {
-//     const { email, otp } = req.body;
-  
-//     try {
-//       // Check if OTP is valid and not expired
-//       const [rows] = await db.query('SELECT * FROM otp_codes WHERE user_id = ? AND otp = ? AND expires_at > NOW()', [/* user_id */, otp]);
-//       if (rows.length === 0) {
-//         throw new Error('Invalid OTP or OTP expired');
-//       }
-  
-//       // If OTP is valid, proceed with authentication or other actions
-//       // ...
-  
-//       res.json({ message: 'OTP verified successfully' });
-//     } catch (error) {
-//       res.status(401).json({ error: error.message });
-//     }
-//   });
 
 // async function createGlobalUser(){
 //     const password = "system@123";
@@ -170,4 +73,4 @@ app.listen(PORT, () => {
 //         if (err) throw err;
 //         console.log("User created!");
 //     }) }
-//     createGlobalUser()
+//   createGlobalUser()

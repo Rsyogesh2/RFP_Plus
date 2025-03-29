@@ -69,7 +69,7 @@ const MOthers = ({ values, othersVendor, vendorNames }) => {
       const benchmark = matchedScore ? matchedScore.benchmark : 0;
       let percentage = benchmark ? ((value / benchmark) * 100).toFixed(2) : "0";
   
-      console.log(`Matching Key: ${key}, Vendor Score: ${value}, Benchmark: ${benchmark}, Percentage: ${percentage}%`);
+      console.log(`Matching Key: ${key}, Score: ${value}, Benchmark: ${benchmark}, Percentage: ${percentage}%`);
   
       return { VendorScore: value, Percentage: `${percentage}%` };
     });
@@ -91,7 +91,7 @@ const MOthers = ({ values, othersVendor, vendorNames }) => {
               <h3>{vendorNames[index]?.entity_name||vendor.name}</h3>
               <Table
                 data={transformVendorData(othersVendor[index])}
-                headers={["Vendor Score", "%"]}
+                headers={["Score", "%"]}
               />
             </div>
           ))}

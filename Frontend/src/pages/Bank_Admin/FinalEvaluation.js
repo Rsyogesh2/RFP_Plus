@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "./../../context/AppContext";
 import './../FinalEvaluation.css';
+import { set } from "lodash";
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -39,6 +40,11 @@ const FinalEvaluation = ({rfpNo="", rfpTitle= ""}) => {
 
   // Fetch data from all tables
   const fetchData = async () => {
+    if (!selectedVendor ) {
+      alert("Please select the Vendor.");
+      return;
+    }
+    
     try {
         const response = await fetch(`${API_URL}/fetchScores`, {
             method: "POST",
@@ -224,7 +230,7 @@ const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
           const scoreKey = trimmedKey + "_Score"; // Match corresponding score key
       
           initialValues[trimmedKey] = firstEntry[key] || ""; // Dropdown values
-          initialScores[trimmedKey] = firstEntry[scoreKey] || ""; // Scores
+          initialScores[trimmedKey] = firstEntry[scoreKey] || 0; // Scores
       }
       
       });
@@ -234,6 +240,10 @@ const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
     
       setSelectedValues(initialValues);
       setSelectedScores(initialScores);
+    } else{
+      console.log("No saved scores available.");
+      setSelectedValues({});
+      setSelectedScores({});
     }
     
   }, [savedScores,sections]);
@@ -242,7 +252,7 @@ const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
   const handleSelectionChange = (tableName, value) => {
     const selectedItem = sections[tableName].find(item => item[0] === value);
     console.log(selectedItem)
-    const score = selectedItem ? selectedItem[1] : ""; // Fetch score if available
+    const score = selectedItem ? selectedItem[1] : 0; // Fetch score if available
     setSelectedValues(prev => ({ ...prev, [tableName]: value })); // Update dropdown selection
     setSelectedScores(prev => ({ ...prev, [tableName]: score }));
 
@@ -285,7 +295,7 @@ const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
                 <input
                   type="text"
                   placeholder="Score"
-                  value={selectedScores[tableName] || ""}
+                  value={selectedScores[tableName] || 0}
                   readOnly
                   className="item-input"
                   style={{ flex: 1 }}

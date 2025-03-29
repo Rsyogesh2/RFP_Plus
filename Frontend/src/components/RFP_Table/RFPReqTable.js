@@ -227,15 +227,15 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         setFItem((prevItems) =>
             prevItems.map((obj) => ({
                 ...obj,
-                isEditing: false, // Ensure isEditing is set to false
+                isEditing: obj === item ? !obj.isEditing : false, // Only toggle the clicked item, reset others
             }))
         );
         console.log(item);
-        const index = findIndexByObject(item);
-        const newData = [...FItem];
-        newData[index].isEditing = !newData[index].isEditing;
-        setFItem(newData);
-        console.log(newData[index]);
+        // const index = findIndexByObject(item);
+        // const newData = [...FItem];
+        // newData[index].isEditing = !newData[index].isEditing;
+        // setFItem(newData);
+        // console.log(newData[index]);
     };
 
     const handleDelete = (item) => {
@@ -805,10 +805,14 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                         })}
                     </div>
                 )}
-                {!editableTable && <button onClick={addTable} className="add-table-btn">
-                    Add Table
-                </button>
-}
+                {userRole === "Maker" && (FItem?.[0]?.Level === undefined || Number(FItem?.[0]?.Level) === 1) && 
+                    !editableTable && (
+                        <button onClick={addTable} className="add-table-btn">
+                            Add Table
+                        </button>
+                    )
+                }
+
             </div>
 
             {/* Show Submit button only for Authorizer or Reviewer */}

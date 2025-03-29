@@ -37,13 +37,28 @@ export const GlobalAlertProvider = ({ children }) => {
     });
   };
 
+  const showConfirm = (title, text, icon = "warning") => {
+    return Swal.fire({
+      title,
+      text,
+      icon,
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      background: "#ffffff",
+      color: "#222",
+      confirmButtonColor: "#dc3545", // Red confirm button (Bootstrap danger color)
+      cancelButtonColor: "#6c757d", // Grey cancel button
+      iconColor: "#dc3545", // Red warning icon
+      width: "400px",
+    }).then((result) => result.isConfirmed); // Returns true if confirmed, false otherwise
+  };
+
   useEffect(() => {
-    // Attach functions to global window object
     window.showToast = showToast;
     window.showPopup = showPopup;
-    window.alert = (message) => {
-      showPopup("Alert", message, "info");
-    };
+    window.showConfirm = showConfirm; // Attach confirm to window
+    window.alert = (message) => showPopup("Alert", message, "info");
   }, []);
 
   return (

@@ -26,9 +26,9 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
     //             return state;
     //     }
     // };
-    
+
     // const [FItem, dispatchFItem] = useReducer(fItemReducer, []);
-    
+
 
     const [data, setdata] = useState([]);
     const [valueL1, setValueL1] = useState(null);
@@ -97,7 +97,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         link.click();
         document.body.removeChild(link);
     };
-    
+
     // const handleFileChange = async (event) => {
     //     const selectedFile = event.target.files[0];
 
@@ -391,18 +391,23 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
                 <td><input type="radio" checked={item.N === 1 ? true : false ||item.SelectedOption==="N"?true:false} onChange={() => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td> */}
-                <td style={{ padding: "5px", height: '100%', textAlign: "center" }}>
+                <td style={{ padding: "0px", height: "100%", textAlign: "center" }}>
                     {userRole === 'Maker' && (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? (
                         <textarea
-                            style={{
-                                border: 'none',
-                                outline: 'none',
-                                resize: 'none',
-                                width: '100%',
-                                height: '100%',
-                                boxSizing: 'border-box',
-                                display: 'block'
-                            }}
+                        style={{
+                            border: "none",
+                            outline: "none",
+                            resize: "none",
+                            width: "100%",
+                            height: "100%",
+                            minHeight: "100% !important",
+                            boxSizing: "border-box",
+                            padding: 0,  // Remove padding to prevent extra space
+                            margin: 0,   // Remove margin just in case
+                            display: "block",
+                            font: "inherit",
+                            verticalAlign: "top",  // Align text properly
+                          }}
                             value={item.Remarks}
                             onChange={(e) => handleCommentsChange(e, item)}
                         />
@@ -531,8 +536,8 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         <div className="rfp-table">
             <div className="header">
                 <div className="title">
-                    <span>RFP No: { rfpNo ||sidebarValue && sidebarValue[0]?.rfp_no}</span>
-                    <span>&nbsp;&nbsp; RFP Title: { rfpTitle || sidebarValue && sidebarValue[0]?.rfp_title}</span>
+                    <span>RFP No: {rfpNo || sidebarValue && sidebarValue[0]?.rfp_no}</span>
+                    <span>&nbsp;&nbsp; RFP Title: {rfpTitle || sidebarValue && sidebarValue[0]?.rfp_title}</span>
                 </div>
                 <div className="labels">
                     <span>M-Mandatory | O-Optional</span>
@@ -615,49 +620,40 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     Back to Maker
                 </button>
             )} */}
-            {(userRole === "Authorizer") && Number(FItem?.[0]?.Venor_Level) === 6 && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
+            {(userRole === "Authorizer") && Number(FItem?.[0]?.vendor_level) === 6 && (
+                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Authorized Successfully")}>
                     Authorize
                 </button>
             )}
-            {(userRole === "Authorizer") && Number(FItem?.[0]?.Venor_Level) === 6 && (
-                <button onClick={() => handleSave(constructPayload("Back to Maker", { action: "Back to Maker" }))}>
+            {(userRole === "Authorizer") && Number(FItem?.[0]?.vendor_level) === 6 && (
+                <button onClick={() => handleSave(constructPayload("Back to Maker", { action: "Back to Maker" }), userPower, "RFP Sent Back to Maker")}>
                     Back to Maker
                 </button>
             )}
-
-
-            {/* Optional Save as Draft button for Maker */}
-            {/* {userRole === "Maker" && (
-                <button onClick={() => handleSave(constructPayload("Save as Draft", {}), "Vendor User")}>
+            {userRole === "Maker" && Number(FItem?.[0]?.vendor_level ?? FItem?.[0]?.Level) === 5 && (
+                <button onClick={() => handleSave(constructPayload("Save as Draft", { action: "Save as Draft" }), userPower, "RFP Saved as Draft")}>
                     Save as Draft
                 </button>
             )}
-            {userRole === "Maker" && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}), "Vendor User")}>
-                    Submit
-                </button>
-            )} */}
-            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.vendor_level) === 5 && (
-                <button onClick={() => handleSave(constructPayload("Save as Draft", { action: "Save as Draft" }))}>
-                    Save as Draft
-                </button>
-            )}
-            {userRole === "Maker" && Number(!FItem?.[0]?.Level || FItem?.[0]?.vendor_level) === 5 && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}))}>
+
+            {userRole === "Maker" && Number(FItem?.[0]?.vendor_level ?? FItem?.[0]?.Level) === 5 && (
+                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Submitted to Authorizer")}>
                     Submit to Authorizer
                 </button>
             )}
-            {userPower === "Vendor Admin" && FItem?.every(item => Number(item?.vendor_level) === 7) && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", { action: "Submit the RFP" }), "Vendor Admin")}>
-                    Submit the RFP
-                </button>
-            )}
-            {userPower === "Vendor Admin" && action === "Submit RFP" && FItem?.every(item => Number(item?.vendor_level) === 4) && (
-                <div className="submitbtn" >
-                    RFP is Submitted to Bank
-                </div>
-            )}
+            {userPower === "Vendor Admin" && FItem?.length > 0 &&
+                FItem.every(item => Number(item?.vendor_level) === 7) && (
+                    <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", { action: "Submit the RFP" }), "Vendor Admin", "RFP Submitted to Bank")}>
+                        Submit the RFP
+                    </button>
+                )}
+            {userPower === "Vendor Admin" && action === "Submit RFP" && FItem?.length > 0 &&
+                FItem.every(item => Number(item?.vendor_level) === 4) && (
+                    <div className="submitbtn">
+                        RFP is Submitted to Bank
+                    </div>
+                )}
+
         </div>
     );
 };

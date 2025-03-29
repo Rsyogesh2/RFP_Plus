@@ -30,6 +30,7 @@ router.post("/api/login", async (req, res) => {
     try {
       // Use the promise-based `execute` method
       const [results] = await db.execute(query, [username]);
+      console.log("Query results:", results);
       if(results[0].Role=="Super Admin"){
         [names] = await db.execute("SELECT super_user_name as user_name,active_flag FROM superadmin_users WHERE super_user_email = ?", [username]);
       } else if(results[0].Role=="Vendor Admin"){
@@ -38,6 +39,8 @@ router.post("/api/login", async (req, res) => {
         [names] = await db.execute("SELECT user_name,active_flag FROM Users_Table WHERE email = ?", [username]);
       } else if(results[0].Role=="Vendor User"){
         [names] = await db.execute("SELECT user_name,active_flag FROM vendor_users_table WHERE email = ?", [username]);
+      } else {
+        
       }
        
       // console.log(results.Role);
@@ -162,9 +165,15 @@ router.post("/api/login", async (req, res) => {
          WHERE ut.email = ?;
          `;
           [results1] = await db.execute(query1, [username]);
-      } 
+      } else if(results[0].Role=="Vendor Admin"){
+          query1 = `SELECT rfp_reference_no as rfpNo
+          FROM  Vendor_Admin_Users 
+          WHERE email = ?;
+          `;
+            [results1] = await db.execute(query1, [username]);
+        } 
       // Extract roles and send as an array
-      const roles = results.map((row) => row.Role);
+      const roles = results.map((row) => row.Role || "");
       res.json({ roles,results1 });
     } catch (error) {
       console.error("Error fetching roles:", error);
