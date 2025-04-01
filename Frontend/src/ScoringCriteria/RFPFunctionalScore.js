@@ -13,7 +13,7 @@ const FunctionalScore = ({ onUpdate, data }) => {
         isCustomizableChecked: false,
         isNotAvailableChecked: false,
         availableScore: 0,
-        partlyAvailableScore: 0,
+        partlyavailableScore: 0,
         customizableScore: 0,
         notAvailableScore: 0,
         mandatoryScore: 0,
@@ -23,6 +23,7 @@ const FunctionalScore = ({ onUpdate, data }) => {
         if(data.length>0){
             setScores(data[0])
         }
+        console.log('FunctionalScore data:', data);
         onUpdate(scores);
     }, [scores, onUpdate]);
 
@@ -38,7 +39,7 @@ const FunctionalScore = ({ onUpdate, data }) => {
     const totalValue = () => {
         const { 
             isAvailableChecked, availableScore,
-            isPartlyAvailableChecked, partlyAvailableScore,
+            isPartlyAvailableChecked, partlyavailableScore,
             isCustomizableChecked, customizableScore,
             isNotAvailableChecked, notAvailableScore,
             mandatoryScore, optionalScore 
@@ -49,7 +50,7 @@ const FunctionalScore = ({ onUpdate, data }) => {
         if (isAvailableChecked) {
             totalVal = availableScore * (mandatoryScore + optionalScore);
         } else if (isPartlyAvailableChecked) {
-            totalVal = partlyAvailableScore * (mandatoryScore + optionalScore);
+            totalVal = partlyavailableScore * (mandatoryScore + optionalScore);
         } else if (isCustomizableChecked) {
             totalVal = customizableScore * (mandatoryScore + optionalScore);
         } else if (isNotAvailableChecked) {
@@ -58,6 +59,9 @@ const FunctionalScore = ({ onUpdate, data }) => {
 
         return totalVal;
     };
+    function lowercaseFirstLetter(item) {
+        return item.charAt(0).toLowerCase() + item.slice(1);
+    }
 
     // Sending data to backend
     const sendDataToBackend = async () => {
@@ -89,7 +93,7 @@ const FunctionalScore = ({ onUpdate, data }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {['Available', 'Partly available', 'Customizable', 'Not available'].map((item, index) => (
+                        {['Available', 'Partly Available', 'Customizable', 'Not available'].map((item, index) => (
                             <tr key={index}>
                                 <td>{item}</td>
                                 {item!=='Not available' ?(
@@ -105,7 +109,7 @@ const FunctionalScore = ({ onUpdate, data }) => {
                                     <select
                                         disabled={!scores[`is${item.replace(' ', '')}Checked`]}
                                         value={scores[`${item.toLowerCase()}Score`]}
-                                        onChange={(e) => handleSelectChange(`${item.toLowerCase()}Score`, e.target.value)}
+                                        onChange={(e) => handleSelectChange(`${item.toLowerCase().replace(' ', '')}Score`, e.target.value)}
                                     >
                                         <option value="0">0</option>
                                         <option value="1">1</option>
@@ -128,7 +132,7 @@ const FunctionalScore = ({ onUpdate, data }) => {
                                 <td>
                                     <select
                                         value={scores[`${item.toLowerCase()}Score`]}
-                                        onChange={(e) => handleSelectChange(`${item.toLowerCase()}Score`, e.target.value)}
+                                        onChange={(e) => handleSelectChange(`${item.charAt(0).toLowerCase() + item.slice(1)}Score`, e.target.value)}
                                     >
                                         <option value="0">0</option>
                                         <option value="1">1</option>

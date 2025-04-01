@@ -542,6 +542,9 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                 <div className="labels">
                     <span>M-Mandatory | O-Optional</span>
                     <span>A-Available | P-Partly available | C-Customizable | N-Not available</span>
+                    <span>{FItem?.[0]?.vendor_status==="Completed"?"Completed":Number(FItem?.[0]?.Level) > 4 && Number(FItem?.[0]?.vendor_level) !== 4 ? "Vendor Level" :
+                    Number(FItem?.[0]?.Level) === 1 ? "Maker Stage" : Number(FItem?.[0]?.Level) === 2 ? "Authorizer Stage" :
+                        Number(FItem?.[0]?.Level) === 3 ? "Reviewer Stage" : ""} </span>
                 </div>
             </div>
 

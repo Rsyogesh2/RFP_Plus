@@ -199,14 +199,14 @@ const Login = ({ onLogin }) => {
             </select> */}
               {/* First Dropdown (RFP No) */}
               {/* First Dropdown (RFP No) */}
-              <label htmlFor="rfpNo" style={{ display: (roles[0] !== "Super Admin" ) ? "block" : "none" }}>
+              <label htmlFor="rfpNo" style={{ display: (roles[0] !== "Super Admin" && roles[0] !== "Vendor Admin" ) ? "block" : "none" }}>
                 Select RFP No:
               </label>
               <select
                 id="rfpNo"
                 value={rfpNumber}
                 onChange={handleRFPSelect}
-                style={{ display:(roles[0] !== "Super Admin") ? "block" : "none" }}
+                style={{ display:(roles[0] !== "Super Admin" && roles[0] !== "Vendor Admin") ? "block" : "none" }}
               >
                 <option value="" >-- Select RFP No --</option>
                 {rfpnumbers.map((role, index) => (

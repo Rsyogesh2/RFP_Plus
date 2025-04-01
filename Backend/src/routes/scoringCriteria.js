@@ -331,7 +331,20 @@ router.post('/fetchScores', async (req, res) => {
         // `;
          
         // "select Bank_Id , CommercialPattern, Bank_Amount, created_by, Percentage from CommercialPattern_Amounts where RFP_No=? and Vendor_Id=?"
-        const [commercial]= await db.query(query,[rfpNo[0].rfp_reference_no,id])
+        let [commercial]= await db.query(query,[rfpNo[0].rfp_reference_no,id]);
+        if (commercial.length === 0) {
+            const fallbackQuery = `SELECT 
+                        cs.id, 
+                        cs.CommercialPattern, 
+                        cs.InternalPercent, 
+                        cs.From1, cs.To1, cs.Score1, 
+                        cs.From2, cs.To2, cs.Score2, 
+                        cs.From3, cs.To3, cs.Score3
+                    FROM CommercialScores cs
+                    WHERE cs.RFP_No = ?;`;
+        
+             [commercial] = await db.query(fallbackQuery, [rfpNo[0].rfp_reference_no]);
+        }
         // const query = `
         // select CommercialPattern, InternalPercent, From1, To1, Score1, From2, To2, Score2, From3, To3, Score3
         // from  CommercialScores where RFP_No =?
@@ -680,7 +693,6 @@ router.get('/fetchFunctional-score', (req, res) => {
     });
 });
 // Save data
-
 
 // Fetch data
 router.get("/fetch-scoring-Overall", async(req, res) => {

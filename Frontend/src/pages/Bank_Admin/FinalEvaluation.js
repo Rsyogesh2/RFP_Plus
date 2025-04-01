@@ -315,8 +315,52 @@ const CollapsibleSection = ({ title, items, setItems }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const handleTextChange = (index, value) => {
     const updatedItems = [...items];
-    updatedItems[index].Bank_Amount = value; // Store the amount in Bank_Amount field
-    setItems(updatedItems);  // Update the state in the parent component
+    const item = updatedItems[index];
+    const amount = Number(value); // Convert input value to a number
+    if (isNaN(Number(amount))) {
+      alert("Please enter a valid number.");
+      updatedItems[index].Bank_Amount = ""; // Store the amount if valid
+      setItems(updatedItems); // Update state
+      return;;
+    }
+    // Check if the amount is negative
+    if (amount < 0) {
+      alert("Amount cannot be negative.");
+      updatedItems[index].Bank_Amount = 0; // Store the amount if valid
+      setItems(updatedItems); // Update state
+      return;
+    } else if (amount === 0) {
+      updatedItems[index].Bank_Amount = value; // Store the amount if valid
+      setItems(updatedItems); // Update state
+      return;
+    }
+    
+    // Convert range values to numbers
+  const from1 = parseFloat(item.From1);
+  const to1 = parseFloat(item.To1);
+  const from2 = parseFloat(item.From2);
+  const to2 = parseFloat(item.To2);
+  const from3 = parseFloat(item.From3);
+  const to3 = parseFloat(item.To3);
+
+  // Check if the amount is within any of the valid ranges
+  if (
+    (amount >= from1 && amount <= to1) ||
+    (amount >= from2 && amount <= to2) ||
+    (amount >= from3 && amount <= to3)
+  ) {
+    updatedItems[index].Bank_Amount = value; // Store the amount if valid
+    setItems(updatedItems); // Update state
+  } else {
+    alert(`Amount ${value} is not within any valid range! 
+      Valid ranges: 
+      1️⃣ ${from1} - ${to1} 
+      2️⃣ ${from2} - ${to2} 
+      3️⃣ ${from3} - ${to3}`);
+  }
+
+    // updatedItems[index].Bank_Amount = value; // Store the amount in Bank_Amount field
+    // setItems(updatedItems);  // Update the state in the parent component
   };
   const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 

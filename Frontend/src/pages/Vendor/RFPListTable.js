@@ -97,11 +97,22 @@ const RFPListTable = () => {
     // if (visibleState[actionKey]) return; // Stop execution if we just hid the component
 
 
-    if (action === "Submitted RFP") {
+    if (action === "Submitted RFP" && userPower === "Super Admin") {
       setVisibleState((prev) => ({
         vendor: !prev.vendor,
         viewrfp: false,
         submitrfp: false,
+        finalrfp: false,
+        dashboard: false,
+        finalevaluation: false,
+        vendorquery: false,
+      }));
+      return;
+    } else if (action === "Submitted RFP" && userPower === "Vendor Admin") {
+      setVisibleState((prev) => ({
+        vendor: false,
+        viewrfp: false,
+        submitrfp: !prev.submitrfp,
         finalrfp: false,
         dashboard: false,
         finalevaluation: false,
@@ -216,7 +227,7 @@ const RFPListTable = () => {
         </tbody>
       </table>
 
-      {visibleState.vendor && (
+      {visibleState.vendor && userPower === "Super Admin" && (
         <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
           <select
             style={{

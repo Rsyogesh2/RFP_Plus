@@ -2784,7 +2784,7 @@ router.get('/loadContents-superAdmin', async (req, res) => {
         [userName]
       );
       //console.log("Vendor User Modules Assignment:", result);
-      [result1] = await db.query(`select * from rfp_creation where email=?`, [userDetails[0].createdby]);
+      [result1] = await db.query(`select * from rfp_creation where email=? and rfp_no=?`, [userDetails[0].createdby,userDetails[0].rfp_reference_no]);
     }
     const data = { l1: [], Name: userDetails[0].admin_name };
     let combined = [];
