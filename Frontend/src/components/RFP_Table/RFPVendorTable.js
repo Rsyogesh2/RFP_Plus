@@ -345,6 +345,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     style={{
                         fontWeight: "normal",
                         paddingLeft: `${paddingLeft}px`,
+                        whiteSpace: "wrap",
                     }}
                 >
                     {item.name}
@@ -399,20 +400,37 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                             outline: "none",
                             resize: "none",
                             width: "100%",
-                            height: "100%",
-                            minHeight: "100% !important",
+                            minHeight: "80px", // 👈 Ensures there's room for multiple lines
+                            height: "auto",     // 👈 Allows it to grow with content
                             boxSizing: "border-box",
-                            padding: 0,  // Remove padding to prevent extra space
-                            margin: 0,   // Remove margin just in case
-                            display: "block",
+                            padding: "4px",
+                            margin: 0,
                             font: "inherit",
-                            verticalAlign: "top",  // Align text properly
+                            display: "block",
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                            overflowWrap: "break-word",
                           }}
                             value={item.Remarks}
                             onChange={(e) => handleCommentsChange(e, item)}
                         />
                     ) : (
-                        <span style={{ fontWeight: "normal" }}>{item.Remarks}</span>
+                        <span style={{
+                            fontWeight: "normal",
+                            border: "none",
+                            outline: "none",
+                            resize: "none",
+                            width: "100%",
+                            height: "auto",     // 👈 Allows it to grow with content
+                            boxSizing: "border-box",
+                            padding: "4px",
+                            margin: 0,
+                            font: "inherit",
+                            display: "block",
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                            overflowWrap: "break-word",
+                          }}>{item.Remarks}</span>
                     )}
                 </td>
 
@@ -463,15 +481,18 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         // console.log(f2FItem);
         return (
             <table className="item-table1">
-                {/* <colgroup>
-              <col style={{ width: "8%" }} />
-              <col style={{ width: "70%" }} />
-              <col style={{ width: "3%" }} />
-              <col style={{ width: "1%" }} />
-              <col style={{ width: "25%" }} />
-          </colgroup> */}
+            <colgroup>
+              <col style={{ width: "40%" }} />
+              <col style={{ width: "6%" }} />
+              {APCN?.isAvailableChecked !== 0 && <col style={{ width: "6%" }} />}
+              {APCN?.isPartlyAvailableChecked !== 0 && <col style={{ width: "6%" }} />}
+              {APCN?.isCustomizableChecked !== 0 && <col style={{ width: "6%" }} />}
+              <col style={{ width: "6%" }} />
+              <col style={{ width: "30%" }} />
+              {/* <col style={{ width: "30%" }} /> */}
+          </colgroup>
                 <thead>
-                    <tr>
+                    <tr className='header-row-vendor'>
                         <th>Requirement</th>
                         <th>M/O</th>
                         {/* <th>Comments</th> */}

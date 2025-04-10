@@ -58,7 +58,7 @@
   }
   
   .assign-users-container {
-    padding: 20px;
+    padding:0px 20px;
     background-color: #fff;
     border-radius: 5px;
   }
@@ -110,12 +110,13 @@
   
   .assign-users-container button {
     margin-right: 10px;
-    padding: 8px 15px;
+    padding: 6px 10px;
     color: white;
     background-color: #007bff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 0.9rem;
   }
   
   .assign-users-container button[type="reset"] {

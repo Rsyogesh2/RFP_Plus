@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { AppContext } from "./../../context/AppContext";
 import './../AssignUsers.css'
- import './../combinedpages2.css';
+import './../combinedpages2.css';
 
 
 const AssignUsers = () => {
@@ -20,16 +20,16 @@ const AssignUsers = () => {
 
   const { usersList, userName, userPower, setUsersList, moduleData } = useContext(AppContext); // Users load in the table
   console.log(usersList);
-   // Function to convert ISO date to 'YYYY-MM-DD'
-const formatDate = (isoString) => {
-  return isoString ? isoString.split("T")[0] : ""; // Extract only 'YYYY-MM-DD' part
-};
+  // Function to convert ISO date to 'YYYY-MM-DD'
+  const formatDate = (isoString) => {
+    return isoString ? isoString.split("T")[0] : ""; // Extract only 'YYYY-MM-DD' part
+  };
 
-// Extract valid_from and valid_to in proper format
-const validFromDate = formatDate(moduleData?.userDetails?.[0]?.valid_from);
-const validToDate = formatDate(moduleData?.userDetails?.[0]?.valid_to);
-console.log(validFromDate);
-console.log(validToDate);
+  // Extract valid_from and valid_to in proper format
+  const validFromDate = formatDate(moduleData?.userDetails?.[0]?.valid_from);
+  const validToDate = formatDate(moduleData?.userDetails?.[0]?.valid_to);
+  console.log(validFromDate);
+  console.log(validToDate);
   // Function to disable dates outside the range
   const isDateOutOfRange = (date, minDate, maxDate) => {
     return date < minDate || date > maxDate;
@@ -76,7 +76,7 @@ console.log(validToDate);
         // If unchecked, remove the l2module
         if (existingModule) {
           const updatedL2Modules = existingModule.l2module.filter(
-            (mod) => mod !== l2module
+            (mod) => mod.code !== l2module.code // Fix: Check by 'code' instead of object reference 02/04/2025
           );
 
           if (updatedL2Modules.length > 0) {
@@ -144,7 +144,7 @@ console.log(validToDate);
 
   }, [usersList]);
   const handleFieldChange = (idx, field, value) => {
-    if (rfpNo===""||rfpNo===null||rfpNo===undefined) {
+    if (rfpNo === "" || rfpNo === null || rfpNo === undefined) {
       alert("Please select the RFP Reference Number.");
       return false; // Prevent further execution
     }
@@ -156,6 +156,25 @@ console.log(validToDate);
     };
     setAssignedUsers(updatedUsers);
     console.log(updatedUsers)
+  };
+  const handleRadioFieldChange = (idx, field, value) => {
+    // setAssignedUsers((prevUsers) =>
+    //   prevUsers.map((user, idx) =>
+    //     idx === index
+    //       ? { maker: false, authorizer: false, reviewer: false, [field]: value } // Reset others to false
+    //       : user
+    //   )
+    // );
+    const updatedUsers = [...assignedUsers];
+    updatedUsers[idx] = {
+      ...updatedUsers[idx],
+      maker: false,
+      authorizer: false,
+      reviewer: false,
+      [field]: value
+    };
+    setAssignedUsers(updatedUsers);
+    
   };
   const fetchUseRfpNo = async (rfpNo) => {
     try {
@@ -200,14 +219,14 @@ console.log(validToDate);
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          console.log(assignedUsers); 
-          for(let user of assignedUsers){
-            if(user.active){
-              if(user.fromDate===""|| user.fromDate===null||user.toDate===""|| user.toDate===null){
+          console.log(assignedUsers);
+          for (let user of assignedUsers) {
+            if (user.active) {
+              if (user.fromDate === "" || user.fromDate === null || user.toDate === "" || user.toDate === null) {
                 alert("Please select the From and To Date for the Active Users");
-                return false; 
+                return false;
               }
-            } 
+            }
           }
           console.log(rfpNo);
           try {
@@ -328,7 +347,7 @@ console.log(validToDate);
                         min={validFromDate} // Restricts earlier dates
                         max={validToDate}   // Restricts later dates
                         onChange={(e) => handleFieldChange(idx, "fromDate", e.target.value)}
-                        
+
                       />
                     </td>
                     <td>
@@ -342,25 +361,29 @@ console.log(validToDate);
                     </td>
                     <td>
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name={`role-${idx}`} // Ensures only one can be selected per row
                         checked={user.maker}
-                        onChange={(e) => handleFieldChange(idx, "maker", e.target.checked)}
+                        onChange={() => handleRadioFieldChange(idx, "maker", true)}
                       />
                     </td>
                     <td>
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name={`role-${idx}`}
                         checked={user.authorizer}
-                        onChange={(e) => handleFieldChange(idx, "authorizer", e.target.checked)}
+                        onChange={() => handleRadioFieldChange(idx, "authorizer", true)}
                       />
                     </td>
                     <td>
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name={`role-${idx}`}
                         checked={user.reviewer}
-                        onChange={(e) => handleFieldChange(idx, "reviewer", e.target.checked)}
+                        onChange={() => handleRadioFieldChange(idx, "reviewer", true)}
                       />
                     </td>
+
                     <td>
                       <button type="button" onClick={() => togglePopup(idx)}>
                         {user.selectedModules?.length
@@ -395,8 +418,8 @@ console.log(validToDate);
                                     <ul>
                                       {rfpModule.l1[activeTab].l2.map((l2module, l2moduleIndex) => (
                                         <li key={l2moduleIndex}>
-                                          <label>
-                                          <input
+                                          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
+                                            <input
                                               type="checkbox"
                                               checked={selectedModules.some(
                                                 (item) =>

@@ -48,6 +48,11 @@ const Login = ({ onLogin }) => {
         return
       }
       }
+      if (result.Name.active_flag === "Inactive") {
+        console.log("Condition passed! Now showing popup...");
+        window.showPopup("Success!", "Your credentials are disabled, please contact your Administrator", "success");
+        return
+      }
       window.showPopup("Success!", "Login successful!", "success")
       localStorage.setItem("token", result.token); // Store the JWT
       setUserName(credentials.username);
@@ -178,7 +183,7 @@ const Login = ({ onLogin }) => {
               </label>
               <a href="#" className="forgot-password" onClick={handleForgotPasswordClick} >Forgot Password?</a>
             </div>
-            <button type="submit" className="login-btn">LOGIN</button>
+            <button className="login-btn" style={{backgroundColor:"black"}}>LOGIN</button>
           </form>
 
           {roles.length > 0 && (

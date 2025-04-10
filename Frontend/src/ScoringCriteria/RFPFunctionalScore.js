@@ -81,7 +81,7 @@ const FunctionalScore = ({ onUpdate, data }) => {
 
     return (
         <div className="functional-score">
-            <h3>Functional Score</h3>
+            <h2>Functional Score</h2>
 
             <div className="score-section">
                 <table className="response-table">
@@ -115,6 +115,7 @@ const FunctionalScore = ({ onUpdate, data }) => {
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                         <option value="3">3</option>
+                                        <option value="4">4</option>
                                     </select>
                                 </td>
                             </tr>

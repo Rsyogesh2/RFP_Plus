@@ -99,10 +99,10 @@ const CommercialScore = ({ onUpdate, data }) => {
             <h2>Commercial Score</h2>
             <table>
                 <colgroup>
-                    <col style={{ width: "10%" }} />
-                    <col style={{ width: "5%" }} />
-                    <col style={{ width: "40%" }} />
-                    <col style={{ width: "40%" }} />
+                    <col style={{ width: "50%" }} />
+                    <col style={{ width: "3%" }} />
+                    <col style={{ width: "17%" }} />
+                    <col style={{ width: "17%" }} />
                     <col style={{ width: "5%" }} />
                 </colgroup>
                 <thead>
@@ -125,7 +125,7 @@ const CommercialScore = ({ onUpdate, data }) => {
                         />
                     ))}
                 </tbody>
-                <tfoot>
+                <tfoot style={{ backgroundColor: "#f2f2f2" }}>
                     <tr>
                         <td colSpan="1">Total</td>
                         <td style={{ textAlign: "center" }}>{totalPercentage}%</td>
@@ -152,13 +152,21 @@ const CommercialScoreRow = ({ placeholder, rowIndex, rowData = {}, onInputChange
 
     return (
         <tr>
-            <td>
+            <td >
                 <textarea
                     placeholder={placeholder}
                     value={rowData.CommercialPattern}
                     onChange={(e) => handleChange("CommercialPattern", e.target.value)}
                     className="item-input textarea-input"
                     rows="2"
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        border: "none",
+                        resize: "none",
+                        padding: "8px", // optional for inner spacing
+                        boxSizing: "border-box", // ensures padding doesn't break width
+                    }}
                 />
             </td>
             <td>
@@ -168,11 +176,19 @@ const CommercialScoreRow = ({ placeholder, rowIndex, rowData = {}, onInputChange
                     placeholder="%"
                     value={rowData.InternalPercent || ""}
                     onChange={(e) => handleChange("InternalPercent", parseFloat(e.target.value) || 0)}
-                    style={{ textAlign: "center" }}
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        border: "none",
+                        resize: "none",
+                        padding: "8px", // optional for inner spacing
+                        boxSizing: "border-box", // ensures padding doesn't break width
+                        textAlign: "center",
+                    }}
                 />
             </td>
             <td>
-                <div className="amount-group">
+            <div className="amount-group" style={{ display: "flex", flexDirection: "column",gap: "2px" }}>
                     {[1, 2, 3].map((index) => (
                         <input
                             key={`from-${index}`}
@@ -187,7 +203,7 @@ const CommercialScoreRow = ({ placeholder, rowIndex, rowData = {}, onInputChange
                 </div>
             </td>
             <td>
-                <div className="amount-group">
+                <div className="amount-group" style={{ display: "flex", flexDirection: "column",gap: "2px" }}>
                     {[1, 2, 3].map((index) => (
                         <input
                             key={`to-${index}`}
@@ -202,7 +218,8 @@ const CommercialScoreRow = ({ placeholder, rowIndex, rowData = {}, onInputChange
                 </div>
             </td>
             <td>
-                {[1, 2, 3].map((scoreIndex) => (
+            <div className="amount-group" style={{ display: "flex", flexDirection: "column",gap: "2px" }}>
+            {[1, 2, 3].map((scoreIndex) => (
                     <select
                         key={`score-${scoreIndex}`}
                         className="item-input"
@@ -217,6 +234,7 @@ const CommercialScoreRow = ({ placeholder, rowIndex, rowData = {}, onInputChange
                         ))}
                     </select>
                 ))}
+                </div>
             </td>
         </tr>
     );

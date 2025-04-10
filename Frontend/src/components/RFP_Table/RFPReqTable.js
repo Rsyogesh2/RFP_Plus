@@ -742,6 +742,57 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         setTempName(""); // Reset temp storage
     };
 
+const CollapsibleList = ({ itemData, userRole }) => {
+  return (
+    <div>
+      {itemData.map((item, index1) => (
+        <CollapsibleSection
+          key={index1}
+          title={`${index1 + 1}. ${item.name}`}
+          content={
+            item.l2.map((l2, index2) => {
+              const indexval = `${index1 + 1}.${index2 + 1}`;
+              return (
+                <CollapsibleSection
+                  key={l2.code}
+                  title={`${indexval} ${l2.name}`}
+                  content={
+                    l2.l3 && l2.l3.length > 0 ? (
+                      l2.l3.map((l3, index3) => (
+                        <div key={l3.code} className="level3">
+                          <span className="l3">{`${indexval}.${index3 + 1} ${l3.name}`}</span>
+                          {Tables(l3, index1, "f1", index3, userRole)}
+                        </div>
+                      ))
+                    ) : (
+                      Tables(l2, index1, "l3", index2, indexval, userRole)
+                    )
+                  }
+                />
+              );
+            })
+          }
+        />
+      ))}
+    </div>
+  );
+};
+
+const CollapsibleSection = ({ title, content }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="collapsible-section">
+      <div className="header" onClick={() => setIsOpen(!isOpen)}>
+        <span>{title}</span>
+        <button className="toggle-btn">{isOpen ? "▲" : "▼"}</button>
+      </div>
+      {isOpen && <div className="content">{content}</div>}
+    </div>
+  );
+};
+
+
 
     return (
         <div className="rfp-table">
@@ -770,7 +821,7 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                                             <div key={l2.code} className='level2'>
                                                 <span className='l2'>{indexval + " " + l2.name}</span>
                                                 {/* Editable input for the first added table */}
-                                                { l2.name === "" ? (
+                                                {/* { l2.name === "" ? (
                                                     <>
                                                         <input
                                                             type="text"
@@ -784,7 +835,7 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                                                     </>
                                                 ) : (
                                                     <span>{l2.name}</span>
-                                                )}
+                                                )} */}
                                                 {l2.l3 && l2.l3.length > 0 ? (
                                                     <>
                                                         {l2.l3.map((l3, index) => (
@@ -804,6 +855,8 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                             )
                         })}
                     </div>
+                    // <CollapsibleList itemData={itemData} userRole={userRole} />
+
                 )}
                 {userRole === "Maker" && (FItem?.[0]?.Level === undefined || Number(FItem?.[0]?.Level) === 1) && 
                     !editableTable && (

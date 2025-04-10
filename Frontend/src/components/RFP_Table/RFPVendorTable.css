@@ -64,6 +64,7 @@
 
 /* Table General Styling */
 .item-table1 {
+  table-layout: fixed;
   width: 100%;
   border-collapse: collapse;
   font-family: 'Arial', sans-serif;
@@ -93,7 +94,7 @@
 /* Adjust Column Widths */
 .item-table1 th:first-child,
 .item-table1 td:first-child {
-  width: 30%;
+  width: 60%;
   text-align: left;
 }
 
@@ -199,6 +200,13 @@
   padding: 12px;
   font-weight: bold;
   color: #444;
+}
+.header-row-vendor th {
+  background: #325496;
+  color: #fff !important;
+  text-transform: uppercase;
+  font-weight: bold;
+
 }
 
 /* Responsive Design */

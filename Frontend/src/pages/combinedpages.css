@@ -6,7 +6,7 @@
     display: flex;
     flex-direction: column;
     /* align-items: center; */
-    padding: 20px;
+    padding: 10px 20px;
     width: 100%;
     overflow-y: auto;
     /* margin-right: 20px; */
@@ -14,8 +14,8 @@
 
 /* Vendor Query Styles */
 .vendor-query-container {
-    padding: 20px;
-    width:90%;
+    padding: 10px 0px 10px 20px;
+    width:98%;
     font-family: 'Roboto', sans-serif;
     background-color: #f9f9f9; /* Light background for the container */
     /* border: 1px solid #e0e0e0;
@@ -190,4 +190,109 @@ button {
 
 .btn-next:hover {
     background-color: #1e88e5;
+}
+
+
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+.sidebar {
+    background: linear-gradient(to bottom, rgba(247, 247, 248, 0.7), rgba(255, 255, 255, 0.5)); /* Light gray gradient */
+    padding: 15px;
+    width: 250px; /* Adjust width as needed */
+    height: 100vh;
+    display: flex;
+    flex-direction: column !important;
+    backdrop-filter: blur(10px) !important; /* Glass effect */
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    font-family: 'Inter', sans-serif !important; /* Modern font */
+    overflow: hidden; /* This ensures content stays within the rounded borders */
+}
+.sidebar.closed {
+    width: 50px !important; /* Only icon width when closed */
+  }
+  
+.sidebar .toggle-btn {
+    position: absolute;
+    top: 10px;
+    right: 5px;
+    background: transparent;
+    color: rgba(58, 71, 71, 0.548);
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .sidebar-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .sidebar.closed .sidebar-content {
+    display: none; /* Hide everything except the toggle button */
+  }
+  
+  .sidebar-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px; /* Adjust width if needed */
+    height: 20px; /* Adjust height if needed */
+}
+
+  
+  .sidebar.closed .sidebar-icon {
+    margin-right: 0; /* Remove spacing when sidebar is closed */
+    text-align: center !important;
+    width: 100%;
+  }
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar li {
+    display: flex;
+    align-items: center;
+    width: 90%; /* Ensures the whole list item is hoverable */
+    
+    gap: 10px; /* Adds spacing but keeps the hover effect smooth */
+    border-radius: 8px; /* Rounded corners for both sides */
+  
+}
+
+.sidebar li:hover {
+    background-color: #e5ebfd !important; /* Light blue background */
+    color: #5d7dc5 !important; /* Text color */
+    border-radius: 8px !important; /* Rounded corners on hover */
+}
+
+
+
+
+.toggle-btn {
+    position: absolute;
+    top: 10px;
+    right: -15px; /* Adjust based on sidebar width */
+    background-color: #7e9199; /* Teal color */
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 50%; /* Makes it round */
+    transition: background-color 0.3s ease-in-out, transform 0.2s;
+}
+
+.toggle-btn:hover {
+    background-color: #e5ebfd  ; /* Slightly darker teal */
+    transform: scale(1.1);
 }

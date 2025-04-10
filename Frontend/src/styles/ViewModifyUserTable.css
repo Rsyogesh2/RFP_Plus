@@ -1,181 +1,242 @@
 /* Table Container */
 .view-modify-table-container {
-    padding: 20px;
-    /* max-width: 75%; */
-    background-color: #ffffff;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  /* Header */
-  .view-modify-table-container h4 {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-    color: #333333;
-    border-bottom: 2px solid #4caf50;
-    padding-bottom: 10px;
-    font-weight: bold;
-  }
-  
-  /* Table */
-  .user-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: 10px;
-    font-size: 14px;
-    text-align: left;
-  }
-  
-  /* Table Header */
-  .user-table thead {
-    background-color: #E2E8F0; /* Light gray-blue */
-    border-radius: 15px;
-  }
-  
-  .user-table th {
-    padding: 12px 16px;
-    color: #4A5568; /* Dark gray for header text */
-    font-size: 14px;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
+  padding: 0px 20px;
+  /* max-width: 75%; */
+  background-color: #ffffff;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Header */
+.view-modify-table-container h4 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #333333;
+  border-bottom: 2px solid #4caf50;
+  padding-bottom: 10px;
+  font-weight: bold;
+}
+
+/* Table */
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: left;
+}
+
+/* Table Header */
+.user-table thead {
+  background-color: transparent; /* Light gray-blue */
+  border-radius: 15px;
+}
+
+.user-table th {
+  padding: 12px 16px;
+  color: #4A5568; /* Dark gray for header text */
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: none;
+}
 
 /* ✅ Ensure input fields fit properly */
 .user-table input, 
 .user-table select {
-    width: 100%;
-    box-sizing: border-box;
-    font-size: 14px;
-    padding: 5px;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 5px;
 }
-  
-  /* Table Body */
-  .user-table tbody tr {
-    background-color: #ffffff;
-    transition: background-color 0.3s ease;
-  }
-  
-  .user-table tbody tr:nth-child(even) {
-    background-color: #F7FAFC; /* Alternate row background */
-  }
-  
-  .user-table tbody tr:hover {
-    background-color: #EDF2F7; /* Light hover effect */
-  }
-  
-  .user-table td {
-    padding: 5px 10px;
-    color: #2D3748; /* Dark gray for text */
-    font-size: 14px;
-    border-bottom: 1px solid #E2E8F0;
-  }
-  
-  /* Container for the Save & Cancel buttons */
+
+/* Table Body */
+.user-table tbody tr {
+  background-color: #ffffff;
+  transition: background-color 0.3s ease;
+}
+
+.user-table tbody tr:nth-child(even) {
+  background-color: #F7FAFC; /* Alternate row background */
+}
+
+.user-table tbody tr:hover {
+  background-color: #EDF2F7; /* Light hover effect */
+}
+
+.user-table td {
+  padding: 5px 10px;
+  color: #2D3748; /* Dark gray for text */
+  font-size: 14px;
+  border-bottom: 1px solid transparent !important; /* Make the column line transparent */
+}
+.user-table td, .user-table th {
+  border: none; /* If you want to remove all borders completely */
+}
+
+/* Container for the Save & Cancel buttons */
 .button-container {
-  display: flex;
-  flex-direction: row;  /* ✅ Stack buttons vertically */
-  gap: 1px;  /* ✅ Add spacing between buttons */
+display: flex;
+flex-direction: row;  /* ✅ Stack buttons vertically */
+gap: 1px;  /* ✅ Add spacing between buttons */
 }
 
 /* Style the buttons */
-.save-btn, .cancel-btn {
-  padding: 5px 8px;
+/* Style for Save button */
+.save-btn {
+background-color: #e3f2fd; /* Mild blue background */
+color: #1565c0; /* Dark blue text color */
+border: 1px solid #bbdefb; /* Soft blue border */
+padding: 6px 10px;
+border-radius: 4px;
+transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.save-btn:hover {
+background-color: #bbdefb; /* Lighter blue on hover */
+color: #1565c0; /* Dark blue text color on hover */
+}
+
+
+/* Remove border from the icon inside the button */
+.save-btn svg, 
+.cancel-btn svg {
+border: none;
+font-size: 16px; /* Adjust icon size if needed */
+}
+
+/* Style for Cancel button */
+.cancel-btn {
+background-color: #fef2f2; /* Mild pink background */
+color: #e53e3e; /* Red text color */
+border: 1px solid #fed7d7; /* Soft border */
+padding: 6px 10px;
+border-radius: 4px;
+transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cancel-btn:hover {
+background-color: #fed7d7; /* Lighter pink on hover */
+color: #e53e3e; /* Red text color on hover */
+}
+
+
+.user-table th:nth-child(7) { width: 120px; }
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 5px 12px;
   font-size: 12px;
-  min-width: 60px;
-  height: 30px;
+  font-weight: bold;
+  border-radius: 50px;
+  color: #3182CE;
+  text-transform: capitalize;
+}
+
+.status-badge.open {
+  background-color: #e3f2fd; /* Blue for "Open" */
+}
+
+.status-badge.paid {
+  background-color: #e3f2fd;
+   /* Green for "Paid" */
+}
+
+/* Mild Green for Active */
+.status-cell {
+  padding: 10px;
+  text-align: center;    
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+/* Apply green for Active */
+.status-cell.active span {
+  background-color: #e6f4ea; /* Mild green */
+  color: #2f855a; /* Dark green text */
+  border: 1px solid #ffffff; /* Thinner border */
+  padding: 2px 6px; /* Padding around the text */
+  border-radius: 5px; /* Rounded corners */
+  text-align: center;
+  font-weight: normal;
+}
+
+.status-cell.inactive span {
+  background-color: #fef3f5; /* Mild pink */
+  color: #e53e3e; /* Red text */
+  border: 1px solid #ffffff; /* Thinner border */
+  padding: 2px 6px; /* Padding around the text */
+  border-radius: 5px; /* Rounded corners */
+  text-align: center;
+  font-weight: normal;
+}
+
+
+
+
+/* Currency Styling */
+.currency-positive {
+  color: #38A169; /* Green for positive amounts */
+  font-weight: bold;
+}
+
+.currency-negative {
+  color: #E53E3E; /* Red for negative amounts */
+  font-weight: bold;
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #4A5568;
+}
+
+.pagination-container .pagination-info {
+  font-size: 12px;
+}
+
+.pagination-container .pagination-controls {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 5px;
 }
-.user-table th:nth-child(7) { width: 120px; }
-  /* Status Badge */
-  .status-badge {
-    display: inline-block;
-    padding: 5px 12px;
+
+.pagination-container button {
+  padding: 5px 10px;
+  border: 1px solid #CBD5E0;
+  border-radius: 4px;
+  background-color: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  color: #4A5568;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.pagination-container button:hover {
+  background-color: #3182CE;
+  color: #ffffff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .view-modify-table-container {
+    padding: 10px;
+    max-width: 95%;
+  }
+
+  .user-table th,
+  .user-table td {
+    padding: 8px;
     font-size: 12px;
-    font-weight: bold;
-    border-radius: 50px;
-    color: #ffffff;
-    text-transform: capitalize;
   }
-  
-  .status-badge.open {
-    background-color: #3182CE; /* Blue for "Open" */
-  }
-  
-  .status-badge.paid {
-    background-color: #38A169; /* Green for "Paid" */
-  }
-  
-  .status-badge.inactive {
-    background-color: #E53E3E; /* Red for "Inactive" */
-  }
-  
-  /* Currency Styling */
-  .currency-positive {
-    color: #38A169; /* Green for positive amounts */
-    font-weight: bold;
-  }
-  
-  .currency-negative {
-    color: #E53E3E; /* Red for negative amounts */
-    font-weight: bold;
-  }
-  
-  /* Pagination */
+
   .pagination-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    font-size: 14px;
-    color: #4A5568;
+    flex-direction: column;
+    gap: 10px;
   }
-  
-  .pagination-container .pagination-info {
-    font-size: 12px;
-  }
-  
-  .pagination-container .pagination-controls {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .pagination-container button {
-    padding: 5px 10px;
-    border: 1px solid #CBD5E0;
-    border-radius: 4px;
-    background-color: #ffffff;
-    cursor: pointer;
-    font-size: 12px;
-    color: #4A5568;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  
-  .pagination-container button:hover {
-    background-color: #3182CE;
-    color: #ffffff;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .view-modify-table-container {
-      padding: 10px;
-      max-width: 95%;
-    }
-  
-    .user-table th,
-    .user-table td {
-      padding: 8px;
-      font-size: 12px;
-    }
-  
-    .pagination-container {
-      flex-direction: column;
-      gap: 10px;
-    }
-  }
-  
-
-
-  
+}
+/* Default styling for the status select */
+/* Default styling for the status select */

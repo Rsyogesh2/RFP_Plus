@@ -3,7 +3,7 @@ import { AppContext } from "./../context/AppContext";
 import React, { useEffect, useRef, useState, useContext, useCallback, useMemo } from "react";
 import { FaUserPlus, FaUsersCog, FaFileAlt, FaUserTag, FaUserShield, FaChartLine, FaTable } from "react-icons/fa";
 
-const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar }) => {
+const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar, isAdmin }) => {
   const sidebarRef = useRef(null);
   const { userPower, userName, sidebarValue, setSidebarValue,userRole, rfpNumber } = useContext(AppContext);
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -61,39 +61,6 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
       { label: "View RFP Table", section: "View RFP Table", icon: <FaTable /> },
     ],
   };
-
-  // const generateUserSidebar = (sidebarValue) => {
-  //   if (!Array.isArray(sidebarValue) || sidebarValue.length === 0) {
-  //     return [{ label: "No Data Available", section: null, subItems: [] }];
-  //   }
-
-  //   // Group each RFP and its modules
-  //   return sidebarValue.map((userData, userIndex) => {
-  //     if (!userData.rfp_no || !Array.isArray(userData.module_name)) {
-  //       return { label: `No Data Available for User ${userIndex + 1}`, subItems: [] };
-  //     }
-
-  //     return {
-  //       label: `RFP No: ${userData.rfp_no}`, // Main title
-  //       section: userData.rfp_no,
-  //       subItems: [
-  //         ...userData.module_name.map((item, index) => ({
-  //           sublabel: item?.moduleName || `Module ${index + 1}`,
-  //           section: item?.code || `Section ${index + 1}`,
-  //         })),
-  //         { sublabel: "Vendor Query", section: "Vendor Query" }, // Add Vendor Query at the end
-  //       ],
-  //     };
-  //   });
-  // };
-
-
-  // const menuItems = useMemo(() => {
-  //   if (userPower === "User" || userPower === "Vendor User") {
-  //     return generateUserSidebar(sidebarValue || []);
-  //   }
-  //   return sidebarConfig[userPower] || [];
-  // }, [userPower, sidebarValue, sidebarConfig]);
 
   const generateUserSidebar = (sidebarValue, userPower) => {
     if (!Array.isArray(sidebarValue) || sidebarValue.length === 0) {
@@ -166,41 +133,53 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
   return (
     <div ref={sidebarRef} className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
       <button className="toggle-btn" onClick={toggleSidebar}>
-        {isSidebarOpen ? "◀" : "▶"}
+        {isSidebarOpen ? "«" : "»"}
       </button>
-      {isSidebarOpen && (
-        <div>
-         
-          <ul>
-            {menuItems.length > 0 ? (
-              menuItems.map((item, index) => (
-                <li key={index}>
-                  <div className="sidebar-mainlabel" id={`sidebar-mainlabel-${index}`}
-                   onClick={() => {
-                    if (userPower !== "User" && userPower !== "Vendor User") {
-                      handleSectionClick(item.section)}
-                    }
-                    }>
-                      <span className="sidebar-icon">{item.icon && item.icon}</span>
-                      <span className="sidebar-label">{item.label}</span>
-                      </div>
-                  {item.subItems?.length > 0 && (
-                    <ul className="nested-sub-label">
-                      {item.subItems.map((subItem, subIndex) => (
-                        <li key={subIndex} className="sidebar-sublabel" onClick={() => handleSectionClick(subItem.section)}>
-                          {subItem.sublabel}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))
-            ) : (
-              <li>No Menu Items Available</li>
-            )}
-          </ul>
-        </div>
-      )}
+      <ul className="sidebar-list">
+        {menuItems.length > 0 ? (
+          menuItems.map((item, index) => (
+            <li key={index} className={`sidebar-item ${activeSection === item.section ? "active-tab" : ""}`}
+            style={
+              (userPower === "User" || userPower === "Vendor User") ? {
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                padding: '8px',
+                borderRadius: '8px',
+                marginBottom: '8px',
+              } : {}
+            }>
+              <div
+                className="sidebar-mainlabel"
+                id={`sidebar-mainlabel-${index}`}
+                onClick={() => {
+                  if (userPower !== "User" && userPower !== "Vendor User") {
+                    handleSectionClick(item.section);
+                  }
+                }}
+              >
+                {userPower !== "User" && userPower !== "Vendor User" && <span className="sidebar-icon">{item.icon && item.icon}</span>}
+                {isSidebarOpen && <span className="sidebar-label">{item.label}</span>}
+              </div>
+              {isSidebarOpen && item.subItems?.length > 0 && (
+                <ul className="nested-sub-label">
+                  {item.subItems.map((subItem, subIndex) => (
+                    <li
+                      key={subIndex}
+                      className="sidebar-sublabel"
+                      onClick={() => handleSectionClick(subItem.section)}
+                    >
+                      {subItem.sublabel}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))
+        ) : (
+          <li>{isSidebarOpen ? "No Menu Items Available" : ""}</li>
+        )}
+      </ul>
     </div>
   );
 };

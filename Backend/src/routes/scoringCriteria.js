@@ -273,10 +273,13 @@ router.post('/fetchScores', async (req, res) => {
     };
 
     let scores = {};
+    let labels = {};
     try {
         const [rfpNo] = await db.query(`select rfp_reference_no from vendor_admin_users where id= ?`, [id]);  
         const [bankName] = await db.query(`select entity_name, user_id from superadmin_users where super_user_email= ?`, [userName]);  
-        ////console.log(rfpNo)
+        const [othersTitles]   =   await db.query(`select others1_title,others2_title,others3_title from overall_scoring where rfp_no= ? and bank_id= ?`, [ rfpNo[0].rfp_reference_no,bankName[0].user_id]);
+       
+        console.log(othersTitles)
         ////console.log(bankName)
         for (const table of tables) {
             // const query = `SELECT Implementation_Model,Score  FROM ${table} WHERE RFP_No = ? AND Bank_Name = ?`;
@@ -287,8 +290,17 @@ router.post('/fetchScores', async (req, res) => {
             // if(rows.length>0){
             //     scores[table] = rows.map(row => [row.Implementation_Model,row.Score]);
             // }
-            const renamedKey = tableMappings[table] || table; // Rename if mapping exists
-
+            let renamedKey; // Default to the original table name
+            if(table === "Scoring_Items1"){
+                labels.Scoring_Items1 = othersTitles[0].others1_title;
+            }else if(table === "Scoring_Items2"){
+                labels.Scoring_Items2 = othersTitles[0].others2_title;
+            } else if(table === "Scoring_Items3"){
+                labels.Scoring_Items3 = othersTitles[0].others3_title;
+            } else {
+                labels[table] = tableMappings[table] ||table; // Rename if mapping exists
+            }
+            renamedKey = tableMappings[table] ||table;
             if (rows.length > 0) {
                 scores[renamedKey] = rows.map(row => [row.Implementation_Model, row.Score]);
             } else {
@@ -351,8 +363,8 @@ router.post('/fetchScores', async (req, res) => {
         // `;
         // const [commercial]= await db.query(query, rfpNo[0].rfp_reference_no)
         ////console.log(commercial)
-        ////console.log(scores)
-        const response = [commercial,scores,savedScores]
+        ////console.log(scores);
+        const response = [commercial,scores,savedScores,labels];
         ////console.log(response)
         res.json(response);
     } catch (error) {
@@ -720,7 +732,7 @@ router.get("/fetch-scoring-Overall", async(req, res) => {
 // Scoring Criteria - start
 //saving Scoring Criteria
 router.post('/save-all-scores', async (req, res) => {
-    const { commercialScores, functionalScores, overallScoring, sections, rfpNo, userName } = req.body;
+    const { commercialScores, functionalScores, overallScoring, sections, rfpNo, userName, userRole } = req.body;
 
     try {
         // Fetch `created_by` and `bankNameResult` using `userName`
@@ -764,7 +776,7 @@ router.post('/save-all-scores', async (req, res) => {
                 functionalScores.isPartlyAvailableChecked,
                 functionalScores.isCustomizableChecked,
                 functionalScores.availableScore,
-                functionalScores.partlyAvailableScore,
+                functionalScores.partlyavailableScore,
                 functionalScores.customizableScore,
                 functionalScores.mandatoryScore,
                 functionalScores.optionalScore,
@@ -893,7 +905,15 @@ router.post('/save-all-scores', async (req, res) => {
                 await db.query(query, values);
             }
         }
-        
+        console.log(userRole)
+        let statusVal = userRole==="Maker"?"Maker_Stage":userRole==="Authorizer"?"Authorizer_Stage":"Final_Stage";
+        const scoreStatusQuery = `
+            INSERT INTO scoring_criteria (RFP_No, Bank_Id, Created_by, Status)
+            VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE Status = VALUES(Status)
+            `;
+        const values = [rfpNo, bankId, userName, statusVal];
+        await db.query(scoreStatusQuery, values);
 
         res.status(200).send({ message: 'All data saved successfully!' });
     } catch (error) {

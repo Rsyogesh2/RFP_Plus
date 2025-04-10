@@ -219,9 +219,12 @@ const HomePage = ({ userType }) => {
         setActiveSection={setActiveSection}
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        isAdmin={userPower === "Super Admin" || userPower === "Vendor Admin" || userPower === "Global Admin"||
+           userPower === "Vendor User" || userPower === "User"}
       />
       <div
-        className={`main-content ${isSidebarOpen ? "with-sidebar" : "full-screen"}`}
+        className={`main-content ${isSidebarOpen && (userPower === "Super Admin" || userPower === "Vendor Admin" ||
+           userPower === "Global Admin" || userPower === "Vendor User" || userPower === "User")? "with-sidebar" : "full-screen"}`}
       >
         {/* <Header /> */}
         {renderSection()}

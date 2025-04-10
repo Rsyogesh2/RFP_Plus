@@ -56,7 +56,7 @@ const AddUserForm = () => {
     alert(validationMessages.mobile);
     return;
   }
-
+    formData.active_flag="Active"; // Set default value for active_flag
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const newId = id !== "" ? id : usersList.length > 0 
       ? Math.max(...usersList.map(user => user.user_no)) + 1 

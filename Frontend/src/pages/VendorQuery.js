@@ -96,7 +96,10 @@ const VendorQuery = ({ rfpNo = "" ,rfpTitle=""}) => {
            combinedRowsData = data.data?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
         }
         console.log(combinedRowsData);
+        if(userPower==="Super Admin" || userPower==="Vendor Admin"){
+          console.log(data.data[0].level?data.data[0].level:1)
         setCompleteLevel(data.data[0].level?data.data[0].level:1);
+        }
         // console.log(combinedRowsData)
         setRows(combinedRowsData || []);
       } else {
@@ -370,7 +373,7 @@ console.log(determineLevel())
       <>
           <h3>{`${rfpNo || sidebarValue[0].rfp_no} - ${rfpTitle || sidebarValue[0].rfp_title}`}</h3>
         </>
-        {(userPower==="Super Admin" || userPower==="User")&& (
+        {(userPower==="Super Admin" || userPower === "User" )&& (
            <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
            <select
             onChange={handleDropdownChangeVendor}

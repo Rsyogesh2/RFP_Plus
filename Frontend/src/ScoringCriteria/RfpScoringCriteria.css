@@ -12,58 +12,12 @@
     margin-bottom: 1rem;
 }
 
-.total-score {
-    display: grid;
-    grid-template-columns: 1fr 1fr 40%; /* Maintain layout proportions */
-    gap: 1rem; /* Space between sections */
-    align-items: start; /* Ensure components align at the top */
-    justify-content: start;
-}
-
 table {
     width: 100%;
     border-collapse: collapse;
     overflow-x: auto; /* Enable horizontal scrolling if needed */
 }
 
-section {
-    border: 1px solid #A9A9A9;
-    padding: 2rem;
-    border-radius: 5px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    background-color: #f9f9f9;
-    margin-bottom: 1rem;
-    height: auto;
-    max-width: 100%; /* Prevent overflow */
-    box-sizing: border-box;
-    overflow-x: auto; /* Prevent breaking layout */
-}
-
-.overall-scoring h2,
-.commercial-score h2 {
-    font-size: 1rem;
-    color: #005b99;
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.overall-scoring th,
-.commercial-score th {
-    font-size: 0.9rem;
-    color: #005b99;
-    text-align: center;
-    margin-bottom: 1rem;
-    background-color: #e0e0e0;
-    color: #005b99;
-    font-weight: bold;
-    border: 1px solid #A9A9A9;
-}
-.overall-scoring, .commercial-score, .functional-score {
-    flex: 0 0 auto; /* Prevent stretching in a flex container */
-    height: auto; /* Take only the required height */
-        justify-self: center; /* Center this specific grid item horizontally */
-    
-}
 
 .buttons {
     display: flex;
@@ -95,53 +49,6 @@ section {
     margin-bottom: 0.5rem;
 }
 
-.score-sections {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0%;
-    justify-content: space-between; /* Distribute space between sections */
-    box-sizing: border-box;
-}
-
-.score-sections .section {
-    flex: 0 1 calc(32% - 0.1rem); /* Each section takes ~32% width with gap adjustment */
-    margin-bottom: 1rem;
-    box-sizing: border-box; /* Include padding and borders in width calculation */
-}
-
-
-th, td {
-    padding: 0.5rem;
-    text-align: left;
-    border-top: 1px solid #dddddd;
-}
-
-.item-input {
-    width: 100%; /* Take full width of the parent container */
-    max-width: 100%; /* Prevent exceeding the container's width */
-    padding: 0.3rem;
-    border: none;
-    border-bottom: 1px solid #A9A9A9;
-    color: #474747;
-    box-sizing: border-box; /* Include padding and borders in width calculation */
-}
-
-.item-input::placeholder {
-    color: #A9A9A9;
-}
-
-/* For dropdowns */
-.score-dropdown {
-    width: 100%; /* Full width of the container */
-    padding: 0.3rem;
-    max-width: 100%; /* Prevent overflow */
-    background-color: #f9f9f9;
-    border: 1px solid #A9A9A9;
-    border-radius: 3px;
-    text-align: center;
-    box-sizing: border-box; /* Include padding and borders in width calculation */
-}
-
 .benchmark-note {
     font-size: 0.85rem;
     color: #777;
@@ -166,31 +73,328 @@ th, td {
     }
 }
 
-.commercial-score {
-    display: flex;
-    flex-direction: column; /* Arrange content vertically */
-    padding: 0.5rem; /* Reduce padding */
-    margin: 0.5rem; /* Reduce margin */
-    background-color: #f9f9f9; /* Background for contrast */
-   height: auto; /* Allow height to adjust to the content */
-    max-height: 100%; /* Prevent it from growing too large */
-    overflow-y: auto; /* Add a scroll bar if content overflows */
-    font-size: 0.5rem; /* Reduce text size for compactness */
-    
-}.commercial-score table {
-    width: 100%; /* Fit the table within the section */
-    border-collapse: collapse;
+/* ==========newly added =======*/
+/* Modern Style for Tab Navigation and Content */
+.total-score {
+    width: 100%;
+    max-width: 800px;
+    margin: 0px auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    font-family: "Inter", sans-serif;
 }
 
-.commercial-score th,
-.commercial-score td {
-    padding: 0.3rem; /* Reduce padding inside cells */
-    font-size: 0.85rem; /* Reduce font size for compactness */
+.tab-menu {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-menu button {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-menu button.active {
+    color: #007bff;
+    border-bottom: 3px solid #007bff;
+}
+
+.tab-menu button:hover {
+    color: #0056b3;
+}
+
+/* Tab Content Sections */
+.overall-scoring,
+.functional-score,
+.commercial-score {
+    animation: fadeIn 0.3s ease-in-out;
+    padding: 10px 0;
+    border: none !important;
+    background-color: #fff;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Table Styles */
+.overall-scoring table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.overall-scoring th, .overall-scoring td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    text-align: left;
+    font-size: 14px;
+}
+
+.overall-scoring th {
+    background: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: left;
+}
+
+.overall-scoring th:first-child {
+    width: 70%;
+}
+
+.overall-scoring th:last-child {
+    width: 30%;
+    text-align: center;
+}
+
+.overall-scoring tr:last-child td {
+    border-bottom: none;
+}
+
+/* Input Fields */
+.item-input {
+    width: 60px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: 0.3s;
+    text-align: right;
+}
+
+.item-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Percentage Masking */
+.item-input::after {
+    content: "%";
+    position: absolute;
+    right: 10px;
+    color: #666;
+}
+
+/* Total Sum Row */
+.overall-scoring td:last-child {
+    font-weight: bold;
+    color: #007bff;
+    font-size: 16px;
+    text-align: center;
+}
+
+.commercial-score table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.commercial-score th, .commercial-score td {
+    /* padding: 10px; */
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    font-size: 14px;
 }
 
 .commercial-score th {
-    background-color: #e0e0e0; /* Header background */
-    color: #005b99; /* Header text color */
-    font-weight: bold;
+    background: #007bff;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: center;
 }
 
+/* First column input styling */
+.commercial-score td:first-child select {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    outline: none; /* Remove focus border */
+    appearance: none; /* Hide default dropdown arrow */
+}
+
+.commercial-score input[type="text"],
+.commercial-score input[type="number"],
+.commercial-score select {
+    width: 90%;
+    padding: 6px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.commercial-score colgroup col:nth-child(1) { min-width: 50%;
+background-color: #666 }
+.commercial-score colgroup col:nth-child(2) { width: 10%; }
+.commercial-score colgroup col:nth-child(3) { width: 10%; }
+.commercial-score colgroup col:nth-child(4) { width: 20%; }
+.commercial-score colgroup col:nth-child(5) { width: 10%; }
+/* Add this to your CSS */
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.no-spinner {
+    -moz-appearance: textfield;
+}
+
+
+/* Score Section */
+/* Modern and sleek design for ScoreSection */
+.score-sections {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 30px;
+}
+
+.section {
+    flex: 1;
+    min-width: 320px;
+    max-width: 360px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0d47a1;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: left;
+}
+
+thead {
+    background: #2c3e50;
+    color: white;
+}
+
+thead th {
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+}
+
+tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+td {
+    padding: 12px;
+    text-align: center;
+}
+
+.item-input, .score-dropdown {
+    width: 100%; /* Make input fields fully fit the cell */
+    max-width: 95%; /* Prevent overflow */
+    padding: 8px;
+    border: 1px solid #ccc; /* Reduce border thickness */
+    border-radius: 6px;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: white;
+    text-align: center;
+    box-sizing: border-box; /* Ensure padding doesn’t affect width */
+}
+
+.item-input:focus, .score-dropdown:focus {
+    border-color: #0d47a1;
+    box-shadow: 0 0 4px rgba(13, 71, 161, 0.3);
+}
+
+.score-dropdown {
+    cursor: pointer;
+    background: #fff;
+}
+
+.item-input:disabled, .score-dropdown:disabled {
+    background: #e0e0e0;
+    cursor: not-allowed;
+    color: #666;
+}
+
+/* Ensure table cells do not overflow */
+td {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .score-sections {
+        flex-direction: column;
+        align-items: center;
+    }
+    .section {
+        width: 95%;
+    }
+    .item-input, .score-dropdown {
+        font-size: 14px;
+    }
+}
+
+.Overall-Functional-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Adjust proportion as needed */
+    gap: 1rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0px 1rem;
+}

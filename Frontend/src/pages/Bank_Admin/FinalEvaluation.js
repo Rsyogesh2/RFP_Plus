@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext,useRef } from "react";
 import { AppContext } from "./../../context/AppContext";
 import './../FinalEvaluation.css';
-import { set } from "lodash";
+import { lastIndexOf, set } from "lodash";
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -20,6 +20,7 @@ const FinalEvaluation = ({rfpNo="", rfpTitle= ""}) => {
     Best_Score: []
   });
   const [selectedValues, setSelectedValues] = useState({}); // For storing selected dropdown values
+  const [labels, setLabels] = useState([]);
   const { userName } = useContext(AppContext);
   useEffect(() => {
     const fetchVendor = async () => {
@@ -58,6 +59,7 @@ const FinalEvaluation = ({rfpNo="", rfpTitle= ""}) => {
         setSections(data[1]);
         setCommercialValue(data[0]);
         setSavedScores(data[2]);
+        setLabels(data[3]);
     } catch (error) {
         console.error('Error fetching data:', error);
     }
@@ -200,7 +202,7 @@ const handleDropdownChange = (table, value, score) => {
         />
 
       {/* Collapsible Section with 6 Dropdowns */}
-      <CollapsibleSection1 sections={sections} savedScores={savedScores} onDropdownChange={handleDropdownChange} />
+      <CollapsibleSection1 sections={sections} savedScores={savedScores} onDropdownChange={handleDropdownChange} labelTitle={labels} />
 
       <button style={{marginTop:"15px",color:"white"}}onClick={saveDataToBackend}>Save Data</button>
     </div>
@@ -211,11 +213,11 @@ export default FinalEvaluation;
 
 // Collapsible Section Component with 6 Dropdowns
 
-const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
+const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores, labelTitle }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectedScores, setSelectedScores] = useState({}); // To store scores dynamically
   const [selectedValues, setSelectedValues] = useState({}); // To store scores dynamically
-  
+  const hasInitialized = useRef(false); // Track if initial update has been triggered
   useEffect(() => {
     console.log(sections);
     console.log(savedScores);
@@ -231,15 +233,23 @@ const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
       
           initialValues[trimmedKey] = firstEntry[key] || ""; // Dropdown values
           initialScores[trimmedKey] = firstEntry[scoreKey] || 0; // Scores
-      }
+        }
       
       });
     
       console.log(initialValues); // Debugging
       console.log(initialScores); // Debugging
+      console.log(labelTitle)
     
       setSelectedValues(initialValues);
       setSelectedScores(initialScores);
+       // Trigger onDropdownChange **only once** when first loading data
+       if (!hasInitialized.current) {
+        hasInitialized.current = true; // Mark as initialized
+        Object.keys(initialValues).forEach((tableName) => {
+          onDropdownChange(tableName, initialValues[tableName], initialScores[tableName]);
+        });
+      }
     } else{
       console.log("No saved scores available.");
       setSelectedValues({});
@@ -247,6 +257,15 @@ const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
     }
     
   }, [savedScores,sections]);
+  // useEffect(() => {
+  //   // Trigger onDropdownChange when initial values are set
+  //   if (Object.keys(selectedValues).length > 0) {
+  //     Object.keys(selectedValues).forEach((tableName) => {
+  //       const score = selectedScores[tableName] || 0;
+  //       onDropdownChange(tableName, selectedValues[tableName], score);
+  //     });
+  //   }
+  // }, [selectedValues, selectedScores, onDropdownChange]);
 
   // Handling dropdown selection and score display
   const handleSelectionChange = (tableName, value) => {
@@ -271,7 +290,7 @@ const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores }) => {
         <div className="section-content">
           {Object.keys(sections).map((tableName, index) => (
             <div key={index} style={{ marginBottom: "15px" }}>
-              <label><strong>{tableName.replace(/_/g, " ")}</strong></label>
+              <label><strong>{index>2?labelTitle[tableName]: tableName.replace(/_/g, " ")}</strong></label>
 
               {/* Dropdown and Score Input */}
               <div style={{ display: "flex", gap: "8px", width: "100%", marginBottom: "15px" }}>
@@ -335,32 +354,56 @@ const CollapsibleSection = ({ title, items, setItems }) => {
       return;
     }
     
-    // Convert range values to numbers
-  const from1 = parseFloat(item.From1);
-  const to1 = parseFloat(item.To1);
-  const from2 = parseFloat(item.From2);
-  const to2 = parseFloat(item.To2);
-  const from3 = parseFloat(item.From3);
-  const to3 = parseFloat(item.To3);
-
-  // Check if the amount is within any of the valid ranges
-  if (
-    (amount >= from1 && amount <= to1) ||
-    (amount >= from2 && amount <= to2) ||
-    (amount >= from3 && amount <= to3)
-  ) {
     updatedItems[index].Bank_Amount = value; // Store the amount if valid
     setItems(updatedItems); // Update state
-  } else {
-    alert(`Amount ${value} is not within any valid range! 
-      Valid ranges: 
-      1️⃣ ${from1} - ${to1} 
-      2️⃣ ${from2} - ${to2} 
-      3️⃣ ${from3} - ${to3}`);
-  }
 
     // updatedItems[index].Bank_Amount = value; // Store the amount in Bank_Amount field
     // setItems(updatedItems);  // Update the state in the parent component
+  };
+  const handleBlur = (index, value) => {
+    const updatedItems = [...items];
+    const item = updatedItems[index];
+    const amount = Number(value);
+
+    if (isNaN(amount)) {
+      alert("Please enter a valid number.");
+      updatedItems[index].Bank_Amount = ""; 
+      setItems(updatedItems);
+      return;
+    }
+
+    if (amount < 0) {
+      alert("Amount cannot be negative.");
+      updatedItems[index].Bank_Amount = 0;
+      setItems(updatedItems);
+      return;
+    }
+
+    // Convert range values to numbers
+    const from1 = parseFloat(item.From1);
+    const to1 = parseFloat(item.To1);
+    const from2 = parseFloat(item.From2);
+    const to2 = parseFloat(item.To2);
+    const from3 = parseFloat(item.From3);
+    const to3 = parseFloat(item.To3);
+
+    // Check if the amount is within any of the valid ranges
+    if (
+      (amount >= from1 && amount <= to1) ||
+      (amount >= from2 && amount <= to2) ||
+      (amount >= from3 && amount <= to3)
+    ) {
+      updatedItems[index].Bank_Amount = value; 
+      setItems(updatedItems);
+    } else {
+      alert(`Amount ${value} is not within any valid range! 
+        Valid ranges: 
+        1️⃣ ${from1} - ${to1} 
+        2️⃣ ${from2} - ${to2} 
+        3️⃣ ${from3} - ${to3}`);
+      updatedItems[index].Bank_Amount = ""; // Reset input if out of range
+      setItems(updatedItems);
+    }
   };
   const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
@@ -393,8 +436,9 @@ const CollapsibleSection = ({ title, items, setItems }) => {
                 <input
                   type="text"
                   placeholder="Amount"
-                  value={item.Bank_Amount}
+                  value={item.Bank_Amount || ""}
                   onChange={(e) => handleTextChange(index, e.target.value)}
+                  onBlur={(e) => handleBlur(index, e.target.value)}
                   className="item-input"
                   style={{ flex: 1 }}
                 />

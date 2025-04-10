@@ -161,7 +161,9 @@ const ViewModifyUserTable = () => {
                   <td>{user.designation}</td>
                   <td>{user.email}</td>
                   <td>{user.mobile}</td>
-                  <td>{user.active_flag}</td>
+                  <td className={user.active_flag === "Active" ? "status-cell active" : "status-cell inactive"}>
+                  <span>{user.active_flag}</span>
+                  </td>
                   <td>
                   <div className="button-container">
                     <button className="save-btn" style={{ fontSize: "14px" }} onClick={() => handleEdit(user)}><MdOutlineModeEdit /></button>

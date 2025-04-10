@@ -1,3 +1,6 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
 
 
 /* General Styling */
@@ -9,6 +12,14 @@ body {
   max-width: 100%;
   overflow-x: hidden;
 }
+ /* Headers */
+ h3 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #333333;
+  border-bottom: 2px solid #4caf50;
+  padding-bottom: 10px;
+}
 
 .HomePage-container {
   padding-top: 60px;
@@ -18,30 +29,32 @@ body {
 }
 .main-content {
   flex-grow: 1;
-  padding: 20px;
+  padding:10px 20px;
  
   transition: margin-left 0.3s ease-in-out;
 }
 /* Sidebar Styling */
+/* Sidebar For Admin */
+/* Sidebar Styling */
 .sidebar {
   position: fixed;
-  width: 250px;
+  width: 200px;
   height: 100vh;
   background-color: #fff;
   /* box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); */
   transition: width 0.3s ease;
   overflow: hidden;
-  margin-top: 30px;
+  margin-top: -6px;
 }
 .sidebar.open {
-  width: 250px;
+  width: 220px;
 }
 .sidebar.closed {
   width: 50px;
 }
 /* When Sidebar is Open */
 .with-sidebar {
-  margin-left: 250px;
+  margin-left: 230px;
 }
 
 /* Full-Screen Mode */
@@ -126,6 +139,28 @@ body {
   border-radius: 0 !important;
   color: inherit !important;
 }
+
+/* 🔹 Highlight active tab */
+.active-tab {
+  /* background-color: #dea782 ; */
+  color: #dea782 !important;
+  font-weight: bold;
+}
+/* Active Tab */
+.user-position ul li.active {
+  background-color: #02735E; /* Change this color to match */
+  color: white;
+}
+
+/* Hover Effect */
+.user-position ul li:hover {
+  /* background-color: #325496; */
+  color: #325496;
+}
+.user-position .toggle-btn {
+  visibility: hidden;
+}
+
 /* Navbar Styling */
 /* Navbar.css */
 .navbar {
@@ -139,7 +174,7 @@ body {
   align-items: center;
   background-color: #ffffff; /* Background color */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  padding: 10px 15px; /* Spacing */
+  padding: 6px 15px; /* Spacing */
   border-radius: 0; /* No rounded corners for a cleaner fixed navbar */
   margin-bottom: 0;
 }
@@ -193,31 +228,71 @@ body {
   align-items: flex-end;
 }
 
-.navbar-username {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333333;
+.profile-section {
+  /* display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative; */
+  cursor: pointer;
 }
 
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  transition: border 0.3s;
+}
 
+.profile-section:hover .profile-image {
+  border-color: #007bff;
+}
 
-.logout-btn {
-  background-color: #007BFF; /* Button color */
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
-  font-size: 14px;
+.username {
   font-weight: 500;
+  color: #333;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 5px 0;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.dropdown-item {
+  background: none;
+  border: none;
+  padding: 10px;
+  text-align: left;
+  width: 100%;
   cursor: pointer;
-  margin-top: 5px;
-  transition: background-color 0.3s ease;
+  transition: background 0.3s;
+  font-size: 14px;
+}
+
+/* Logout Button - Red Color */
+.logout-btn {
+  color: white;
+  background-color: #e63946;  /* Red */
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
 .logout-btn:hover {
-  background-color: #0056b3; /* Hover color */
+  background-color: #d62839; /* Darker red on hover */
 }
-
 /* Add User Form Styling */
 .add-user-form {
   padding: 0  0  0 30px;
@@ -228,8 +303,8 @@ body {
 }
 .add-user-form h3 {
   margin-bottom: 20px;
-  color: #02735E;
-  font-size: 24px;
+  /* color: #02735E; */
+  font-size: 1.2rem;
   font-weight: bold;
 }
 .add-user-form form div {

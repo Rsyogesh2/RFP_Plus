@@ -379,7 +379,7 @@ router.get('/getSuperUsers', async (req, res) => {
   });
   
 router.post('/addUser', async (req, res) => {
-    const { id, user_name, designation, email, mobile, activeFlag } = req.body;
+    const { id, user_name, designation, email, mobile, active_flag } = req.body;
     const creatorName = req.body.emailId; // Extract separate userName field
     const userPower = req.body.userPower; // Extract separate userName field
     //console.log("id "+ id);
@@ -432,7 +432,7 @@ router.post('/addUser', async (req, res) => {
         designation,        // Designation
         email,              // Email
         mobile,             // Mobile number
-        activeFlag,         // Active flag
+        active_flag,         // Active flag
         suDetails[0].entity_name,                 // Entity name (empty string)
         creatorName         // Created by (creator's email)
       ];

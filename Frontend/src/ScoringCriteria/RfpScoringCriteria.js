@@ -11,7 +11,7 @@ import isEqual from "lodash/isEqual"; // Correct import
 
 
 function RfpScoringCriteria() {
-    const { sidebarValue, userName } = useContext(AppContext); // Access shared state
+    const { sidebarValue, userName, userRole } = useContext(AppContext); // Access shared state
     const [othersTitles, setOthersTitles] = useState({
         others1Title: "Others 1 (Specify)",
         others2Title: "Others 2 (Specify)",
@@ -32,6 +32,7 @@ function RfpScoringCriteria() {
     const [error, setError] = useState(null);
     const [isExits, setIsExits] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState("overall");
 
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const fetchData = useCallback(async () => {
@@ -53,7 +54,7 @@ function RfpScoringCriteria() {
                     [data.overallScoring?.[0]?.others1Title ?? "others1Score"]: data.sections?.[3]?.data ?? [],
                     [data.overallScoring?.[0]?.others2Title ?? "others2Score"]: data.sections?.[4]?.data ?? [],
                     [data.overallScoring?.[0]?.others3Title ?? "others3Score"]: data.sections?.[5]?.data ?? []
-                    });
+                });
 
                 setOthersTitles({
                     others1Title: data.overallScoring[0]?.others1Title || 'No value',
@@ -193,7 +194,8 @@ function RfpScoringCriteria() {
             functionalScores: functionalScoreData, // updated
             commercialScores: commercialScoreData, // updated
             rfpNo: sidebarValue[0]?.rfp_no,
-            userName
+            userName,
+            userRole
         };
 
         // Log payload only once before making the API request
@@ -305,7 +307,7 @@ function RfpScoringCriteria() {
                 <h3>RFP SCORING CRITERIA</h3>
                 <div><h3>{`${sidebarValue[0].rfp_no} - ${sidebarValue[0].rfp_title}`}</h3></div>
             </header>
-            <div className='total-score'>
+            {/* <div className='total-score'>
                 <section className="overall-scoring">
 
                     <OverallScoring
@@ -331,8 +333,85 @@ function RfpScoringCriteria() {
                         onUpdate={handleCommercialScoreData}
                     />
                 </section>
+            </div> */}
+            <div className="total-score">
+                {/* Tab Navigation */}
+                <div className="tab-menu">
+                    <button
+                        className={activeTab === "overall" ? "active" : ""}
+                        onClick={() => setActiveTab("overall")}
+                    >
+                        Overall Scoring
+                    </button>
+                    <button
+                        className={activeTab === "functional" ? "active" : ""}
+                        onClick={() => setActiveTab("functional")}
+                    >
+                        Functional Score
+                    </button>
+                    <button
+                        className={activeTab === "commercial" ? "active" : ""}
+                        onClick={() => setActiveTab("commercial")}
+                    >
+                        Commercial Score
+                    </button>
+                    <button
+                        className={activeTab === "Other Section" ? "active" : ""}
+                        onClick={() => setActiveTab("Other Section")}
+                    >
+                        Score Sections
+                    </button>
+                </div>
+                <div className='Overall-Functional-content'>
+                <section className="overall-scoring">
+                        <OverallScoring
+                            data={overallScoringData}
+                            onTitlesChange={handleTitlesChange}
+                            onUpdate={handleOverallScoringData}
+                        />
+                </section>
+                <section className="functional-score">
+                        <FunctionalScore
+                            data={functionalScoreData}
+                            onUpdate={handleFunctionalScoreData}
+                        />
+                </section>
+               
+                </div>
+                <section className="commercial-score">
+                        <CommercialScore
+                            data={commercialScoreData}
+                            onUpdate={handleCommercialScoreData}
+                        />
+                </section>
+                {/* Render Tabs */}
+                {/* {activeTab === "overall" && (
+                    <section className="overall-scoring">
+                        <OverallScoring
+                            data={overallScoringData}
+                            onTitlesChange={handleTitlesChange}
+                            onUpdate={handleOverallScoringData}
+                        />
+                    </section>
+                )}
+                {activeTab === "functional" && (
+                    <section className="functional-score">
+                        <FunctionalScore
+                            data={functionalScoreData}
+                            onUpdate={handleFunctionalScoreData}
+                        />
+                    </section>
+                )}
+                {activeTab === "commercial" && (
+                    <section className="commercial-score">
+                        <CommercialScore
+                            data={commercialScoreData}
+                            onUpdate={handleCommercialScoreData}
+                        />
+                    </section>
+                )} */}
             </div>
-            {sectionsData && Object.keys(sectionsData).length > 0 ? (
+            {activeTab === "Other Section" && sectionsData && Object.keys(sectionsData).length > 0 ? (
                 <div className="score-sections">
                     {!isExits ? (
                         defaultSections.map(({ key, title, items }) => renderScoreSection(key, title, items, true))
@@ -408,7 +487,7 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
     const handleInputChange = (event, field) => {
 
         let newValue = Number(event.target.value.trim());
-
+        console.log("newValue", newValue);
         // Check if it's a number and remove leading zeros
         // if (!isNaN(newValue) && newValue !== '') {
         //     newValue = Number(newValue.replace(/^0+(?!\.)/, '')); // Removes leading zero unless it's a decimal
@@ -418,8 +497,8 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
         const newTotal = Object.values({
             ...values,
             [field]: newValue,
-        }).reduce((sum, value) => sum + value, 0);
-
+        }).reduce((sum, value) => Number(sum) + Number(value), 0);
+        console.log("newTotal", newTotal);
         if (newTotal > 100) {
             alert("Total sum cannot exceed 100.");
             return;
@@ -500,7 +579,7 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
                         <td>
                             <input
                                 type="number"
-                                className="item-input"
+                                className="item-input no-spinner"
                                 value={values.functionalItems}
                                 onChange={(e) => handleInputChange(e, 'functionalItems')}
                             />
@@ -511,7 +590,7 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
                         <td>
                             <input
                                 type="number"
-                                className="item-input"
+                                className="item-input  no-spinner"
                                 value={values.commercials}
                                 onChange={(e) => handleInputChange(e, 'commercials')}
                             />
@@ -522,7 +601,7 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
                         <td>
                             <input
                                 type="number"
-                                className="item-input"
+                                className="item-input  no-spinner"
                                 value={values.implementationModel}
                                 onChange={(e) => handleInputChange(e, 'implementationModel')}
                             />
@@ -533,7 +612,7 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
                         <td>
                             <input
                                 type="number"
-                                className="item-input"
+                                className="item-input  no-spinner"
                                 value={values.installations}
                                 onChange={(e) => handleInputChange(e, 'installations')}
                             />
@@ -544,7 +623,7 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
                         <td>
                             <input
                                 type="number"
-                                className="item-input"
+                                className="item-input no-spinner"
                                 value={values.siteVisit}
                                 onChange={(e) => handleInputChange(e, 'siteVisit')}
                             />
@@ -564,7 +643,7 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
                             <td>
                                 <input
                                     type="number"
-                                    className="item-input"
+                                    className="item-input no-spinner"
                                     value={values[field]}
                                     onChange={(e) => handleInputChange(e, field)}
                                 />
@@ -581,75 +660,6 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
     );
 }
 
-
-
-// Component for Commercial Score
-// Reusable Score Section Component with Editable Item Names and Dropdown Scores
-
-
-// function ScoreSection({ title, items, onSectionChange }) {
-//     const [data, setData] = useState(items.map(() => ({ text: '', score: 4 })));
-
-//     useEffect(() => {
-//         console.log(items)
-//         if (data.length > 0) {
-//             setData(items);
-//         }
-//     }, []);
-//     const handleTextChange = (index, value) => {
-//         const newData = [...data];
-//         newData[index].text = value;
-//         setData(newData);
-//         onSectionChange(newData); // Send data to parent component
-//     };
-
-//     const handleScoreChange = (index, value) => {
-//         const newData = [...data];
-//         newData[index].score = parseInt(value, 10) || 0;
-//         setData(newData);
-//         onSectionChange(newData); // Send data to parent component
-//     };
-
-//     return (
-//         <div className="section">
-//             <h3 className="section-title">{title}</h3>
-//             <table>
-//                 <thead>
-//                     <tr>
-//                         <th>Implementation Model</th>
-//                         <th>Score</th>
-//                     </tr>
-//                 </thead>
-//                 <tbody>
-//                     {data.map((item, index) => (
-//                         <tr key={index}>
-//                             <td>
-//                                 <input
-//                                     type="text"
-//                                     placeholder={items[index]}
-//                                     value={item.text}
-//                                     onChange={(e) => handleTextChange(index, e.target.value)}
-//                                     className="item-input"
-//                                 />
-//                             </td>
-//                             <td>
-//                                 <select
-//                                     value={item.score}
-//                                     onChange={(e) => handleScoreChange(index, e.target.value)}
-//                                     className="score-dropdown"
-//                                 >
-//                                     {[0, 1, 2, 3, 4].map((num) => (
-//                                         <option key={num} value={num}>{num}</option>
-//                                     ))}
-//                                 </select>
-//                             </td>
-//                         </tr>
-//                     ))}
-//                 </tbody>
-//             </table>
-//         </div>
-//     );
-// }
 
 function ScoreSection({ title, items, onSectionChange, newval }) {
     // Initialize state with the correct structure based on `items`
@@ -703,8 +713,8 @@ function ScoreSection({ title, items, onSectionChange, newval }) {
                             <td>
                                 <input
                                     type="text"
-                                    placeholder={newval===true ? item.text:undefined} // Always show a static placeholder
-                                    value={newval===true ? undefined : item.text} // Use undefined if val is true to make it uncontrolled
+                                    placeholder={newval === true ? item.text : undefined} // Always show a static placeholder
+                                    value={newval === true ? undefined : item.text} // Use undefined if val is true to make it uncontrolled
                                     onChange={(e) => handleTextChange(index, e.target.value)}
                                     className="item-input"
                                     disabled={!newval} // Disable input if val is true

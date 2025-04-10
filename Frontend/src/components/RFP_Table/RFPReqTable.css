@@ -88,6 +88,7 @@
     border: 1px solid #ddd;
     /* text-align: center; */
     font-size: 13.5px;
+    background-color: #fff;
 }
 
 
@@ -236,4 +237,29 @@ margin: 0 !important;
       text-overflow: ellipsis; /* Add ellipsis if text overflows */
       overflow: hidden;
   }
+}
+
+.collapsible-section {
+  border: 1px solid #ddd;
+  margin: 5px 0;
+  padding: 5px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  background: #f4f4f4;
+  padding: 5px;
+}
+
+.content {
+  padding-left: 15px;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
 }

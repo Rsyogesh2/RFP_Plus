@@ -189,43 +189,108 @@ const RFPListTable = () => {
   };
 
   return (
-    <div className="vendor-query-container">
-      <table className="vendor-query-table">
-        <thead className="rfptablelist-header">
-          <tr>
-            <th>RFP No</th>
-            <th>RFP Title</th>
+    <div className="vendor-query-container1">
+     <div style={{ overflowX: '10px', marginBottom: '20px' }}>
+  <table
+    style={{
+      width: '100%',
+      minWidth: '800px',
+      borderCollapse: 'collapse',
+    }}
+  >
+    <thead>
+      <tr>
+        <th
+          style={{
+            padding: '8px 12px',
+            backgroundColor: '#f5f5f5',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            borderBottom: '1px solid #ccc',
+          }}
+        >
+          RFP No
+        </th>
+        <th
+          style={{
+            padding: '8px 12px',
+            backgroundColor: '#f5f5f5',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            borderBottom: '1px solid #ccc',
+          }}
+        >
+          RFP Title
+        </th>
+        {actions.map((action, idx) => (
+          <th
+            key={idx}
+            style={{
+              padding: '8px 12px',
+              backgroundColor: '#f5f5f5',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              borderBottom: '1px solid #ccc',
+            }}
+          >
+            Action
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {data.length > 0 ? (
+        data.map((item, index) => (
+          <tr key={index}>
+            <td style={{ padding: '8px 12px', borderBottom: '1px solid #eee' }}>
+              {item.RFP_No}
+            </td>
+            <td style={{ padding: '8px 12px', borderBottom: '1px solid #eee' }}>
+              {item.rfp_title}
+            </td>
             {actions.map((action, idx) => (
-              <th key={idx}>Action</th>
+              <td
+                key={idx}
+                style={{ padding: '8px 8px', borderBottom: '1px solid #eee' }}
+              >
+                <button
+                  style={{
+                    padding: '6px 6px',
+                    fontSize: '12px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    backgroundColor: '#f8faff',
+                    cursor: 'pointer',
+                    color: '#325496',
+                  }}
+                  onClick={() =>
+                    handleSeeQuery(item.RFP_No, item.rfp_title, action)
+                  }
+                >
+                  {action}
+                </button>
+              </td>
             ))}
           </tr>
-        </thead>
-        <tbody>
-          {data.length > 0 ? (
-            data.map((item, index) => (
-              <tr key={index}>
-                <td>{item.RFP_No}</td>
-                <td>{item.rfp_title}</td>
-                {actions.map((action, idx) => (
-                  <td key={idx}>
-                    <button
-                      onClick={() =>
-                        handleSeeQuery(item.RFP_No, item.rfp_title, action)
-                      }
-                    >
-                      {action}
-                    </button>
-                  </td>
-                ))}
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="3">No RFP data available</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+        ))
+      ) : (
+        <tr>
+          <td
+            colSpan="3"
+            style={{
+              padding: '10px',
+              textAlign: 'center',
+              borderBottom: '1px solid #ccc',
+            }}
+          >
+            No RFP data available
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
 
       {visibleState.vendor && userPower === "Super Admin" && (
         <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
