@@ -131,56 +131,87 @@ const Sidebar = ({ activeSection, setActiveSection, isSidebarOpen, toggleSidebar
   // console.log(menuItems);
   // console.log(groupedMenuItems);
   return (
-    <div ref={sidebarRef} className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
-      <button className="toggle-btn" onClick={toggleSidebar}>
-        {isSidebarOpen ? "«" : "»"}
-      </button>
-      <ul className="sidebar-list">
-        {menuItems.length > 0 ? (
-          menuItems.map((item, index) => (
-            <li key={index} className={`sidebar-item ${activeSection === item.section ? "active-tab" : ""}`}
-            style={
-              (userPower === "User" || userPower === "Vendor User") ? {
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                padding: '8px',
-                borderRadius: '8px',
-                marginBottom: '8px',
-              } : {}
-            }>
-              <div
-                className="sidebar-mainlabel"
-                id={`sidebar-mainlabel-${index}`}
-                onClick={() => {
-                  if (userPower !== "User" && userPower !== "Vendor User") {
-                    handleSectionClick(item.section);
-                  }
-                }}
-              >
-                {userPower !== "User" && userPower !== "Vendor User" && <span className="sidebar-icon">{item.icon && item.icon}</span>}
-                {isSidebarOpen && <span className="sidebar-label">{item.label}</span>}
-              </div>
-              {isSidebarOpen && item.subItems?.length > 0 && (
-                <ul className="nested-sub-label">
-                  {item.subItems.map((subItem, subIndex) => (
-                    <li
-                      key={subIndex}
-                      className="sidebar-sublabel"
-                      onClick={() => handleSectionClick(subItem.section)}
-                    >
-                      {subItem.sublabel}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))
-        ) : (
-          <li>{isSidebarOpen ? "No Menu Items Available" : ""}</li>
-        )}
-      </ul>
-    </div>
+<div
+  ref={sidebarRef}
+  className={`relative h-screen bg-white border-r border-gray-200 text-blue-900 transition-all duration-500 ease-in-out shadow-lg ${
+    isSidebarOpen ? 'w-64' : 'w-16'
+  }`}
+>
+  {/* Floating Toggle Button */}
+  <button
+    className="absolute top-2 -right-2 z-20 bg-orange-600 hover:bg-orange-700 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-transform duration-300 hover:scale-110"
+    onClick={toggleSidebar}
+  >
+    <span className="text-lg font-bold">{isSidebarOpen ? '«' : '»'}</span>
+  </button>
+
+  {/* Logo/Header Placeholder */}
+  <div className="flex items-center justify-center h-14 px-4">
+    {/* {isSidebarOpen ? (
+      <div className="text-xl font-bold text-blue-800">RFP <span className="text-orange-600">manage</span></div>
+    ) : (
+      <span className="text-2xl font-extrabold text-orange-600">R</span>
+    )} */}
+  </div>
+
+  {/* Sidebar Items */}
+  <ul className="px-2 space-y-2">
+    {menuItems.length > 0 ? (
+      menuItems.map((item, index) => (
+        <li
+          key={index}
+          className={`group relative rounded-lg transition-all duration-200 overflow-hidden ${
+            activeSection === item.section
+              ? 'bg-blue-100 text-blue-900 shadow-md'
+              : 'hover:bg-orange-50'
+          }`}
+        >
+          <div
+            className="flex items-center gap-4 px-4 py-3 cursor-pointer transition-all duration-300"
+            onClick={() => {
+              if (userPower !== 'User' && userPower !== 'Vendor User') {
+                handleSectionClick(item.section);
+              }
+            }}
+          >
+            {/* Icon */}
+            {userPower !== 'User' && userPower !== 'Vendor User' && (
+              <span className="text-lg text-orange-600 group-hover:scale-110 transition-transform duration-300">
+                {item.icon}
+              </span>
+            )}
+
+            {/* Label */}
+            {isSidebarOpen && (
+              <span className="text-sm font-medium tracking-wide">{item.label}</span>
+            )}
+          </div>
+
+          {/* SubItems */}
+          {isSidebarOpen && item.subItems?.length > 0 && (
+            <ul className="ml-12 mb-2 space-y-1">
+              {item.subItems.map((subItem, subIndex) => (
+                <li
+                  key={subIndex}
+                  className="text-sm text-blue-700 hover:text-orange-700 cursor-pointer px-2 py-1 transition-colors duration-150"
+                  onClick={() => handleSectionClick(subItem.section)}
+                >
+                  {subItem.sublabel}
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))
+    ) : (
+      <li className="text-center text-gray-400 text-sm pt-10">
+        {isSidebarOpen ? 'No Menu Items Available' : ''}
+      </li>
+    )}
+  </ul>
+</div>
+
+
   );
 };
 

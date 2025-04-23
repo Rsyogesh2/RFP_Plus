@@ -6,6 +6,7 @@ body {
 }
 
 /* Page layout */
+
 .login-page {
   display: flex;
   justify-content: center;
@@ -16,14 +17,50 @@ body {
 
 /* Login Container */
 .login-container {
-  width: 350px;
-  padding: 30px;
+  display: flex;
+  /* min-height: 100vh; */
+  /* background-color: #f8f9fa; */
+  width: 700px;
+  /* padding: 30px 0px; */
   background: #fff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   text-align: center;
   font-weight: 300;
+  
 }
+.login-left {
+  flex: 1;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #eee;
+  padding: 40px;
+}
+
+.welcome-content {
+  text-align: center;
+}
+
+.welcome-content h2 {
+  font-size: 28px;
+  color: #2f5596;
+  margin-bottom: 10px;
+}
+
+.rfp-logo {
+  max-width: 150px;
+}
+
+.login-right {
+  flex: 1;
+  /* display: flex; */
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
 
 /* Title */
 .login-title {
@@ -52,7 +89,7 @@ body {
 }
 
 .form-group input {
-  width: 95%; /* Reduce width slightly to avoid stretching */
+  width: 100%; /* Reduce width slightly to avoid stretching */
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -82,8 +119,8 @@ body {
 /* Login Button */
 .login-btn {
   width: 100%;
-  background: black !important;
-  background-color: black !important;
+  background: #bf6620 !important;
+  background-color: #bf6620 !important;
   color: white;
   padding: 11px;
   font-size: 15px;
@@ -91,6 +128,7 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-top: 0;
 }
 
 .login-btn:hover {
@@ -119,7 +157,7 @@ body {
 .home-btn {
   width: 100%;
   margin-top: 10px;
-  background: #007bff;
+  background: #bf6620;
   color: white;
   padding: 10px;
   font-size: 14px;
@@ -130,7 +168,7 @@ body {
 }
 
 .home-btn:hover {
-  background: #0056b3;
+  background: #aa5a1d;
 }
 
 

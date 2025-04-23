@@ -25,54 +25,50 @@ const Navbar = ({ handleLogout }) => {
         handleLogout(); // Then call logout
       }, 0); 
     };
+    const handlePasswordChange = () => {
+      // Logic to handle password change
+      console.log("Change Password clicked");
+    }
   return (
-    <nav className="navbar">
-      <ul className="navbar-menu">
-        {/* Logo Section */}
-        <li className="navbar-left">
-        <img src={logo} alt="Logo" className="navbar-logo" />
-        </li>
-        {/* Title Section */}
-        <li className="navbar-center">
-          <div>
-            <h1 className="navbar-title">{sidebarValue[0]?.entity_name || moduleData?.entityName}</h1>
-            <p className="navbar-subtitle">{userPower=="Super Admin"?"Bank Admin":userPower=="User"?"Bank User":userPower} Module</p>
-          </div>
-        </li>
-
-        {/* User Info and Logout Section */}
-        <li className="navbar-right">
-  {/* <div className="navbar-user-container">
-    <span className="navbar-username">{name } - {userPower=="Super Admin"||userPower=="Vendor Admin"?"Admin":userRole}</span>
-    <span className="navbar-username"></span>
-    <button className="logout-btn" onClick={handleClearAndLogout}>
-      Logout
-    </button>
-  </div> */}
-    <div
-        className="profile-section"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        {/* <img
-          src="https://via.placeholder.com/40" // Replace with actual user profile image
-          alt="User Profile"
-          className="profile-image"
-        /> */}
-        <span className="username">
-          {name} - {userPower === "Super Admin" || userPower === "Vendor Admin" ? "Admin" : userRole}
+    <nav className="flex items-center justify-between px-6 py-2 shadow bg-white">
+    {/* Logo Section */}
+    <div className="flex items-center space-x-2 w-1/3">
+      <img src={logo} alt="Logo" className="h-10 w-auto" />
+    </div>
+  
+    {/* Bank Info Section */}
+    <div className="text-center w-1/3">
+      <h1 className="text-blue-800 font-bold text-sm">
+        {sidebarValue[0]?.entity_name || moduleData?.entityName}
+      </h1>
+      <p className="text-blue-600 italic text-xs">
+        RFP No: {sidebarValue[0]?.rfp_name} <br />
+        Vendor: {sidebarValue[0]?.vendor_name}
+      </p>
+    </div>
+  
+    {/* User Info Section */}
+    <div className="text-right text-sm w-1/3">
+      <p className="text-blue-800 font-semibold">{name} </p>
+      <p className="text-blue-800 font-semibold">  {userPower === "Super Admin" ? "Bank Admin" : userPower === "Vendor Admin" ? "Vendor Admin" : userRole}</p>
+      <p className="text-xs italic">
+        <span
+          className="text-orange-700 cursor-pointer mr-1"
+          onClick={handlePasswordChange}
+        >
+          Change Password
         </span>
-        {isHovered && (
-           <div className="dropdown-menu">
-           <button className="logout-btn" onClick={handleClearAndLogout}>
-             Logout
-           </button>
-         </div>
-        )}
-      </div>
-</li>
-      </ul>
-    </nav>
+        |
+        <span
+          className="text-orange-700 cursor-pointer ml-1"
+          onClick={handleClearAndLogout}
+        >
+          Logout
+        </span>
+      </p>
+    </div>
+  </nav>
+  
   );
 };
 

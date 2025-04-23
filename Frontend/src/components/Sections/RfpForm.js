@@ -95,52 +95,66 @@ const RfpForm = ({ user, refresh  }) => {
   };
 
   return (
-    <div className="rfp-form">
-      <h2 style={{ textAlign: 'center' }}>Create New RFP</h2>
-      <div className="input-group">
-        <div className="input-field" id="input1no">
-          <label>RFP Reference No</label>
-          <input type="text" value={rfpDetails.rfpNo}
-            onChange={(e) =>
-              setRfpDetails((prevState) => ({
-                ...prevState,
-                rfpNo: e.target.value,
-              }))
-            } />
-        </div>
-        <div className="input-field" id="input1title">
-          <label>RFP Title</label>
-          <input type="text" value={rfpDetails.rfpTitle}
-            onChange={(e) =>
-              setRfpDetails((prevState) => ({
-                ...prevState,
-                rfpTitle: e.target.value,
-              }))
-            } />
-        </div>
+    <div className="w-full max-w-4xl mx-auto px-10 py-2 bg-white rounded-2xl  space-y-8">
+    <h2 className="text-2xl font-semibold text-center text-gray-800">Create New RFP</h2>
+  
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
+      <div>
+        <label className="block text-gray-700 font-medium mb-2">RFP Reference No</label>
+        <input
+          type="text"
+          value={rfpDetails.rfpNo}
+          onChange={(e) =>
+            setRfpDetails((prev) => ({ ...prev, rfpNo: e.target.value }))
+          }
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
-      {/* <FilterSections/> */}
-      <div className="checkbox-group">
-        {/* <CheckboxList title="Modules" items={modules} />
-      <CheckboxList title="Products" items={products} />
-      <CheckboxList title="RFP Response Options" items={responseOptions} /> */}
-        {/* <CheckboxList title="Modules" items={modules} />
-        <CheckboxList title="Products" items={products} />
-        <CheckboxList title="RFP Response Options" items={responseOptions} />       */}
-        {user === "Super Admin" ? <ModuleList title="Modules" url="/assignModule" ref={childRef} />
-          : <ModuleList title="Modules" url="/modules" ref={childRef} />}
-
-        {user === "Super Admin" && (
-          <ModuleList title="Products" url="/products" ref={productRef} />
-        )}
-        {/* <ModuleList title="RFP Response Options" /> */}
-      </div>
-
-      <div className="button-group" style={{ display: 'flex',alignItems:"center",justifyContent:"center",gap:"20px" }}>
-        <button className='btn' text="Submit" onClick={handleGetCheckedItems}>Submit</button>
-        <button className='btn' text="Cancel">Cancel</button>
+      <div>
+        <label className="block text-gray-700 font-medium mb-2">RFP Title</label>
+        <input
+          type="text"
+          value={rfpDetails.rfpTitle}
+          onChange={(e) =>
+            setRfpDetails((prev) => ({ ...prev, rfpTitle: e.target.value }))
+          }
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
     </div>
+  
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 !m-0">
+      <div>
+        {/* <h3 className="text-lg font-semibold text-gray-700 mb-3">Modules</h3> */}
+        <ModuleList
+          title="Modules"
+          url={user === "Super Admin" ? "/assignModule" : "/modules"}
+          ref={childRef}
+        />
+      </div>
+  
+      {user === "Super Admin" && (
+        <div>
+          {/* <h3 className="text-lg font-semibold text-gray-700 mb-3">Products</h3> */}
+          <ModuleList title="Products" url="/products" ref={productRef} />
+        </div>
+      )}
+    </div>
+  
+    <div className="flex justify-center gap-6">
+      <button
+        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        onClick={handleGetCheckedItems}
+      >
+        Submit
+      </button>
+      <button className="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition">
+        Cancel
+      </button>
+    </div>
+  </div>
+  
+  
   );
 };
 

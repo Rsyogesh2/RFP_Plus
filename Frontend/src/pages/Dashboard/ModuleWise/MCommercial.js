@@ -20,29 +20,33 @@ const vendors = [
 ];
 
 const Table = ({ data, headers }) => (
-  <table className="styled-table">
-    <colgroup>
-    <col style={{ width: "auto",height:"20px" }} />   {/* Commercial Score - auto width */}
-    <col style={{ width: "20px",height:"20px" }} />  {/* Benchmark Score - fixed width */}
-    <col style={{ width: "auto",height:"20px" }} />   {/* % - auto width */}
-    </colgroup>
-    <thead>
-      <tr>
-        {headers.map((header, index) => (
-          <th key={index}>{header}</th>
+<div className="mx-4">
+<table className="min-w-full border border-gray-200 rounded-xl shadow-md text-sm text-gray-700 ">
+  <colgroup>
+    <col style={{ width: "auto", height: "20px" }} />
+    <col style={{ width: "20px", height: "20px" }} />
+    <col style={{ width: "auto", height: "20px" }} />
+  </colgroup>
+  <thead className="bg-gray-100 text-left text-xs uppercase tracking-wider text-gray-600 h-12">
+    <tr>
+      {headers.map((header, index) => (
+        <th key={index} className="px-4 py-3 border-b border-gray-300">{header}</th>
+      ))}
+    </tr>
+  </thead>
+  <tbody>
+    {data && data.map((row, index) => (
+      <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+        {Object.entries(row).map(([key, value], i) => (
+          <td key={i} className="px-4 py-2 border-b border-gray-200">{value}</td>
         ))}
       </tr>
-    </thead>
-    <tbody>
-      {data && data.map((row, index) => (
-        <tr key={index}>
-          {Object.entries(row).map(([key, value], i) => (
-            <td key={i}>{value}</td>
-          ))}
-        </tr>
-      ))}
-    </tbody>
-  </table>
+    ))}
+  </tbody>
+</table>
+  </div>
+
+
 );
 
 const Commercial = ({ values, comVendor, vendorNames }) => {
@@ -105,7 +109,7 @@ const Commercial = ({ values, comVendor, vendorNames }) => {
         </div>
 
         <div className="vendor-container">
-          <button className="scroll-btn left" onClick={() => scrollVendors(-200)}>←</button>
+          {/* <button className="scroll-btn left" onClick={() => scrollVendors(-200)}>←</button> */}
 
           <div className="vendor-tables" ref={vendorRef}>
 
@@ -120,7 +124,7 @@ const Commercial = ({ values, comVendor, vendorNames }) => {
             </div>
           ))}
         </div>
-          <button className="scroll-btn right" onClick={() => scrollVendors(200)}>→</button>
+          {/* <button className="scroll-btn right" onClick={() => scrollVendors(200)}>→</button> */}
           </div>
         </div>
       </div>

@@ -12,9 +12,9 @@ router.post('/request-reset', async (req, res) => {
     if (!email) {
         return res.status(400).json({ message: "Email is required." });
     }
-
+     const [user] = await db.query("SELECT user_name FROM Users_Table WHERE email = ?", [email]);  
     try {
-        sendResetEmail(email);
+        sendResetEmail(email,user[0].user_name); // Pass the username to the mailer function
         res.status(200).json({ message: "Password reset link sent to your email." });
     } catch (error) {
         console.error("Error sending reset email:", error);

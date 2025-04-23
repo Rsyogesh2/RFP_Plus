@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "./../context/AppContext";
 import "./GlobalAdminLogin.css";
+import logo from "../assets/rfp-logo.jpeg";
 import ForgotPassword from './ForgotPassword'; // Import the Forgot Password component
 // import { showToast } from "./../components/utils/PopupService";
 // import { ToastContainer } from "react-toastify";
@@ -40,13 +41,13 @@ const Login = ({ onLogin }) => {
     console.log("Login response:", result);
 
     if (response.ok) {
-      if(credentials.username == "GlobalUser"){
-      console.log(result.Name.active_flag);
-      if (result.Name.active_flag === "Inactive") {
-        console.log("Condition passed! Now showing popup...");
-        window.showPopup("Success!", "User is Inactive!", "success");
-        return
-      }
+      if (credentials.username == "GlobalUser") {
+        console.log(result.Name.active_flag);
+        if (result.Name.active_flag === "Inactive") {
+          console.log("Condition passed! Now showing popup...");
+          window.showPopup("Success!", "User is Inactive!", "success");
+          return
+        }
       }
       if (result.Name.active_flag === "Inactive") {
         console.log("Condition passed! Now showing popup...");
@@ -106,7 +107,7 @@ const Login = ({ onLogin }) => {
           if (rolesResult.roles[0] === "Super Admin") {
             // setRoles(rolesResult.roles);
 
-          } else if(rolesResult.roles[0] === "Vendor Admin"){
+          } else if (rolesResult.roles[0] === "Vendor Admin") {
             setRfpnumbers([rolesResult.results1[0].rfpNo]);
           }
           setRoles(rolesResult.roles);
@@ -154,6 +155,13 @@ const Login = ({ onLogin }) => {
     <div className="login-page">
       {!showForgotPassword ? (
         <div className="login-container">
+           <div className="login-left">
+    <div className="welcome-content">
+      <h2>Welcome to</h2>
+      <img src={logo} alt="RFP Manage Logo" className="rfp-logo" />
+    </div>
+  </div>
+  <div className="login-right">
           <h2 className="login-title">Login</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -183,44 +191,40 @@ const Login = ({ onLogin }) => {
               </label>
               <a href="#" className="forgot-password" onClick={handleForgotPasswordClick} >Forgot Password?</a>
             </div>
-            <button className="login-btn" style={{backgroundColor:"black"}}>LOGIN</button>
+            <button
+              className="login-btn"
+              style={{
+                margin: "0px",
+                backgroundColor: "#bf6620",
+              }}
+            >
+              LOGIN
+            </button>
+
           </form>
 
           {roles.length > 0 && (
             <div className="role-selection">
-              {/* <label htmlFor="role">Select RFP No:</label>
-            <select id="role" value={rfpNumber} onChange={handleRFPSelect}>
-              <option value="" disabled>-- Select a Role --</option>
-              {rfpnumbers.map((role, index) => (
-                <option key={index} value={role}>{role=="Super Admin"?"Bank Admin":role}</option>
-              ))}
-            </select>
-            <label htmlFor="role">Select Role:</label>
-            <select id="role" value={selectedRole} onChange={handleRoleSelect}>
-              <option value="" disabled>-- Select a Role --</option>
-              {roles.map((role, index) => (
-                <option key={index} value={role}>{role=="Super Admin"?"Bank Admin":role}</option>
-              ))}
-            </select> */}
               {/* First Dropdown (RFP No) */}
               {/* First Dropdown (RFP No) */}
-              <label htmlFor="rfpNo" style={{ display: (roles[0] !== "Super Admin" && roles[0] !== "Vendor Admin" ) ? "block" : "none" }}>
+              <label htmlFor="rfpNo" style={{ display: (roles[0] !== "Super Admin" && roles[0] !== "Vendor Admin") ? "block" : "none" }}>
                 Select RFP No:
               </label>
               <select
                 id="rfpNo"
                 value={rfpNumber}
                 onChange={handleRFPSelect}
-                style={{ display:(roles[0] !== "Super Admin" && roles[0] !== "Vendor Admin") ? "block" : "none" }}
+                style={{ display: (roles[0] !== "Super Admin" && roles[0] !== "Vendor Admin") ? "block" : "none" }}
+                className="text-center border p-2 rounded"
               >
-                <option value="" >-- Select RFP No --</option>
+                <option value="" className="text-center">-- Select RFP No --</option>
                 {rfpnumbers.map((role, index) => (
                   <option key={index} value={role}>{role === "Super Admin" ? "Bank Admin" : role}</option>
                 ))}
               </select>
 
               {/* Second Dropdown (Role) */}
-              <label htmlFor="role" style={{ display: (roles[0] === "Super Admin" || roles[0] === "Vendor Admin"|| roles[0] === "Global Admin") ? "block" : "none" }}>
+              <label htmlFor="role" style={{ display: (roles[0] === "Super Admin" || roles[0] === "Vendor Admin" || roles[0] === "Global Admin") ? "block" : "none" }}>
                 Select Role:
               </label>
               <select
@@ -228,17 +232,19 @@ const Login = ({ onLogin }) => {
                 value={selectedRole}
                 onChange={handleRoleSelect}
                 style={{ display: (roles[0] === "Super Admin" || roles[0] === "Vendor Admin" || roles[0] === "Global Admin") ? "block" : "none" }}
+                className="text-center border p-2 rounded"
               >
-                <option value="" >-- Select a Role --</option>
+                <option value="" className="text-center">--- Select a Role ---</option>
                 {roles.map((role, index) => (
                   <option key={index} value={role}>
                     {role === "Super Admin" ? "Bank Admin" : role}
                   </option>
                 ))}
               </select>
-              <button onClick={handleNavigateToHome} className="home-btn">Go to Home</button>
+              <button onClick={handleNavigateToHome} className="home-btn" style={{ marginLeft: "0px", marginRight: "0px" }}>Go to Home</button>
             </div>
           )}
+        </div>
         </div>
       ) : (
         <ForgotPassword /> // Show the Forgot Password component

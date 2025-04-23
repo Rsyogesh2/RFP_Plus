@@ -16,6 +16,7 @@ import Login from "./Login/GlobalAdminLogin";
 import { AppProvider } from './context/AppContext';
 import ResetPassword from "./Login/ResetPassword"; // Reset password component
 import ActivateAccount from "./Login/ActivateAccount.js";
+import LoginResetForm from "./Login/LoginResetForm.js"; // Reset password component
 // import { ToastContainer } from "react-toastify";
 import { GlobalAlertProvider } from "./context/GlobalAlertContext.js";
 
@@ -71,7 +72,8 @@ function App() {
                 element={<Login onLogin={handleLogin} />}
               />
               <Route path="/reset-password" element={<ResetPassword />} /> {/* Reset Password Page */}
-              <Route path="/activate-account" element={<ActivateAccount />} /> {/* Reset Password Page */}
+              {/* <Route path="/activate-account" element={<ActivateAccount />} /> Reset Password Page */}
+              <Route path="/activate-account" element={<LoginResetForm />} /> {/* Reset Password Page */}
            
               {/* Protected Routes */}
               <Route

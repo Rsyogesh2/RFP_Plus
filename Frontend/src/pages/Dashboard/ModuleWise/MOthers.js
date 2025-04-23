@@ -20,25 +20,43 @@ const vendors = [
 ];
 
 const Table = ({ data, headers }) => (
-  <table className="styled-table">
-    <thead>
-      <tr>
-        {headers.map((header, index) => (
-          <th key={index}>{header}</th>
-        ))}
-      </tr>
-    </thead>
-    <tbody>
-      {data.map((row, index) => (
-        <tr key={index}>
-          {Object.values(row).map((cell, i) => (
-            <td key={i}>{cell}</td>
+  <div className="overflow-x-auto rounded-s shadow-lg border border-gray-200 bg-white mx-3 text-gray-700">
+  <table className="min-w-full text-sm text-left border-separate border-spacing-0">
+      <thead className="bg-gray-100 text-xs uppercase tracking-wider text-gray-600 h-12 sticky top-0 z-10">
+        <tr>
+          {headers.map((header, index) => (
+            <th
+              key={index}
+              className="px-4 py-3 font-semibold border-b border-blue-200 text-xs uppercase tracking-wider text-center"
+            >
+              {header}
+            </th>
           ))}
         </tr>
-      ))}
-    </tbody>
-  </table>
+      </thead>
+      <tbody className="text-gray-800">
+        {data.map((row, rowIndex) => (
+          <tr
+            key={rowIndex}
+            className={`transition duration-200 white`}
+          >
+            {headers.map((header, cellIndex) => (
+              <td
+                key={cellIndex}
+                className="px-4 py-3 border-b border-gray-200 text-center whitespace-nowrap"
+              >
+                {row[Object.keys(row)[cellIndex]] ?? ""}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 );
+
+
+
 
 const MOthers = ({ values, othersVendor, vendorNames }) => {
   const [otherScores, setOtherScores] = useState([

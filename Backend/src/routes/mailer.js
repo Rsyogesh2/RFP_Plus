@@ -5,7 +5,7 @@ require('dotenv').config();  // Load environment variables
 const LOGINKEY = process.env.LOGINKEY; // Ensure this is defined
 const API_URL = process.env.API_URL || 'http://localhost:3000';
 
- const sendResetEmail = (recipientEmail) => {
+const sendResetEmail = (recipientEmail,userName) => {
     const token = jwt.sign({ email: recipientEmail }, LOGINKEY, { expiresIn: "1h" });
     const resetLink = `${API_URL}/reset-password?token=${token}`;
 
@@ -25,7 +25,7 @@ const API_URL = process.env.API_URL || 'http://localhost:3000';
             <p>Hi ${userName},</p>
             <p>We received a request to reset your password for your RFPmanage account. No worries—we’re here to help!</p>
             <p>Click the button below to set a new password:</p>
-            <p><a href="${resetLink}" style="display:inline-block;padding:10px 20px;font-size:16px;color:#fff;background:#007bff;text-decoration:none;border-radius:5px;">Reset Password</a></p>
+            <p><a href="${resetLink}">Reset Password</a></p>
             <p>If you didn’t request this, you can ignore this email. Your account remains secure.</p>
             <p>For any assistance, feel free to contact our support team.</p>
             <p><strong>RFPmanage Team</strong></p>
@@ -63,14 +63,13 @@ const API_URL = process.env.API_URL || 'http://localhost:3000';
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: recipientEmail,
-        subject: 'Activate Your RFPmanage Account',
+        subject: 'Welcome to RFPmanage! Activate your account now.',
         html: `
             <p>Hi ${userName},</p>
             <p>Greetings from RFPmanage. You're almost ready to explore all the features of rfpmanage.com.</p>
             <p>Your email id will be your user id. Click here to activate your account and unlock access to your user id</p>
             <p>Activate Now:</p>
             <p><a href="${activationLink}" style="display:inline-block;padding:10px 20px;font-size:16px;color:#fff;background:#28a745;text-decoration:none;border-radius:5px;">Activate Account</a></p>
-            <p>This link will expire in 24 hours.</p>
             <p><strong>RFPmanage Team</strong></p>
         `
     };

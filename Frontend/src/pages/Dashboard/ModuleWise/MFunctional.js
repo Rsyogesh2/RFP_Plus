@@ -51,25 +51,55 @@ const vendors = [
 ];
 
 const Table = ({ data, headers }) => (
-  <table className="styled-table">
-    <thead>
-      <tr>
-        {headers.map((header, index) => (
-          <th key={index}>{header}</th>
+  <div className="w-full">
+    <table className="w-full table-fixed text-sm text-gray-700 border border-gray-200 rounded-md shadow-sm">
+      
+      {/* Add column widths here */}
+      <colgroup>
+        {headers.map((_, index) => (
+          <col
+            key={index}
+            className={
+              index === 3
+                ? "w-[20%]" // ✅ 4th column gets more space
+                : "w-[20%]" // Adjust others as needed
+            }
+          />
         ))}
-      </tr>
-    </thead>
-    <tbody>
-      {data.map((row, index) => (
-        <tr key={index}>
-          {Object.values(row).map((cell, i) => (
-            <td key={i}>{cell}</td>
+      </colgroup>
+
+      <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
+        <tr>
+          {headers.map((header, index) => (
+            <th
+              key={index}
+              className="px-2 py-2 text-left border-b border-gray-200 truncate"
+            >
+              {header}
+            </th>
           ))}
         </tr>
-      ))}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {Object.values(row).map((cell, cellIndex) => (
+              <td
+                key={cellIndex}
+                className="px-2 py-2 border-b border-gray-100 truncate"
+              >
+                {cell}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 );
+
+
+
 
 const MFunctional = ({values1, funVendor1, vendorNames}) => {
 
@@ -120,101 +150,83 @@ const MFunctional = ({values1, funVendor1, vendorNames}) => {
   };
   
   return (
-    <div className="modulewise-container">
-    <h4>Final Score – Module-wise</h4>
-    <select onChange={(e) => setSelectedIndex(Number(e.target.value))}
-       style={{
-        // width: "100%",
-        padding: "5px",
-        fontSize: "14px",
-        border: "2px solid #ddd",
-        borderRadius: "4px",
-        background: "#fff",
-        color: "#333",
-        cursor: "pointer",
-        transition: "border-color 0.3s ease",
-      }}>
-        <option value="">Select</option>
-        {values1 &&
-          values1.map((value, index) => (
-            <option key={index} value={index}> {/* ✅ Pass index as value */}
-              {value.name}
-            </option>
-          ))}
-      </select>
-    <div className="score-section">
-      <div>
-        <h3>Functional Score</h3>
-        
+    <div className="modulewise-container p-4 bg-gray-50 rounded-lg  space-y-6">
+    <h4 className="text-lg font-semibold text-gray-800">Final Score – Module-wise</h4>
+  
+    <select
+      onChange={(e) => setSelectedIndex(Number(e.target.value))}
+      className="w-full max-w-sm p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      <option value="">Select</option>
+      {values1?.map((value, index) => (
+        <option key={index} value={index}>
+          {value.name}
+        </option>
+      ))}
+    </select>
+  
+    <div className="score-section flex flex-col lg:flex-row gap-6">
+      {/* Benchmark Table */}
+      <div className="w-full lg:w-1/3 p-4 rounded-xl ">
+        <h3 className="text-md font-medium text-gray-700 mb-2">Functional Score</h3>
         <Table
-         data={values.l2.map((l2Item) => {
-          const matchedItem = funVendor.length > 0 && funVendor[0][0]?.l2 
-            ? funVendor[0][0].l2.find(funItem => funItem.code === l2Item.code) || {} 
-            : {}; 
-        
-          return { 
-            modules: l2Item.name, 
-            "Benchmark Score": matchedItem.totalScoreAll || 0  // ✅ Show `totalScoreAll` in 2nd column
-          };
-        })}        
+          data={values.l2.map((l2Item) => {
+            const matchedItem = funVendor[0]?.[0]?.l2?.find(
+              (funItem) => funItem.code === l2Item.code
+            ) || {};
+            return {
+              modules: l2Item.name,
+              "Benchmark Score": matchedItem.totalScoreAll || 0,
+            };
+          })}
           headers={["Functional Requirement", "Benchmark Score"]}
         />
       </div>
-      <div className="vendor-container" style={{ position: "relative" }}>
-          <button className="scroll-btn left" onClick={() => scrollVendors(-200)}>←</button>
-
-          <div className="vendor-tables" ref={vendorRef}>
-
-      {funVendor.length>0 && funVendor.map((vendor, index) => {
-        let vendorScoreL2 =[]
-        // Ensure `funVendor.l2` is sorted based on `values.l2` using `code`
-        const sortedFunVendorL2 = values.l2.map(l2Item => {
-          console.log("L2 Item Code:", l2Item.code);
-          console.log("L2 Item Code:", index);
-          console.log("funVendor.length :", funVendor.length );
-          console.log("funVendor[index]?.l2:", funVendor[index][0].l2 );
-          if (funVendor.length > 0 && funVendor[index][0]?.l2) {
-            console.log("Checking in funVendor:", funVendor[index][0].l2);
-        
-            const matchedItem = funVendor[index][0].l2.find(funItem => {
-              console.log("Comparing:", funItem.code, "with", l2Item.code);
-              return funItem.code === l2Item.code; // ✅ Corrected condition
-            }) || {}; // If no match, return an empty object
-        
-            console.log("Matched Item:", matchedItem);
-        
-            // Exclude `code` and `totalScoreAll`
-            const { code, totalScoreAll, ...rest } = matchedItem;
-        
-            // Calculate Total Score (Sum of A, P, C)
-            const totalScore = (rest.totalScoreA || 0) + (rest.totalScoreP || 0) + (rest.totalScoreC || 0);
-        
-            const percentage = totalScoreAll && totalScoreAll > 0 
-              ? ((totalScore / totalScoreAll) * 100).toFixed(2) + "%"  // ✅ Format percentage with 2 decimal places
-              : "0%";  // ✅ If totalScoreAll is 0 or undefined, show "0%"
-            vendorScoreL2.push({ ...rest, "Total Score": totalScore, "%": percentage });
-            return vendorScoreL2;
-          }
-        
-          return {}; // Return empty object if no match
-        });
-        
-        console.log(sortedFunVendorL2)
-        return (
-          <div key={index}>
-            <h3>{vendorNames[index]?.entity_name ||vendor.name} - Score</h3>
-            <Table
-              data={sortedFunVendorL2[0] || []}
-              headers={["A", "P", "C", "Total Score", "%"]}
-            />
-          </div>
-        );
-      })}
-       <button className="scroll-btn right" onClick={() => scrollVendors(200)}>→</button>
+  
+      {/* Vendor Tables */}
+      <div className="vendor-container w-full lg:w-2/3 overflow-x-auto">
+        <div className="vendor-tables flex gap-2" ref={vendorRef}>
+          {funVendor.length > 0 &&
+            funVendor.map((vendor, index) => {
+              const vendorScoreL2 = values.l2.map((l2Item) => {
+                const matchedItem = vendor[0]?.l2?.find(
+                  (funItem) => funItem.code === l2Item.code
+                ) || {};
+  
+                const { code, totalScoreAll, totalScoreA = 0, totalScoreP = 0, totalScoreC = 0 } = matchedItem;
+  
+                const totalScore = totalScoreA + totalScoreP + totalScoreC;
+                const percentage =
+                  totalScoreAll && totalScoreAll > 0
+                    ? ((totalScore / totalScoreAll) * 100).toFixed(2) + "%"
+                    : "0%";
+  
+                return {
+                  A: totalScoreA,
+                  P: totalScoreP,
+                  C: totalScoreC,
+                  "Total Score": totalScore,
+                  "%": percentage,
+                };
+              });
+  
+              return (
+                <div key={index} className=" p-4 rounded-xl min-w-[300px]">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    {vendorNames[index]?.entity_name || vendor.name} - Score
+                  </h3>
+                  <Table
+                    data={vendorScoreL2}
+                    headers={["A", "P", "C", "Total Score", "%"]}
+                  />
+                </div>
+              );
+            })}
         </div>
       </div>
     </div>
   </div>
+  
   
   );
 };
