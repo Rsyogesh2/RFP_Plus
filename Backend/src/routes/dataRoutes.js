@@ -3599,11 +3599,12 @@ router.post('/vendorQuery-fetch-admin', async (req, res) => {
           rowsData, // Parsed JSON
         };
       });
-
+        // console.log("modules");
+        // console.log(modules);
       res.status(200).send({
         message: "Data fetched successfully!",
         data: combinedData, // Array of processed rows
-      });
+       });
     } else {
       const query = `
       SELECT rows_data, rfp_title, stage, created_by, updated_at 
@@ -3688,8 +3689,58 @@ router.post('/vendorQuery-fetch-all-rows', async (req, res) => {
     res.status(500).send({ message: 'Failed to fetch combined data' });
   }
 });
+router.post('/getModules', async (req, res) => {
+  const { rfpNo } = req.body;
+  console.log("getModules initiated.");
+  try{
+const [l1Rows] = await db.query('SELECT * FROM RFP_Saved_L1_Modules WHERE RFP_No = ?', [rfpNo]);
+//Iterate over each L1 record and build the nested structure for L2 and L3
+
+const modules = await Promise.all(l1Rows.map(async (l1Item) => {
+const { L1_Code, L1_Module_Description } = l1Item;
+
+// Fetch related L2 modules for the current L1 module and specified RFP_No
+const [l2Rows] = await db.query('SELECT * FROM RFP_Saved_L2_Modules WHERE RFP_No = ? AND L2_Code LIKE ?', [rfpNo, `${L1_Code}%`]);
+
+// For each L2, fetch related L3 modules and build L2-L3 structure
+const l2Modules = await Promise.all(l2Rows.map(async (l2Item) => {
+  const { L2_Code, L2_Module_Description } = l2Item;
+
+  // Fetch related L3 modules for the current L2 module and specified RFP_No
+  const [l3Rows] = await db.query('SELECT * FROM RFP_Saved_L3_Modules WHERE RFP_No = ? and L3_Code LIKE ?', [rfpNo,`${L2_Code}%`]);
+
+  // Map L3 data into a structured format
+  const l3Modules = l3Rows.map(l3Item => ({
+    code: l3Item.L3_Code,
+    name: l3Item.L3_Module_Description
+  }));
+
+  // Return L2 structure with nested L3 modules
+  return {
+    code: L2_Code,
+    name: L2_Module_Description,
+    l3: l3Modules
+  };
+}));
+
+// Return L1 structure with nested L2 (and L3) modules
+return {
+  name: L1_Module_Description,
+  code: L1_Code,
+  l2: l2Modules
+};
+}));
 
 
+res.status(200).send({
+  message: "Combined data fetched successfully!",
+  modules: modules,
+});
+} catch (error) {
+console.error('Error fetching combined data:', error);
+res.status(500).send({ message: 'Failed to fetch combined data' });
+}
+});
 
 
 

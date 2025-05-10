@@ -47,7 +47,11 @@ function App() {
   const handleLogout = () => {
     setAuthState({ isAuthenticated: false, userType: null });
   };
-
+  const handleChangePassword = () => {
+    console.log("Change Password clicked in App.js");
+    setAuthState({ isAuthenticated: false, userType: null });
+    // return <Navigate to="/#" />; // ✅ correct usage
+  };
   // Protected Route Component
   const ProtectedRoute = ({ children, allowedRoles }) => {
     return authState.isAuthenticated && allowedRoles.includes(authState.userType)
@@ -63,7 +67,7 @@ function App() {
         <Router>
           <div>
           {authState.isAuthenticated && (
-              <Navbar  handleLogout={handleLogout} />
+              <Navbar  handleLogout={handleLogout} handleChangePassword={handleChangePassword} />
             )}
             <Routes>
               {/* Dynamic Login Route */}
@@ -72,8 +76,9 @@ function App() {
                 element={<Login onLogin={handleLogin} />}
               />
               <Route path="/reset-password" element={<ResetPassword />} /> {/* Reset Password Page */}
-              {/* <Route path="/activate-account" element={<ActivateAccount />} /> Reset Password Page */}
-              <Route path="/activate-account" element={<LoginResetForm />} /> {/* Reset Password Page */}
+              <Route path="/activate-account" element={<ResetPassword />} /> {/* Reset Password Page */}
+               {/* <Route path="/activate-account" element={<ActivateAccount />} /> Reset Password Page */}
+              {/* <Route path="/activate-account" element={<LoginResetForm />} /> Reset Password Page */}
            
               {/* Protected Routes */}
               <Route

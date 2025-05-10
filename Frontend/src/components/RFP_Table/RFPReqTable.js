@@ -574,7 +574,7 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
     
     // Function to render the Tables
     const Tables = (l2, index1, f1, index, indexval) => {
-        // console.log("rendering Table");
+        // console.log(l2);
         let newItems;
         if (userRole === "Maker") {
             newItems = {
@@ -609,7 +609,7 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
             });
         // console.log(f1items)
         return (
-            <table className="item-table">
+            <table className="item-table" key={l2.code + l2.newCode}>
                 <colgroup>
                     {userRole === "Maker" && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1) && <col style={{ width: "8%" }} />}
                     <col style={{ width: "60%" }} />
@@ -660,8 +660,8 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                                         : readHierarchy([item], 'f1', 10, index1, index, indexval)}
 
                                     {f2items.map((level2, subIndex) => (
-                                        <React.Fragment key={level2.code || subIndex}>
-                                            {userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1)
+                                       <React.Fragment key={`${level2.code || ''}-${level2.newCode || ''}-${subIndex}`}>
+                                         {userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1)
                                                 ? renderHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)
                                                 : readHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)}
                                         </React.Fragment>
@@ -689,12 +689,13 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
 
     // Function to add a new table at the L2 level
     const addTable = () => {
-        console.log("Adding Table");
-        console.log(itemData)
+        console.log("Adding new table at L2 level");
+        console.log(itemData);
         setItemData((prevData) =>
             prevData.map((item) => {
-                const newColumnValue = item.l2.length > 0 
-                    ? Math.max(...item.l2.map((l) => l.newColumn || 9)) + 1 
+                // Calculate the max newCode inside prevData, considering existing l2
+                const newColumnValue = item.l2.length > 0
+                    ? Math.max(...item.l2.map((l) => l.newCode || 9)) + 1
                     : 10;
     
                 return {
@@ -702,9 +703,9 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     l2: [
                         ...item.l2,
                         {
-                            name: "", // Make name empty for editing
+                            name: "", // Empty for editing
                             code: item.code + "99",
-                            newCode: newColumnValue // Starts from 10 and increments
+                            newCode: newColumnValue, // Correctly incremented
                         }
                     ]
                 };
@@ -712,8 +713,9 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         );
     
         setEditableTable(itemData.length);
-        setTempName(""); // Reset temporary input field
+        setTempName(""); // Clear temp input
     };
+    
     
     const handlel2Name = (e, itemIndex, tableIndex) => {
         setTempName(e.target.value);
@@ -819,9 +821,9 @@ const CollapsibleSection = ({ title, content }) => {
                                         const indexval = (index1 + 1) + "." + (Number(index2) + 1);
                                         return (
                                             <div key={l2.code} className='level2'>
-                                                <span className='l2'>{indexval + " " + l2.name}</span>
+                                                {/* <span className='l2'>{indexval + " " + l2.name}</span> */}
                                                 {/* Editable input for the first added table */}
-                                                {/* { l2.name === "" ? (
+                                                { l2.name === "" ? (
                                                     <>
                                                         <input
                                                             type="text"
@@ -834,8 +836,8 @@ const CollapsibleSection = ({ title, content }) => {
                                                         <button onClick={() => saveTableName(index1, index2)}>Save</button>
                                                     </>
                                                 ) : (
-                                                    <span>{l2.name}</span>
-                                                )} */}
+                                                    <span className='l2'>{indexval + " " + l2.name}</span>
+                                                )}
                                                 {l2.l3 && l2.l3.length > 0 ? (
                                                     <>
                                                         {l2.l3.map((l3, index) => (

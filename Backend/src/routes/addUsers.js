@@ -180,6 +180,7 @@ router.post('/addOrUpdateSuperUser', async (req, res) => {
       hashedPassword,
       "Super Admin",
     ]);
+    sendActivationEmail(newUser.superUserEmail, newUser.superUserName); 
     console.log('Login entry updated or created successfully');
 
     res.status(200).send({ message: "Super Admin added or updated successfully" });
@@ -872,6 +873,7 @@ router.post('/api/vendor-admin', async (req, res) => {
       if (err) throw err;
           //console.log("User created!");
       });
+      sendActivationEmail(email, adminName);  
     }
     } else{
       res.send({message:"RFP Not Completed"});

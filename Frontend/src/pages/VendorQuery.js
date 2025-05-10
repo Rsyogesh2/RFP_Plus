@@ -94,6 +94,8 @@ const VendorQuery = ({ rfpNo = "" ,rfpTitle=""}) => {
            }
         } else if(userPower==="Super Admin" || userPower==="Vendor Admin"){
            combinedRowsData = data.data?.reduce((acc, row) => acc.concat(row.rowsData || []), []);
+           console.log(data.modules);
+           setModules(data.modules);
         }
         console.log(combinedRowsData);
         if(userPower==="Super Admin" || userPower==="Vendor Admin"){
@@ -298,10 +300,22 @@ console.log(determineLevel())
         // }
         
       } else{
-        console.log(moduleData.modules)
-        setOptions(flattenHierarchy( moduleData.modules));
-        console.log(flattenHierarchy(moduleData.modules))
-       
+        async function getModules() {
+          const response = await fetch(`${API_URL}/api/getModules`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+               rfpNo 
+            }),
+          });
+          const allModules = await response.json();
+          console.log(allModules.modules);
+          setOptions(flattenHierarchy(allModules.modules));
+          console.log(flattenHierarchy(allModules.modules))
+        }
+        getModules();
       }
       console.log(options)
       } catch (error) {

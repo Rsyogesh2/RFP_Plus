@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ResetPassword = () => {
@@ -10,6 +10,8 @@ const ResetPassword = () => {
     const [token, setToken] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [cooldown, setCooldown] = useState(0);
+    const inputRefs = useRef([]);
 
     const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -24,25 +26,65 @@ const ResetPassword = () => {
         if (emailFromUrl) setEmail(emailFromUrl);
     }, []);
 
+    useEffect(() => {
+        let timer;
+        if (cooldown > 0) {
+            timer = setInterval(() => {
+                setCooldown((prev) => prev - 1);
+            }, 1000);
+        }
+
+        return () => clearInterval(timer);
+    }, [cooldown]);
+    const handlePasswordSubmit = async (e) => {
+        e.preventDefault();
+        if (!password || !confirmPassword) return setMessage("Please fill in both password fields.");
+        if (password !== confirmPassword) return setMessage("Passwords do not match.");
+        if (password.length < 8) return setMessage("Password must be at least 8 characters long.");
+        if (!token) return setMessage("Invalid or missing token.");
+        setLoading(true);
+        //send Otp to email
+        try {
+            const res = await fetch(`${API_URL}/get-otp?email=${email}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email}),
+            });
+            const data = await res.json();
+            console.log("Response:", data);
+            setLoading(false);
+            if (res.ok) {
+                setMessage("OTP sent to your email. Please check your inbox.");
+            } else {
+                setMessage(data.message || "Error sending OTP.");
+            }
+        } catch (error) {
+            setLoading(false);
+            setMessage("An error occurred. Please try again.");
+        }
+    }
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!password || !confirmPassword) return setMessage("Please fill in both password fields.");
-        if (password !== confirmPassword) return setMessage("Passwords do not match.");
-
+        // if (!password || !confirmPassword) return setMessage("Please fill in both password fields.");
+        // if (password !== confirmPassword) return setMessage("Passwords do not match.");
+        // if(password.length < 8) return setMessage("Password must be at least 8 characters long.");
+        if(otp.length < 6) return setMessage("Please enter a valid OTP.");
+        if (!token) return setMessage("Invalid or missing token.");
         setLoading(true);
 
         try {
             const res = await fetch(`${API_URL}/reset-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token, password }),
+                body: JSON.stringify({ token, email, password, otp }),
             });
             const data = await res.json();
+            console.log("Response:", data);
             setLoading(false);
-
             if (res.ok) {
-                setMessage("Password reset successful. Enter OTP to activate login.");
+                setMessage("Password reset successful. Redirecting to login page...");
+                setTimeout(() => navigate("/"), 3000);
             } else {
                 setMessage(data.message || "Error resetting password.");
             }
@@ -52,31 +94,87 @@ const ResetPassword = () => {
         }
     };
 
-    const handleActivateLogin = async () => {
-        if (!otp) return setMessage("Please enter the OTP.");
+    // const handleActivateLogin = async () => {
+    //     if (!otp) return setMessage("Please enter the OTP.");
 
-        setLoading(true);
+    //     setLoading(true);
 
-        try {
-            const res = await fetch(`${API_URL}/activate-login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, otp }),
-            });
-            const data = await res.json();
-            setLoading(false);
+    //     try {
+    //         const res = await fetch(`${API_URL}/activate-login`, {
+    //             method: "POST",
+    //             headers: { "Content-Type": "application/json" },
+    //             body: JSON.stringify({ email, otp }),
+    //         });
+    //         const data = await res.json();
+    //         setLoading(false);
 
-            if (res.ok) {
-                setMessage("Login activated. Redirecting...");
-                setTimeout(() => navigate("/login"), 3000);
-            } else {
-                setMessage(data.message || "Invalid OTP.");
-            }
-        } catch {
-            setLoading(false);
-            setMessage("An error occurred during activation.");
+    //         if (res.ok) {
+    //             setMessage("Login activated. Redirecting...");
+    //             setTimeout(() => navigate("/"), 3000);
+    //         } else {
+    //             setMessage(data.message || "Invalid OTP.");
+    //         }
+    //     } catch {
+    //         setLoading(false);
+    //         setMessage("An error occurred during activation.");
+    //     }
+    // };
+
+
+    const handleChange = (e, index) => {
+        const val = e.target.value.replace(/\D/, ''); // Allow only digit
+        if (!val) return;
+
+        const newOtp = otp.split('');
+        newOtp[index] = val;
+        setOtp(newOtp.join('').slice(0, 6));
+
+        // Move focus to next input
+        if (val && index < 5) {
+            inputRefs.current[index + 1]?.focus();
         }
     };
+
+    const handleKeyDown = (e, index) => {
+        const newOtp = otp.split('');
+
+        if (e.key === 'Backspace') {
+            e.preventDefault(); // prevent default backspace behavior
+
+            if (newOtp[index]) {
+                // Clear current value
+                newOtp[index] = '';
+                setOtp(newOtp.join(''));
+            } else if (index > 0) {
+                // Move to previous box and clear it
+                inputRefs.current[index - 1]?.focus();
+                newOtp[index - 1] = '';
+                setOtp(newOtp.join(''));
+            }
+        }
+    };
+
+    const handlePaste = (e) => {
+        const paste = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        if (paste.length === 6) {
+            setOtp(paste);
+            paste.split('').forEach((digit, idx) => {
+                if (inputRefs.current[idx]) {
+                    inputRefs.current[idx].value = digit;
+                }
+            });
+            inputRefs.current[5]?.focus();
+        }
+        e.preventDefault();
+    };
+    const handleResend = (e) => {
+        e.preventDefault();
+        alert("Resend OTP");
+        handlePasswordSubmit(e); // Call the function to resend OTP
+        setOtp(""); // Clear the OTP input
+        setCooldown(60); // Start 60-second cooldown
+    };
+
 
     return (
         <div className="flex items-center justify-center h-screen bg-gray-50">
@@ -89,14 +187,14 @@ const ResetPassword = () => {
                         <span className="text-orange-500">manage</span>
                     </h1>
                 </div>
-    
+
                 {/* Right form panel */}
                 <div className="w-1/2 flex flex-col justify-center px-10 py-16">
                     <h3 className="text-2xl font-semibold mb-6 text-gray-700">Login</h3>
-    
+
                     {message && <p className="text-red-500 mb-4">{message}</p>}
-    
-                    <form onSubmit={handleSubmit} className="space-y-4">
+
+                    <form onSubmit={handlePasswordSubmit} className="space-y-4">
                         <input
                             type="email"
                             value={email}
@@ -128,29 +226,44 @@ const ResetPassword = () => {
                             {loading ? "Submitting..." : "SUBMIT"}
                         </button>
                     </form>
-    
+
                     <div className="mt-6 space-y-4">
-                        <input
-                            type="text"
-                            placeholder="Enter your OTP"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md"
-                        />
+                        <div className="flex gap-2 justify-center" onPaste={handlePaste}>
+                            {Array(6)
+                                .fill(0)
+                                .map((_, i) => (
+                                    <input
+                                        key={i}
+                                        ref={(el) => (inputRefs.current[i] = el)}
+                                        type="text"
+                                        maxLength={1}
+                                        inputMode="numeric"
+                                        value={otp[i] || ''}
+                                        onChange={(e) => handleChange(e, i)}
+                                        onKeyDown={(e) => handleKeyDown(e, i)}
+                                        className="w-12 h-12 text-center border border-gray-300 rounded-md text-xl focus:outline-none focus:border-blue-500"
+                                    />
+                                ))}
+                        </div>
                         <div className="flex items-center justify-between">
                             <button
-                                onClick={handleActivateLogin}
-                                className="w-full bg-orange-500 text-white font-semibold py-2 rounded-md hover:bg-orange-600 transition"
-                                disabled={loading}
+                                onClick={handleSubmit}
+                                className={`w-full font-semibold py-2 rounded-md transition 
+                                    ${otp.length === 6 ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                                disabled={loading || otp.length !== 6}
                             >
                                 {loading ? "Activating..." : "ACTIVATE LOGIN"}
                             </button>
                             <button
                                 type="button"
-                                onClick={() => alert("Resend OTP logic here")}
-                                className="ml-4 text-blue-600 text-sm hover:underline"
+                                onClick={handleResend}
+                                disabled={cooldown > 0}
+                                className={`${cooldown > 0
+                                    ? 'bg-blue-200 text-white !important'
+                                    : 'bg-blue-600 text-white !important'
+                                  } px-6 py-2 rounded-md font-semibold transition duration-300`}
                             >
-                                Resend OTP
+                                {cooldown > 0 ? `Resend OTP in ${cooldown}s` : 'Resend OTP'}
                             </button>
                         </div>
                     </div>
@@ -158,7 +271,7 @@ const ResetPassword = () => {
             </div>
         </div>
     );
-    
+
 };
 
 export default ResetPassword;

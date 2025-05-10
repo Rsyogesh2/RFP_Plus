@@ -163,7 +163,7 @@ button[type="reset"]:hover {
 }
 
 button[type="button"] {
-    background-color: #bbdefb; /* Lighter blue on hover */
+    /* background-color: #bbdefb; Lighter blue on hover */
   color: #ffffff;
 }
 

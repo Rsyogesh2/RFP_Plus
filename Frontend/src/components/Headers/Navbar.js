@@ -2,10 +2,12 @@
 import React, {useState, useContext}from "react";
 import "./Navbar.css"; // Add your CSS file for styling if needed
 import { AppContext } from "../../context/AppContext";
+import { useNavigate } from 'react-router-dom';
 import logo from "./rfp-logo.jpeg";
        
-const Navbar = ({ handleLogout }) => {
+const Navbar = ({ handleLogout,handleChangePassword }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
   let hoverTimeout;
 
   const handleMouseEnter = () => {
@@ -18,7 +20,7 @@ const Navbar = ({ handleLogout }) => {
       setIsHovered(false);
     }, 300); // Delay hiding by 300ms
   };
-    const { name,userRole,userPower,sidebarValue,moduleData,setRfpNumber } = useContext(AppContext);
+    const { name,userRole,userPower,sidebarValue,moduleData,setRfpNumber,rfpNumber } = useContext(AppContext);
     const handleClearAndLogout = () => {
       setRfpNumber(""); // Clear RFP Number first
       setTimeout(() => {
@@ -28,6 +30,9 @@ const Navbar = ({ handleLogout }) => {
     const handlePasswordChange = () => {
       // Logic to handle password change
       console.log("Change Password clicked");
+      setTimeout(() => {
+        handleChangePassword(); // Then call logout
+      }, 0); 
     }
   return (
     <nav className="flex items-center justify-between px-6 py-2 shadow bg-white">
@@ -41,10 +46,13 @@ const Navbar = ({ handleLogout }) => {
       <h1 className="text-blue-800 font-bold text-sm">
         {sidebarValue[0]?.entity_name || moduleData?.entityName}
       </h1>
-      <p className="text-blue-600 italic text-xs">
-        RFP No: {sidebarValue[0]?.rfp_name} <br />
-        Vendor: {sidebarValue[0]?.vendor_name}
-      </p>
+      {userPower !== "Super Admin" && (
+          <p className="text-blue-600 italic text-xs">
+          RFP No: {rfpNumber} <br />
+          {/* Vendor: {sidebarValue[0]?.vendor_name} */}
+        </p>
+      )
+      }
     </div>
   
     {/* User Info Section */}
