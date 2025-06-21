@@ -474,20 +474,19 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
 
                     <td>
                         {item.Modified_Time && (
-                            <p style={{
-                                fontSize: '11px', wordWrap: 'break-word',
-                                whiteSpace: 'normal',
-                                overflow: 'hidden',
-                                textOverflow: 'clip'
-                            }}
-                            >
-                                {formattedDate} </p>)}
+                            <p className="text-[10px] whitespace-normal break-words overflow-hidden text-clip my-[-2px] mx-[2px] font-normal">
+                                {formattedDate}
+                            </p>
+                        )}
                     </td>
                     <td>
-                        {item.Modified_Time &&
-                            <p style={{ fontSize: '11px' }}>{item.Edited_By}</p>
-                        }
+                        {item.Modified_Time && (
+                            <p className="text-[11px] font-normal">
+                                {item.Edited_By}
+                            </p>
+                        )}
                     </td>
+
                 </tr>
             )
         });
@@ -550,28 +549,25 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     </td>
                     <td>
                         {item.Modified_Time && (
-                            <p style={{
-                                fontSize: '10px', wordWrap: 'break-word',
-                                whiteSpace: 'normal',
-                                overflow: 'hidden',
-                                textOverflow: 'clip',
-                                margin: '-2px 2px',
-                                fontWeight: 'semi-bold'
-                            }}
-                            >
-                                {formattedDate} </p>)}
+                            <p className="text-[10px] whitespace-normal break-words overflow-hidden text-clip my-[-2px] mx-[2px] font-normal">
+                                {formattedDate}
+                            </p>
+                        )}
                     </td>
                     <td>
-                        {item.Modified_Time &&
-                            <p style={{ fontSize: '11px' }}>{item.Edited_By}</p>
-                        }
+                        {item.Modified_Time && (
+                            <p className="text-[11px] font-normal">
+                                {item.Edited_By}
+                            </p>
+                        )}
                     </td>
+
                 </tr>
             )
         });
     };
     //==================================================================================================//
-    
+
     // Function to render the Tables
     const Tables = (l2, index1, f1, index, indexval) => {
         // console.log(l2);
@@ -660,8 +656,8 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                                         : readHierarchy([item], 'f1', 10, index1, index, indexval)}
 
                                     {f2items.map((level2, subIndex) => (
-                                       <React.Fragment key={`${level2.code || ''}-${level2.newCode || ''}-${subIndex}`}>
-                                         {userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1)
+                                        <React.Fragment key={`${level2.code || ''}-${level2.newCode || ''}-${subIndex}`}>
+                                            {userRole === 'Maker' && (!FItem?.[0]?.Level || Number(FItem[0].Level) === 1)
                                                 ? renderHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)
                                                 : readHierarchy([level2], 'f2', 50, index1, index, subIndex, indexval)}
                                         </React.Fragment>
@@ -697,7 +693,7 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                 const newColumnValue = item.l2.length > 0
                     ? Math.max(...item.l2.map((l) => l.newCode || 9)) + 1
                     : 10;
-    
+
                 return {
                     ...item,
                     l2: [
@@ -711,12 +707,12 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                 };
             })
         );
-    
+
         setEditableTable(itemData.length);
         setTempName(""); // Clear temp input
     };
-    
-    
+
+
     const handlel2Name = (e, itemIndex, tableIndex) => {
         setTempName(e.target.value);
     };
@@ -744,159 +740,214 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         setTempName(""); // Reset temp storage
     };
 
-const CollapsibleList = ({ itemData, userRole }) => {
-  return (
-    <div>
-      {itemData.map((item, index1) => (
-        <CollapsibleSection
-          key={index1}
-          title={`${index1 + 1}. ${item.name}`}
-          content={
-            item.l2.map((l2, index2) => {
-              const indexval = `${index1 + 1}.${index2 + 1}`;
-              return (
-                <CollapsibleSection
-                  key={l2.code}
-                  title={`${indexval} ${l2.name}`}
-                  content={
-                    l2.l3 && l2.l3.length > 0 ? (
-                      l2.l3.map((l3, index3) => (
-                        <div key={l3.code} className="level3">
-                          <span className="l3">{`${indexval}.${index3 + 1} ${l3.name}`}</span>
-                          {Tables(l3, index1, "f1", index3, userRole)}
-                        </div>
-                      ))
-                    ) : (
-                      Tables(l2, index1, "l3", index2, indexval, userRole)
-                    )
-                  }
-                />
-              );
-            })
-          }
-        />
-      ))}
-    </div>
-  );
-};
+    const CollapsibleList = ({ itemData, userRole }) => {
+        return (
+            <div>
+                {itemData.map((item, index1) => (
+                    <CollapsibleSection
+                        key={index1}
+                        title={`${index1 + 1}. ${item.name}`}
+                        content={
+                            item.l2.map((l2, index2) => {
+                                const indexval = `${index1 + 1}.${index2 + 1}`;
+                                return (
+                                    <CollapsibleSection
+                                        key={l2.code}
+                                        title={`${indexval} ${l2.name}`}
+                                        content={
+                                            l2.l3 && l2.l3.length > 0 ? (
+                                                l2.l3.map((l3, index3) => (
+                                                    <div key={l3.code} className="level3">
+                                                        <span className="l3">{`${indexval}.${index3 + 1} ${l3.name}`}</span>
+                                                        {Tables(l3, index1, "f1", index3, userRole)}
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                Tables(l2, index1, "l3", index2, indexval, userRole)
+                                            )
+                                        }
+                                    />
+                                );
+                            })
+                        }
+                    />
+                ))}
+            </div>
+        );
+    };
 
-const CollapsibleSection = ({ title, content }) => {
-  const [isOpen, setIsOpen] = useState(false);
+    const CollapsibleSection = ({ title, content }) => {
+        const [isOpen, setIsOpen] = useState(false);
 
-  return (
-    <div className="collapsible-section">
-      <div className="header" onClick={() => setIsOpen(!isOpen)}>
-        <span>{title}</span>
-        <button className="toggle-btn">{isOpen ? "▲" : "▼"}</button>
-      </div>
-      {isOpen && <div className="content">{content}</div>}
-    </div>
-  );
-};
+        return (
+            <div className="collapsible-section">
+                <div className="header" onClick={() => setIsOpen(!isOpen)}>
+                    <span>{title}</span>
+                    <button className="toggle-btn">{isOpen ? "▲" : "▼"}</button>
+                </div>
+                {isOpen && <div className="content">{content}</div>}
+            </div>
+        );
+    };
 
 
 
     return (
-        <div className="rfp-table">
-            <div className="header">
-                <div className="title">
-                    <span>RFP No: {rfpNo || sidebarValue && sidebarValue[0]?.rfp_no}</span>
-                    <span>&nbsp;&nbsp; RFP Title: {rfpTitle || sidebarValue && sidebarValue[0]?.rfp_title}</span>
-                </div>
-            </div>
-            <div className="labels-header">
-                <span>M-Mandatory | O-Optional </span>
-                <span>{Number(FItem?.[0]?.Level) > 4 && Number(FItem?.[0]?.vendor_level) !== 4 ? "Vendor Level" :
-                    Number(FItem?.[0]?.Level) === 1 ? "Maker Stage" : Number(FItem?.[0]?.Level) === 2 ? "Authorizer Stage" :
-                        Number(FItem?.[0]?.Level) === 3 ? "Reviewer Stage" : ""} </span>
-            </div>
-            <div className="module-header">
-                {itemData && itemData.length > 0 && (
-                    <div>
-                        {itemData.map((item, index1) => {
-                            return (
-                                <div key={index1} className='level1'>
-                                    <span className='l1'>{index1 + 1 + ". "}{item.name}</span>
-                                    {item.l2.map((l2, index2) => {
-                                        const indexval = (index1 + 1) + "." + (Number(index2) + 1);
-                                        return (
-                                            <div key={l2.code} className='level2'>
-                                                {/* <span className='l2'>{indexval + " " + l2.name}</span> */}
-                                                {/* Editable input for the first added table */}
-                                                { l2.name === "" ? (
-                                                    <>
-                                                        <input
-                                                            type="text"
-                                                            value={tempName}
-                                                            onChange={handlel2Name}
-                                                            placeholder="Enter Table Name"
-                                                            autoFocus
-                                                            onKeyDown={(e) => e.key === "Enter" && saveTableName(index1, index2)}
-                                                        />
-                                                        <button onClick={() => saveTableName(index1, index2)}>Save</button>
-                                                    </>
-                                                ) : (
-                                                    <span className='l2'>{indexval + " " + l2.name}</span>
-                                                )}
-                                                {l2.l3 && l2.l3.length > 0 ? (
-                                                    <>
-                                                        {l2.l3.map((l3, index) => (
-                                                            <div key={l3.code} className='level3'>
-                                                                <span className='l3'>{indexval + "." + (Number(index) + 1) + " " + l3.name}</span>
-                                                                {Tables(l3, index1, "f1", index, userRole)}
-                                                            </div>
-                                                        ))}
-                                                    </>
-                                                ) : (
-                                                    Tables(l2, index1, "l3", index2, indexval, userRole)
-                                                )}
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            )
-                        })}
-                    </div>
-                    // <CollapsibleList itemData={itemData} userRole={userRole} />
+        <div className="rfp-table bg-white">
+            <div className="flex flex-wrap justify-between items-center ">
 
+                {/* Title Block */}
+                <div className="mb-6 border-b border-gray-200 pb-3">
+
+                    <h2 className="text-lg font-semibold text-gray-800 mb-2">RFP Details</h2>
+
+                    <div className="flex flex-wrap items-center gap-x-8 gap-y-2 text-sm text-gray-700">
+
+                        <div className="flex items-center space-x-2">
+                            <span className="text-gray-600">RFP No:</span>
+                            <span className="font-medium">{rfpNo || sidebarValue?.[0]?.rfp_no}</span>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <span className="text-gray-600">RFP Title:</span>
+                            <span className="font-medium">{rfpTitle || sidebarValue?.[0]?.rfp_title}</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {/* Labels Block */}
+                <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+                    <span className="px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
+                        M-Mandatory | O-Optional
+                    </span>
+                    {(
+                        Number(FItem?.[0]?.Level) > 4 && Number(FItem?.[0]?.vendor_level) !== 4 ? "Vendor Level" :
+                            Number(FItem?.[0]?.Level) === 1 ? "Maker Stage" :
+                                Number(FItem?.[0]?.Level) === 2 ? "Authorizer Stage" :
+                                    Number(FItem?.[0]?.Level) === 3 ? "Reviewer Stage" : ""
+                    ) && (
+                            <span className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
+                                {Number(FItem?.[0]?.Level) > 4 && Number(FItem?.[0]?.vendor_level) !== 4 ? "Vendor Level" :
+                                    Number(FItem?.[0]?.Level) === 1 ? "Maker Stage" :
+                                        Number(FItem?.[0]?.Level) === 2 ? "Authorizer Stage" :
+                                            Number(FItem?.[0]?.Level) === 3 ? "Reviewer Stage" : ""}
+                            </span>
+                        )}
+                </div>
+
+            </div>
+
+            <div className="module-header ">
+                {itemData && itemData.length > 0 && (
+                    <div className="space-y-6">
+                        {itemData.map((item, index1) => (
+                            <div key={index1} className="space-y-4">
+
+                                {/* Level 1 */}
+                                <div className="text-medium font-semibold text-gray-800">
+                                    {index1 + 1}. {item.name}
+                                </div>
+
+                                {item.l2.map((l2, index2) => {
+                                    const indexval = `${index1 + 1}.${index2 + 1}`;
+
+                                    return (
+                                        <div key={l2.code} className="pl-6 space-y-3">
+
+                                            {/* Level 2 */}
+                                            {l2.name === "" ? (
+                                                <>
+                                                    <input
+                                                        type="text"
+                                                        value={tempName}
+                                                        onChange={handlel2Name}
+                                                        placeholder="Enter Table Name"
+                                                        autoFocus
+                                                        onKeyDown={(e) => e.key === "Enter" && saveTableName(index1, index2)}
+                                                        className="border px-3 py-1 rounded w-64"
+                                                    />
+                                                    <button
+                                                        onClick={() => saveTableName(index1, index2)}
+                                                        className="ml-2 px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <div className="text-base font-medium text-gray-700">
+                                                    {indexval} {l2.name}
+                                                </div>
+                                            )}
+
+                                            {/* Level 3 */}
+                                            {l2.l3 && l2.l3.length > 0 ? (
+                                                <div className="pl-6 space-y-2">
+                                                    {l2.l3.map((l3, index3) => (
+                                                        <div key={l3.code} className="text-sm font-medium text-gray-600">
+                                                            {`${indexval}.${index3 + 1}`} {l3.name}
+                                                            {Tables(l3, index1, "f1", index3, userRole)}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                Tables(l2, index1, "l3", index2, indexval, userRole)
+                                            )}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ))}
+                    </div>
                 )}
-                {userRole === "Maker" && (FItem?.[0]?.Level === undefined || Number(FItem?.[0]?.Level) === 1) && 
-                    !editableTable && (
-                        <button onClick={addTable} className="add-table-btn">
-                            Add Table
-                        </button>
-                    )
-                }
 
             </div>
 
             {/* Show Submit button only for Authorizer or Reviewer */}
-            {(userRole === "Authorizer") && Number(FItem?.[0]?.Level) === 2 && (
+            {(userRole === "Authorizer") && (
                 <>
-                    <button className="submitbtn"
-                        onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Authorized Successfully")}>
-                        Authorize
-                    </button>
-                    <button
-                        onClick={() => handleSave(constructPayload("Back to Maker", { action: "Back to Maker" }), userPower, "RFP Sent Back to Maker")}>
-                        Back to Maker
-                    </button>
+                    {/* If any Level === 2, show Authorize */}
+                    {FItem?.some(item => Number(item?.Level) === 2) && (
+                        <button
+                            className="submitbtn"
+                            onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Authorized Successfully")}
+                        >
+                            Authorize
+                        </button>
+                    )}
+
+                    {/* If all Level === 2, show Back to Maker */}
+                    {FItem?.length > 0 && FItem.every(item => Number(item?.Level) === 2) && (
+                        <button
+                            onClick={() =>
+                                handleSave(
+                                    constructPayload("Back to Maker", { action: "Back to Maker" }),
+                                    userPower,
+                                    "RFP Sent Back to Maker"
+                                )
+                            }
+                        >
+                            Back to Maker
+                        </button>
+                    )}
                 </>
             )}
 
             {/* Optional Save as Draft button for Maker */}
-            {userRole === "Maker" && (FItem?.[0]?.Level === undefined || Number(FItem?.[0]?.Level) === 1) && (
-                <>
-                    <button
-                        onClick={() => handleSave(constructPayload("Save as Draft", { action: "Save as Draft" }), userPower, "RFP Saved as Draft")}>
-                        Save as Draft
-                    </button>
-                    <button className="submitbtn"
-                        onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Submitted to Authorizer")}>
-                        Submit to Authorizer
-                    </button>
-                </>
-            )}
+            {userRole === "Maker" && FItem?.some(item => item?.Level === undefined || Number(item?.Level) === 1)
+                && (
+                    <>
+                        <button
+                            onClick={() => handleSave(constructPayload("Save as Draft", { action: "Save as Draft" }), userPower, "RFP Saved as Draft")}>
+                            Save as Draft
+                        </button>
+                        <button className="submitbtn"
+                            onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Submitted to Authorizer")}>
+                            Submit to Authorizer
+                        </button>
+                    </>
+                )}
 
             {userPower === "Super Admin" && FItem?.every(item => Number(item?.Level) === 3) && (
                 <button className="submitbtn"

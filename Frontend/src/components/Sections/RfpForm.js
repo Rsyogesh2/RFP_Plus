@@ -95,8 +95,8 @@ const RfpForm = ({ user, refresh  }) => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-10 py-2 bg-white rounded-2xl  space-y-8">
-    <h2 className="text-2xl font-semibold text-center text-gray-800">Create New RFP</h2>
+    <div className="w-full max-w-4xl  px-10 py-2 bg-white rounded-2xl  space-y-8">
+    <h3 className="text-left text-xl font-semibold text-gray-800">Create New RFP</h3>
   
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
       <div>
@@ -143,14 +143,17 @@ const RfpForm = ({ user, refresh  }) => {
   
     <div className="flex justify-center gap-6">
       <button
-        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        onClick={handleGetCheckedItems}
-      >
-        Submit
-      </button>
-      <button className="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition">
-        Cancel
-      </button>
+  className="px-4 py-1.5 bg-[#e6f0fb] text-[#0a5cb8] font-semibold border border-[#a3c7f5] rounded-sm hover:bg-[#d4e7fb] transition"
+  onClick={handleGetCheckedItems}
+>
+  Submit
+</button>
+<button
+  className="ml-8 px-4 py-1.5 bg-[#f2f2f2] text-black font-semibold rounded-sm hover:bg-[#e0e0e0] transition"
+>
+  Cancel
+</button>
+
     </div>
   </div>
   

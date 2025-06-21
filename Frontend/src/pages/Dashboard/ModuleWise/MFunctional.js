@@ -150,82 +150,99 @@ const MFunctional = ({values1, funVendor1, vendorNames}) => {
   };
   
   return (
-    <div className="modulewise-container p-4 bg-gray-50 rounded-lg  space-y-6">
-    <h4 className="text-lg font-semibold text-gray-800">Final Score – Module-wise</h4>
-  
-    <select
-      onChange={(e) => setSelectedIndex(Number(e.target.value))}
-      className="w-full max-w-sm p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-      <option value="">Select</option>
-      {values1?.map((value, index) => (
-        <option key={index} value={index}>
-          {value.name}
-        </option>
-      ))}
-    </select>
-  
-    <div className="score-section flex flex-col lg:flex-row gap-6">
-      {/* Benchmark Table */}
-      <div className="w-full lg:w-1/3 p-4 rounded-xl ">
-        <h3 className="text-md font-medium text-gray-700 mb-2">Functional Score</h3>
-        <Table
-          data={values.l2.map((l2Item) => {
-            const matchedItem = funVendor[0]?.[0]?.l2?.find(
-              (funItem) => funItem.code === l2Item.code
-            ) || {};
-            return {
-              modules: l2Item.name,
-              "Benchmark Score": matchedItem.totalScoreAll || 0,
-            };
-          })}
-          headers={["Functional Requirement", "Benchmark Score"]}
-        />
-      </div>
-  
-      {/* Vendor Tables */}
-      <div className="vendor-container w-full lg:w-2/3 overflow-x-auto">
-        <div className="vendor-tables flex gap-2" ref={vendorRef}>
-          {funVendor.length > 0 &&
-            funVendor.map((vendor, index) => {
-              const vendorScoreL2 = values.l2.map((l2Item) => {
-                const matchedItem = vendor[0]?.l2?.find(
-                  (funItem) => funItem.code === l2Item.code
-                ) || {};
-  
-                const { code, totalScoreAll, totalScoreA = 0, totalScoreP = 0, totalScoreC = 0 } = matchedItem;
-  
-                const totalScore = totalScoreA + totalScoreP + totalScoreC;
-                const percentage =
-                  totalScoreAll && totalScoreAll > 0
-                    ? ((totalScore / totalScoreAll) * 100).toFixed(2) + "%"
-                    : "0%";
-  
-                return {
-                  A: totalScoreA,
-                  P: totalScoreP,
-                  C: totalScoreC,
-                  "Total Score": totalScore,
-                  "%": percentage,
-                };
-              });
-  
-              return (
-                <div key={index} className=" p-4 rounded-xl min-w-[300px]">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
-                    {vendorNames[index]?.entity_name || vendor.name} - Score
-                  </h3>
-                  <Table
-                    data={vendorScoreL2}
-                    headers={["A", "P", "C", "Total Score", "%"]}
-                  />
-                </div>
-              );
-            })}
-        </div>
-      </div>
+ <div className="modulewise-container p-6 bg-[#f9fbfd] rounded-xl space-y-8">
+
+    {/* Section Title + Dropdown */}
+    <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-300 pb-4">
+        <h4 className="text-xl font-extrabold text-[#2F4F8B] tracking-wide uppercase">
+            Final Score — Module-wise
+        </h4>
+
+        <select
+            onChange={(e) => setSelectedIndex(Number(e.target.value))}
+            className="mt-3 md:mt-0 w-full md:w-64 p-2.5 border border-gray-300 rounded-md text-sm bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#B2541B] focus:border-[#B2541B] transition shadow hover:shadow-md"
+        >
+            <option value="">Select Module</option>
+            {values1?.map((value, index) => (
+                <option key={index} value={index}>
+                    {value.name}
+                </option>
+            ))}
+        </select>
     </div>
-  </div>
+
+    {/* Score Section */}
+    <div className="score-section flex flex-col lg:flex-row gap-8">
+
+        {/* Functional Score Card */}
+        <div className="flex-1 p-6 bg-gradient-to-br from-[#eef3fa] to-[#f6f8fb] rounded-2xl shadow-lg border border-gray-200 space-y-4">
+            <h3 className="text-md font-bold text-[#2F4F8B] break-words">
+                Functional Score
+            </h3>
+            <Table
+                data={values.l2.map((l2Item) => {
+                    const matchedItem = funVendor[0]?.[0]?.l2?.find(
+                        (funItem) => funItem.code === l2Item.code
+                    ) || {};
+                    return {
+                        modules: l2Item.name,
+                        "Benchmark Score": matchedItem.totalScoreAll || 0,
+                    };
+                })}
+                headers={["Functional Requirement", "Benchmark Score"]}
+            />
+        </div>
+
+        {/* Vendor Tables */}
+        <div className="flex-[2] overflow-x-auto">
+            <div className="vendor-tables flex gap-6" ref={vendorRef}>
+                {funVendor.length > 0 &&
+                    funVendor.map((vendor, index) => {
+                        const vendorScoreL2 = values.l2.map((l2Item) => {
+                            const matchedItem = vendor[0]?.l2?.find(
+                                (funItem) => funItem.code === l2Item.code
+                            ) || {};
+
+                            const { code, totalScoreAll, totalScoreA = 0, totalScoreP = 0, totalScoreC = 0 } = matchedItem;
+
+                            const totalScore = totalScoreA + totalScoreP + totalScoreC;
+                            const percentage =
+                                totalScoreAll && totalScoreAll > 0
+                                    ? ((totalScore / totalScoreAll) * 100).toFixed(2) + "%"
+                                    : "0%";
+
+                            return {
+                                A: totalScoreA,
+                                P: totalScoreP,
+                                C: totalScoreC,
+                                "Total Score": totalScore,
+                                "%": percentage,
+                            };
+                        });
+
+                        return (
+                            <div
+                                key={index}
+                                className="p-6 min-w-[320px] bg-gradient-to-br from-white to-[#f9fafc] rounded-2xl shadow-lg border border-gray-200 space-y-4"
+                            >
+                                <h3 className="text-md font-bold text-[#2F4F8B] break-words">
+                                    {vendorNames[index]?.entity_name || vendor.name} — Score
+                                </h3>
+                                <Table
+                                    data={vendorScoreL2}
+                                    headers={["A", "P", "C", "Total Score", "%"]}
+                                />
+                            </div>
+                        );
+                    })}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
   
   
   );

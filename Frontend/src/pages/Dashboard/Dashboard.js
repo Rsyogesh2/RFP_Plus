@@ -256,97 +256,137 @@ const ScoringDashboard = ({ rfpNo = "", rfpTitle = "" }) => {
 
     return (
         <div className="scoring-dashboard">
-            <h3>{`${rfpNo} - ${rfpTitle}`}</h3>
+           <h3 className="text-lg font-semibold text-[#2F4F8B] mb-2">
+    {`${rfpNo} - ${rfpTitle}`}
+</h3>
 
-            <table className="scoring-dashboard-table" border="1" cellPadding="10">
-                {/* HEADER */}
-                <thead>
-                    <tr>
-                        <th className="scoring-component-header">Scoring Components</th>
-                        <th className="overall-weightage-header">Overall Weightage</th>
-                        {/* Gap added before the first vendor */}
-                        <th className="vendor-gap"></th>
-                        {vendors.map((vendor, index) => (
-                            <React.Fragment key={`header-${index}`}>
-                                <th colSpan={2} className="vendor-header">
-                                    {vendor.name}<br />
-                                    {vendor.productName}<br />
-                                    {vendor.productVendor}
-                                </th>
-                                {index < vendors.length - 1 && <th className="vendor-gap"></th>}
-                            </React.Fragment>
-                        ))}
-                    </tr>
-                    <tr>
-                        <th></th>
-                        <th>%</th>
-                        <th className="vendor-gap"></th> {/* Gap before the first vendor */}
-                        {vendors.map((_, index) => (
-                            <React.Fragment key={`subheader-${index}`}>
-                                <th className="score-header">Score</th>
-                                <th className="weighted-score-header">Weighted Score</th>
-                                {index < vendors.length - 1 && <th className="vendor-gap"></th>}
-                            </React.Fragment>
-                        ))}
-                    </tr>
-                </thead>
+            <table className="min-w-full rounded-xl shadow-md overflow-hidden text-sm text-gray-800">
 
-                {/* BODY */}
-                <tbody>
-                    {scoringComponents.map((component, rowIndex) => (
-                        <tr key={`row-${rowIndex}`}>
-                            <td className="scoring-component">{component}</td>
-                            <td className="overall-weightage">{weightage[rowIndex]}%</td>
-                            <td className="vendor-gap"></td> {/* Gap before the first vendor */}
-                            {vendors.map((vendor, vendorIndex) => {
-                                const weightedScore = (vendor.scores[rowIndex] * weightage[rowIndex]) / 100;
-                                return (
-                                    <React.Fragment key={`vendor-body-${vendorIndex}-${rowIndex}`}>
-                                        <td className="score-cell"><span>{Number(vendor.scores[rowIndex]).toFixed(2)}%</span>
-                                        </td>
-                                        <td className="weighted-score-cell">
-                                            <span>{weightedScore.toFixed(2)}%</span>
-                                        </td>
-                                        {vendorIndex < vendors.length - 1 && <td className="vendor-gap"></td>}
-                                    </React.Fragment>
-                                );
-                            })}
-                        </tr>
-                    ))}
-                </tbody>
+    {/* HEADER */}
+    <thead className="bg-gradient-to-r from-[#2F4F8B] to-[#1e3669] text-white text-sm">
+        <tr>
+            <th className="px-6 py-3 text-left text-base text-white font-semibold tracking-wide">Scoring Components</th>
+            <th className="px-4 py-3 text-center text-base text-white font-semibold">Overall %</th>
+            {vendors.map((vendor, index) => (
+                <React.Fragment key={`header-${index}`}>
+                    <th colSpan={2} className="px-6 py-3 text-center font-semibold">
+    <div className="leading-5 space-y-1">
+        <div className="text-base text-white">{vendor.name}</div>
+        <div className="text-xs text-white">{vendor.productName}</div>
+        <div className="text-xs text-white">{vendor.productVendor}</div>
+    </div>
+</th>
 
-                {/* FOOTER */}
-                <tfoot>
-                    <tr>
-                        <td colSpan={2} className="final-score-label"><strong>Final Score</strong></td>
-                        <td className="vendor-gap"></td> {/* Gap before the first vendor */}
-                        {vendors.map((vendor, index) => {
-                            const finalScore = vendor.scores.reduce((acc, score, idx) =>
-                                acc + (score * weightage[idx]) / 100, 0);
-                            return (
-                                <React.Fragment key={`final-${index}`}>
-                                    <td colSpan={2} className="final-score-cell">
-                                        <span>{isNaN(finalScore.toFixed(2)) ? "0" : finalScore.toFixed(2)}%</span>
-                                    </td>
-                                    {index < vendors.length - 1 && <td className="vendor-gap"></td>}
-                                </React.Fragment>
-                            );
-                        })}
-                    </tr>
-                </tfoot>
-            </table>
+                </React.Fragment>
+            ))}
+        </tr>
+        <tr className="bg-[#f8fafc] text-gray-700 text-sm border-b border-gray-200">
+            <th></th>
+            <th className="text-center">%</th>
+            {vendors.map((_, index) => (
+                <React.Fragment key={`subheader-${index}`}>
+                    <th className="text-center px-4 py-3">Score</th>
+                    <th className="text-center px-4 py-3">Weighted</th>
+                </React.Fragment>
+            ))}
+        </tr>
+    </thead>
+
+    {/* BODY */}
+    <tbody className="divide-y divide-gray-100 bg-white">
+        {scoringComponents.map((component, rowIndex) => (
+            <tr key={`row-${rowIndex}`} className="hover:bg-[#f9fafc] transition">
+                <td className="px-6 py-3 font-medium">{component}</td>
+                <td className="px-4 py-3 text-center">{weightage[rowIndex]}%</td>
+                {vendors.map((vendor, vendorIndex) => {
+                    const weightedScore = (vendor.scores[rowIndex] * weightage[rowIndex]) / 100;
+                    return (
+                        <React.Fragment key={`vendor-body-${vendorIndex}-${rowIndex}`}>
+                            <td className="px-4 py-3 text-center">
+                                <span className="inline-block bg-[#ecf2ff] text-[#2F4F8B] px-3 py-1 rounded-full text-xs font-medium">
+                                    {Number(vendor.scores[rowIndex]).toFixed(2)}%
+                                </span>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                                <span className="inline-block bg-[#fff4ec] text-[#B2541B] px-3 py-1 rounded-full text-xs font-medium">
+                                    {weightedScore.toFixed(2)}%
+                                </span>
+                            </td>
+                        </React.Fragment>
+                    );
+                })}
+            </tr>
+        ))}
+    </tbody>
+
+    {/* FOOTER */}
+    <tfoot className="bg-[#f8fafc] text-gray-800 border-t border-gray-200">
+        <tr>
+            <td colSpan={2} className="px-6 py-3 font-bold text-[#2F4F8B] text-base">Final Score</td>
+            {vendors.map((vendor, index) => {
+                const finalScore = vendor.scores.reduce(
+                    (acc, score, idx) => acc + (score * weightage[idx]) / 100, 0
+                );
+                return (
+                    <React.Fragment key={`final-${index}`}>
+                        <td colSpan={2} className="px-4 py-3 text-center font-bold text-[#B2541B] text-lg">
+                            {isNaN(finalScore.toFixed(2)) ? "0" : finalScore.toFixed(2)}%
+                        </td>
+                    </React.Fragment>
+                );
+            })}
+        </tr>
+    </tfoot>
+
+</table>
+
             <br />
-            <div className="module-wise">
-            <Collapsible title="Functional Scores">
-            <MFunctional values1={functionalScore} funVendor1={vendorFunScore} vendorNames={vendorNames} />
-             </Collapsible>
-            <Collapsible title="Commercial Scores">
-            <Commercial values={commercialValue} comVendor={comVendorScores} vendorNames={vendorNames}/>
-            </Collapsible>
-            <Collapsible title="Others Scores">
-             <MOthers values={sections} othersVendor={savedScores} vendorNames={vendorNames}/>
-            </Collapsible>
-            </div>
+          <div className="module-wise space-y-6 mt-6">
+
+    {/* Functional Scores */}
+    <div className="rounded-xl shadow border border-[#2F4F8B]/50 overflow-hidden">
+        <div className="bg-gradient-to-r from-[#2F4F8B] to-[#1e3669] px-4 py-3 text-white text-base font-semibold tracking-wide">
+            Functional Scores
+        </div>
+        <div className="p-4 bg-white">
+            <MFunctional 
+                values1={functionalScore} 
+                funVendor1={vendorFunScore} 
+                vendorNames={vendorNames} 
+            />
+        </div>
+    </div>
+
+    {/* Commercial Scores */}
+    <div className="rounded-xl shadow border border-[#2F4F8B]/50 overflow-hidden">
+        <div className="bg-gradient-to-r from-[#2F4F8B] to-[#1e3669] px-4 py-3 text-white text-base font-semibold tracking-wide">
+            Commercial Scores
+        </div>
+        <div className="p-4 bg-white">
+            <Commercial 
+                values={commercialValue} 
+                comVendor={comVendorScores} 
+                vendorNames={vendorNames} 
+            />
+        </div>
+    </div>
+
+    {/* Others Scores */}
+    <div className="rounded-xl shadow border border-[#2F4F8B]/50 overflow-hidden">
+        <div className="bg-gradient-to-r from-[#2F4F8B] to-[#1e3669] px-4 py-3 text-white text-base font-semibold tracking-wide">
+            Others Scores
+        </div>
+        <div className="p-4 bg-white">
+            <MOthers 
+                values={sections} 
+                othersVendor={savedScores} 
+                vendorNames={vendorNames} 
+            />
+        </div>
+    </div>
+
+</div>
+
            
         </div>
     );

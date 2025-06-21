@@ -8,7 +8,7 @@ import Button from './../components/Buttons/Button';
 import './RfpScoringCriteria.css';
 import { AppContext } from '../context/AppContext';
 import isEqual from "lodash/isEqual"; // Correct import
-
+import { useRef } from 'react';
 
 function RfpScoringCriteria() {
     const { sidebarValue, userName, userRole } = useContext(AppContext); // Access shared state
@@ -33,6 +33,11 @@ function RfpScoringCriteria() {
     const [isExits, setIsExits] = useState(false);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("overall");
+    const overallRef = useRef(null);
+    const functionalRef = useRef(null);
+    const commercialRef = useRef(null);
+    const otherRef = useRef(null);
+
 
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const fetchData = useCallback(async () => {
@@ -137,14 +142,14 @@ function RfpScoringCriteria() {
         });
     };
 
-    const handleCommercialScoreData = (data) => {
+    const handleCommercialScoreData = useCallback((data) => {
         setCommercialScoreData((prevState) => {
             if (JSON.stringify(prevState) !== JSON.stringify(data)) {
                 return data;
             }
             return prevState;
         });
-    };
+    });
 
     const handleScoreSectionChange = (sectionKey, items) => {
         setSectionsData((prevData) => ({
@@ -302,143 +307,128 @@ function RfpScoringCriteria() {
 
 
     return (
-        <div className="rfp-container">
-            <header className="rfp-header">
-                <h3>RFP SCORING CRITERIA</h3>
-                <div><h3>{`${sidebarValue[0].rfp_no} - ${sidebarValue[0].rfp_title}`}</h3></div>
-            </header>
-            {/* <div className='total-score'>
-                <section className="overall-scoring">
+      <div className="rfp-container max-w-6xl mx-auto p-8 bg-white rounded-xl shadow-lg">
 
-                    <OverallScoring
-                        data={overallScoringData}
-                        onTitlesChange={handleTitlesChange}
-                        onUpdate={handleOverallScoringData}
-                    />
+    {/* Page Heading */}
+    <div className="text-center mb-4">
+        <h1 className="text-lg font-bold text-gray-900">RFP Scoring Criteria</h1>
+        <p className="text-md text-gray-500 mt-2">
+            {`${sidebarValue[0].rfp_no} — ${sidebarValue[0].rfp_title}`}
+        </p>
+    </div>
 
-                </section>
-
-                <section className="functional-score">
-
-                    <FunctionalScore
-                        data={functionalScoreData}
-                        onUpdate={handleFunctionalScoreData}
-                    />
-                </section>
-
-                <section className="commercial-score">
-
-                    <CommercialScore
-                        data={commercialScoreData}
-                        onUpdate={handleCommercialScoreData}
-                    />
-                </section>
-            </div> */}
-            <div className="total-score">
-                {/* Tab Navigation */}
-                <div className="tab-menu">
-                    <button
-                        className={activeTab === "overall" ? "active" : ""}
-                        onClick={() => setActiveTab("overall")}
-                    >
-                        Overall Scoring
-                    </button>
-                    <button
-                        className={activeTab === "functional" ? "active" : ""}
-                        onClick={() => setActiveTab("functional")}
-                    >
-                        Functional Score
-                    </button>
-                    <button
-                        className={activeTab === "commercial" ? "active" : ""}
-                        onClick={() => setActiveTab("commercial")}
-                    >
-                        Commercial Score
-                    </button>
-                    <button
-                        className={activeTab === "Other Section" ? "active" : ""}
-                        onClick={() => setActiveTab("Other Section")}
-                    >
-                        Score Sections
-                    </button>
-                </div>
-                <div className='Overall-Functional-content'>
-                <section className="overall-scoring">
-                        <OverallScoring
-                            data={overallScoringData}
-                            onTitlesChange={handleTitlesChange}
-                            onUpdate={handleOverallScoringData}
-                        />
-                </section>
-                <section className="functional-score">
-                        <FunctionalScore
-                            data={functionalScoreData}
-                            onUpdate={handleFunctionalScoreData}
-                        />
-                </section>
-               
-                </div>
-                <section className="commercial-score">
-                        <CommercialScore
-                            data={commercialScoreData}
-                            onUpdate={handleCommercialScoreData}
-                        />
-                </section>
-                {/* Render Tabs */}
-                {/* {activeTab === "overall" && (
-                    <section className="overall-scoring">
-                        <OverallScoring
-                            data={overallScoringData}
-                            onTitlesChange={handleTitlesChange}
-                            onUpdate={handleOverallScoringData}
-                        />
-                    </section>
-                )}
-                {activeTab === "functional" && (
-                    <section className="functional-score">
-                        <FunctionalScore
-                            data={functionalScoreData}
-                            onUpdate={handleFunctionalScoreData}
-                        />
-                    </section>
-                )}
-                {activeTab === "commercial" && (
-                    <section className="commercial-score">
-                        <CommercialScore
-                            data={commercialScoreData}
-                            onUpdate={handleCommercialScoreData}
-                        />
-                    </section>
-                )} */}
-            </div>
-            {activeTab === "Other Section" && sectionsData && Object.keys(sectionsData).length > 0 ? (
-                <div className="score-sections">
-                    {!isExits ? (
-                        defaultSections.map(({ key, title, items }) => renderScoreSection(key, title, items, true))
-                    ) : (
-                        Object.entries(sectionsData).map(([key, items]) =>
-                            renderScoreSection(
-                                key,
-                                key.replace(/([A-Z])/g, " $1"),
-                                Object.values(items), // Extract the actual objects instead of just the keys
-                                false
-                            )
-                        )
-                    )}
-                </div>
-            ) : (
-                <div className="score-sections">
-                    {defaultSections.map(({ key, title, items }) => renderScoreSection(key, title, items, true))}
-                </div>
-            )}
-
-
-            <div className="buttons">
-                <button className='btn' text="Submit" onClick={handleSubmit}>Save as Draft</button>
-                <button className='btn' text="Submit">Submit</button>
-                <button className='btn' text="Cancel">Cancel</button>
-            </div>
+    {/* Sticky Tab Bar */}
+    <div className="sticky top-0 z-30 bg-white border-b border-gray-200 mb-8">
+        <div className="flex justify-center gap-6 py-3">
+            {["overall", "functional", "commercial", "Other Section"].map(tab => (
+                <button
+                    key={tab}
+                    className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300
+                        ${activeTab === tab
+                            ? "bg-blue-600 text-white shadow"
+                            : "bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600"
+                        }`}
+                    onClick={() => {
+                        setActiveTab(tab);
+                        if (tab === "overall") overallRef.current?.scrollIntoView({ behavior: "smooth" });
+                        if (tab === "functional") functionalRef.current?.scrollIntoView({ behavior: "smooth" });
+                        if (tab === "commercial") commercialRef.current?.scrollIntoView({ behavior: "smooth" });
+                        if (tab === "Other Section") otherRef.current?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                >
+                    {tab === "Other Section" ? "Score Sections" : `${tab.charAt(0).toUpperCase() + tab.slice(1)} Score`}
+                </button>
+            ))}
         </div>
+    </div>
+
+    {/* Sections */}
+    <div className="space-y-24">
+   {/* Overall + Functional */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto px-4 md:px-6">
+
+    <section ref={overallRef} className="scroll-mt-24 max-w-3xl mx-auto">
+        <OverallScoring
+            data={overallScoringData}
+            onTitlesChange={handleTitlesChange}
+            onUpdate={handleOverallScoringData}
+        />
+    </section>
+
+    <section ref={functionalRef} className="scroll-mt-24 max-w-3xl mx-auto">
+        <FunctionalScore
+            data={functionalScoreData}
+            onUpdate={handleFunctionalScoreData}
+        />
+    </section>
+
+</div>
+
+{/* Commercial */}
+<section ref={commercialRef} className="scroll-mt-24 max-w-4xl mx-auto px-4 md:px-6">
+    <CommercialScore 
+        data={commercialScoreData} 
+        onUpdate={handleCommercialScoreData} 
+    />
+</section>
+
+{/* Other Sections */}
+<section ref={otherRef} className="scroll-mt-24 px-4 md:px-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        {activeTab === "Other Section" && sectionsData && Object.keys(sectionsData).length > 0 ? (
+            !isExits ? (
+                defaultSections.map(({ key, title, items }) =>
+                    <div className="max-w-3xl mx-auto">
+                        {renderScoreSection(key, title, items, true)}
+                    </div>
+                )
+            ) : (
+                Object.entries(sectionsData).map(([key, items]) =>
+                    <div className="max-w-3xl mx-auto">
+                        {renderScoreSection(
+                            key,
+                            key.replace(/([A-Z])/g, " $1"),
+                            Object.values(items),
+                            false
+                        )}
+                    </div>
+                )
+            )
+        ) : (
+            defaultSections.map(({ key, title, items }) =>
+                <div className="max-w-3xl mx-auto">
+                    {renderScoreSection(key, title, items, true)}
+                </div>
+            )
+        )}
+    </div>
+</section>
+
+
+    </div>
+
+    {/* Action Buttons */}
+    <div className="flex justify-end gap-4 mt-14">
+        <button
+            className="px-6 py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition"
+            onClick={handleSubmit}
+        >
+            Save as Draft
+        </button>
+        <button
+            className="px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition"
+        >
+            Submit
+        </button>
+        <button
+            className="px-6 py-3 text-sm font-medium text-red-500 bg-red-100 rounded-xl hover:bg-red-200 transition"
+        >
+            Cancel
+        </button>
+    </div>
+
+</div>
+
     );
 }
 
@@ -570,7 +560,7 @@ function OverallScoring({ onTitlesChange, onUpdate, data }) {
                 <thead>
                     <tr>
                         <th>Description</th>
-                        <th>Overall Weightage (%)</th>
+                        <th>Overall (%)</th>
                     </tr>
                 </thead>
                 <tbody>

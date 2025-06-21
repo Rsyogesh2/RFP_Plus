@@ -153,7 +153,7 @@ const handleDropdownChange = (table, value, score) => {
     <div className="finaleva-page">
        
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <h3>Final Evaluation</h3>
+        <h3 className="text-xl font-bold text-[#2F4F8B]">Final Evaluation</h3>
       </div>
       
       {/* Input fields for RFP No and Bank Name */}
@@ -174,6 +174,7 @@ const handleDropdownChange = (table, value, score) => {
         </select>
         <button
           onClick={fetchData}
+          className="w-full px-2 py-2 !bg-[#B2541B]"
           style={{
             padding: "10px",
             height: "40px",
@@ -204,7 +205,17 @@ const handleDropdownChange = (table, value, score) => {
       {/* Collapsible Section with 6 Dropdowns */}
       <CollapsibleSection1 sections={sections} savedScores={savedScores} onDropdownChange={handleDropdownChange} labelTitle={labels} />
 
-      <button style={{marginTop:"15px",color:"white"}}onClick={saveDataToBackend}>Save Data</button>
+      {/* <button style={{marginTop:"15px",color:"white"}}onClick={saveDataToBackend}>Save Data</button> */}
+
+      <div className="flex justify-end mt-4">
+    <button
+        onClick={saveDataToBackend}
+        className="max-w-[80px] w-full px-2 py-2 !bg-[#B2541B] !text-white !text-sm !font-semibold !rounded hover:!bg-[#22376A] transition"
+    >
+        Save
+    </button>
+</div>
+
     </div>
   );
 };
@@ -281,9 +292,13 @@ const CollapsibleSection1 = ({ sections, onDropdownChange, savedScores, labelTit
   return (
     <div className="collapsible-section">
       {/* Collapsible Header */}
-      <div className="section-header" onClick={() => setIsCollapsed(!isCollapsed)}>
-        Scoring Criteria {isCollapsed ? "▲" : "▼"}
-      </div>
+      <div
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="bg-[#2F4F8B] text-white px-4 py-2 cursor-pointer flex items-center justify-between text-sm font-semibold rounded-t"
+    >
+        <span>Scoring Criteria</span>
+        <span>{isCollapsed ? "▲" : "▼"}</span>
+    </div>
 
       {/* Collapsible Content */}
       {isCollapsed && (
@@ -410,8 +425,14 @@ const CollapsibleSection = ({ title, items, setItems }) => {
   return (
     <div className="collapsible-section">
       {/* Header */}
-      <div className="section-header" onClick={toggleCollapse}>
-        {title} {isCollapsed ? "▲" : "▼"}
+      <div onClick={toggleCollapse}
+         className="bg-[#2F4F8B] text-white px-4 py-2 cursor-pointer flex items-center justify-between text-sm font-semibold rounded-t"
+      >
+        <span>{title}</span>
+        {/* Toggle Icon */}
+        <span className="toggle-icon">
+          {isCollapsed ? "▲" : "▼"}
+        </span>
       </div>
 
       {/* Content */}

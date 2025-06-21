@@ -379,212 +379,208 @@ console.log(determineLevel())
     };
 
   return (
-    <div className="vendor-query-container">
-      {/* {sidebarValue.length > 0 && (
-      
-      )} */}
-      <h4>Vendor Query</h4>
-      <>
-          <h3>{`${rfpNo || sidebarValue[0].rfp_no} - ${rfpTitle || sidebarValue[0].rfp_title}`}</h3>
-        </>
-        {(userPower==="Super Admin" || userPower === "User" )&& (
-           <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-           <select
-            onChange={handleDropdownChangeVendor}
-             style={{
-               width: "80%",
-               padding: "10px",
-               height: "40px",
-               boxSizing: "border-box"
-             }}
-           >
-             <option>Select Vendor</option>
-             {vendorNames && vendorNames.map((vName, index) => (
-               <option key={index} value={index}>{vName.entity_name}</option>
-             ))}
-           </select>
-           <button
-             onClick={fetchData}
-             style={{
-               padding: "10px",
-               height: "40px",
-               boxSizing: "border-box"
-             }}
-           >
-             Fetch Data
-           </button>
-         </div>
+   <div className="vendor-query-container p-6 bg-[#f9fbfd] rounded-xl shadow space-y-6">
+
+    {/* Title */}
+    <h4 className="text-xl font-extrabold text-[#2F4F8B] tracking-wide uppercase">
+        Vendor Query
+    </h4>
+
+    {/* RFP Info */}
+    <h3 className="text-base font-semibold text-gray-700">
+        {`${rfpNo || sidebarValue[0]?.rfp_no} - ${rfpTitle || sidebarValue[0]?.rfp_title}`}
+    </h3>
+
+    {/* Vendor Dropdown */}
+    {(userPower === "Super Admin" || userPower === "User") && (
+        <div className="flex flex-wrap items-center gap-4 mb-4">
+
+            <select
+                onChange={handleDropdownChangeVendor}
+                className="w-full md:w-72 p-2.5 border border-gray-300 rounded-md text-sm bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2F4F8B] shadow-sm"
+            >
+                <option value="">Select Vendor</option>
+                {vendorNames?.map((vName, index) => (
+                    <option key={index} value={index}>{vName.entity_name}</option>
+                ))}
+            </select>
+
+            <button
+                onClick={fetchData}
+                className="px-6 py-2.5 bg-[#2F4F8B] text-white text-sm font-semibold rounded-md shadow "
+            >
+                Fetch Data
+            </button>
+
+        </div>
+    )}
+
+    {/* Query Table - Premium Look */}
+    <div className="overflow-x-auto border border-gray-200 rounded-xl">
+        <table className="min-w-full text-sm text-gray-800">
+           <thead className="bg-gradient-to-r from-[#2F4F8B] to-[#1e3669] text-white">
+    <tr>
+        <th className="px-6 py-4 text-left text-white text-base font-semibold tracking-wide">S.No</th>
+        <th className="px-6 py-4 text-left text-white text-base font-semibold tracking-wide">RFP Reference</th>
+        <th className="px-6 py-4 text-left text-white text-base font-semibold tracking-wide">Existing Details</th>
+        <th className="px-6 py-4 text-left text-white text-base font-semibold tracking-wide">Clarification Needed</th>
+        {(rows.some(row => row.clarificationGiven) || userPower === "Super Admin" || userPower === "User") && (
+            <th className="px-6 py-4 text-left text-white text-base font-semibold tracking-wide">Clarification Given</th>
         )}
-     
-      <table className="vendor-query-table">
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>RFP Reference</th>
-            <th>Existing Details</th>
-            <th>Clarification Needed</th>
-            {(rows.some(row => row.clarificationGiven) || userPower === "Super Admin" || userPower === "User") && <th>Clarification Given</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>
-                {userRole === "Maker" && userPower==="Vendor User" ? (
-                  <TreeSelect
-                    treeData={options}
-                    value={row.treeValue}
-                    onChange={(value, node) =>
-                      handleInputChange(index, "RFP_Reference", {
-                        value,
-                        name: node?.name,
-                      })
-                    }
-                    placeholder="Select"
-                    treeDefaultExpandAll
-                    style={{ width: "100%" }}
-                  />
-                ) : (
-                  <TreeSelect
-                  treeData={options}
-                  value={row.treeValue}
-                  // treeDefaultExpandAll
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#f5f5f5", // Light gray to give a read-only look
-                    color: "#000", // Keep text color standard
-                    cursor: "default", // Standard cursor
-                  }}
-                  open={false}
-                  onClick={(e) => e.preventDefault()} // Prevent dropdown from opening
-                  onKeyDown={(e) => e.preventDefault()} // Prevent keyboard interaction
-                />
-                
-                )}
-              </td>
-              <td>
-                {userRole === "Maker" && userPower==="Vendor User" ? (
-                  <textarea
-                    type="text"
-                    maxLength="400"
-                    value={row.existingDetails}
-                    onChange={(e) => handleInputChange(index, "existingDetails", e.target.value)}
-                    style={{
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      width: '100%',
-                      height: '100%',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      backgroundColor:"inherit"
-                  
-                    }}
-                  />
-                ) : (
-                  row.existingDetails
-                )}
-              </td>
-              <td>
-                {userRole === "Maker" && userPower==="Vendor User" ? (
-                  <textarea
-                    type="text"
-                    maxLength="400"
-                    value={row.clarification}
-                    onChange={(e) => handleInputChange(index, "clarification", e.target.value)}
-                    style={{
-                      border: 'none',
-                      outline: 'none',
-                      resize: 'none',
-                      width: '100%',
-                      height: '100%',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      backgroundColor:"inherit"
-                  
-                    }}
-                  />
-                ) : (
-                  row.clarification
-                )}
-              </td>
-              {(row.clarificationGiven || userPower === "Super Admin" || userPower === "User")  && (
-                <td>
-                  {userRole === "Maker" && userPower==="User"? (
-                    <input
-                      type="text"
-                      maxLength="400"
-                      value={row.clarificationGiven}
-                      onChange={(e) => handleInputChange(index, "clarificationGiven", e.target.value)}
-                    />
-                  ) : (
-                    row.clarificationGiven
-                  )}
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    </tr>
+</thead>
 
-      {userRole === "Maker" && userPower === "Vendor User" && completeLevel !==10 && (
-        <button className="add-row-button" onClick={addRow}>Add Row</button>
-      )}
+            <tbody className="divide-y divide-gray-100 bg-white">
+                {rows.map((row, index) => (
+                    <tr key={index} className="hover:bg-[#f9fafc] transition">
+                        <td className="px-4 py-3">{index + 1}</td>
 
-      {(userPower === "Vendor User" ||userPower === "User") && completeLevel !==10 && (
-        <div className="save-button-container">
-          {userRole==="Maker" && <button className="save-btn" onClick={()=>{saveAsDraft("Save as Draft",{ action: "Save as Draft" })}}>Save as Draft</button>}
-          {userRole!=="Reviewer" && <button className="submit-btn"
-            onClick={() => {
-              if (window.showConfirm("Are you sure you want to submit the query?", "This action cannot be undone.", "warning")) {
-                saveAsDraft("Submit");
-              }
-            }}
-          >Submit</button>
-    }
-        </div>
-      )}
-      {(userPower === "Vendor Admin" || userPower === "Super Admin") && completeLevel !==10 && (
-        <div className="save-button-container">
-          <button className="submit-btn"
-            onClick={() => {
-              if (window.confirm("Are you sure you want to submit the query?")) {
-                saveAsDraft("Submit");
-              }
-            }}
-          >
-            Submit the Query
-          </button>
-        </div>
-      )}
-      {/* {( userPower === "Super Admin") && (
-        <div className="save-button-container">
-          <button className="submit-btn"
-            onClick={() => {
-              if (window.confirm("Are you sure you want to submit the query?")) {
-                saveAsDraft("Submit");
-              }
-            }}
-          >
-            Submit the Maker
-          </button>
-        </div>
-      )} */}
-      {( userPower === "Super Admin") && completeLevel !==10 && (
-        <div className="save-button-container">
-          <button className="submit-btn"
-            onClick={() => {
-              if (window.confirm("Are you sure you want to submit the query?")) {
-                saveAsDraft("Completed");
-              }
-            }}
-          >
-            Submit the Query to Vendor
-          </button>
-        </div>
-      )}
+                        <td className="px-4 py-3">
+                            {userRole === "Maker" && userPower === "Vendor User" ? (
+                                <TreeSelect
+                                    treeData={options}
+                                    value={row.treeValue}
+                                    onChange={(value, node) =>
+                                        handleInputChange(index, "RFP_Reference", { value, name: node?.name })
+                                    }
+                                    placeholder="Select"
+                                    treeDefaultExpandAll
+                                    style={{ width: "100%" }}
+                                />
+                            ) : (
+                                <TreeSelect
+                                    treeData={options}
+                                    value={row.treeValue}
+                                    style={{
+                                        width: "100%",
+                                        backgroundColor: "#f5f5f5",
+                                        color: "#000",
+                                        cursor: "default",
+                                    }}
+                                    open={false}
+                                    onClick={(e) => e.preventDefault()}
+                                    onKeyDown={(e) => e.preventDefault()}
+                                />
+                            )}
+                        </td>
+
+                        <td className="px-4 py-3">
+                            {userRole === "Maker" && userPower === "Vendor User" ? (
+                                <textarea
+                                    maxLength="400"
+                                    value={row.existingDetails}
+                                    onChange={(e) => handleInputChange(index, "existingDetails", e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#2F4F8B] bg-white"
+                                />
+                            ) : (
+                                row.existingDetails
+                            )}
+                        </td>
+
+                        <td className="px-4 py-3">
+                            {userRole === "Maker" && userPower === "Vendor User" ? (
+                                <textarea
+                                    maxLength="400"
+                                    value={row.clarification}
+                                    onChange={(e) => handleInputChange(index, "clarification", e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#2F4F8B] bg-white"
+                                />
+                            ) : (
+                                row.clarification
+                            )}
+                        </td>
+
+                        {(row.clarificationGiven || userPower === "Super Admin" || userPower === "User") && (
+                            <td className="px-4 py-3">
+                                {userRole === "Maker" && userPower === "User" ? (
+                                    <input
+                                        type="text"
+                                        maxLength="400"
+                                        value={row.clarificationGiven}
+                                        onChange={(e) => handleInputChange(index, "clarificationGiven", e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2F4F8B]"
+                                    />
+                                ) : (
+                                    row.clarificationGiven
+                                )}
+                            </td>
+                        )}
+                    </tr>
+                ))}
+            </tbody>
+        </table>
     </div>
+
+    {/* Add Row */}
+    {userRole === "Maker" && userPower === "Vendor User" && completeLevel !== 10 && (
+        <button
+            className="mt-4 px-5 py-2.5 bg-[#B2541B] text-white text-sm font-semibold rounded-md shadow transition"
+            onClick={addRow}
+        >
+            Add Row
+        </button>
+    )}
+
+    {/* Save Buttons */}
+    {(userPower === "Vendor User" || userPower === "User") && completeLevel !== 10 && (
+        <div className="flex flex-wrap gap-4 mt-6">
+            {userRole === "Maker" && (
+                <button
+                    className="px-6 py-2.5 bg-gray-200 text-gray-800 text-sm font-semibold rounded-md shadow transition"
+                    onClick={() => saveAsDraft("Save as Draft", { action: "Save as Draft" })}
+                >
+                    Save as Draft
+                </button>
+            )}
+            {userRole !== "Reviewer" && (
+                <button
+                    className="px-6 py-2.5 bg-[#2F4F8B] text-white text-sm font-semibold rounded-md shadow transition"
+                    onClick={() => {
+                        if (window.showConfirm("Are you sure you want to submit the query?", "This action cannot be undone.", "warning")) {
+                            saveAsDraft("Submit");
+                        }
+                    }}
+                >
+                    Submit
+                </button>
+            )}
+        </div>
+    )}
+
+    {/* Vendor Admin / Super Admin */}
+    {(userPower === "Vendor Admin" || userPower === "Super Admin") && completeLevel !== 10 && (
+        <div className="mt-6">
+            <button
+                className="px-6 py-2.5 bg-[#2F4F8B] text-white text-sm font-semibold rounded-md shadow transition"
+                onClick={() => {
+                    if (window.confirm("Are you sure you want to submit the query?")) {
+                        saveAsDraft("Submit");
+                    }
+                }}
+            >
+                Submit the Query
+            </button>
+        </div>
+    )}
+
+    {/* Super Admin → Completed */}
+    {userPower === "Super Admin" && completeLevel !== 10 && (
+        <div className="mt-6">
+            <button
+                className="px-6 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-md shadow  transition"
+                onClick={() => {
+                    if (window.confirm("Are you sure you want to submit the query?")) {
+                        saveAsDraft("Completed");
+                    }
+                }}
+            >
+                Submit the Query to Vendor
+            </button>
+        </div>
+    )}
+
+</div>
+
   );
 };
 

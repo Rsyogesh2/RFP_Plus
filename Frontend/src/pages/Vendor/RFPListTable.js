@@ -190,6 +190,7 @@ const RFPListTable = () => {
 
   return (
     <div className="vendor-query-container1">
+      <h3 className="text-left text-xl font-semibold text-gray-800">View RFP Table</h3>
      <div style={{ overflowX: '10px', marginBottom: '20px' }}>
   <table
     style={{
@@ -233,7 +234,7 @@ const RFPListTable = () => {
               borderBottom: '1px solid #ccc',
             }}
           >
-            Action
+            
           </th>
         ))}
       </tr>
@@ -293,34 +294,31 @@ const RFPListTable = () => {
 
 
       {visibleState.vendor && userPower === "Super Admin" && (
-        <div style={{ display: "flex", gap: "8px", marginBottom: "15px" }}>
-          <select
-            style={{
-              width: "80%",
-              padding: "10px",
-              height: "40px",
-              boxSizing: "border-box",
-            }}
-            onChange={handleDropdownChangeVendor}
-          >
-            <option>Select Vendor</option>
-            {vendorNames.map((vName, index) => (
-              <option key={index} value={index}>
+       <div className="flex flex-wrap items-center gap-4 mb-4 px-5">
+
+    {/* Vendor Dropdown */}
+    <select
+        onChange={handleDropdownChangeVendor}
+        className="w-full md:w-72 p-2.5 border border-gray-300 rounded-md text-sm bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#2F4F8B] focus:border-[#2F4F8B] shadow-sm"
+    >
+        <option value="">Select Vendor</option>
+        {vendorNames.map((vName, index) => (
+            <option key={index} value={index}>
                 {vName.entity_name}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={fetchSubmittedRFP}
-            style={{
-              padding: "10px",
-              height: "40px",
-              boxSizing: "border-box",
-            }}
-          >
-            Fetch Data
-          </button>
-        </div>
+            </option>
+        ))}
+    </select>
+
+    {/* Fetch Button */}
+    <button
+        onClick={fetchSubmittedRFP}
+        className="px-6 py-2.5 bg-[#2F4F8B] text-white text-sm font-semibold rounded-md shadow hover:bg-[#1e3669] transition"
+    >
+        Fetch Data
+    </button>
+
+</div>
+
       )}
 
       {visibleState.vendorquery && <VendorQuery l1="Super Admin" rfpNo={selectedRfpNo} rfpTitle={selectedRfpTitle} />}

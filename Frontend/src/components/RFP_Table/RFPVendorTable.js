@@ -392,25 +392,30 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td>
                 <td><input type="radio" checked={item.N === 1 ? true : false ||item.SelectedOption==="N"?true:false} onChange={() => handleMandatoryChange("N", item, TableIndex, parentIndex, subIndex, index)}
                     name={`${item.Module_Code}-${subIndex}-${item.F2_Code}-${TableIndex}-${indexval}-${item.New_Code}`} /></td> */}
-                <td style={{ padding: "0px", height: "100%", textAlign: "center" }}>
+                <td style={{
+                    padding: "0px",
+                    height: "100%",
+                    textAlign: "center",
+                    fontWeight: "normal", // Important — force it here too!
+                }}>
                     {userRole === 'Maker' && (!FItem?.[0]?.vendor_level || FItem[0].vendor_level === 5) ? (
                         <textarea
-                        style={{
-                            border: "none",
-                            outline: "none",
-                            resize: "none",
-                            width: "100%",
-                            minHeight: "80px", // 👈 Ensures there's room for multiple lines
-                            height: "auto",     // 👈 Allows it to grow with content
-                            boxSizing: "border-box",
-                            padding: "4px",
-                            margin: 0,
-                            font: "inherit",
-                            display: "block",
-                            whiteSpace: "pre-wrap",
-                            wordBreak: "break-word",
-                            overflowWrap: "break-word",
-                          }}
+                            style={{
+                                border: "none",
+                                outline: "none",
+                                resize: "none",
+                                width: "100%",
+                                minHeight: "80px", // 👈 Ensures there's room for multiple lines
+                                height: "auto",     // 👈 Allows it to grow with content
+                                boxSizing: "border-box",
+                                padding: "4px",
+                                margin: 0,
+                                font: "inherit",
+                                display: "block",
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                                overflowWrap: "break-word",
+                            }}
                             value={item.Remarks}
                             onChange={(e) => handleCommentsChange(e, item)}
                         />
@@ -430,7 +435,7 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                             whiteSpace: "pre-wrap",
                             wordBreak: "break-word",
                             overflowWrap: "break-word",
-                          }}>{item.Remarks}</span>
+                        }}>{item.Remarks}</span>
                     )}
                 </td>
 
@@ -481,16 +486,16 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
         // console.log(f2FItem);
         return (
             <table className="item-table1">
-            <colgroup>
-              <col style={{ width: "40%" }} />
-              <col style={{ width: "6%" }} />
-              {APCN?.isAvailableChecked !== 0 && <col style={{ width: "6%" }} />}
-              {APCN?.isPartlyAvailableChecked !== 0 && <col style={{ width: "6%" }} />}
-              {APCN?.isCustomizableChecked !== 0 && <col style={{ width: "6%" }} />}
-              <col style={{ width: "6%" }} />
-              <col style={{ width: "30%" }} />
-              {/* <col style={{ width: "30%" }} /> */}
-          </colgroup>
+                <colgroup>
+                    <col style={{ width: "40%" }} />
+                    <col style={{ width: "6%" }} />
+                    {APCN?.isAvailableChecked !== 0 && <col style={{ width: "6%" }} />}
+                    {APCN?.isPartlyAvailableChecked !== 0 && <col style={{ width: "6%" }} />}
+                    {APCN?.isCustomizableChecked !== 0 && <col style={{ width: "6%" }} />}
+                    <col style={{ width: "6%" }} />
+                    <col style={{ width: "30%" }} />
+                    {/* <col style={{ width: "30%" }} /> */}
+                </colgroup>
                 <thead>
                     <tr className='header-row-vendor'>
                         <th>Requirement</th>
@@ -554,131 +559,209 @@ const RFPVendorTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
     }
 
     return (
-        <div className="rfp-table">
-            <div className="header">
-                <div className="title">
-                    <span>RFP No: {rfpNo || sidebarValue && sidebarValue[0]?.rfp_no}</span>
-                    <span>&nbsp;&nbsp; RFP Title: {rfpTitle || sidebarValue && sidebarValue[0]?.rfp_title}</span>
+        <div className="rfp-table p-6 rounded-xl space-y-6">
+
+            {/* RFP Header */}
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center border-b border-gray-300 pb-4 gap-4">
+
+                {/* Left: RFP No & Title */}
+                <div className="space-y-1">
+                    <div className="text-base font-bold text-[#2F4F8B]">
+                        RFP No: {rfpNo || sidebarValue?.[0]?.rfp_no}
+                    </div>
+                    <div className="text-base font-bold text-[#2F4F8B]">
+                        RFP Title: {rfpTitle || sidebarValue?.[0]?.rfp_title}
+                    </div>
                 </div>
-                <div className="labels">
-                    <span>M-Mandatory | O-Optional</span>
-                    <span>A-Available | P-Partly available | C-Customizable | N-Not available</span>
-                    <span>{FItem?.[0]?.vendor_status==="Completed"?"Completed":Number(FItem?.[0]?.Level) > 4 && Number(FItem?.[0]?.vendor_level) !== 4 ? "Vendor Level" :
-                    Number(FItem?.[0]?.Level) === 1 ? "Maker Stage" : Number(FItem?.[0]?.Level) === 2 ? "Authorizer Stage" :
-                        Number(FItem?.[0]?.Level) === 3 ? "Reviewer Stage" : ""} </span>
+
+                {/* Right: Labels */}
+                <div className="flex flex-wrap justify-end md:justify-end items-center gap-2 text-xs">
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
+                        M-Mandatory | O-Optional
+                    </span>
+
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
+                        A-Available | P-Partly | C-Customizable | N-Not
+                    </span>
+
+                    <span className={`px-3 py-1 rounded-full ${FItem?.[0]?.vendor_status === "Completed"
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-yellow-100 text-yellow-700'}`}>
+                        {FItem?.[0]?.vendor_status === "Completed"
+                            ? "Completed"
+                            : Number(FItem?.[0]?.Level) > 4 && Number(FItem?.[0]?.vendor_level) !== 4
+                                ? "Vendor Level"
+                                : Number(FItem?.[0]?.Level) === 1
+                                    ? "Maker Stage"
+                                    : Number(FItem?.[0]?.Level) === 2
+                                        ? "Authorizer Stage"
+                                        : Number(FItem?.[0]?.Level) === 3
+                                            ? "Reviewer Stage"
+                                            : ""}
+                    </span>
                 </div>
+
             </div>
 
-            <div className="module-header">
-                {/* start here */}
+
+            {/* Module Header */}
+            <div className="module-header space-y-6 w-full min-w-[100%] mx-auto">
+
                 {itemData && itemData.length > 0 && (
-                    <div>
-                        {itemData.map((item, index1) => {
-                            return (
-                                <div key={item.code} className='level1'>
+                    itemData.map((item, index1) => (
+                        <details key={item.code} className="border rounded-xl bg-white shadow p-4 space-y-4 w-full">
+                            <summary className="cursor-pointer text-md font-bold text-[#2F4F8B] list-none outline-none">
+                                {index1 + 1}. {item.name}
+                            </summary>
 
-                                    <span className='l1'> {index1 + 1 + ". "}{item.name} </span>
-                                    {item.l2.map((l2, index2) => {
-                                        const indexval = (index1 + 1) + "." + (Number(index2) + 1);
+                            {item.l2.map((l2, index2) => {
+                                const indexval = `${index1 + 1}.${index2 + 1}`;
 
-                                        return (
-                                            <div key={l2.code} className='level2'>
+                                return (
+                                    <details key={l2.code} className="pl-4 border rounded-lg bg-[#f9fafc] p-2 space-y-3 w-full">
 
-                                                <span className='l2'> {(index1 + 1) + "." + (Number(index2) + 1)}{" " + l2.name} </span>
-                                                {l2.l3 && l2.l3.length > 0 ? (
-                                                    <>
-                                                        {l2.l3.map((l3, index) => (
-                                                            <div key={l3.code} className='level3'>
-                                                                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                                                    <span className='l3'>{(index1 + 1) + "." + (Number(index2) + 1) + "." + (Number(index) + 1)}{" " + l3.name}</span>
-                                                                    <div className="mini-file-uploader">
-                                                                        {!l3.file ? (
-                                                                            <label className="mini-upload-btn">
-                                                                                <input
-                                                                                    type="file"
-                                                                                    onChange={(e) => handleFileChange(e, item.code, l2.code, l3.code)}
-                                                                                    hidden
-                                                                                />
-                                                                                📂
-                                                                            </label>
-                                                                        ) : (
-                                                                            <div className="mini-file-actions">
-                                                                                <button className="mini-action-btn" onClick={() => window.open(l3.fileURL, "_blank")}>👁 View</button>
-                                                                                <button className="mini-action-btn" onClick={() => handleDownload(l3.file)}>⬇ Download</button>
-                                                                                <button className="mini-action-btn" onClick={() => removeFile(item.code, l2.code, l3.code)}>🗑 Remove</button>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
+                                        <summary className="cursor-pointer text-sm font-semibold text-[#2F4F8B] px-2 py-1 ">
+                                            {indexval} {l2.name}
+                                        </summary>
 
-                                                                {/* <Tables l2={l2} index1={index1} f1={"f1"} index={index} /> */}
-                                                                {Tables(l3, index1, "f1", index, userRole)}
+                                        {l2.l3 && l2.l3.length > 0 ? (
+
+                                            l2.l3.map((l3, index) => {
+                                                const indexval3 = `${index1 + 1}.${index2 + 1}.${index + 1}`;
+                                                return (
+                                                    <div key={l3.code} className="space-y-2">
+
+                                                        {/* Level 3 Header Row */}
+                                                        <div className="flex justify-between items-center px-2 py-1">
+
+                                                            <span className="text-sm text-gray-800">
+                                                                {indexval3} {l3.name}
+                                                            </span>
+
+                                                            {/* File uploader */}
+                                                            <div className="flex space-x-2 text-xs">
+
+                                                                {!l3.file ? (
+                                                                    <label className="cursor-pointer text-blue-600 hover:text-blue-800">
+                                                                        <input
+                                                                            type="file"
+                                                                            onChange={(e) => handleFileChange(e, item.code, l2.code, l3.code)}
+                                                                            hidden
+                                                                        />
+                                                                        📂
+                                                                    </label>
+                                                                ) : (
+                                                                    <>
+                                                                        <button
+                                                                            className="text-green-600 hover:text-green-800"
+                                                                            onClick={() => window.open(l3.fileURL, "_blank")}
+                                                                        >
+                                                                            👁 View
+                                                                        </button>
+                                                                        <button
+                                                                            className="text-blue-600 hover:text-blue-800"
+                                                                            onClick={() => handleDownload(l3.file)}
+                                                                        >
+                                                                            ⬇ Download
+                                                                        </button>
+                                                                        <button
+                                                                            className="text-red-600 hover:text-red-800"
+                                                                            onClick={() => removeFile(item.code, l2.code, l3.code)}
+                                                                        >
+                                                                            🗑 Remove
+                                                                        </button>
+                                                                    </>
+                                                                )}
+
                                                             </div>
-                                                        ))}
-                                                    </>
-                                                ) : (
-                                                    Tables(l2, index1, "l3", index2, indexval, userRole)
-                                                    // Tables(l2, index1, "l3",index2)
-                                                    // <Tables l2={l2} index1={index1} f1={"l3"} index={index} />
-                                                )}
-                                            </div>
-                                        )
-                                    }
-                                    )}
-                                </div>
-                            )
 
-                        })}
-                    </div>
+                                                        </div>
+
+                                                        {/* Table Full Width */}
+                                                        <div className="w-full">
+                                                            {Tables(l3, index1, "f1", index, userRole)}
+                                                        </div>
+
+                                                    </div>
+                                                )
+                                            })
+
+                                        ) : (
+                                            <div className="w-full">
+                                                {Tables(l2, index1, "l3", index2, indexval, userRole)}
+                                            </div>
+                                        )}
+
+                                    </details>
+                                )
+                            })}
+                        </details>
+                    ))
                 )}
 
             </div>
-            {/* Show Submit button only for Authorizer or Reviewer */}
-            {/* {(userRole === "Authorizer" || userRole === "Reviewer") && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}), "Vendor User")}>
-                    Submit
-                </button>
-            )}
-            {(userRole === "Authorizer" || userRole === "Reviewer") && (
-                <button onClick={() => handleSave(constructPayload("Back to Maker", { action: "Back to Maker" }), "Vendor User")}>
-                    Back to Maker
-                </button>
-            )} */}
-            {(userRole === "Authorizer") && Number(FItem?.[0]?.vendor_level) === 6 && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Authorized Successfully")}>
-                    Authorize
-                </button>
-            )}
-            {(userRole === "Authorizer") && Number(FItem?.[0]?.vendor_level) === 6 && (
-                <button onClick={() => handleSave(constructPayload("Back to Maker", { action: "Back to Maker" }), userPower, "RFP Sent Back to Maker")}>
-                    Back to Maker
-                </button>
-            )}
-            {userRole === "Maker" && Number(FItem?.[0]?.vendor_level ?? FItem?.[0]?.Level) === 5 && (
-                <button onClick={() => handleSave(constructPayload("Save as Draft", { action: "Save as Draft" }), userPower, "RFP Saved as Draft")}>
-                    Save as Draft
-                </button>
-            )}
 
-            {userRole === "Maker" && Number(FItem?.[0]?.vendor_level ?? FItem?.[0]?.Level) === 5 && (
-                <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Submitted to Authorizer")}>
-                    Submit to Authorizer
-                </button>
-            )}
-            {userPower === "Vendor Admin" && FItem?.length > 0 &&
-                FItem.every(item => Number(item?.vendor_level) === 7) && (
-                    <button className="submitbtn" onClick={() => handleSave(constructPayload("Submit", { action: "Submit the RFP" }), "Vendor Admin", "RFP Submitted to Bank")}>
-                        Submit the RFP
-                    </button>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 justify-end pt-6 border-t border-gray-300 mt-8">
+
+                {(userRole === "Authorizer") && Number(FItem?.[0]?.vendor_level) === 6 && (
+                    <>
+                        <button
+                            className="px-5 py-2 bg-[#2F4F8B] text-white rounded-xl hover:bg-[#1e3669] transition"
+                            onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Authorized Successfully")}
+                        >
+                            Authorize
+                        </button>
+
+                        <button
+                            className="px-5 py-2 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 transition"
+                            onClick={() => handleSave(constructPayload("Back to Maker", { action: "Back to Maker" }), userPower, "RFP Sent Back to Maker")}
+                        >
+                            Back to Maker
+                        </button>
+                    </>
                 )}
-            {userPower === "Vendor Admin" && action === "Submit RFP" && FItem?.length > 0 &&
-                FItem.every(item => Number(item?.vendor_level) === 4) && (
-                    <div className="submitbtn">
-                        RFP is Submitted to Bank
-                    </div>
+
+                {userRole === "Maker" && Number(FItem?.[0]?.vendor_level ?? FItem?.[0]?.Level) === 5 && (
+                    <>
+                        <button
+                            className="px-5 py-2 bg-gray-100 text-gray-800 rounded-xl hover:bg-gray-200 transition"
+                            onClick={() => handleSave(constructPayload("Save as Draft", { action: "Save as Draft" }), userPower, "RFP Saved as Draft")}
+                        >
+                            Save as Draft
+                        </button>
+
+                        <button
+                            className="px-5 py-2 bg-[#2F4F8B] text-white rounded-xl hover:bg-[#1e3669] transition"
+                            onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Submitted to Authorizer")}
+                        >
+                            Submit to Authorizer
+                        </button>
+                    </>
                 )}
+
+                {userPower === "Vendor Admin" && FItem?.length > 0 &&
+                    FItem.every(item => Number(item?.vendor_level) === 7) && (
+                        <button
+                            className="px-5 py-2 bg-[#2F4F8B] text-white rounded-xl hover:bg-[#1e3669] transition"
+                            onClick={() => handleSave(constructPayload("Submit", { action: "Submit the RFP" }), "Vendor Admin", "RFP Submitted to Bank")}
+                        >
+                            Submit the RFP
+                        </button>
+                    )}
+
+                {userPower === "Vendor Admin" && action === "Submit RFP" && FItem?.length > 0 &&
+                    FItem.every(item => Number(item?.vendor_level) === 4) && (
+                        <div className="px-5 py-2 bg-green-100 text-green-700 rounded-xl">
+                            RFP is Submitted to Bank
+                        </div>
+                    )}
+
+            </div>
 
         </div>
+
     );
 };
 

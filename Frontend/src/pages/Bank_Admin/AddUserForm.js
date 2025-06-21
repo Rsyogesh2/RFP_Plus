@@ -105,8 +105,7 @@ const AddUserForm = () => {
 
   return (
     <div className="add-user-form">
-      <h3><HiUserAdd /> Add User</h3>
-
+      <h3 class="text-left">Add User</h3>
       <form onSubmit={handleSubmit}>
         <div>
           <label>User:</label>
@@ -137,11 +136,12 @@ const AddUserForm = () => {
         <div>
           <label>User Email ID:</label>
           <input
-            type="email"
+            type="text"
             name="email"
             placeholder="Enter email"
             value={formData.email} // Bind to formData
             onChange={handleChange}
+            autoComplete="off" // Disable browser autocomplete suggestions
           />
         </div>
         <div>

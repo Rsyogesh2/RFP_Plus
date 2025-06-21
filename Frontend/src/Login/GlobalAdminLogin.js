@@ -105,15 +105,11 @@ const Login = ({ onLogin, showFP = false }) => {
         } else {
           console.log(rolesResult.roles);
           if (rolesResult.roles[0] === "Super Admin") {
-            // setRoles(rolesResult.roles);
-
           } else if (rolesResult.roles[0] === "Vendor Admin") {
             setRfpnumbers([rolesResult.results1[0].rfpNo]);
           }
           setRoles(rolesResult.roles);
         }
-
-
       } else {
         alert(rolesResult.message || "Failed to fetch roles.");
       }
