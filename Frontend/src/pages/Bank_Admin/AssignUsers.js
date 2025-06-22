@@ -215,7 +215,7 @@ const AssignUsers = () => {
 
   return (
     <div className="assign-users-container">
-      <h4>Assign Users</h4>
+      <h3>Assign Users</h3>
       <form
         onSubmit={async (e) => {
           e.preventDefault();

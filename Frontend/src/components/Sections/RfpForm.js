@@ -96,7 +96,7 @@ const RfpForm = ({ user, refresh  }) => {
 
   return (
     <div className="w-full max-w-4xl  px-10 py-2 bg-white rounded-2xl  space-y-8">
-    <h3 className="text-left text-xl font-semibold text-gray-800">Create New RFP</h3>
+    <h3>Create New RFP</h3>
   
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
       <div>

@@ -105,7 +105,7 @@ const AddUserForm = () => {
 
   return (
     <div className="add-user-form">
-      <h3 class="text-left">Add User</h3>
+      <h3>Add User</h3>
       <form onSubmit={handleSubmit}>
         <div>
           <label>User:</label>

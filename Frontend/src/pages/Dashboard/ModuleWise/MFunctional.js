@@ -176,8 +176,8 @@ const MFunctional = ({values1, funVendor1, vendorNames}) => {
 
         {/* Functional Score Card */}
         <div className="flex-1 p-6 bg-gradient-to-br from-[#eef3fa] to-[#f6f8fb] rounded-2xl shadow-lg border border-gray-200 space-y-4">
-            <h3 className="text-md font-bold text-[#2F4F8B] break-words">
-                Functional Score
+           <h3 className="text-lg font-bold text-[#2F4F8B] break-words text-center border-b border-[#2F4F8B] ">
+         Functional Score
             </h3>
             <Table
                 data={values.l2.map((l2Item) => {

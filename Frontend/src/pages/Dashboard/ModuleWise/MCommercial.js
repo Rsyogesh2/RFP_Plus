@@ -20,34 +20,32 @@ const vendors = [
 ];
 
 const Table = ({ data, headers }) => (
-<div className="mx-4">
-<table className="w-full text-sm text-gray-800">
-  <colgroup>
-    <col style={{ width: "auto", height: "20px" }} />
-    <col style={{ width: "20px", height: "20px" }} />
-    <col style={{ width: "auto", height: "20px" }} />
-  </colgroup>
-  <thead className="bg-gray-100 text-left text-xs uppercase tracking-wider text-gray-600 h-12">
-    <tr>
-      {headers.map((header, index) => (
-        <th key={index} className="px-4 py-3 border-b border-gray-300">{header}</th>
-      ))}
-    </tr>
-  </thead>
-  <tbody>
-    {data && data.map((row, index) => (
-      <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-        {Object.entries(row).map(([key, value], i) => (
-          <td key={i} className="px-4 py-2 border-b border-gray-200">{value}</td>
+  <div className="overflow-x-auto">
+    <table className="w-full text-sm text-gray-800 table-auto border-separate border-spacing-0">
+      <colgroup>
+        <col style={{ width: "65%" }} />
+        <col style={{ width: "35%" }} />
+      </colgroup>
+      <thead className="bg-gray-100 text-left text-xs uppercase tracking-wider text-gray-600 h-12">
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} className="px-3 py-2 border-b border-gray-300">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data && data.map((row, index) => (
+          <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+            {Object.entries(row).map(([key, value], i) => (
+              <td key={i} className="px-3 py-2 border-b border-gray-200 text-center">{value}</td>
+            ))}
+          </tr>
         ))}
-      </tr>
-    ))}
-  </tbody>
-</table>
+      </tbody>
+    </table>
   </div>
-
-
 );
+
 
 const Commercial = ({ values, comVendor, vendorNames }) => {
   const vendorRef = useRef(null);
@@ -110,19 +108,23 @@ const Commercial = ({ values, comVendor, vendorNames }) => {
     <div className="score-section flex flex-col lg:flex-row gap-8 items-stretch">
 
         {/* Benchmark Score Card */}
-      <div className="w-full lg:w-1/3 self-stretch flex flex-col justify-center p-6 bg-gradient-to-br from-[#eef3fa] to-[#f6f8fb] rounded-2xl shadow-lg border border-gray-200 space-y-6">
+    <div className="w-full lg:w-1/2 xl:w-1/3 self-stretch flex flex-col p-6 bg-gradient-to-br from-[#eef3fa] to-[#f6f8fb] rounded-2xl shadow-lg border border-gray-200 space-y-6">
 
-    <h3 className="text-lg font-bold text-[#2F4F8B] break-words text-center border-b border-[#2F4F8B] pb-2">
-        Benchmark
-    </h3>
+  <h3 className="text-lg font-bold text-[#2F4F8B] break-words text-center border-b border-[#2F4F8B] ">
+    Benchmark
+  </h3>
 
-    <Table
-        className="w-full text-sm text-gray-800 text-center"
-        data={values}
-        headers={["Commercial Score", "Benchmark Score", "%"]}
-    />
+  <div className="flex-grow">
+   <Table
+  data={values}
+  headers={["Commercial Score", "Benchmark Score", "%"]}
+  colWidths={["50%", "40%", "10%"]}
+/>
+
+  </div>
 
 </div>
+
 
         {/* Vendor Tables */}
         <div className="w-full lg:w-2/3 overflow-x-auto pb-2">

@@ -14,12 +14,15 @@ body {
 }
  /* Headers */
  h3 {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-  color: #333333;
-  border-bottom: 2px solid #4caf50;
-  padding-bottom: 10px;
+  font-size: 1.2rem;           /* slightly bigger */
+  font-weight: 600;            /* bold */
+  margin-bottom: 16px;         /* a little smaller margin */
+  padding-bottom: 8px;         /* balanced padding */
+  border-bottom: 2.5px solid #2F4F8B; /* thicker underline for emphasis */
+  letter-spacing: 0.5px;       /* slight letter spacing for clarity */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* clean modern font */        /* center aligned (your use case) */
 }
+
 
 .HomePage-container {
   padding-top: 5px;
@@ -46,7 +49,6 @@ body {
   margin-bottom: 20px;
   /* color: #02735E; */
   font-size: 1.2rem;
-  font-weight: bold;
 }
 .add-user-form form div {
   margin-bottom: 15px;

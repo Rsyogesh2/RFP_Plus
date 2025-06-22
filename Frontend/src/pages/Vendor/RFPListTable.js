@@ -190,7 +190,7 @@ const RFPListTable = () => {
 
   return (
     <div className="vendor-query-container1">
-      <h3 className="text-left text-xl font-semibold text-gray-800">View RFP Table</h3>
+      <h3>View RFP Table</h3>
      <div style={{ overflowX: '10px', marginBottom: '20px' }}>
   <table
     style={{

@@ -153,11 +153,11 @@ const ModuleList = forwardRef(({ title, url }, ref) => {
 
     return (
         <div className="bg-white p-6 rounded-xl w-full max-w-3xl">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-6">{title}</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-6">{title}</h2>
 
             <div className="rounded-lg overflow-hidden border border-gray-200">
                 <table className="w-full text-sm text-gray-800">
-                    <thead className="bg-gray-100 text-left text-gray-600 uppercase text-xs tracking-wider">
+                    <thead className="bg-gray-100 text-left text-gray-600 uppercase text-lg tracking-wider">
                         <tr>
                             <th className="px-4 py-3">Modules</th>
                             <th className="px-4 py-3 text-center">Select</th>
@@ -168,13 +168,13 @@ const ModuleList = forwardRef(({ title, url }, ref) => {
                             <React.Fragment key={index}>
                                 <tr className="border-t hover:bg-gray-50 transition duration-200">
                                     <td
-                                        className="px-4 py-3 font-medium text-blue-700 cursor-pointer whitespace-normal"
+                                        className="px-4 py-3 font-medium text-[#2F4F8B]-700 cursor-pointer whitespace-normal"
                                         onClick={() => toggleExpand(index)}
                                     >
                                         {module.name}
                                     </td>
                                     <td
-                                        className="px-4 py-3 cursor-pointer text-blue-600"
+                                        className="px-4 py-3 cursor-pointer text-[#2F4F8B]"
                                         onClick={() => toggleExpand(index)}
                                     >
                                         <div className="flex justify-center items-center text-xl">

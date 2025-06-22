@@ -80,7 +80,7 @@ const ViewModifyUserTable = () => {
 
   return (
     <div className="view-modify-table-container">
-      <h4>View / Modify User</h4>
+      <h3>View / Modify User</h3>
       <table className="user-table">
         <thead>
           <tr>

@@ -154,7 +154,7 @@ const VendorAdmin = () => {
     <div className="vendor-admin-container">
       {/* <h4>Vendor Admin</h4> */}
       <div className="vendor-list-container">
-      <h3 className="text-left text-xl font-semibold text-gray-800">Vendor Admin List</h3>
+      <h3>Vendor Admin List</h3>
       <table className="vendor-table">
         <thead>
           <tr>
