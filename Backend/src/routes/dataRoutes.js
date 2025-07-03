@@ -1995,6 +1995,9 @@ router.get('/loadContents-initial', async (req, res) => {
     console.log("loadContents-initial");
     const { userName, userPower, userRole, rfpNumber } = req.query;// Destructure checkedItems from request body
     var fItems = [];
+    let currentStage = null;
+    let level;
+           
     let qustring;
     if (userRole == "Maker") {
       qustring = "is_maker=1"
@@ -2105,6 +2108,7 @@ router.get('/loadContents-initial', async (req, res) => {
             let results2 = [];
             let unmatchedModuleCodes = [];
             let finalResults = [];
+            
             // Query 1: Fetch data for "User"
             if (userPower === "User" ) {
 
@@ -2142,8 +2146,6 @@ router.get('/loadContents-initial', async (req, res) => {
                 console.log("prodCode");
                 // prodCode.push(null)
                 console.log(prodCode);
-
-                
 
                 // Ensure there are values in prodCode; otherwise, use a default invalid condition
                 const productPlaceholders = prodCode.length > 0 ? prodCode.map(() => '?').join(', ') : 'NULL';
@@ -2184,11 +2186,10 @@ router.get('/loadContents-initial', async (req, res) => {
                 FROM RFP_FunctionalItem_draft
                 WHERE Module_Code IN (${combinedArray.map(() => '?').join(', ')}) 
                 AND RFP_No = ? and (Status ="Bank_Pending_Authorization" OR Level >=2)
-                
             `;
-            //and Status ="Bank_Pending_Authorization" and level='2'
-             // Execute first query
+            // Execute first query
             [results2] = await db.query(queryString2, values2);
+           
             // console.log(results2)
         
             combinedData = [...combinedData,...results2]
@@ -2208,6 +2209,32 @@ router.get('/loadContents-initial', async (req, res) => {
           combinedData = [...combinedData,...results2]
           } 
                 
+          const [levelRows] = await db.query(
+              `SELECT DISTINCT Level FROM RFP_FunctionalItem_draft WHERE RFP_No = ?`,
+              [res.rfp_no]
+            );
+
+            // Determine current stage based on priority
+            const levels = levelRows.map(row => row.Level);
+            if (levels.includes(1)) {
+              // currentStage = 'Maker Stage';
+              level=1;
+            } else if (levels.includes(2)) {
+              // currentStage = 'Authorizer Stage';
+              level=2;
+            } else if (levels.includes(3)) {
+              // currentStage = 'Reviewer Stage';
+              level=3;
+            }  else if (levels.includes(4)) {
+              // currentStage = 'Reviewer Stage';
+              level=4;
+            } else {
+              // currentStage = 'Vendor Stage';
+              level=5;
+            }
+
+            console.log("Current level:", level);
+
           }else if (userPower === "Vendor User" || userPower === "Vendor Admin") {
              // Fetch created_by from vendor_users_table
              let createdby =[];
@@ -2505,7 +2532,8 @@ router.get('/loadContents-initial', async (req, res) => {
     // Finalize response
     if (data.l1.length > 0) {
       res.json({ success: true, itemDetails: data, functionalItemDetails: fItems,
-        entityName:userDetails[0].entity_Name });
+        entityName:userDetails[0].entity_Name, level
+            });
     } else {
       res.status(404).json({ error: "No sub-items found for these modules" });
     }

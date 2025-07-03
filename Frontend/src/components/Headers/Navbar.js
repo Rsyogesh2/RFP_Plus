@@ -20,7 +20,7 @@ const Navbar = ({ handleLogout,handleChangePassword }) => {
       setIsHovered(false);
     }, 300); // Delay hiding by 300ms
   };
-    const { name,userRole,userPower,sidebarValue,moduleData,setRfpNumber,rfpNumber } = useContext(AppContext);
+    const { name,userName,userRole,userPower,sidebarValue,moduleData,setRfpNumber,rfpNumber } = useContext(AppContext);
     const handleClearAndLogout = () => {
       setRfpNumber(""); // Clear RFP Number first
       setTimeout(() => {
@@ -31,7 +31,7 @@ const Navbar = ({ handleLogout,handleChangePassword }) => {
       // Logic to handle password change
       console.log("Change Password clicked");
       setTimeout(() => {
-        handleChangePassword(); // Then call logout
+        handleChangePassword(userName); // Then call logout
       }, 0); 
     }
   return (

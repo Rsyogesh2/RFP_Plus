@@ -9,7 +9,7 @@ import RFPVendorTable from './components/RFP_Table/RFPVendorTable.js';
 import OTPVerification from './Login/OTPLogin.js';
 import HomePage from './pages/HomePage.js';
 import Header from './components/Headers/Header.js';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate  } from "react-router-dom";
 import Login from "./Login/GlobalAdminLogin";
 // import SuperUserAdminLogin from "./Login/SuperUserAdminLogin";
 // import UserLogin from "./Login/UserLogin";
@@ -25,6 +25,7 @@ function App() {
     isAuthenticated: false,
     userType: null, // Could be "GlobalAdmin", "SuperUserAdmin", or "User"
   });
+// const navigate = useNavigate();
 
   const handleLogin = (userType, credentials) => {
     console.log(`${userType} logged in`);
@@ -45,11 +46,13 @@ function App() {
       .catch((error) => console.error('Error during fetch:', error));
   }, []);
   const handleLogout = () => {
-    setAuthState({ isAuthenticated: false, userType: null });
+    window.location.reload();
+    // setAuthState({ isAuthenticated: false, userType: null });
   };
-  const handleChangePassword = () => {
+  const handleChangePassword = (userName) => {
     console.log("Change Password clicked in App.js");
-    setAuthState({ isAuthenticated: false, userType: null });
+    // setAuthState({ isAuthenticated: false, userType: null });
+   window.location.href = `/reset-password?email=${userName}`;
     // return <Navigate to="/#" />; // ✅ correct usage
   };
   // Protected Route Component

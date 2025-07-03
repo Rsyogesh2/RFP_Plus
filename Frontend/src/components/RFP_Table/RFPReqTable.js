@@ -823,18 +823,19 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                         M-Mandatory | O-Optional
                     </span>
                     {(
-                        Number(FItem?.[0]?.Level) > 4 && Number(FItem?.[0]?.vendor_level) !== 4 ? "Vendor Level" :
-                            Number(FItem?.[0]?.Level) === 1 ? "Maker Stage" :
-                                Number(FItem?.[0]?.Level) === 2 ? "Authorizer Stage" :
-                                    Number(FItem?.[0]?.Level) === 3 ? "Reviewer Stage" : ""
+                        Number(moduleData?.level) > 4 && Number(moduleData?.vendor_level) !== 4 ? "Vendor Level" :
+                            Number(moduleData?.level) === 1 ? "Maker Stage" :
+                                Number(moduleData?.level) === 2 ? "Authorizer Stage" :
+                                    Number(moduleData?.level) === 3 ? "Reviewer Stage" : ""
                     ) && (
                             <span className="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">
-                                {Number(FItem?.[0]?.Level) > 4 && Number(FItem?.[0]?.vendor_level) !== 4 ? "Vendor Level" :
-                                    Number(FItem?.[0]?.Level) === 1 ? "Maker Stage" :
-                                        Number(FItem?.[0]?.Level) === 2 ? "Authorizer Stage" :
-                                            Number(FItem?.[0]?.Level) === 3 ? "Reviewer Stage" : ""}
+                                {Number(moduleData?.level) > 4 && Number(moduleData?.vendor_level) !== 4 ? "Vendor Level" :
+                                    Number(moduleData?.level) === 1 ? "Maker Stage" :
+                                        Number(moduleData?.level) === 2 ? "Authorizer Stage" :
+                                            Number(moduleData?.level) === 3 ? "Reviewer Stage" : ""}
                             </span>
                         )}
+
                 </div>
 
             </div>
@@ -905,10 +906,10 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
             </div>
 
             {/* Show Submit button only for Authorizer or Reviewer */}
-            {(userRole === "Authorizer") && (
+            {userRole === "Authorizer" && (
                 <>
-                    {/* If any Level === 2, show Authorize */}
-                    {FItem?.some(item => Number(item?.Level) === 2) && (
+                    {/* Show Authorize if level is 2 */}
+                    {Number(moduleData?.level) === 2 && (
                         <button
                             className="submitbtn"
                             onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Authorized Successfully")}
@@ -917,8 +918,8 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                         </button>
                     )}
 
-                    {/* If all Level === 2, show Back to Maker */}
-                    {FItem?.length > 0 && FItem.every(item => Number(item?.Level) === 2) && (
+                    {/* Show Back to Maker if level is 2 (assuming it still applies in this simplified form) */}
+                    {Number(moduleData?.level) === 2 && (
                         <button
                             onClick={() =>
                                 handleSave(
@@ -934,27 +935,53 @@ const RFPReqTable = ({ l1, rfpNo = "", rfpTitle = "", action = "" }) => {
                 </>
             )}
 
-            {/* Optional Save as Draft button for Maker */}
-            {userRole === "Maker" && FItem?.some(item => item?.Level === undefined || Number(item?.Level) === 1)
-                && (
+            {/* Maker actions */}
+            {userRole === "Maker" && (
+                Number(moduleData?.level) === 1 || moduleData?.level === undefined
+            ) && (
                     <>
                         <button
-                            onClick={() => handleSave(constructPayload("Save as Draft", { action: "Save as Draft" }), userPower, "RFP Saved as Draft")}>
+                            onClick={() =>
+                                handleSave(
+                                    constructPayload("Save as Draft", { action: "Save as Draft" }),
+                                    userPower,
+                                    "RFP Saved as Draft"
+                                )
+                            }
+                        >
                             Save as Draft
                         </button>
-                        <button className="submitbtn"
-                            onClick={() => handleSave(constructPayload("Submit", {}), userPower, "RFP Submitted to Authorizer")}>
+                        <button
+                            className="submitbtn"
+                            onClick={() =>
+                                handleSave(
+                                    constructPayload("Submit", {}),
+                                    userPower,
+                                    "RFP Submitted to Authorizer"
+                                )
+                            }
+                        >
                             Submit to Authorizer
                         </button>
                     </>
                 )}
 
-            {userPower === "Super Admin" && FItem?.every(item => Number(item?.Level) === 3) && (
-                <button className="submitbtn"
-                    onClick={() => handleSave(constructPayload("Finalize the RFP", {}), userPower, "RFP Finalized Successfully")}>
+            {/* Finalize RFP for Super Admin */}
+            {userPower === "Super Admin" && Number(moduleData?.level) === 3 && (
+                <button
+                    className="submitbtn"
+                    onClick={() =>
+                        handleSave(
+                            constructPayload("Finalize the RFP", {}),
+                            userPower,
+                            "RFP Finalized Successfully"
+                        )
+                    }
+                >
                     Finalize the RFP
                 </button>
             )}
+
 
         </div>
     );
